@@ -5,8 +5,10 @@
 # http://www.rstudio.com/shiny/
 # 
 # shiny::runApp(appDir = "/home/htreutle/Code/Java/MetSWATH_GUI")
+# shiny::runApp(appDir = "/home/htreutle/Code/Java/MetSWATH_GUI", host="0.0.0.0")
 # 
 # shiny::runGist("https://gist.github.com/pssguy/5199135")
+# shiny::runGitHub("ksavin/SelectableRows")
 # 
 # shinyapps::setAccountInfo(name='treutler', token='9E626539E372514577A0015CD5171A60', secret='2aGCt7oyx8VA+WP45/ZDCsIqF5dFIYqa2pAlC5lI')
 # shinyapps::deployApp(appDir = "/home/htreutle/Code/Java/MetSWATH_GUI")
@@ -16,9 +18,13 @@
 # 
 # 
 
+library(htmltools)
 library(shiny)
 library(shinyBS)
 library(shinyjs)
+library(DT)
+
+#source("ClusteringMS2SpectraGUI.R")
 
 shinyUI(
   ui = navbarPage(title = "MetSWATH GUI", 
