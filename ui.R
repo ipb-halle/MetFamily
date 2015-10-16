@@ -16,6 +16,9 @@
 # 
 # htreutle@ipb-halle.de
 # 
+# sudo cp /home/htreutle/Code/Java/MetSWATH_GUI/ClusteringMS2SpectraGUI.R /vol/R/shiny/srv/shiny-server/MetFam/
+# sudo cp /home/htreutle/Code/Java/MetSWATH_GUI/server.R /vol/R/shiny/srv/shiny-server/MetFam/
+# sudo cp /home/htreutle/Code/Java/MetSWATH_GUI/ui.R /vol/R/shiny/srv/shiny-server/MetFam/
 # 
 
 library(htmltools)
@@ -27,333 +30,496 @@ library(DT)
 #source("ClusteringMS2SpectraGUI.R")
 
 shinyUI(
-  ui = navbarPage(title = "MetSWATH GUI", 
+  ui = navbarPage(title = "MetFam", 
+    ##########################################################################################
+    ##########################################################################################
     ##########################################################################################
     ##########################################################################################
     ## tab run
     tabPanel(
       title = "Run",
-      column(width = 4,
-        tabsetPanel(
-          id = "runTabs",
-          ##############################################################################################
-          ## file input
-          tabPanel(
-            shinyjs::useShinyjs(),
-            title = "File input",
-            wellPanel(
-              h4("File input"),
-              p("Please choose a fragment matrix file"),
-              fileInput(
-                multiple = FALSE,
-                inputId = 'matrixFile', 
-                #label = 'Choose fragment matrix file',
-                label = NULL,
-                accept = c('text/csv', 'text/comma-separated-values,text/plain')
-              )
-            ),## well panel
+      ##############################################################################################
+      ##############################################################################################
+      ##############################################################################################
+      ## side panel
+      conditionalPanel(
+        condition = "output.showSideBar",
+        column(width = 4,
+          tabsetPanel(
+            id = "runTabs",
             ##############################################################################################
-            ## file info
-            wellPanel(
+            ##############################################################################################
+            ## file input
+            tabPanel(
+              shinyjs::useShinyjs(),
+              title = "File input",
+              wellPanel(
+                h4("File input"),
+                p("Please choose a fragment matrix file"),
+                bsTooltip(id = "matrixFile", title = "Press to choose an input file", placement = "bottom", trigger = "hover"),
+                fileInput(
+                  multiple = FALSE,
+                  inputId = 'matrixFile', 
+                  label = NULL, #label = 'Choose fragment matrix file',
+                  accept = c('text/csv', 'text/comma-separated-values,text/plain')
+                )
+              ),## well panel
+              wellPanel(
+                conditionalPanel(
+                  condition = "output.showGUI",
+                  h4("Processed file"),
+                  bsTooltip(id = "fileInfo", title = "The input file", placement = "bottom", trigger = "hover"),
+                  verbatimTextOutput(outputId = "fileInfo")
+                ),## conditional panel
+                conditionalPanel(
+                  condition = "!output.showGUI",
+                  h4("Please import a data file")
+                )## conditional panel
+              )## well panel
+            ),## tab panel
+            ##############################################################################################
+            ##############################################################################################
+            ## global MS2 filter
+            tabPanel(
+              title = "MS2 filter",
+              shinyjs::useShinyjs(),
               conditionalPanel(
                 condition = "output.showGUI",
-                h4("Processed file"),
-                bsTooltip(id = "fileInfo", title = "The input file", placement = "bottom", trigger = "hover"),
-                verbatimTextOutput("fileInfo")
+                wellPanel(
+                  ##############################################################################################
+                  ## MS2 filter
+                  h4("Global MS2 filter"),
+                  ##############################################################################################
+                  ## MS2 plot
+                  fluidRow(
+                    column(width = 6,
+                           div(style="float:left",
+                               h4("Fragment masses")
+                           )
+                    ),##column
+                    column(width = 6,
+                           div(style="float:right",
+                               bsTooltip(id = "showFragmentPlot", title = "Display fragment masses", placement = "bottom", trigger = "hover"),
+                               checkboxInput(inputId = "showFragmentPlot", label = "Show abundant fragments", value = FALSE)
+                           )
+                    )##column
+                  ),##row
+                  conditionalPanel(
+                    condition = "input.showFragmentPlot",
+                    
+                    plotOutput(height = 200, 
+                               outputId = "fragmentPlot", 
+                               #hover    = "fragmentPlot_hover",
+                               hover    = hoverOpts(
+                                 id = "fragmentPlot_hover",
+                                 delay = 50, 
+                                 delayType = "debounce"
+                               ),
+                               click    = "fragmentPlot_click",
+                               dblclick = "fragmentPlot_dblclick",
+                               #brush    = "fragmentPlot_brush"
+                               brush    = brushOpts(
+                                 id = "fragmentPlot_brush",
+                                 resetOnNew = TRUE,
+                                 direction = "x",
+                                 delay = 00,
+                                 delayType = "debounce"
+                               )
+                    )
+                    ## TODO
+                  ),
+                  
+                  fluidRow(
+                    column(width = 11,
+                           bsTooltip(id = "globalFilter_ms2_masses1", title = "The MS2 spectra should include the following fragment / neutral loss mass(es) (separated by \",\")<p>E.g. 96.969, -162.053 for a compound with a phosphate - fragment (H<sub>2</sub>PO<sub>4</sub>-) and a hexose - neutral loss (C<sub>6</sub>O<sub>5</sub>H<sub>10</sub>)", placement = "bottom", trigger = "hover"),
+                           textInput(inputId = "globalFilter_ms2_masses1", label = "MS2 spectrum includes mass(es) #1")
+                    ),
+                    column(width = 1,
+                           h4("or")
+                    )
+                  ),
+                  fluidRow(
+                    column(width = 11,
+                           bsTooltip(id = "globalFilter_ms2_masses2", title = "The MS2 spectra should include the following fragment / neutral loss mass(es) (separated by \",\")<p>E.g. 96.969, -162.053 for a compound with a phosphate - fragment (H<sub>2</sub>PO<sub>4</sub>-) and a hexose - neutral loss (C<sub>6</sub>O<sub>5</sub>H<sub>10</sub>)", placement = "bottom", trigger = "hover"),
+                           textInput(inputId = "globalFilter_ms2_masses2", label = "MS2 spectrum includes mass(es) #2")
+                    ),
+                    column(width = 1,
+                           h4("or")
+                    )
+                  ),
+                  fluidRow(
+                    column(width = 11,
+                           bsTooltip(id = "globalFilter_ms2_masses3", title = "The MS2 spectra should include the following fragment / neutral loss mass(es) (separated by \",\")<p>E.g. 96.969, -162.053 for a compound with a phosphate - fragment (H<sub>2</sub>PO<sub>4</sub>-) and a hexose - neutral loss (C<sub>6</sub>O<sub>5</sub>H<sub>10</sub>)", placement = "bottom", trigger = "hover"),
+                           textInput(inputId = "globalFilter_ms2_masses3", label = "MS2 spectrum includes mass(es) #3")
+                    ),
+                    column(width = 1,
+                           h4("")
+                    )
+                  ),
+                  bsTooltip(id = "globalFilter_ms2_ppm", title = "The MS2 spectra fragment matching allows this error in PPM", placement = "bottom", trigger = "hover"),
+                  textInput(inputId = "globalFilter_ms2_ppm", label = "PPM"),
+                  ##############################################################################################
+                  ## filter button
+                  bsTooltip(id = "applyGlobalMS2filters", title = "Press to determine the global set of precursors which fulfill the given filter criteria", placement = "bottom", trigger = "hover"),
+                  actionButton(inputId = "applyGlobalMS2filters", label = "Apply MS2 filter")
+                ),## well
+                wellPanel(
+                  h4("Filtered precursors"),
+                  bsTooltip(id = "globalMS2filteredPrecursors", title = "The number of precursors which fulfill the given MS2 filter criteria", placement = "bottom", trigger = "hover"),
+                  verbatimTextOutput("globalMS2filteredPrecursors"),
+                  conditionalPanel(
+                    condition = "output.globalMS2filterValid",
+                    bsTooltip(id = "downloadGlobalMS2filteredPrecursors", title = "Download the set of precursors which fulfil the given criteria", placement = "bottom", trigger = "hover"),
+                    downloadButton('downloadGlobalMS2filteredPrecursors', 'Download filtered precursors')
+                  )
+                )## well
               ),## conditional panel
               conditionalPanel(
                 condition = "!output.showGUI",
-                h4("Please import a data file")
+                wellPanel(
+                  h4("Please import a data file")
+                )
               )## conditional panel
-            )## well panel
-          ),## tab panel
-          tabPanel(
-            title = "Filter",
-            shinyjs::useShinyjs(),
-            wellPanel(
+            ),## tab panel
+            ##############################################################################################
+            ##############################################################################################
+            ## HCA
+            tabPanel(
+              title = "HCA", 
+              shinyjs::useShinyjs(),
               conditionalPanel(
-                condition = "output.showGUI",
-                ##############################################################################################
-                ## filter
-                h4("Untargeted"),
-                #conditionalPanel(
-                #  condition = 'input.analysisType == "HCA"',
+                condition = "output.showGUI && output.globalMS2filterValid",
+                wellPanel(
+                  ##############################################################################################
+                  ## HCA group and abundance filter
                   fluidRow(
-                    column(
-                      width = 6,
-                      tags$div(title="Please select the first group",
-                        selectInput(inputId = "groupOne", label = "Group 1", choices = c(""))
+                    column(width = 6,
+                           div(style="float:left",
+                               h4("MS1 Abundance filter")
+                           )
+                    ),##column
+                    column(width = 6,
+                           div(style="float:right",
+                               bsTooltip(id = "showHCAfilterOptions", title = "Display filter settings", placement = "bottom", trigger = "hover"),
+                               checkboxInput(inputId = "showHCAfilterOptions", label = "Show filter settings", value = TRUE)
+                           )
+                    )##column
+                  ),##row
+                  conditionalPanel(
+                    condition = "input.showHCAfilterOptions",
+                    fluidRow(
+                      column(
+                        width = 6,
+                        tags$div(
+                          title="Please select the first group",
+                          radioButtons(inputId = "hcaFilterGroupOne", label = "Group 1", choices = c(""))
+                          #selectInput(inputId = "groupOne", label = "Group 1", choices = c(""))
+                        )
+                      ),
+                      column(
+                        width = 6,
+                        tags$div(
+                          title="Please select the second group",
+                          radioButtons(inputId = "hcaFilterGroupTwo", label = "Group 2", choices = c(""))
+                          #selectInput(inputId = "groupTwo", label = "Group 2", choices = c(""))
+                        )
                       )
                     ),
-                    column(
-                      width = 6,
-                      tags$div(title="Please select the second group",
-                        selectInput(inputId = "groupTwo", label = "Group 2", choices = c(""))
+                    bsTooltip(id = "hcaFilter_average", title = "The average MS1 abundance should be greater than", placement = "bottom", trigger = "hover"),
+                    textInput(inputId = "hcaFilter_average", label = "MS1 average abundance"),
+                    bsTooltip(id = "hcaFilter_lfc", title = "The Log2-fold-change [ log_2( mean(group two) / mean(group one) ) ] between the average MS1 group abundances should be greater/smaller or equal than", placement = "bottom", trigger = "hover"),
+                    textInput(inputId = "hcaFilter_lfc", label = "MS1 log2-fold change"),
+                    bsTooltip(id = "hcaFilterIncludeIgnoredPrecursors", title = "Include or filter ignored precursors, i.e. precursors which have been annotated as 'ignored'", placement = "bottom", trigger = "hover"),
+                    checkboxInput(inputId = "hcaFilterIncludeIgnoredPrecursors", label = "Include ignored precursors", value = FALSE),
+                    ##############################################################################################
+                    ## filter button
+                    bsTooltip(id = "applyHcaFilters", title = "Press to determine the global set of precursors which fulfill the given filter criteria", placement = "bottom", trigger = "hover"),
+                    actionButton(inputId = "applyHcaFilters", label = "Apply filter")
+                  )## conditional panel
+                ),##well panel
+                wellPanel(
+                  h4("Filtered precursors"),
+                  bsTooltip(id = "hcaFilteredPrecursors", title = "The number of precursors which fulfill the given MS2 filter criteria", placement = "bottom", trigger = "hover"),
+                  verbatimTextOutput("hcaFilteredPrecursors"),
+                  conditionalPanel(
+                    condition = "output.hcaFilterValid",
+                    bsTooltip(id = "downloadHcaFilteredPrecursors", title = "Download the set of precursors which fulfil the given criteria", placement = "bottom", trigger = "hover"),
+                    downloadButton('downloadHcaFilteredPrecursors', 'Download filtered precursors')
+                  )##conditional
+                ),##well panel
+                conditionalPanel(
+                  condition = "output.hcaFilterValid",
+                  wellPanel(
+                    ##############################################################################################
+                    ## HCA properties
+                    fluidRow(
+                      column(width = 6,
+                             div(style="float:left",
+                                 h4("HCA properties")
+                             )
+                      ),##column
+                      column(width = 6,
+                             div(style="float:right",
+                                 bsTooltip(id = "showHCAadvancedOptions", title = "Display further HCA settings", placement = "bottom", trigger = "hover"),
+                                 checkboxInput(inputId = "showHCAadvancedOptions", label = "Show advanced options", value = FALSE)
+                             )
+                      )##column
+                    ),##row
+                    conditionalPanel(
+                      condition = "input.showHCAadvancedOptions",
+                      bsTooltip(id = "hcaDistanceFunction", title = "The distance function used for clustering", placement = "bottom", trigger = "hover"),
+                      selectInput(multiple = FALSE, inputId = "hcaDistanceFunction", label = "Distance function", selected = "Jaccard", choices = c(
+                        "Jaccard",
+                        "Jaccard (intensity-weighted)",
+                        "Jaccard (intensity-weighted map)",
+                        "Similarity (intensity-weighted)",
+                        "Jaccard (intensity-fragment-count-weighted)",
+                        "Similarity (intensity-fragment-count-weighted)",
+                        "Jaccard (fragment-count-weighted)",
+                        "Manhatten",
+                        "NDP"
+                      ), selectize = FALSE),
+                      bsTooltip(id = "hcaClusterMethod", title = "The method used for clustering", placement = "bottom", trigger = "hover"),
+                      selectInput(multiple = FALSE, inputId = "hcaClusterMethod", label = "Cluster method", selected = "ward.D", choices = c(
+                        "single", 
+                        "complete", 
+                        "average", 
+                        "mcquitty", 
+                        "median", 
+                        "centroid", 
+                        "ward.D", 
+                        "ward.D2"
+                      ), selectize = FALSE)
+                    ),
+                    bsTooltip(id = "drawHCAplots", title = "Display the HCA dendrogram given the set of filtered precursors and HCA settings", placement = "bottom", trigger = "hover"),
+                    actionButton(inputId = "drawHCAplots", label = "Draw hierarchical cluster")
+                  )## well panel
+                )## conditional panel
+              ),## conditional panel
+              conditionalPanel(
+                 condition = "!output.showGUI",
+                wellPanel(
+                  h4("Please import a data file")
+                )## well panel
+              ),## conditional panel
+              conditionalPanel(
+                condition = "output.showGUI && !output.globalMS2filterValid",
+                wellPanel(
+                  h4("Please apply a valid MS2 filter")
+                )## well panel
+              )## conditional panel
+            ),## tab panel
+            ##############################################################################################
+            ##############################################################################################
+            ## PCA
+            tabPanel(
+              title = "PCA", 
+              shinyjs::useShinyjs(),
+              conditionalPanel(
+                condition = "output.showGUI && output.globalMS2filterValid",
+                wellPanel(
+                  ##############################################################################################
+                  ## HCA group and abundance filter
+                  fluidRow(
+                    column(width = 6,
+                           div(style="float:left",
+                               h4("MS1 abundance filter")
+                           )
+                    ),##column
+                    column(width = 6,
+                           div(style="float:right",
+                               bsTooltip(id = "showPCAfilterOptions", title = "Display filter settings", placement = "bottom", trigger = "hover"),
+                               checkboxInput(inputId = "showPCAfilterOptions", label = "Show filter settings", value = TRUE)
+                           )
+                    )##column
+                  ),##row
+                  conditionalPanel(
+                    condition = "input.showPCAfilterOptions",
+                    tags$div(title="Please select the set of groups",
+                             checkboxGroupInput(inputId = "pcaGroups", label = "Groups", choices = c(""))
+                             #selectInput(inputId = "groups", label = "Groups", choices = c(""), multiple = TRUE, selectize = FALSE)
+                    ),
+                    bsTooltip(id = "pcaFilter_average", title = "The average MS1 abundance should be greater than", placement = "bottom", trigger = "hover"),
+                    textInput(inputId = "pcaFilter_average", label = "MS1 average abundance"),
+                    bsTooltip(id = "pcaFilter_lfc", title = "The Log2-fold-change [ log_2( mean(group two) / mean(group one) ) ] between the average MS1 group abundances should be greater/smaller or equal than", placement = "bottom", trigger = "hover"),
+                    textInput(inputId = "pcaFilter_lfc", label = "MS1 log2-fold change"),
+                    bsTooltip(id = "pcaFilterIncludeIgnoredPrecursors", title = "Include or filter ignored precursors, i.e. precursors which have been annotated as 'ignored'", placement = "bottom", trigger = "hover"),
+                    checkboxInput(inputId = "pcaFilterIncludeIgnoredPrecursors", label = "Include ignored precursors", value = FALSE),
+                    ##############################################################################################
+                    ## filter button
+                    bsTooltip(id = "applyPcaFilters", title = "Press to determine the global set of precursors which fulfill the given filter criteria", placement = "bottom", trigger = "hover"),
+                    actionButton(inputId = "applyPcaFilters", label = "Apply filter")
+                  )## conditional panel
+                ),##well panel
+                wellPanel(
+                  h4("Filtered precursors"),
+                  bsTooltip(id = "pcaFilteredPrecursors", title = "The number of precursors which fulfill the given MS2 filter criteria", placement = "bottom", trigger = "hover"),
+                  verbatimTextOutput("pcaFilteredPrecursors"),
+                  conditionalPanel(
+                    condition = "output.pcaFilterValid",
+                    bsTooltip(id = "downloadPcaFilteredPrecursors", title = "Download the set of precursors which fulfil the given criteria", placement = "bottom", trigger = "hover"),
+                    downloadButton('downloadPcaFilteredPrecursors', 'Download filtered precursors')
+                  )##conditional
+                ),##well
+                conditionalPanel(
+                  condition = "output.pcaFilterValid",
+                  wellPanel(
+                    ##############################################################################################
+                    ## PCA properties
+                    fluidRow(
+                      column(width = 6,
+                             div(style="float:left",
+                                 h4("PCA properties")
+                             )
+                      ),##column
+                      column(width = 6,
+                             div(style="float:right",
+                                 bsTooltip(id = "showPCAadvancedOptions", title = "Display further PCA settings", placement = "bottom", trigger = "hover"),
+                                 checkboxInput(inputId = "showPCAadvancedOptions", label = "Show advanced options", value = FALSE)
+                             )
+                      )##column
+                    ),##row
+                    conditionalPanel(
+                      condition = "input.showPCAadvancedOptions",
+                      bsTooltip(id = "pcaScaling", title = "Adjust the scaling of MS1 abundances for PCA", placement = "bottom", trigger = "hover"),
+                      selectInput(multiple = FALSE, inputId = "pcaScaling", label = "Scaling", selected = "Pareto", choices = c(
+                        "None", 
+                        "Mean center", 
+                        "Autoscaling (unit variance)",
+                        "Pareto"
+                        #"Vector normalization", 
+                      ), selectize = FALSE),
+                      bsTooltip(id = "pcaLogTransform", title = "MS1 abundances for PCA will be log2 transformed", placement = "bottom", trigger = "hover"),
+                      checkboxInput(inputId = "pcaLogTransform", label = "Log2 transform", value = FALSE),
+                      fluidRow(
+                        column(
+                          width = 6,
+                          tags$div(title="Please select the first dimension",
+                            selectInput(inputId = "pcaDimensionOne", label = "Dimension 1", choices = c("1", "2", "3", "4", "5"), selected = "1", selectize = FALSE)
+                          )
+                        ),
+                        column(
+                          width = 6,
+                          tags$div(title="Please select the second dimension",
+                            selectInput(inputId = "pcaDimensionTwo", label = "Dimension 2", choices = c("1", "2", "3", "4", "5"), selected = "2", selectize = FALSE)
+                          )
+                        )
                       )
-                    )
-                  ),
-                #),## conditional
-                #conditionalPanel(
-                #  condition = 'input.analysisType == "PCA"',
-                #  tags$div(title="Please select the set of groups",
-                #           selectInput(inputId = "groups", label = "Groups", choices = c(""), multiple = TRUE, selectize = FALSE)
-                #  )
-                #),## conditional
-                
-                bsTooltip(id = "filter_average", title = "The average MS1 abundance should be greater than", placement = "bottom", trigger = "hover"),
-                textInput(inputId = "filter_average", label = "Average abundance greater"),
-                bsTooltip(id = "filter_lfc", title = "The Log-fold-change [ log_2( mean(group two) / mean(group one) ) ] between the average MS1 group abundances should be greater/smaller or equal than", placement = "bottom", trigger = "hover"),
-                textInput(inputId = "filter_lfc", label = "Log-fold-change more extreme than"),
-                
-                h4("Semi-targeted"),
-                fluidRow(
-                  column(width = 2,
-                         h4("")
-                  ),
-                  column(width = 10,
-                         bsTooltip(id = "filter_ms2_masses",  title = "The MS2 spectra should include the following fragment / neutral loss mass(es) (separated by \",\")<p>E.g. 96.969, -162.053 for a compound with a phosphate - fragment (H<sub>2</sub>PO<sub>4</sub>-) and a hexose - neutral loss (C<sub>6</sub>O<sub>5</sub>H<sub>10</sub>)", placement = "bottom", trigger = "hover"),
-                         textInput(inputId = "filter_ms2_masses", label = "Spectrum includes mass(es)")
-                  )
-                ),
-                fluidRow(
-                  column(width = 2,
-                         h4("or")
-                  ),
-                  column(width = 10,
-                         bsTooltip(id = "filter_ms2_masses2", title = "The MS2 spectra should include the following fragment / neutral loss mass(es) (separated by \",\")<p>E.g. 96.969, -162.053 for a compound with a phosphate - fragment (H<sub>2</sub>PO<sub>4</sub>-) and a hexose - neutral loss (C<sub>6</sub>O<sub>5</sub>H<sub>10</sub>)", placement = "bottom", trigger = "hover"),
-                         textInput(inputId = "filter_ms2_masses2", label = "Spectrum includes mass(es)")
-                  )
-                ),
-                fluidRow(
-                  column(width = 2,
-                         h4("or")
-                  ),
-                  column(width = 10,
-                         bsTooltip(id = "filter_ms2_masses3", title = "The MS2 spectra should include the following fragment / neutral loss mass(es) (separated by \",\")<p>E.g. 96.969, -162.053 for a compound with a phosphate - fragment (H<sub>2</sub>PO<sub>4</sub>-) and a hexose - neutral loss (C<sub>6</sub>O<sub>5</sub>H<sub>10</sub>)", placement = "bottom", trigger = "hover"),
-                         textInput(inputId = "filter_ms2_masses3", label = "Spectrum includes mass(es)")
-                  )
-                ),
-                
-                bsTooltip(id = "filter_ms2_ppm", title = "The MS2 spectra fragment matching allows this error in PPM", placement = "bottom", trigger = "hover"),
-                textInput(inputId = "filter_ms2_ppm", label = "PPM"),
-                ##############################################################################################
-                ## filter buttons
-                bsTooltip(id = "applyFilters", title = "Press to determine the set of precursors which fulfill the given filter criteria", placement = "bottom", trigger = "hover"),
-                actionButton(inputId = "applyFilters", label = "Apply filters"),
-                h4("Filtered precursors"),
-                bsTooltip(id = "filteredPrecursors", title = "The number of precursors which fulfill the given filter criteria", placement = "bottom", trigger = "hover"),
-                verbatimTextOutput("filteredPrecursors"),
-                downloadButton('downloadFilteredPrecursors', 'Download filtered precursors')
-              ),## consitionalPanel
-              conditionalPanel(
-                condition = "!output.showGUI",
-                h4("Please import a data file")
-              )## conditional panel
-            )## well panel
-          ),## tab panel
-          ##############################################################################################
-          ## HCA
-          tabPanel(
-            title = "HCA", 
-            shinyjs::useShinyjs(),
-            wellPanel(
-              conditionalPanel(
-                condition = "output.showGUI && output.filterValid",
-                bsTooltip(id = "distanceFunction", title = "The distance function used for clustering", placement = "bottom", trigger = "hover"),
-                selectInput(multiple = FALSE, inputId = "distanceFunction", label = "Distance function", choices = c(
-                  "Jaccard",
-                  "Jaccard (intensity-weighted)",
-                  "Jaccard (intensity-weighted map)",
-                  "Similarity (intensity-weighted)",
-                  "Jaccard (intensity-fragment-count-weighted)",
-                  "Similarity (intensity-fragment-count-weighted)",
-                  "Jaccard (fragment-count-weighted)",
-                  "Manhatten",
-                  "NDP"
-                )),
-                bsTooltip(id = "clusterMethod", title = "The method used for clustering", placement = "bottom", trigger = "hover"),
-                selectInput(multiple = FALSE, inputId = "clusterMethod", label = "Cluster method", choices = c(
-                  "single", 
-                  "complete", 
-                  "average", 
-                  "mcquitty", 
-                  "median", 
-                  "centroid", 
-                  "ward.D", 
-                  "ward.D2"
-                )),
-                bsTooltip(id = "drawPlots", title = "Press to calculate the distances between all filtered precursors and plot the result", placement = "bottom", trigger = "hover"),
-                tags$head(tags$script(HTML('
-                  Shiny.addCustomMessageHandler("jsCode", function(message) { eval(message.code); });
-                '))),
-                actionButton(inputId = "drawHCAplots", label = "Draw hierarchical cluster")
-              ),## conditional panel
-              conditionalPanel(
-                condition = "!output.showGUI",
-                h4("Please import a data file")
-              ),## conditional panel
-              conditionalPanel(
-                condition = "output.showGUI && !output.filterValid",
-                h4("Please apply a filter")
-              )## conditional panel
-            )## well panel
-          ),## tab panel
-          ##############################################################################################
-          ## PCA
-          tabPanel(
-            title = "PCA", 
-            shinyjs::useShinyjs(),
-            wellPanel(
-              conditionalPanel(
-                condition = "output.showGUI && output.filterValid",
-                checkboxInput(inputId = "pcaUnitVariance", label = "Unit variance", value = TRUE),
-                checkboxInput(inputId = "pcaLogTransform", label = "Log transform", value = TRUE),
-                fluidRow(
-                  column(
-                    width = 6,
-                    tags$div(title="Please select the first dimension",
-                      selectInput(inputId = "pcaDimensionOne", label = "Dimension 1", choices = c("1", "2", "3", "4", "5"), selected = "1")
-                    )
-                  ),
-                  column(
-                    width = 6,
-                    tags$div(title="Please select the second dimension",
-                      selectInput(inputId = "pcaDimensionTwo", label = "Dimension 2", choices = c("1", "2", "3", "4", "5"), selected = "2")
-                    )
-                  )
-                ),
-                actionButton(inputId = "drawPCAplots", label = "Draw principal components")
+                    ),
+                    bsTooltip(id = "drawPCAplots", title = "Display the PCA scores and loadings plot given the set of filtered precursors and PCA settings", placement = "bottom", trigger = "hover"),
+                    actionButton(inputId = "drawPCAplots", label = "Draw principal components")
+                  )##well
+                )## conditiojal panel
               ),## conditiojal panel
               conditionalPanel(
                 condition = "!output.showGUI",
-                h4("Please import a data file")
+                wellPanel(
+                  h4("Please import a data file")
+                )## well panel
               ),## conditional panel
               conditionalPanel(
-                condition = "output.showGUI && !output.filterValid",
-                h4("Please apply a filter")
+                condition = "output.showGUI && !output.globalMS2filterValid",
+                wellPanel(
+                  h4("Please apply a valid MS2 filter")
+                )## well panel
               )## conditional panel
-            )## well panel
-          ),## tab panel
-          ##############################################################################################
-          ## search
-          tabPanel(
-            title = "Search",
-            shinyjs::useShinyjs(),
-            wellPanel(
+            ),## tab panel
+            ##############################################################################################
+            ##############################################################################################
+            ## search
+            tabPanel(
+              title = "Search",
+              shinyjs::useShinyjs(),
               conditionalPanel(
-                condition = "output.showGUI",
-                h4("TODO search")
+                condition = "output.showGUI && (output.plotHcaShown || output.plotPcaShown)",
+                #condition = "output.showGUI",
+                wellPanel(
+                  h4("Search mode"),
+                  radioButtons(inputId = "searchMS1orMS2", label = NULL, choices = c("Precursor mass", "Fragment mass")),
+                  conditionalPanel(
+                    condition = "input.searchMS1orMS2 == 'Precursor mass'",
+                    bsTooltip(id = "searchMS1mass", title = "The average MS1 mass should be similar to the specified mass", placement = "bottom", trigger = "hover"),
+                    textInput(inputId = "searchMS1mass", label = "Precursor mass"),
+                    bsTooltip(id = "searchMS1massPpm", title = "The specified precursor mass allows this error in PPM", placement = "bottom", trigger = "hover"),
+                    textInput(inputId = "searchMS1massPpm", label = "PPM"),
+                    bsTooltip(id = "searchMS1includeIgnoredPrecursors", title = "Include or filter ignored precursors, i.e. precursors which have been annotated as 'ignored'", placement = "bottom", trigger = "hover"),
+                    checkboxInput(inputId = "searchMS1includeIgnoredPrecursors", label = "Include ignored precursors", value = FALSE),
+                    bsTooltip(id = "applySearchMS1", title = "Press to mark the set of precursors which fulfill the given criteria", placement = "bottom", trigger = "hover"),
+                    actionButton(inputId = "applySearchMS1", label = "Search")
+                  ),## conditional panel
+                  conditionalPanel(
+                    condition = "input.searchMS1orMS2 == 'Fragment mass'",
+                    fluidRow(
+                      column(width = 11,
+                             bsTooltip(id = "search_ms2_masses1", title = "The MS2 spectra should include the following fragment / neutral loss mass(es) (separated by \",\")<p>E.g. 96.969, -162.053 for a compound with a phosphate - fragment (H<sub>2</sub>PO<sub>4</sub>-) and a hexose - neutral loss (C<sub>6</sub>O<sub>5</sub>H<sub>10</sub>)", placement = "bottom", trigger = "hover"),
+                             textInput(inputId = "search_ms2_masses1", label = "MS2 spectrum includes mass(es) #1")
+                      ),
+                      column(width = 1,
+                             h4("or")
+                      )
+                    ),
+                    fluidRow(
+                      column(width = 11,
+                             bsTooltip(id = "search_ms2_masses2", title = "The MS2 spectra should include the following fragment / neutral loss mass(es) (separated by \",\")<p>E.g. 96.969, -162.053 for a compound with a phosphate - fragment (H<sub>2</sub>PO<sub>4</sub>-) and a hexose - neutral loss (C<sub>6</sub>O<sub>5</sub>H<sub>10</sub>)", placement = "bottom", trigger = "hover"),
+                             textInput(inputId = "search_ms2_masses2", label = "MS2 spectrum includes mass(es) #2")
+                      ),
+                      column(width = 1,
+                             h4("or")
+                      )
+                    ),
+                    fluidRow(
+                      column(width = 11,
+                             bsTooltip(id = "search_ms2_masses3", title = "The MS2 spectra should include the following fragment / neutral loss mass(es) (separated by \",\")<p>E.g. 96.969, -162.053 for a compound with a phosphate - fragment (H<sub>2</sub>PO<sub>4</sub>-) and a hexose - neutral loss (C<sub>6</sub>O<sub>5</sub>H<sub>10</sub>)", placement = "bottom", trigger = "hover"),
+                             textInput(inputId = "search_ms2_masses3", label = "MS2 spectrum includes mass(es) #3")
+                      ),
+                      column(width = 1,
+                             h4("")
+                      )
+                    ),
+                    bsTooltip(id = "searchMS2massPpm", title = "The specified precursor mass allows this error in PPM", placement = "bottom", trigger = "hover"),
+                    textInput(inputId = "searchMS2massPpm", label = "PPM"),
+                    bsTooltip(id = "searchMS2includeIgnoredPrecursors", title = "Include or filter ignored precursors, i.e. precursors which have been annotated as 'ignored'", placement = "bottom", trigger = "hover"),
+                    checkboxInput(inputId = "searchMS2includeIgnoredPrecursors", label = "Include ignored precursors", value = FALSE),
+                    bsTooltip(id = "applySearchMS2", title = "Press to mark the set of precursors which fulfill the given criteria", placement = "bottom", trigger = "hover"),
+                    actionButton(inputId = "applySearchMS2", label = "Search")
+                  )## conditional panel
+                ),## well panel
+                wellPanel(
+                  h4("Precursor hits"),
+                  bsTooltip(id = "searchInfo", title = "The number of precursors which fulfill the given MS2 filter criteria", placement = "bottom", trigger = "hover"),
+                  verbatimTextOutput("searchInfo"),
+                  conditionalPanel(
+                    condition = "output.searchfilterValid",
+                    bsTooltip(id = "downloadSearchPrecursors", title = "Download the set of precursors which fulfil the given criteria", placement = "bottom", trigger = "hover"),
+                    downloadButton('downloadSearchPrecursors', 'Download precursors hits')
+                  )##conditional
+                )##well
               ),## conditional panel
               conditionalPanel(
+                #condition = "!(output.analysisType == 'HCA' || output.analysisType == 'PCA')",
                 condition = "!output.showGUI",
-                h4("Please import a data file")
+                wellPanel(
+                  h4("Please import a data file")
+                )## well
+              ),## conditional panel
+              conditionalPanel(
+                condition = "output.showGUI && !(output.plotHcaShown || output.plotPcaShown)",
+                wellPanel(
+                  h4("Please search HCA or PCA")
+                )## well
               )## conditional panel
-            )## well panel
-          )## tab panel
-        )## tab set panel
-      ),## column
-      column(width = 8,
-        conditionalPanel(
-          condition = 'output.analysisType == "HCA" && output.showHCAplotPanel',
-          fluidRow(
-            ##############################################################################################
-            ## plots
-            column(width = 11,
-              plotOutput(height = 500, 
-                        outputId = "clusterPlotDendrogram", 
-                        hover    = "clusterPlotDendrogram_hover", 
-                        click    = "clusterPlotDendrogram_click",
-                        dblclick = "clusterPlotDendrogram_dblclick",
-                        #brush    = "clusterPlotDendrogram_brush"
-                        brush = brushOpts(
-                          id = "clusterPlotDendrogram_brush",
-                          resetOnNew = TRUE,
-                          direction = "x",
-                          delay = 00,
-                          delayType = "debounce"
-                        )
-              ),
-              plotOutput(height = 75, 
-                        outputId = "clusterPlotHeatmap",
-                        hover    = "clusterPlotHeatmap_hover", 
-                        #click = "clusterPlotHeatmap_click"
-              )
-            ),## column
-            column(width = 1,
-              plotOutput(outputId = "clusterPlotHeatmapLegend")
-            )## column
-          )## row
-        ),## conditional
-        conditionalPanel(
-          condition = 'output.analysisType == "PCA" && output.showPCAplotPanel',
-          fluidRow(
-            ##############################################################################################
-            ## plots
-            column(width = 6,
-              plotOutput(height = 500, 
-                        outputId = "pcaPlotScores", 
-                        hover    = "pcaPlotScores_hover",
-                        click    = "pcaPlotScores_click",
-                        dblclick = "pcaPlotScores_dblclick",
-                        #brush    = "pcaPlotScores_brush"
-                        brush = brushOpts(
-                          id = "pcaPlotScores_brush",
-                          resetOnNew = TRUE,
-                          direction = "xy",
-                          delay = 00,
-                          delayType = "debounce"
-                        )
-              )
-            ),## column
-            column(width = 6,
-              plotOutput(height = 500, 
-                        outputId = "pcaPlotLoadings", 
-                        hover    = "pcaPlotLoadings_hover",
-                        click    = "pcaPlotLoadings_click",
-                        dblclick = "pcaPlotLoadings_dblclick",
-                        #brush    = "pcaPlotScores_brush"
-                        brush = brushOpts(
-                          id = "pcaPlotLoadings_brush",
-                          resetOnNew = TRUE,
-                          direction = "xy",
-                          delay = 00,
-                          delayType = "debounce"
-                        )
-              )
-            )## column
-          )## row
-        ),## conditional
-        conditionalPanel(
-          condition = '(output.analysisType == "HCA" && output.showHCAplotPanel) || (output.analysisType == "PCA" && output.showPCAplotPanel)',
-          plotOutput(height = 250, 
-                    outputId = "clusterPlotMS2",
-                    hover    = "clusterPlotMS2_hover",
-                    click    = "clusterPlotMS2_click",
-                    dblclick = "clusterPlotMS2_dblclick",
-                    #brush    = "clusterPlotMS2_brush",
-                    brush = brushOpts(
-                      id = "clusterPlotMS2_brush",
-                      resetOnNew = TRUE,
-                      direction = "x",
-                      delay = 00,
-                      delayType = "debounce"
-                    )
-          ),
-          fluidRow(
-            ##############################################################################################
-            ## infos
-            h4("Information"),
-            bsTooltip(id = "information", title = "Information about selected items in the plot", placement = "bottom", trigger = "hover"),
-            verbatimTextOutput("information"),
-            htmlOutput(outputId = "metFragLink"),
-            h4("Tip"),
-            bsTooltip(id = "tip", title = "Information about operating options", placement = "bottom", trigger = "hover"),
-            verbatimTextOutput("tip"),
-            downloadButton('downloadMatrix', 'Download selected precursors')
-          )## row
-        )## conditional
-      )## column
+            )## tab panel
+          )## tab set panel
+        )## column
+      ),##conditional
+      ##############################################################################################
+      ##############################################################################################
+      ##############################################################################################
+      ## plots
+      uiOutput("runRightColumn")
     ),## tab
+    ##########################################################################################
+    ##########################################################################################
     ##########################################################################################
     ##########################################################################################
     ## tab about
@@ -363,23 +529,29 @@ shinyUI(
       ## intro
       wellPanel(
         helpText("This app does the following...")
-      ),
-      fluidRow(
-        column(
-          width = 4,
-          h4("Authors"),
-          p("Hendrik Treutler"),
-          br(),
-          p("Gerd Balcke"),
-          br(),
-          p("Steffen Neumann")
-        ),## column
-        column(
-          width = 4,
-          h4("References"),
-          p("Submitted to...")
-        )## column
-      )## row
+      ),## well panel
+      wellPanel(
+        fluidRow(
+          column(
+            width = 4,
+            h4("Authors"),
+            p("Hendrik Treutler"),
+            br(),
+            p("Gerd Balcke"),
+            br(),
+            p("Steffen Neumann")
+          ),## column
+          column(
+            width = 4,
+            h4("References"),
+            p("Submitted to...")
+          )## column
+        )## row
+      ),## well panel
+      wellPanel(
+        h4("R session info"),
+        verbatimTextOutput(outputId = "rInfo")
+      )## well panel
     )## tab
   )## navBar
 )## shinyUI
