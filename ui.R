@@ -2,7 +2,17 @@
 # shiny::runApp(appDir = "/home/htreutle/Code/Java/MetFam")
 # shiny::runApp(appDir = "/home/htreutle/Code/Java/MetFam", host="0.0.0.0")
 # 
+# ############################ shinyapps
+# htreutle@ipb-halle.de
 # 
+# install.packages('devtools')
+# devtools::install_github('rstudio/shinyapps')
+# library(shinyapps)
+# shinyapps::setAccountInfo(name='treutler', token='402AF39746642C3C360E9AED3DDCFF15', secret='21kN1PMYvSvP375O4228XpqzTis75BkxEVggP0nb')
+# shinyapps::deployApp('/home/htreutle/Code/Java/MetFam')
+# https://treutler.shinyapps.io/MetFam
+# 
+# ############################ [OLD]
 # devtools::install_github('rstudio/rsconnect')
 # library(rsconnect)
 # shinyapps::setAccountInfo(name='treutler', token='402AF39746642C3C360E9AED3DDCFF15', secret='21kN1PMYvSvP375O4228XpqzTis75BkxEVggP0nb')
@@ -10,20 +20,17 @@
 # deployApp(appDir = "/home/htreutle/Code/Java/MetFam")
 # rsconnect::configureApp("APPNAME", size="small")
 # 
-# 
 # shinyapps::setAccountInfo(name='treutler', token='9E626539E372514577A0015CD5171A60', secret='2aGCt7oyx8VA+WP45/ZDCsIqF5dFIYqa2pAlC5lI')
 # shinyapps::deployApp(appDir = "/home/htreutle/Code/Java/MetFam")
 # https://treutler.shinyapps.io/MetSWATH_GUI
 # 
-# htreutle@ipb-halle.de
-# 
-# 
+# ############################ deploy locally
 # sudo cp /home/htreutle/Code/Java/MetFam/ClusteringMS2SpectraGUI.R /vol/R/shiny/srv/shiny-server/MetFam/
 # sudo cp /home/htreutle/Code/Java/MetFam/server.R /vol/R/shiny/srv/shiny-server/MetFam/
 # sudo cp /home/htreutle/Code/Java/MetFam/ui.R /vol/R/shiny/srv/shiny-server/MetFam/
 # sudo cp /home/htreutle/Code/Java/MetFam/FragmentMatrixFunctions.R /vol/R/shiny/srv/shiny-server/MetFam/
 # 
-# 
+# ############################ debug
 # options(warn=1)
 # If warn is negative warnings are ignored; if it is zero they are stored and printed after the top–level function has completed; if it is one they are printed as they occur and if it is 2 (or larger) warnings are turned into errors. 
 # options(error = recover)
@@ -50,7 +57,7 @@ shinyUI(
     ## tab run
     tabPanel(
       ##############################################################################################
-      ## enable / disable actionButtons
+      ## enable / disable actionButtons while process is running
       singleton(tags$head(HTML(
         '
           <script type="text/javascript">
