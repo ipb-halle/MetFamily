@@ -705,39 +705,30 @@ shinyUI(
       title = "About",
       ##############################################################################################
       ## intro
-      fluidRow(
-        column(
-          width = 9,
-          wellPanel(
-            helpText(
-              "This app does the following...",
-              br(),
-              "Version 0.9")
-          )## well panel
-        ),##column
-        column(
-          width = 3,
-          HTML("<a href='http://www.ipb-halle.de/'><img src='logo_ipb_en.png' /></a>")
-        )##column
-      ),## row
       wellPanel(
+        h4(HTML("<b>MetFam 0.9</b>")),
         fluidRow(
-          column(
-            width = 12,
-            h4("Reference"),
-            h5(HTML("<b>Discovering regulated metabolite families in comprehensive metabolomics studies</b>")),
-            br(),
-            p(HTML("Hendrik Treutler<sup>1*</sup>, Steffen Neumann<sup>1</sup>, Gerd Balcke<sup>2</sup>")), 
-            p(HTML("<sup>1</sup>Leibniz Institute for Plant Biochemistry, Dept. of SEB, Weinberg 3, 06120 Halle, Germany")),
-            p(HTML("<sup>2</sup>Leibniz Institute for Plant Biochemistry, Dept. of SZB, Weinberg 3, 06120 Halle, Germany")),
-            p(HTML("<sup>*</sup>Corresponding author: Hendrik Treutler <a href='mailto:hendrik.treutler@ipb-halle.de?subject=MetFam%20request'>hendrik.treutler@ipb-halle.de</a>")),
-            br(),
-            h5(HTML("<b>Abstract</b>")),
-            p(HTML("Understanding metabolism is fundamental and the identification and quantification of thousands of metabolites by mass spectrometry in modern metabolomics is a prerequisite for elucidating this area. However, the identification of metabolites is a major bottleneck in traditional approaches hampering advances. Here, we present a novel approach for the untargeted discovery of metabolite families offering a bird's eye view on metabolic regulation in comparative metabolomics.")),
-            br(),
-            p("Submitted to ...")
-          )## column
-        )## row
+          column(width = 9,
+            helpText(
+              "This web application is designed for the identification of regulated metabolite families. This is possible on the basis of metabolite profiles for a set of MS features as well as one MS/MS spectrum for each MS feature. Group-discriminating MS features are identified using a principal component analysis (PCA) of metabolite profiles and metabolite families are identified using a hierarchical cluster analysis (HCA) of MS/MS spectra. Regulated metabolite families are identified by considering group-discriminating MS features from corporate metabolite families."
+            )
+          ),##column
+          column(width = 3,
+            HTML("<a href='http://www.ipb-halle.de/'><img src='logo_ipb_en.png' /></a>")
+          )##column
+        ),## row
+        h4("Reference"),
+        h5(HTML("<b>Discovering regulated metabolite families in comprehensive metabolomics studies</b>")),
+        br(),
+        p(HTML("Hendrik Treutler<sup>1*</sup>, Steffen Neumann<sup>1</sup>, Gerd Balcke<sup>2</sup>")), 
+        p(HTML("<sup>1</sup>Leibniz Institute for Plant Biochemistry, Dept. of SEB, Weinberg 3, 06120 Halle, Germany")),
+        p(HTML("<sup>2</sup>Leibniz Institute for Plant Biochemistry, Dept. of SZB, Weinberg 3, 06120 Halle, Germany")),
+        p(HTML("<sup>*</sup>Corresponding author: Hendrik Treutler <a href='mailto:hendrik.treutler@ipb-halle.de?subject=MetFam%20request'>hendrik.treutler@ipb-halle.de</a>")),
+        br(),
+        h5(HTML("<b>Abstract</b>")),
+        p(HTML("Understanding metabolism is fundamental and the identification and quantification of thousands of metabolites by mass spectrometry in modern metabolomics is a prerequisite for elucidating this area. However, the identification of metabolites is a major bottleneck in traditional approaches hampering advances. Here, we present a novel approach for the untargeted discovery of metabolite families offering a bird's eye view on metabolic regulation in comparative metabolomics.")),
+        br(),
+        p("Submitted to ...")
       ),## well panel
       wellPanel(
         h4("R session info"),
