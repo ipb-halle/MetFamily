@@ -89,7 +89,12 @@ shinyServer(
       selectedSelection = NULL,
       showLoadingsLabels = FALSE,
       showLoadingsAbundance = FALSE,
-      annotationLegendHeight = annoLegendEntryHeight * (2 + 1 + 1)
+      #annotationLegendHeight = annoLegendEntryHeight * (2 + 1 + 1)
+      annotationLegendHeightHca = -1,
+      annotationLegendHeightPca = -1,
+      ## plot annotations
+      annotationsHca = NULL,
+      annotationsPca = NULL
     )
     changeSelectionCurrentSelection <- selectionAnalysisName
     precursorSelectionTabCurrentTab <- precursorSelectionTabSelection
@@ -114,6 +119,7 @@ shinyServer(
     clearSelectionButtonValue <- 0
     importMs1Ms2DataButtonValue <- 0
     loadProjectDataButtonValue <- 0
+    loadExampleDataButtonValue <- 0
     ## MS2 peaks
     fragmentsX <- NULL
     fragmentsY <- NULL
@@ -256,6 +262,7 @@ shinyServer(
       selectionByAnalysisReset()
       selectionBySearchReset()
       
+      
       ## fragments
       fragmentsX <<- NULL
       fragmentsY <<- NULL
@@ -275,6 +282,8 @@ shinyServer(
       state$anyPlotDrawn <<- FALSE
       selectedPrecursorSet <<- NULL
       selectedTable <<- NULL
+      state$annotationsHca <<- NULL
+      state$annotationsPca <<- NULL
       
       ## reset plot range
       dendrogramPlotRangeY <<- NULL
@@ -718,7 +727,12 @@ shinyServer(
       fileMs1Name <- input$ms1DataFile$name
       fileMs2Path <- input$ms2DataFile$datapath
       fileMs2Name <- input$ms2DataFile$name
+      exampleDataSelection <- input$exampleDataSelection
       
+      if(all(fileInputSelection == "Example data", exampleDataSelection == "Example data set (full)"))
+        output$fileInfo <- renderText({paste("Please press 'Load example data' to load the full example data set")})
+      if(all(fileInputSelection == "Example data", exampleDataSelection == "Example data set (reduced)"))
+        output$fileInfo <- renderText({paste("Please press 'Load example data' to load the reduced example data set")})
       if(all(fileInputSelection == "Load project", is.null(filePath)))
         output$fileInfo <- renderText({paste("Please select a project file and press 'Load project data'")})
       if(all(fileInputSelection == "Load project", !is.null(filePath), any(is.null(state$importedOrLoadedFile_s_), fileName != state$importedOrLoadedFile_s_)))
@@ -762,8 +776,12 @@ shinyServer(
         print(paste("reset output$plotPcaLoadings"))
         NULL
        })
-      output$plotAnnoLegend <- renderPlot({
-        print(paste("reset output$plotAnnoLegend"))
+      output$plotAnnoLegendHCA <- renderPlot({
+        print(paste("reset output$plotAnnoLegendHCA"))
+        NULL
+      })
+      output$plotAnnoLegendPCA <- renderPlot({
+        print(paste("reset output$plotAnnoLegendPCA"))
         NULL
       })
       output$plotMS2Legend <- renderPlot({
@@ -804,7 +822,7 @@ shinyServer(
       })
     }
     drawDendrogramPlotImpl <- function(){
-      calcPlotDendrogram(
+      resultObj <- calcPlotDendrogram(
         dataList = dataList, 
         filter = filterHca$filter, 
         clusterDataList = clusterDataList, 
@@ -819,6 +837,9 @@ shinyServer(
       
       dendrogramPlotRange <- par("usr")
       dendrogramPlotRangeY <<- dendrogramPlotRange[[4]] - dendrogramPlotRange[[3]]
+      
+      state$annotationsHca <<- resultObj
+      state$annotationLegendHeightHca <<- annoLegendEntryHeight * (length(state$annotationsHca$setOfAnnotations) + 1)
     }
     drawHeatmapPlotImpl <- function(){
       calcPlotHeatmap(dataList = dataList, filterObj = filterHca, clusterDataList = clusterDataList, xInterval = dendrogramPlotRange$xInterval)
@@ -843,7 +864,7 @@ shinyServer(
       })
     }
     drawPcaLoadingsPlotImpl <- function(){
-      calcPlotPCAloadings(
+      resultObj <- calcPlotPCAloadings(
         pcaObj = pcaDataList$pcaObj, 
         dataList = dataList, 
         filter = filterPca$filter, 
@@ -857,6 +878,9 @@ shinyServer(
         xInterval = pcaLoadingsPlotRange$xInterval, 
         yInterval = pcaLoadingsPlotRange$yInterval
       )
+      
+      state$annotationsPca <<- resultObj
+      state$annotationLegendHeightPca <<- annoLegendEntryHeight * (length(state$annotationsPca$setOfAnnotations) + 1)
     }
     drawHeatmapLegend <- function(consoleInfo = NULL){
       output$plotHeatmapLegend <- renderPlot({
@@ -867,14 +891,17 @@ shinyServer(
     drawHeatmapLegendImpl <- function(){
       calcPlotHeatmapLegend(dataList = dataList)
     }
-    drawAnnotationLegend <- function(consoleInfo = NULL){
-      output$plotAnnoLegend <- renderPlot({
+    drawAnnotationLegendHCA <- function(consoleInfo = NULL){
+      output$plotAnnoLegendHCA <- renderPlot({
         print(paste("### leg ###", consoleInfo))
-        drawAnnotationLegendImpl()
+        calcPlotAnnoLegend(state$annotationsHca$setOfAnnotations, state$annotationsHca$setOfColors)
       })
     }
-    drawAnnotationLegendImpl <- function(){
-      calcPlotAnnoLegend(dataList = dataList)
+    drawAnnotationLegendPCA <- function(consoleInfo = NULL){
+      output$plotAnnoLegendPCA <- renderPlot({
+        print(paste("### leg ###", consoleInfo))
+        calcPlotAnnoLegend(state$annotationsPca$setOfAnnotations, state$annotationsPca$setOfColors)
+      })
     }
     drawMS2Legend <- function(consoleInfo = NULL){
       output$plotMS2Legend <- renderPlot({
@@ -1047,9 +1074,6 @@ shinyServer(
     }
     ## table update
     updateAnnoGui <- function(precursorSet){
-      ## anno legend width
-      state$annotationLegendHeight <<- annoLegendEntryHeight * (length(dataList$annoPresentAnnotationsList) + 1 + 1)
-      
       ## annotation
       commonAnnos <- commonAnnotations(precursorSet)
       
@@ -1248,12 +1272,14 @@ shinyServer(
     }
     updatePlotsWithAnnotations <- function(){
       ## plots
-      if(state$showPCAplotPanel)
-        drawPcaLoadingsPlot(consoleInfo = "updatePlotsWithAnnotations")
-      if(state$showHCAplotPanel)
+      if(state$showHCAplotPanel){
         drawDendrogramPlot(consoleInfo = "updatePlotsWithAnnotations")
-      
-      drawAnnotationLegend(consoleInfo = "updatePlotsWithAnnotations")
+        #drawAnnotationLegendHCA(consoleInfo = "updatePlotsWithAnnotations")
+      }
+      if(state$showPCAplotPanel){
+        drawPcaLoadingsPlot(consoleInfo = "updatePlotsWithAnnotations")
+        #drawAnnotationLegendPCA(consoleInfo = "updatePlotsWithAnnotations")
+      }
     }
     ## create and set table for all six types
     createInputFields <- function(FUN, id, values) {
@@ -1729,27 +1755,60 @@ shinyServer(
       filePath <- input$matrixFile$datapath
       fileName <- input$matrixFile$name
       
+      loadProjectFile(filePath = filePath, fileName = fileName, buttonId = "loadProjectData")
+    })
+    obsLoadExampleData <- observeEvent(input$loadExampleData, {
+      loadExampleData <- as.numeric(input$loadExampleData)
+      
+      print(paste("Observe loadExampleData", loadExampleData))
+      
+      #################################################
+      ## check if button was hit
+      if(loadExampleData == loadExampleDataButtonValue)
+        return()
+      loadProjectDataButtonValue <<- loadExampleData
+      
+      exampleDataSelection <- input$exampleDataSelection
+      
+      #################################################
+      ## files
+      ## TODO relative paths or as R package
+      if(exampleDataSelection == "Example data set (full)"){
+        filePath <- "/vol/R/shiny/srv/shiny-server/MetFam/files/20158251022_matrixPrecursorsVersusFragmentsDeisotoped_withoutZeros.txt"
+        fileName <- "20158251022_matrixPrecursorsVersusFragmentsDeisotoped_withoutZeros.txt"
+      }
+      if(exampleDataSelection == "Example data set (reduced)"){
+        filePath <- "/vol/R/shiny/srv/shiny-server/MetFam/files/2016-01-12_09.38.12_selectedPrecursorMatrix.csv.gz"
+        fileName <- "2016-01-12_09.38.12_selectedPrecursorMatrix.csv.gz"
+      }
+      
+      loadProjectFile(filePath = filePath, fileName = fileName, buttonId = "loadExampleData")
+    })
+    obsExampleDataSelection <- observeEvent(input$exampleDataSelection, {
+      updateFileInputInfo()
+    })
+    loadProjectFile <- function(filePath, fileName, buttonId){
       #########################################################################################
       ## read data
       #output$fileInfo <- renderText({paste("Please wait for the project data to be loaded...")})
       
-      session$sendCustomMessage("disableButton", "loadProjectData")
+      session$sendCustomMessage("disableButton", buttonId)
       
       error <- NULL
       withProgress(message = 'Reading file...', value = 0, {
         dataList <<- tryCatch(
-          {
-            #dataList <<- calcClusterData(file = "/mnt/VOL1/ABT/Alle/Balcke/MetSWATH/data/MS-DIAL/UC Davis/Results/201558139_matrixPrecursorsVersusFragmentsDeisotoped_withoutZerosTest01.txt")
-            readClusterDataFromProjectFile(file = filePath, progress = TRUE)
-          }, error = function(e) {
-            error <- e
-          }
+        {
+          #dataList <<- calcClusterData(file = "/mnt/VOL1/ABT/Alle/Balcke/MetSWATH/data/MS-DIAL/UC Davis/Results/201558139_matrixPrecursorsVersusFragmentsDeisotoped_withoutZerosTest01.txt")
+          readClusterDataFromProjectFile(file = filePath, progress = TRUE)
+        }, error = function(e) {
+          error <- e
+        }
         )
       })
       
       if(!is.null(error)){
         output$fileInfo <- renderText({paste("There occurred an error while processing the project file. Please check the file format and content and try again.")})
-        session$sendCustomMessage("enableButton", "loadProjectData")
+        session$sendCustomMessage("enableButton", buttonId)
         return()
       }
       
@@ -1760,8 +1819,8 @@ shinyServer(
       state$importedOrLoadedFile_s_ <<- fileName
       updateFileInputInfo()
       
-      session$sendCustomMessage("enableButton", "loadProjectData")
-    })
+      session$sendCustomMessage("enableButton", buttonId)
+    }
     obsImportMs1DataFile <- observeEvent(input$ms1DataFile$datapath, {
       fileMs1Path <- input$ms1DataFile$datapath
       fileMs1Name <- input$ms1DataFile$name
@@ -2306,12 +2365,12 @@ shinyServer(
       resetHcaPlotRange()
       drawDendrogramPlot(consoleInfo = "init output$plotDendrogram", withHeatmap = TRUE)
       drawMS2Plot(consoleInfo = "init output$plotMS2")
+      drawAnnotationLegendHCA(consoleInfo = "init output$plotAnnoLegend")
       
       if(!state$anyPlotDrawn){
         drawMS2Legend(consoleInfo = "init output$ms2LegendPlot")
         drawHeatmapLegend(consoleInfo = "init output$plotHeatmapLegend")
         drawDendrogramLegend(consoleInfo = "init output$calcPlotDendrogramLegend")
-        drawAnnotationLegend(consoleInfo = "init output$plotAnnoLegend")
         state$anyPlotDrawn <<- TRUE
       }
       
@@ -2397,12 +2456,12 @@ shinyServer(
       resetPcaPlotRange()
       drawPcaPlots(consoleInfo = "drawPCA output$plotPcaScores")
       drawMS2Plot(consoleInfo = "drawPCA output$plotMS2")
+      drawAnnotationLegendPCA(consoleInfo = "init output$plotAnnoLegend")
       
       if(!state$anyPlotDrawn){
         drawMS2Legend(consoleInfo = "init output$ms2LegendPlot")
         drawHeatmapLegend(consoleInfo = "init output$plotHeatmapLegend")
         drawDendrogramLegend(consoleInfo = "init output$calcPlotDendrogramLegend")
-        drawAnnotationLegend(consoleInfo = "init output$plotAnnoLegend")
         state$anyPlotDrawn <<- TRUE
       }
       
@@ -3128,6 +3187,8 @@ shinyServer(
       obsClearSelection$suspend()
       obsFile$suspend()
       obsLoadProjectData$suspend()
+      obsExampleDataSelection$suspend()
+      obsLoadExampleData$suspend()
       obsImportMs1DataFile$suspend()
       obsImportMs2DataFile$suspend()
       obsImportMs1Ms2Data$suspend()
@@ -3415,10 +3476,17 @@ shinyServer(
            ),##column
            column(width = state$legendColumnWidth,
               conditionalPanel(
-                condition = '(output.analysisType == "HCA" && output.showHCAplotPanel) || (output.analysisType == "PCA" && output.showPCAplotPanel)',
+                condition = 'output.analysisType == "HCA" && output.showHCAplotPanel',
                 splitLayout(
                   style = "border: 1px solid silver;",
-                  plotOutput(outputId = "plotAnnoLegend", height = state$annotationLegendHeight)
+                  plotOutput(outputId = "plotAnnoLegendHCA", height = state$annotationLegendHeightHca)
+                )
+              ),## conditional
+              conditionalPanel(
+                condition = 'output.analysisType == "PCA" && output.showPCAplotPanel',
+                splitLayout(
+                  style = "border: 1px solid silver;",
+                  plotOutput(outputId = "plotAnnoLegendPCA", height = state$annotationLegendHeightPca)
                 )
               ),## conditional
               conditionalPanel(
@@ -3804,10 +3872,16 @@ shinyServer(
         ## 
         
         ## parameters
-        #tmpFile <- paste("/home/htreutle/Downloads/MetSWATH/", createExportImageName("HCA"), sep = "")
+        widthInInch     <- 10
+        heigthInInch    <- 7.5
+        resolutionInDPI <- 600
+        widthInPixel    <- widthInInch  * resolutionInDPI
+        heightInPixel   <- heigthInInch * resolutionInDPI
+        
+        #tmpFile <- paste("/home/htreutle/Downloads/MetSWATH/", createExportImageName("PCA"), sep = "")
         #print(tmpFile)
         #png(filename = tmpFile, 3000, 2000, res = 300, bg = "white")
-        png(filename = file, 3000, 2000, res = 300, bg = "white")
+        png(filename = file, width = widthInPixel, height = heightInPixel, res = resolutionInDPI, bg = "white")
         
         layout(
           mat = matrix(
@@ -3824,7 +3898,7 @@ shinyServer(
         drawDendrogramLegendImpl()
         drawHeatmapLegendImpl()
         drawMS2LegendImpl()
-        calcPlotAnnoLegendForImage(dataList)
+        calcPlotAnnoLegendForImage(state$annotationsHca$setOfAnnotations, state$annotationsHca$setOfColors, 15)
         #drawAnnotationLegendImpl()
         
         dev.off()
@@ -3852,7 +3926,7 @@ shinyServer(
         ## parameters
         widthInInch     <- 10
         heigthInInch    <- 7.5
-        resolutionInDPI <- 300
+        resolutionInDPI <- 600
         widthInPixel    <- widthInInch  * resolutionInDPI
         heightInPixel   <- heigthInInch * resolutionInDPI
         
@@ -3863,21 +3937,21 @@ shinyServer(
         
         layout(
           mat = matrix(
-            data = c(1, 1, 1, 1, 3,
-                     2, 2, 2, 2, 3, 
-                     4, 5, 6, 7, 7), 
-            nrow = 5, ncol = 3), 
+            data = c(1, 1, 1, 3,
+                     2, 2, 2, 3, 
+                     4, 5, 6, 6), 
+            nrow = 4, ncol = 3), 
           widths = c(2, 2, 1), 
-          heights = c(0.6, 2, 0.6, 0.5, 1.5)
+          heights = c(0.6, 0.6, 2.5, 1.5)
         )
         
         drawPcaScoresPlotImpl()
         drawPcaLoadingsPlotImpl()
         drawMS2PlotImpl()
         drawDendrogramLegendImpl()
-        drawHeatmapLegendImpl()
+        #drawHeatmapLegendImpl()
         drawMS2LegendImpl()
-        calcPlotAnnoLegendForImage(dataList)
+        calcPlotAnnoLegendForImage(state$annotationsPca$setOfAnnotations, state$annotationsPca$setOfColors, 30)
         #drawAnnotationLegendImpl()
         
         dev.off()

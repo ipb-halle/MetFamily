@@ -700,10 +700,11 @@ convertToProjectFile <- function(filePeakMatrix, fileSpectra, parameterSet, prog
   numberOfMS2PeakGroupsAll <- ncol(matrixAll)
   
   ########################################
-  ## filter fragment masses near zero / smaller than one
-  tmp <- abs(fragmentMzAll) < 1
+  ## filter small fragment masses
+  minimumFragmentMass <- 5
+  tmp <- abs(fragmentMzAll) < minimumFragmentMass
   fragmentMzAll <- fragmentMzAll[!tmp]
-  matrixAll <- matrixAll[, !tmp]
+  matrixAll     <- matrixAll[, !tmp]
   numberOfMS2PeakGroupsAll <- ncol(matrixAll)
   
   ########################################
