@@ -1,4 +1,6 @@
 
+#source("https://bioconductor.org/biocLite.R")
+#biocLite("mzR")
 library("mzR")
 #install.packages("squash")
 library("squash")
@@ -702,7 +704,7 @@ readProjectData <- function(dataFrame, progress = FALSE){
       lfcColumnName <- lfcColumnNameFunctionFromIndex(groupIdx1, groupIdx2)
       lfcColumnNames[[length(lfcColumnNames) + 1]] <- lfcColumnName
       dataFrameMeasurements[, lfcColumnName] <- log(
-        x = dataFrameMeasurements[, dataMeanColumnNameFunctionFromIndex(groupIdx2)] / dataFrameMeasurements[, dataMeanColumnNameFunctionFromIndex(groupIdx1)], 
+        x = dataFrameMeasurements[, dataMeanColumnNameFunctionFromIndex(groupIdx1)] / dataFrameMeasurements[, dataMeanColumnNameFunctionFromIndex(groupIdx2)], 
         base = 2
       )
       
@@ -745,9 +747,6 @@ readProjectData <- function(dataFrame, progress = FALSE){
   colorDataFrame[, dataMeanColumnNames] <- cmap(x = matrixDataFrame[, dataMeanColumnNames], map = colorMapAbsoluteData)
   colorDataFrame[, lfcColumnNames]      <- cmap(x = matrixDataFrame[, lfcColumnNames     ], map = colorMapLogFoldChange)
   colorMatrixDataFrame <- as.matrix(colorDataFrame)
-  
-  print(matrixDataFrame[, lfcColumnNames     ])
-  print(colorDataFrame[, lfcColumnNames])
   
   ##########################################
   ## compute features
@@ -1750,7 +1749,7 @@ getMS2spectrum <- function(dataList, clusterDataList, clusterLabel){
     fragmentsY[fragmentsY > 1] <- 1
     fragmentsColor <- rep(x = "black", times = length(fragmentsY))
     
-    infoText <- paste("The MS/MS spectrum of MS feature '", clusterDataList$cluster$labels[[-clusterLabel]], "' comprises ", length(fragmentsX), " fragments.", sep = "")
+    infoText <- paste("The MS/MS spectrum of MS feature '", trimws(gsub(x = clusterDataList$cluster$labels[[-clusterLabel]], pattern = " +", replacement = " ")), "' comprises ", length(fragmentsX), " fragments.", sep = "")
     
     landingPageUrlForLink <- getMetFragLink(dataList, precursorIndex)
     
@@ -1987,7 +1986,7 @@ getMS2spectrumOfPrecursor <- function(dataList, precursorIndex){
   featureValues[featureValues > 1] <- 1
   featureColor   <- rep(x = "black", times = length(featureMasses))
   
-  infoText <- paste("The MS/MS spectrum of MS feature '", dataList$precursorLabels[[precursorIndex]], "' comprises ", length(featureMasses), " fragments.", sep = "")
+  infoText <- paste("The MS/MS spectrum of MS feature '", trimws(gsub(x = dataList$precursorLabels[[precursorIndex]], pattern = " +", replacement = " ")), "' comprises ", length(featureMasses), " fragments.", sep = "")
   
   resultObj <- list()
   resultObj$fragmentMasses <- featureMasses
@@ -2099,7 +2098,7 @@ colorLabels <- function(labels, clusterMembers, color, labelsToRemove = NULL){
   
   return(colLab)
 }
-calcPlotDendrogram <- function(dataList, filter, clusterDataList, annoPresentAnnotationsList, annoPresentColorsList, distanceMeasure, selectionFragmentTreeNodeSet = NULL, selectionAnalysisTreeNodeSet = NULL, selectionSearchTreeNodeSet = NULL, xInterval = NULL){
+calcPlotDendrogram <- function(dataList, filter, clusterDataList, annoPresentAnnotationsList, annoPresentColorsList, distanceMeasure, selectionFragmentTreeNodeSet = NULL, selectionAnalysisTreeNodeSet = NULL, selectionSearchTreeNodeSet = NULL, showClusterLabels, xInterval = NULL){
   if(is.null(xInterval))
     xInterval <- c(1, clusterDataList$numberOfPrecursorsFiltered)
   
@@ -2227,15 +2226,17 @@ calcPlotDendrogram <- function(dataList, filter, clusterDataList, annoPresentAnn
   points(x = poisXpoints, y = poisYpoints, col = pointColors, pch=19, cex=pointSizes)
   
   ## point labels
-  poisXlabels <- poisX
-  poisYlabels <- poisY
-  
-  plotRange <- par("usr") ## (x1, x2, y1, y2)
-  yIntervalSize <- plotRange[[4]] - plotRange[[3]]
-  poiLabelShift <- yIntervalSize / 50
-  poiLabels <- clusterDataList$poiIntersectionSmooth[clusterDataList$drawPoi]
-  #poiLabels <- clusterDataList$innerNodeFeaturesPresent[clusterDataList$drawPoi]
-  graphics::text(x = poisXlabels - 0.0, y = poisYlabels + poiLabelShift, labels = poiLabels, pos = 4) ## pos: 1 below, 2 left, 3 above, 4 right
+  if(showClusterLabels){
+    poisXlabels <- poisX
+    poisYlabels <- poisY
+    
+    plotRange <- par("usr") ## (x1, x2, y1, y2)
+    yIntervalSize <- plotRange[[4]] - plotRange[[3]]
+    poiLabelShift <- yIntervalSize / 50
+    poiLabels <- clusterDataList$poiIntersectionSmooth[clusterDataList$drawPoi]
+    #poiLabels <- clusterDataList$innerNodeFeaturesPresent[clusterDataList$drawPoi]
+    graphics::text(x = poisXlabels - 0.0, y = poisYlabels + poiLabelShift, labels = poiLabels, pos = 4) ## pos: 1 below, 2 left, 3 above, 4 right
+  }
   
   allAnnotations <- c(resultObjAnno$setOfAnnotations, innerNodeAnnotations)
   allColors      <- c(resultObjAnno$setOfColors, innerNodeColors)
@@ -2280,22 +2281,10 @@ calcPlotHeatmap <- function(dataList, filterObj, clusterDataList, xInterval = NU
     axis(side = 2, at = c(0.5, 1.5, 2.5), labels = c(filterObj$groups[[2]], filterObj$groups[[1]], "LFC"), las = 2, tick = TRUE)
   }
 }
-calcPlotAnnoLegend <- function(presentAnnotations, colors){
-  numberOfLines <- length(presentAnnotations) + 1
-  ySpacing <- 1 / (numberOfLines + 1)
-  xSpacing <- 0.1
-  
-  ####################
-  ## heatmap legend
-  par(mar=c(0,0,0,0), mgp = c(3, 1, 0))  ## c(bottom, left, top, right)
-  
-  ## get and reorder annotations
-  annoLabels <- presentAnnotations
-  annoColors <- colors
-  
+reorderAnnotationsForLegend <- function(annoLabels, annoColors){
   ignoreThere  <- any(annoLabels == "Ignore")
   unknownThere <- any(annoLabels == "Unknown")
-  numberOfRealAnnotations <- length(presentAnnotations)
+  numberOfRealAnnotations <- length(annoLabels)
   if(ignoreThere){
     idx <- which(annoLabels == "Ignore")
     annoLabels <- c(annoLabels[-idx], annoLabels[idx])
@@ -2315,8 +2304,30 @@ calcPlotAnnoLegend <- function(presentAnnotations, colors){
     annoColors[1:numberOfRealAnnotations] <- annoColors[1:numberOfRealAnnotations][order]
   }
   
+  resultList <- list(
+    annoLabels = annoLabels,
+    annoColors = annoColors
+  )
+}
+calcPlotAnnoLegend <- function(annoLabels, annoColors){
+  ## get and reorder annotations
+  resultObj <- reorderAnnotationsForLegend(annoLabels, annoColors)
+  annoLabels <- resultObj$annoLabels
+  annoColors <- resultObj$annoColors
+  
+  calcPlotLegend(annoLabels, annoColors, "Annotations")
+}
+calcPlotScoresGroupsLegend <- function(groups, colors){
+  ## get and reorder annotations
+  calcPlotLegend(groups, colors, "Scores")
+}
+calcPlotLegend <- function(annoLabels, annoColors, title){
   ## layout
-  labels <- c("Annotations:", annoLabels)
+  numberOfLines <- length(annoLabels) + 1
+  ySpacing <- 1 / (numberOfLines + 1)
+  xSpacing <- 0.1
+  
+  labels <- c(paste(title, ":", sep = ""), annoLabels)
   xPositions <- c(-0.05, rep(x = xSpacing, times = length(annoLabels)))
   #yPositions <- seq(from = 1, to = 0, by = 1/(-length(xPositions)))
   yPositions <- seq(from = 1 - ySpacing, to = ySpacing, length.out = numberOfLines)
@@ -2326,53 +2337,27 @@ calcPlotAnnoLegend <- function(presentAnnotations, colors){
   
   ##################################################################################################
   ## plot
-  plot.new()
-  plot.window(xlim = c(0, 1), ylim = c(0, 1))
-  
-  ## circles
-  for(i in 1:length(annoColors))
-    draw.circle(x = symbolXPositions[[i]], y = symbolYPositions[[i]], radius = xSpacing*0.075, nv=50, border=annoColors[[i]], col = annoColors[[i]], lty=1, lwd=5)
-  
-  ## labels
-  graphics::text(x = xPositions, y = yPositions, labels = labels, pos = 4)
+  plotLegendWithBalls(labels, xPositions, yPositions, symbolXPositions, symbolYPositions, annoColors, xSpacing*0.075)
 }
-calcPlotAnnoLegendForImage <- function(presentAnnotations, colors, maximumNumberOfLines){
-  numberOfLines <- length(presentAnnotations) + 1
+calcPlotAnnoLegendForImage <- function(annoLabels, annoColors, maximumNumberOfLines){
+  ## get and reorder annotations
+  resultObj <- reorderAnnotationsForLegend(annoLabels, annoColors)
+  annoLabels <- resultObj$annoLabels
+  annoColors <- resultObj$annoColors
+  
+  calcPlotLegendForImage(annoLabels, annoColors, "Annotations", maximumNumberOfLines)
+}
+calcPlotScoresGroupsLegendForImage <- function(groups, colors, maximumNumberOfLines){
+  ## get and reorder annotations
+  calcPlotLegendForImage(groups, colors, "Scores", maximumNumberOfLines)
+}
+calcPlotLegendForImage <- function(annoLabels, annoColors, title, maximumNumberOfLines){
+  ## layout
+  numberOfLines <- length(annoLabels) + 1
   ySpacing <- 1 / maximumNumberOfLines
   xSpacing <- 0.1
   
-  ####################
-  ## heatmap legend
-  par(mar=c(0,0,0,0), mgp = c(3, 1, 0))  ## c(bottom, left, top, right)
-  
-  ## get and reorder annotations
-  annoLabels <- presentAnnotations
-  annoColors <- colors
-  
-  ignoreThere  <- any(annoLabels == "Ignore")
-  unknownThere <- any(annoLabels == "Unknown")
-  numberOfRealAnnotations <- length(presentAnnotations)
-  if(ignoreThere){
-    idx <- which(annoLabels == "Ignore")
-    annoLabels <- c(annoLabels[-idx], annoLabels[idx])
-    annoColors <- c(annoColors[-idx], annoColors[idx])
-    numberOfRealAnnotations <- numberOfRealAnnotations - 1
-  }
-  if(unknownThere){
-    idx <- which(annoLabels == "Unknown")
-    annoLabels <- c(annoLabels[-idx], annoLabels[idx])
-    annoColors <- c(annoColors[-idx], annoColors[idx])
-    numberOfRealAnnotations <- numberOfRealAnnotations - 1
-  }
-  
-  if(numberOfRealAnnotations > 0){
-    order <- order(annoLabels[1:numberOfRealAnnotations])
-    annoLabels[1:numberOfRealAnnotations] <- annoLabels[1:numberOfRealAnnotations][order]
-    annoColors[1:numberOfRealAnnotations] <- annoColors[1:numberOfRealAnnotations][order]
-  }
-  
-  ## layout
-  labels <- c("Annotations:", annoLabels)
+  labels <- c(paste(title, ":", sep = ""), annoLabels)
   xPositions <- c(-0.05, rep(x = xSpacing, times = length(annoLabels)))
   #yPositions <- seq(from = 1, to = 0, by = 1/(-length(xPositions)))
   yPositions <- seq(from = 1 - ySpacing, to = ySpacing, length.out = maximumNumberOfLines)
@@ -2396,12 +2381,16 @@ calcPlotAnnoLegendForImage <- function(presentAnnotations, colors, maximumNumber
   
   ##################################################################################################
   ## plot
+  plotLegendWithBalls(labels, xPositions, yPositions, symbolXPositions, symbolYPositions, annoColors, xSpacing*0.075)
+}
+plotLegendWithBalls <- function(labels, xPositions, yPositions, circleXPositions, circleYPositions, annoColors, radius){
+  par(mar=c(0,0,0,0), mgp = c(3, 1, 0))  ## c(bottom, left, top, right)
   plot.new()
   plot.window(xlim = c(0, 1), ylim = c(0, 1))
   
   ## circles
   for(i in 1:length(annoColors))
-    draw.circle(x = symbolXPositions[[i]], y = symbolYPositions[[i]], radius = xSpacing*0.075, nv=50, border=annoColors[[i]], col = annoColors[[i]], lty=1, lwd=5)
+    draw.circle(x = circleXPositions[[i]], y = circleYPositions[[i]], radius = radius, nv=50, border=annoColors[[i]], col = annoColors[[i]], lty=1, lwd=5)
   
   ## labels
   graphics::text(x = xPositions, y = yPositions, labels = labels, pos = 4)
@@ -2415,7 +2404,7 @@ calcPlotMS2Legend <- function(dataList){
   stickLabels <- c(
     paste("Presence >= ", minimumProportionOfLeafs, sep = ""), 
     paste("Presence > ", minimumProportionToShowFragment, sep = ""), 
-    "Selected in MS/MS"
+    "Selected fragment"
   )
   annoColorsStick <- c("black", "grey", "green")
   annoColorsBallSmall <- c("grey", "grey", "grey")
@@ -2642,12 +2631,13 @@ calcPlotMS2 <- function(dataList, fragmentsX = c(), fragmentsY = c(), fragmentsC
     points(x = dataX, y = dataY, col = pointColorsSmall, pch=19, cex=pointSizesSmall)
   }
 }
-calcPlotPCAscores <- function(pcaObj, dataList, filterObj, pcaDimensionOne, pcaDimensionTwo, xInterval = NULL, yInterval = NULL){
+calcPlotPCAscores <- function(pcaObj, dataList, filterObj, pcaDimensionOne, pcaDimensionTwo, showScoresLabels, xInterval = NULL, yInterval = NULL){
   palette <- colorPalette()
-  colors <- palette[unlist(lapply(X = filterObj$groups, FUN = function(x){ 
+  colorsForReplicates <- palette[unlist(lapply(X = filterObj$groups, FUN = function(x){ 
     groupIdx <- dataList$groupIdxFromGroupName(x)
     rep(x = groupIdx, times = length(dataList$dataColumnsNameFunctionFromName(x)))
   }))]
+  colorsForGroups <- palette[unlist(lapply(X = filterObj$groups, FUN = dataList$groupIdxFromGroupName))]
   
   dataDimOne <- pcaObj$scores[, pcaDimensionOne]
   dataDimTwo <- pcaObj$scores[, pcaDimensionTwo]
@@ -2676,7 +2666,7 @@ calcPlotPCAscores <- function(pcaObj, dataList, filterObj, pcaDimensionOne, pcaD
     yInterval <- c(yMin, yMax)
   
   par(mar=c(3 + 0.35, 3, 2, 1), mgp = c(2, 1, 0))  ## c(bottom, left, top, right)
-  plot(x = dataDimOne, y = dataDimTwo, xlim = xInterval, ylim = yInterval, xlab = xAxisLabel, ylab = yAxisLabel, main = "Scores", col = colors, pch=19, cex=1.)
+  plot(x = dataDimOne, y = dataDimTwo, xlim = xInterval, ylim = yInterval, xlab = xAxisLabel, ylab = yAxisLabel, main = "Scores", col = colorsForReplicates, pch=19, cex=1.)
   
   ## axis
   xInt <- xMax - xMin
@@ -2688,8 +2678,16 @@ calcPlotPCAscores <- function(pcaObj, dataList, filterObj, pcaDimensionOne, pcaD
   segments(x0 = xl, x1 = xr, y0 = 0, y1 = 0, col = "black", lwd = 1)
   segments(x0 = 0, x1 = 0, y0 = yl, y1 = yr, col = "black", lwd = 1)
   
-  labels <- dataList$dataColumnsNameFunctionFromNames(filterObj$groups)
-  graphics::text(x = dataDimOne, y = dataDimTwo, labels = labels, pos = 4)
+  if(showScoresLabels){
+    labels <- dataList$dataColumnsNameFunctionFromNames(filterObj$groups)
+    graphics::text(x = dataDimOne, y = dataDimTwo, labels = labels, pos = 4)
+  }
+  
+  resultList <- list(
+    groups = filterObj$groups,
+    colors = colorsForGroups
+  )
+  return(resultList)
 }
 calcPlotPCAloadings <- function(pcaObj, dataList, filter, pcaDimensionOne, pcaDimensionTwo, selectionFragmentPcaLoadingSet = NULL, selectionAnalysisPcaLoadingSet = NULL, selectionSearchPcaLoadingSet = NULL, xInterval = NULL, yInterval = NULL, showLoadingsLabels = FALSE, showLoadingsAbundance = FALSE){
   varianceOne <- format(x = pcaObj$variance[[pcaDimensionOne]], digits = 3)

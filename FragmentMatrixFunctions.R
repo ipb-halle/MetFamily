@@ -191,7 +191,7 @@ parseMSP <- function(fileSpectra, minimumIntensityOfMaximalMS2peak, minimumPropo
   for(lineIdx in 1:numberOfFileLines){
     ## progress
     if((lineIdx %% (as.integer(numberOfFileLines/10))) == 0)
-      if(progress)  incProgress(amount = 0.01, detail = paste("MS2 file: ", lineIdx, " / ", numberOfFileLines, sep = "")) else print(paste("MS2 file: ", lineIdx, " / ", numberOfFileLines, sep = ""))
+      if(progress)  incProgress(amount = 0.01, detail = paste("MS/MS file: ", lineIdx, " / ", numberOfFileLines, sep = "")) else print(paste("MS/MS file: ", lineIdx, " / ", numberOfFileLines, sep = ""))
     
     ## current line
     line <- fileLines[[lineIdx]]
@@ -312,7 +312,7 @@ parseMSP <- function(fileSpectra, minimumIntensityOfMaximalMS2peak, minimumPropo
   numberOfSpectra <- length(spectraList)
   
   ## postprocess
-  if(progress)  incProgress(amount = 0.01, detail = paste("MS2 file postprocessing", sep = "")) else print(paste("MS2 file postprocessing", sep = ""))
+  if(progress)  incProgress(amount = 0.01, detail = paste("MS/MS file postprocessing", sep = "")) else print(paste("MS/MS file postprocessing", sep = ""))
   precursorMz <- vector(mode = "numeric", length = numberOfSpectra)
   for(spectrumIdx in seq_len(length.out = numberOfSpectra))
     precursorMz[[spectrumIdx]] <- spectraList[[spectrumIdx]]$mz
@@ -321,7 +321,7 @@ parseMSP <- function(fileSpectra, minimumIntensityOfMaximalMS2peak, minimumPropo
   for(spectrumIdx in seq_len(length.out = numberOfSpectra))
     precursorRt[[spectrumIdx]] <- spectraList[[spectrumIdx]]$rt
   
-  if(progress)  incProgress(amount = 0.01, detail = paste("MS2 file boxing", sep = "")) else print(paste("MS2 file boxing", sep = ""))
+  if(progress)  incProgress(amount = 0.01, detail = paste("MS/MS file boxing", sep = "")) else print(paste("MS/MS file boxing", sep = ""))
   returnObj <- list()
   returnObj$fileSpectra <- fileSpectra
   returnObj$spectraList <- spectraList
@@ -543,7 +543,7 @@ builtMatrix <- function(spectraList, mzDeviationAbsolute_grouping, mzDeviationIn
 convertToProjectFile <- function(filePeakMatrix, fileSpectra, parameterSet, progress = FALSE){
   ####################################################################################
   ## aligned spectra
-  if(progress)  incProgress(amount = 0.1, detail = paste("Parsing MS1 file...", sep = "")) else print(paste("Parsing MS1 file...", sep = ""))
+  if(progress)  incProgress(amount = 0.1, detail = paste("Parsing MS file...", sep = "")) else print(paste("Parsing MS file...", sep = ""))
   
   returnObj <- parsePeakAbundanceMatrix(
     filePeakMatrix = filePeakMatrix, 
@@ -577,7 +577,7 @@ convertToProjectFile <- function(filePeakMatrix, fileSpectra, parameterSet, prog
   ####################################################################################
   ## parse MS/MS spectra
   
-  if(progress)  incProgress(amount = 0.01, detail = paste("Parsing MS2 file...", sep = "")) else print(paste("Parsing MS2 file...", sep = ""))
+  if(progress)  incProgress(amount = 0.01, detail = paste("Parsing MS/MS file...", sep = "")) else print(paste("Parsing MS/MS file...", sep = ""))
   
   returnObj <- parseMSP(
     fileSpectra = fileSpectra, 
@@ -593,7 +593,7 @@ convertToProjectFile <- function(filePeakMatrix, fileSpectra, parameterSet, prog
   if(length(spectraList) == 0)
     return("Number of spectra is zero")
   
-  if(progress)  incProgress(amount = 0.01, detail = paste("Parsing MS2 file ready", sep = "")) else print(paste("Parsing MS2 file ready", sep = ""))
+  if(progress)  incProgress(amount = 0.01, detail = paste("Parsing MS/MS file ready", sep = "")) else print(paste("Parsing MS/MS file ready", sep = ""))
   
   ## out
   #print(paste("parsing file", fileSpectra, "finished"))

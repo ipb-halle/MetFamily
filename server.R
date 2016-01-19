@@ -28,6 +28,8 @@ source("FragmentMatrixFunctions.R")
 #########################################################################################
 #########################################################################################
 ## global variables
+shinyAppFolder <- "/vol/R/shiny/srv/shiny-server/MetFam/"
+
 shinyServer(
   func = function(input, output, session) {
     #########################################################################################
@@ -56,6 +58,7 @@ shinyServer(
     runRightColumnWidthPart <- 8
     legendColumnWidthPart <- 2
     annoLegendEntryHeight <- 20
+    scoresGroupsLegendEntryHeight <- 25
     
     ## data
     dataList <- NULL
@@ -87,6 +90,8 @@ shinyServer(
       plotPcaShown = FALSE,
       precursorSetSelected = FALSE,
       selectedSelection = NULL,
+      showClusterLabels = TRUE,
+      showScoresLabels = TRUE,
       showLoadingsLabels = FALSE,
       showLoadingsAbundance = FALSE,
       #annotationLegendHeight = annoLegendEntryHeight * (2 + 1 + 1)
@@ -94,7 +99,9 @@ shinyServer(
       annotationLegendHeightPca = -1,
       ## plot annotations
       annotationsHca = NULL,
-      annotationsPca = NULL
+      annotationsPca = NULL,
+      scoresGroups = NULL,
+      scoresGroupsLegendHeight = -1
     )
     changeSelectionCurrentSelection <- selectionAnalysisName
     precursorSelectionTabCurrentTab <- precursorSelectionTabSelection
@@ -103,8 +110,7 @@ shinyServer(
     
     ## buttons
     applyGlobalMS2filtersButtonValue <- 0
-    applySearchMS1ButtonValue <- 0
-    applySearchMS2ButtonValue <- 0
+    applySearchButtonValue <- 0
     clearSearchButtonValue <- 0
     applyHcaFiltersButtonValue <- 0
     applyPcaFiltersButtonValue <- 0
@@ -284,6 +290,7 @@ shinyServer(
       selectedTable <<- NULL
       state$annotationsHca <<- NULL
       state$annotationsPca <<- NULL
+      state$scoresGroups <<- NULL
       
       ## reset plot range
       dendrogramPlotRangeY <<- NULL
@@ -363,13 +370,12 @@ shinyServer(
       ## input fields: search MS1
       updateTextInput(session = session, inputId = "searchMS1mass", value = "")
       updateTextInput(session = session, inputId = "searchMS1massPpm", value = 20)
-      updateCheckboxInput(session = session, inputId = "searchMS1includeIgnoredPrecursors", value = FALSE)
       ## input fields: search MS2
       updateTextInput(session = session, inputId = "search_ms2_masses1", value = "")
       updateTextInput(session = session, inputId = "search_ms2_masses2", value = "")
       updateTextInput(session = session, inputId = "search_ms2_masses3", value = "")
       updateTextInput(session = session, inputId = "searchMS2massPpm", value = 20)
-      updateCheckboxInput(session = session, inputId = "searchMS2includeIgnoredPrecursors", value = FALSE)
+      updateCheckboxInput(session = session, inputId = "searchIncludeIgnoredPrecursors", value = FALSE)
       #updateColourInput(session = session, inputId = "newAnnotationColor", allowedCols = colorPalette())
       ## anno
       updateTextInput(session = session, inputId = "newAnnotationValue", value = "")
@@ -740,11 +746,11 @@ shinyServer(
       if(all(fileInputSelection == "Load project", !is.null(filePath), !is.null(state$importedOrLoadedFile_s_), fileName == state$importedOrLoadedFile_s_))
         output$fileInfo <- renderText({paste(fileName)})
       if(all(fileInputSelection == "Import data", is.null(fileMs1Path), is.null(fileMs2Path)))
-        output$fileInfo <- renderText({paste("Please select a MS data file, a MS/MS data file, and press 'Import MS and MS/MS data'")})
+        output$fileInfo <- renderText({paste("Please select a metabolite profile, a MS/MS library, and press 'Import MS and MS/MS data'")})
       if(all(fileInputSelection == "Import data", is.null(fileMs1Path), !is.null(fileMs2Path)))
-        output$fileInfo <- renderText({paste("Please select a MS data file and press 'Import MS and MS/MS data'")})
+        output$fileInfo <- renderText({paste("Please select a metabolite profile and press 'Import MS and MS/MS data'")})
       if(all(fileInputSelection == "Import data", !is.null(fileMs1Path), is.null(fileMs2Path)))
-        output$fileInfo <- renderText({paste("Please select a MS/MS data file and press 'Import MS and MS/MS data'")})
+        output$fileInfo <- renderText({paste("Please select a MS/MS library and press 'Import MS and MS/MS data'")})
       if(all(fileInputSelection == "Import data", !is.null(fileMs1Path), !is.null(fileMs2Path), any(is.null(state$importedOrLoadedFile_s_), c(fileMs1Name,fileMs2Name) != state$importedOrLoadedFile_s_)))
         output$fileInfo <- renderText({paste("Please press 'Import MS and MS/MS data'")})
       if(all(fileInputSelection == "Import data", !is.null(fileMs1Path), !is.null(fileMs2Path), !is.null(state$importedOrLoadedFile_s_), c(fileMs1Name,fileMs2Name) == state$importedOrLoadedFile_s_))
@@ -832,6 +838,7 @@ shinyServer(
         selectionFragmentTreeNodeSet = selectionFragmentTreeNodeSet,
         selectionAnalysisTreeNodeSet = selectionAnalysisTreeNodeSet,
         selectionSearchTreeNodeSet = selectionSearchTreeNodeSet,
+        showClusterLabels = state$showClusterLabels, 
         xInterval = dendrogramPlotRange$xInterval
       )
       
@@ -855,7 +862,19 @@ shinyServer(
       })
     }
     drawPcaScoresPlotImpl <- function(){
-      calcPlotPCAscores(pcaObj = pcaDataList$pcaObj, dataList = dataList, filterObj = filterPca, pcaDimensionOne = pcaDataList$dimensionOne, pcaDimensionTwo = pcaDataList$dimensionTwo, xInterval = pcaScoresPlotRange$xInterval, yInterval = pcaScoresPlotRange$yInterval)
+      resultObj <- calcPlotPCAscores(
+        pcaObj = pcaDataList$pcaObj, 
+        dataList = dataList, 
+        filterObj = filterPca, 
+        pcaDimensionOne = pcaDataList$dimensionOne, 
+        pcaDimensionTwo = pcaDataList$dimensionTwo, 
+        showScoresLabels = state$showScoresLabels, 
+        xInterval = pcaScoresPlotRange$xInterval, 
+        yInterval = pcaScoresPlotRange$yInterval
+      )
+      
+      state$scoresGroups <<- resultObj
+      state$scoresGroupsLegendHeight <<- scoresGroupsLegendEntryHeight * (length(state$scoresGroups$groups) + 1)
     }
     drawPcaLoadingsPlot <- function(consoleInfo = NULL){
       output$plotPcaLoadings <- renderPlot({
@@ -901,6 +920,12 @@ shinyServer(
       output$plotAnnoLegendPCA <- renderPlot({
         print(paste("### leg ###", consoleInfo))
         calcPlotAnnoLegend(state$annotationsPca$setOfAnnotations, state$annotationsPca$setOfColors)
+      })
+    }
+    drawScoresGroupsLegend <- function(consoleInfo = NULL){
+      output$plotScoresGroupsLegend <- renderPlot({
+        print(paste("### leg ###", consoleInfo))
+        calcPlotScoresGroupsLegend(state$scoresGroups$groups, state$scoresGroups$colors)
       })
     }
     drawMS2Legend <- function(consoleInfo = NULL){
@@ -1774,12 +1799,12 @@ shinyServer(
       ## files
       ## TODO relative paths or as R package
       if(exampleDataSelection == "Example data set (full)"){
-        filePath <- "/vol/R/shiny/srv/shiny-server/MetFam/files/20158251022_matrixPrecursorsVersusFragmentsDeisotoped_withoutZeros.txt"
-        fileName <- "20158251022_matrixPrecursorsVersusFragmentsDeisotoped_withoutZeros.txt"
+        filePath <- paste(shinyAppFolder, "files/Fragment_matrix_showcase.csv", sep = "")
+        fileName <- "Fragment_matrix_showcase.csv"
       }
       if(exampleDataSelection == "Example data set (reduced)"){
-        filePath <- "/vol/R/shiny/srv/shiny-server/MetFam/files/2016-01-12_09.38.12_selectedPrecursorMatrix.csv.gz"
-        fileName <- "2016-01-12_09.38.12_selectedPrecursorMatrix.csv.gz"
+        filePath <- paste(shinyAppFolder, "files/Project_file_showcase_reduced.csv.gz", sep = "")
+        fileName <- "Project_file_showcase.csv.gz"
       }
       
       loadProjectFile(filePath = filePath, fileName = fileName, buttonId = "loadExampleData")
@@ -2050,8 +2075,22 @@ shinyServer(
       }
       
       ## restore gui state
+      updateCheckboxInput(session = session, inputId = "showClusterLabels", value = state$showClusterLabels)
+      updateCheckboxInput(session = session, inputId = "showScoresLabels", value = state$showScoresLabels)
       updateCheckboxInput(session = session, inputId = "showLoadingsLabels", value = state$showLoadingsLabels)
       updateCheckboxInput(session = session, inputId = "showLoadingsAbundance", value = state$showLoadingsAbundance)
+    })
+    obsShowClusterLabels <- observeEvent(input$showClusterLabels, {
+      showClusterLabels <- input$showClusterLabels
+      print(paste("Observe showClusterLabels", showClusterLabels))
+      state$showClusterLabels <<- showClusterLabels
+      drawDendrogramPlot(consoleInfo = "showClusterLabels")
+    })
+    obsShowScoresLabels <- observeEvent(input$showScoresLabels, {
+      showScoresLabels <- input$showScoresLabels
+      print(paste("Observe showScoresLabels", showScoresLabels))
+      state$showScoresLabels <<- showScoresLabels
+      drawPcaScoresPlot(consoleInfo = "showScoresLabels")
     })
     obsShowLoadingsLabels <- observeEvent(input$showLoadingsLabels, {
       showLoadingsLabels <- input$showLoadingsLabels
@@ -2089,68 +2128,54 @@ shinyServer(
       if(state$showHCAplotPanel)  drawDendrogramPlot( consoleInfo = "clear search")
       if(state$showPCAplotPanel)  drawPcaPlots(       consoleInfo = "clear search")
     })
-    obsApplySearchMS1 <- observeEvent(input$applySearchMS1, {
-      applySearchMS1 <- as.numeric(input$applySearchMS1)
+    obsApplySearch <- observeEvent(input$applySearch, {
+      applySearch <- as.numeric(input$applySearch)
       
-      print(paste("Observe applySearchMS1", applySearchMS1))
-      
-      #################################################
-      ## check if button was hit
-      if(applySearchMS1 == applySearchMS1ButtonValue)
-        return()
-      applySearchMS1ButtonValue <<- applySearchMS1
-      
-      #################################################
-      ## get inputs
-      filter_ms1_mass <- input$searchMS1mass
-      filter_ms1_ppm  <- input$searchMS1massPpm
-      includeIgnoredPrecursors  <- input$searchMS1includeIgnoredPrecursors
-      
-      if(nchar(trimws(filter_ms1_mass)) == 0)
-        return()
-      
-      filter_ms2_masses1  <- NULL
-      filter_ms2_masses2  <- NULL
-      filter_ms2_masses3  <- NULL
-      filter_ms2_ppm      <- NULL
-      
-      groupSet        <- dataList$groups
-      filter_average  <- NULL
-      filter_lfc      <- NULL
-      
-      #################################################
-      ## do filtering
-      print(paste("Observe applySearchMS1", "1m", filter_ms1_mass, "1p", filter_ms1_ppm, "i", includeIgnoredPrecursors, "gs", paste(groupSet, collapse = "-")))
-      resultObj <- doPerformFiltering(groupSet, filter_average, filter_lfc, filter_ms2_masses1, filter_ms2_masses2, filter_ms2_masses3, filter_ms2_ppm, filter_ms1_mass, filter_ms1_ppm, includeIgnoredPrecursors)
-      processSearchFilterResult(resultObj)
-    })
-    obsApplySearchMS2 <- observeEvent(input$applySearchMS2, {
-      applySearchMS2 <- as.numeric(input$applySearchMS2)
-      
-      print(paste("Observe applySearchMS2", applySearchMS2))
+      print(paste("Observe applySearch", applySearch))
       
       #################################################
       ## check if button was hit
-      if(applySearchMS2 == applySearchMS2ButtonValue)
+      if(applySearch == applySearchButtonValue)
         return()
-      applySearchMS2ButtonValue <<- applySearchMS2
+      applySearchButtonValue <<- applySearch
       
       #################################################
-      ## get inputs
-      filter_ms2_masses1 <- input$search_ms2_masses1
-      filter_ms2_masses2 <- input$search_ms2_masses2
-      filter_ms2_masses3 <- input$search_ms2_masses3
-      filter_ms2_ppm      <- input$searchMS2massPpm
-      includeIgnoredPrecursors  <- input$searchMS2includeIgnoredPrecursors
+      ## MS1 or MS2?
+      searchMode <- input$searchMS1orMS2
+      if(searchMode == 'MS feature m/z'){
+        #################################################
+        ## get inputs
+        filter_ms1_mass <- input$searchMS1mass
+        filter_ms1_ppm  <- input$searchMS1massPpm
+        
+        if(nchar(trimws(filter_ms1_mass)) == 0)
+          return()
+        
+        filter_ms2_masses1  <- NULL
+        filter_ms2_masses2  <- NULL
+        filter_ms2_masses3  <- NULL
+        filter_ms2_ppm      <- NULL
+      }
+      if(searchMode == 'Fragment m/z'){
+        #################################################
+        ## get inputs
+        filter_ms2_masses1 <- input$search_ms2_masses1
+        filter_ms2_masses2 <- input$search_ms2_masses2
+        filter_ms2_masses3 <- input$search_ms2_masses3
+        filter_ms2_ppm     <- input$searchMS2massPpm
+        
+        filter_ms1_mass <- NULL
+        filter_ms1_ppm <- NULL
+      }
       
-      groupSet        <- dataList$groups
-      filter_average  <- NULL
       filter_lfc      <- NULL
-      filter_ms1_mass <- NULL
-      filter_ms1_ppm <- NULL
+      filter_average  <- NULL
+      groupSet        <- dataList$groups
+      includeIgnoredPrecursors  <- input$searchIncludeIgnoredPrecursors
       
       #################################################
       ## do filtering
+      print(paste("Observe applySearch", "1m", filter_ms1_mass, "1p", filter_ms1_ppm, "i", includeIgnoredPrecursors, "gs", paste(groupSet, collapse = "-")))
       resultObj <- doPerformFiltering(groupSet, filter_average, filter_lfc, filter_ms2_masses1, filter_ms2_masses2, filter_ms2_masses3, filter_ms2_ppm, filter_ms1_mass, filter_ms1_ppm, includeIgnoredPrecursors)
       processSearchFilterResult(resultObj)
     })
@@ -2457,6 +2482,7 @@ shinyServer(
       drawPcaPlots(consoleInfo = "drawPCA output$plotPcaScores")
       drawMS2Plot(consoleInfo = "drawPCA output$plotMS2")
       drawAnnotationLegendPCA(consoleInfo = "init output$plotAnnoLegend")
+      drawScoresGroupsLegend(consoleInfo = "init output$plotScoresGroupsLegend")
       
       if(!state$anyPlotDrawn){
         drawMS2Legend(consoleInfo = "init output$ms2LegendPlot")
@@ -3194,12 +3220,13 @@ shinyServer(
       obsImportMs1Ms2Data$suspend()
       obsFileInputSelection$suspend()
       obsShowSideBar$suspend()
+      obsShowClusterLabels$suspend()
+      obsShowScoresLabels$suspend()
       obsShowLoadingsLabels$suspend()
       obsShowLoadingsAbundance$suspend()
       ## filter
       obsClearSearch$suspend()
-      obsApplySearchMS1$suspend()
-      obsApplySearchMS2$suspend()
+      obsApplySearch$suspend()
       obsApplyGlobalMS2filters$suspend()
       obsApplyHcaFilters$suspend()
       obsApplyPcaFilters$suspend()
@@ -3241,7 +3268,7 @@ shinyServer(
     
     #########################################################################################
     #########################################################################################
-    ##direct output rendering
+    ## direct output rendering
     output$fileInfo <- renderText({
       print(paste("init output$fileInfo"))
       paste("Please select a project file and press 'Load project data'")
@@ -3475,6 +3502,38 @@ shinyServer(
              )## conditional
            ),##column
            column(width = state$legendColumnWidth,
+              conditionalPanel(## scores / loadings properties
+                condition = 'output.analysisType == "PCA" && output.showPCAplotPanel',
+                #splitLayout(
+                #  style = "border: 1px solid silver;padding: 0px 6px;",
+                #  div(
+                    h5("PCA scores"),
+                    bsTooltip(id = "showScoresLabels", title = "Display scores labels", placement = "bottom", trigger = "hover"),
+                    checkboxInput(inputId = "showScoresLabels", label = "Show labels", value = TRUE),
+                #  )
+                #),
+                #splitLayout(
+                #  style = "border: 1px solid silver;padding: 0px 6px;",
+                #  div(
+                    h5("PCA loadings"),
+                    bsTooltip(id = "showLoadingsLabels", title = "Display loadings labels", placement = "bottom", trigger = "hover"),
+                    checkboxInput(inputId = "showLoadingsLabels", label = "Show labels", value = FALSE),
+                    bsTooltip(id = "showLoadingsAbundance", title = "Use abundance in MS to scale the size of loadings nodes", placement = "bottom", trigger = "hover"),
+                    checkboxInput(inputId = "showLoadingsAbundance", label = "Show abundance", value = FALSE)
+                #  )
+                #)
+              ),
+              conditionalPanel(## dendrogram properties
+                condition = 'output.analysisType == "HCA" && output.showHCAplotPanel',
+                #splitLayout(
+                #  style = "border: 1px solid silver;padding: 0px 6px;",
+                #  div(
+                    h5("HCA dendrogram"),
+                    bsTooltip(id = "showClusterLabels", title = "Display the labels of cluster nodes and MS feature nodes representing the number of characteristic fragments", placement = "bottom", trigger = "hover"),
+                    checkboxInput(inputId = "showClusterLabels", label = "Show labels", value = TRUE)
+                #  )
+                #)
+              ),
               conditionalPanel(
                 condition = 'output.analysisType == "HCA" && output.showHCAplotPanel',
                 splitLayout(
@@ -3491,7 +3550,6 @@ shinyServer(
               ),## conditional
               conditionalPanel(
                 condition = '(output.analysisType == "HCA" && output.showHCAplotPanel) || (output.analysisType == "PCA" && output.showPCAplotPanel)',
-                #condition = 'output.analysisType == "HCA" && output.showHCAplotPanel',
                 splitLayout(
                   style = "border: 1px solid silver;",
                   plotOutput(outputId = "calcPlotDendrogramLegend", height = 100)
@@ -3506,10 +3564,10 @@ shinyServer(
               ),## conditional
               conditionalPanel(## loadings properties
                 condition = 'output.analysisType == "PCA" && output.showPCAplotPanel',
-                bsTooltip(id = "showLoadingsLabels", title = "Display loadings labels", placement = "bottom", trigger = "hover"),
-                checkboxInput(inputId = "showLoadingsLabels", label = "Show labels", value = FALSE),
-                bsTooltip(id = "showLoadingsAbundance", title = "Use abundance in MS to scale the size of loadings nodes", placement = "bottom", trigger = "hover"),
-                checkboxInput(inputId = "showLoadingsAbundance", label = "Show abundance", value = FALSE)
+                splitLayout(
+                  style = "border: 1px solid silver;",
+                  plotOutput(outputId = "plotScoresGroupsLegend", height = state$scoresGroupsLegendHeight)
+                )
               ),
               conditionalPanel(
                 condition = '(output.analysisType == "HCA" && output.showHCAplotPanel) || (output.analysisType == "PCA" && output.showPCAplotPanel)',
@@ -3563,6 +3621,7 @@ shinyServer(
            condition = '(output.showHCAplotPanel && output.analysisType == "HCA") || (output.showPCAplotPanel && output.analysisType == "PCA")',
            fluidRow(
              wellPanel(
+               h4("MS feature selections"),
                bsTooltip(id = "changeSelection", title = "Switch MS feature selection", placement = "bottom", trigger = "hover"),
                radioButtons(inputId = "changeSelection", label = NULL, choices = c(selectionAnalysisName, selectionFragmentName, selectionSearchName), selected = changeSelectionCurrentSelection, inline = TRUE),
                bsTooltip(id = "selectionInfo", title = "The number of MS features in the current selection", placement = "bottom", trigger = "hover"),
@@ -3579,7 +3638,7 @@ shinyServer(
                        bsTooltip(id = "downloadSelectedPrecursors", title = "Download a project file which is reduced to the selected set of MS features", placement = "bottom", trigger = "hover"),
                        downloadButton('downloadSelectedPrecursors', 'Download reduced project file'),
                        bsTooltip(id = "clearSelection", title = "Press to clear this selection", placement = "bottom", trigger = "hover"),
-                       actionButton(inputId = "clearSelection", label = "Clear selection")
+                       actionButton(inputId = "clearSelection", label = "Clear selection", class="btn-success")
                      )## well
                    ),## tab
                    tabPanel(title = precursorSelectionTabAnnotation, 
@@ -3594,12 +3653,12 @@ shinyServer(
                           column(
                             width = 3,
                             bsTooltip(id = "setPresentAnnotationPrimary", title = "Sets the selected annotation primary for the set of selected MS features; i.e. this annotation will be used preferentially for coloring in HCA and PCA", placement = "bottom", trigger = "hover"),
-                            actionButton(inputId = "setPresentAnnotationPrimary", label = "Set primary")
+                            actionButton(inputId = "setPresentAnnotationPrimary", label = "Set primary", class="btn-success")
                           ),## column
                           column(
                             width = 6,
                             bsTooltip(id = "removePresentAnnotation", title = "Removes the selected annotation from the set of selected MS features", placement = "bottom", trigger = "hover"),
-                            actionButton(inputId = "removePresentAnnotation", label = "Remove annotation")
+                            actionButton(inputId = "removePresentAnnotation", label = "Remove annotation", class="btn-success")
                           )## column
                         ),##row
                         fluidRow(
@@ -3612,7 +3671,7 @@ shinyServer(
                             bsTooltip(id = "newAnnotationColor", title = "The color of this annotation", placement = "bottom", trigger = "hover"),
                             colourInput(inputId = "newAnnotationColor", label = "Select annotation color", palette = "limited", showColour = "background", allowedCols = colorPalette()),
                             bsTooltip(id = "submitNewAnnotation", title = "Adds this annotation to the set of selected MS features", placement = "bottom", trigger = "hover"),
-                            actionButton(inputId = "submitNewAnnotation", label = "Add new annotation")
+                            actionButton(inputId = "submitNewAnnotation", label = "Add new annotation", class="btn-success")
                           ),
                           column(
                             width = 6,
@@ -3620,7 +3679,7 @@ shinyServer(
                             bsTooltip(id = "previousAnnotationValue", title = "The set of annotations which have been assigned before", placement = "bottom", trigger = "hover"),
                             selectInput(inputId = "previousAnnotationValue", label = "Select previous annotation", choices = c("Artifact"), selectize = FALSE),
                             bsTooltip(id = "submitPreviousAnnotation", title = "Adds this annotation to the set of selected MS features", placement = "bottom", trigger = "hover"),
-                            actionButton(inputId = "submitPreviousAnnotation", label = "Add previous annotation")
+                            actionButton(inputId = "submitPreviousAnnotation", label = "Add previous annotation", class="btn-success")
                           )
                         )
                       )## well
@@ -3629,7 +3688,7 @@ shinyServer(
                       wellPanel(
                         h4("Selected MS features"),
                         bsTooltip(id = "updateArtifactsFromCheckboxes", title = "Adds the annotation \\'ignore\\' to the set of checked MS features", placement = "bottom", trigger = "hover"),
-                        actionButton(inputId = "updateArtifactsFromCheckboxes", label = "Apply annotation 'Ignore' to MS features"),
+                        actionButton(inputId = "updateArtifactsFromCheckboxes", label = "Apply annotation 'Ignore' to MS features", class="btn-success"),
                         DT::dataTableOutput("table")
                       )## well
                    )## tab
@@ -3648,8 +3707,8 @@ shinyServer(
       fileName <- paste(gsub(" ", "_", gsub(":", ".", Sys.time())), "_selectedPrecursorMatrix.csv.gz", sep = "")
       return(fileName)
     }
-    createExportImageName <- function(item){
-      fileName <- paste(gsub(" ", "_", gsub(":", ".", Sys.time())), "_", item, ".png", sep = "")
+    createExportImageName <- function(item, extension){
+      fileName <- paste(gsub(" ", "_", gsub(":", ".", Sys.time())), "_", item, ".", extension, sep = "")
       return(fileName)
     }
     createExportDistanceMatrixName <- function(distanceMeasure){
@@ -3767,7 +3826,7 @@ shinyServer(
       #print(paste("create", Sys.time()))
       dataFrame <- createExportMatrix(precursorSet)
       #print(paste("create ready", Sys.time()))
-      gz1 <- gzfile(file, "w")
+      gz1 <- gzfile(description = file, open = "w")
       #print(paste("write", Sys.time()))
       write.table(x = dataFrame, file = gz1, sep = "\t", row.names = FALSE, col.names = FALSE, quote = FALSE)
       #write.table(x = dataFrame, file = file, sep = "\t", row.names = FALSE, col.names = FALSE, quote = FALSE)
@@ -3856,7 +3915,8 @@ shinyServer(
     ## download images
     output$downloadHcaImage <- downloadHandler(
       filename = function() {
-        createExportImageName("HCA")
+        fileType <- input$downloadHcaImageType
+        createExportImageName("HCA", fileType)
       },
       content = function(file) {
         ## 1 den    ## 2 hea
@@ -3871,6 +3931,8 @@ shinyServer(
         ## 3 7
         ## 
         
+        fileType <- input$downloadHcaImageType
+        
         ## parameters
         widthInInch     <- 10
         heigthInInch    <- 7.5
@@ -3881,7 +3943,18 @@ shinyServer(
         #tmpFile <- paste("/home/htreutle/Downloads/MetSWATH/", createExportImageName("PCA"), sep = "")
         #print(tmpFile)
         #png(filename = tmpFile, 3000, 2000, res = 300, bg = "white")
-        png(filename = file, width = widthInPixel, height = heightInPixel, res = resolutionInDPI, bg = "white")
+        switch(fileType,
+               "png"={
+                 png(filename = file, width = widthInPixel, height = heightInPixel, res = resolutionInDPI, bg = "white")
+               },
+               "svg"={
+                 svg(filename = file)
+               },
+               "pdf"={
+                 pdf(file = file, title = "PCA image export from MetFam")
+               },
+               stop(paste("Unknown file type (", fileType, ")!", sep = ""))
+        )
         
         layout(
           mat = matrix(
@@ -3903,12 +3976,13 @@ shinyServer(
         
         dev.off()
         ## cannot open file 'Rplots.pdf'
-      },
-      contentType = 'image/png'
+      }#,
+      #contentType = 'image/png'
     )
     output$downloadPcaImage <- downloadHandler(
       filename = function() {
-        createExportImageName("PCA")
+        fileType <- input$downloadPcaImageType
+        createExportImageName("PCA", fileType)
       },
       content = function(file) {
         ## 1 score  ## 2 loadings
@@ -3923,6 +3997,8 @@ shinyServer(
         ## 3 3 7
         ## 
         
+        fileType <- input$downloadPcaImageType
+        
         ## parameters
         widthInInch     <- 10
         heigthInInch    <- 7.5
@@ -3933,30 +4009,42 @@ shinyServer(
         #tmpFile <- paste("/home/htreutle/Downloads/MetSWATH/", createExportImageName("PCA"), sep = "")
         #print(tmpFile)
         #png(filename = tmpFile, 3000, 2000, res = 300, bg = "white")
-        png(filename = file, width = widthInPixel, height = heightInPixel, res = resolutionInDPI, bg = "white")
+        
+        switch(fileType,
+               "png"={
+                 png(filename = file, width = widthInPixel, height = heightInPixel, res = resolutionInDPI, bg = "white")
+               },
+               "svg"={
+                 svg(filename = file)
+               },
+               "pdf"={
+                 pdf(file = file, title = "PCA image export from MetFam")
+               },
+               stop(paste("Unknown file type (", fileType, ")!", sep = ""))
+        )
         
         layout(
           mat = matrix(
-            data = c(1, 1, 1, 3,
-                     2, 2, 2, 3, 
-                     4, 5, 6, 6), 
-            nrow = 4, ncol = 3), 
+            data = c(1, 1, 1, 1, 3,
+                     2, 2, 2, 2, 3, 
+                     4, 5, 6, 7, 7), 
+            nrow = 5, ncol = 3), 
           widths = c(2, 2, 1), 
-          heights = c(0.6, 0.6, 2.5, 1.5)
+          heights = c(1.3, 0.6, 0.6, 1.2, 1.5)
         )
         
         drawPcaScoresPlotImpl()
         drawPcaLoadingsPlotImpl()
         drawMS2PlotImpl()
+        calcPlotScoresGroupsLegendForImage(state$scoresGroups$groups, state$scoresGroups$colors, 10)
         drawDendrogramLegendImpl()
-        #drawHeatmapLegendImpl()
         drawMS2LegendImpl()
-        calcPlotAnnoLegendForImage(state$annotationsPca$setOfAnnotations, state$annotationsPca$setOfColors, 30)
+        calcPlotAnnoLegendForImage(state$annotationsPca$setOfAnnotations, state$annotationsPca$setOfColors, 20)
         #drawAnnotationLegendImpl()
         
         dev.off()
-      },
-      contentType = 'image/png'
+      }#,
+      #contentType = 'image/png'
     )
     output$downloadDistanceMatrix <- downloadHandler(
       filename = function() {
@@ -3967,6 +4055,37 @@ shinyServer(
       },
       contentType = 'text/csv'
     )
+    ## download publication data
+    output$downloadMsData <- downloadHandler(
+      filename = function() {
+        return("Metabolite_profile_showcase.txt")
+      },
+      content = function(file) {
+        ## copy data for download
+        file.copy(paste(shinyAppFolder, "files/Metabolite_profile_showcase.txt", sep = ""), file)
+      },
+      contentType = "application/zip"
+    )
+    output$downloadMsMsData <- downloadHandler(
+      filename = function() {
+        return("MSMS_library_showcase.msp")
+      },
+      content = function(file) {
+        ## copy data for download
+        file.copy(paste(shinyAppFolder, "files/MSMS_library_showcase.msp", sep = ""), file)
+      },
+      contentType = "application/zip"
+    )
+    output$downloadFragmentMatrix <- downloadHandler(
+      filename = function() {
+        return("Fragment_matrix_showcase.csv")
+      },
+      content = function(file) {
+        ## copy data for download
+        file.copy(paste(shinyAppFolder, "files/Fragment_matrix_showcase.csv", sep = ""), file)
+      },
+      contentType = "application/zip"
+    )
     ### TODO
     #output$myImage <- renderImage({
     #  #list(src = "/home/htreutle/Downloads/MetSWATH/svg/svgTestScoresPlot01.svg",
@@ -3976,5 +4095,265 @@ shinyServer(
     #       height = 600
     #  )
     #}, deleteFile = FALSE)
+    serialization <- function(){
+      #######################################
+      ## enlist
+      paramsList <- list(
+        ## global MS2 filter
+        globalFilter_ms2_masses1          = input$globalFilter_ms2_masses1,
+        globalFilter_ms2_masses2          = input$globalFilter_ms2_masses2,
+        globalFilter_ms2_masses3          = input$globalFilter_ms2_masses3,
+        globalFilter_ms2_ppm              = input$globalFilter_ms2_ppm,
+        #input$applyGlobalMS2filters
+        ## HCA
+        hcaFilterGroupOne                 = input$hcaFilterGroupOne,
+        hcaFilterGroupTwo                 = input$hcaFilterGroupTwo,
+        hcaFilter_average                 = input$hcaFilter_average,
+        hcaFilter_lfc                     = input$hcaFilter_lfc,
+        hcaFilterIncludeIgnoredPrecursors = input$hcaFilterIncludeIgnoredPrecursors,
+        #input$applyHcaFilters
+        hcaDistanceFunction               = input$hcaDistanceFunction,
+        hcaClusterMethod                  = input$hcaClusterMethod,
+        #input$drawHCAplots
+        ## PCA
+        pcaGroups                         = input$pcaGroups,
+        pcaFilter_average                 = input$pcaFilter_average,
+        pcaFilter_lfc                     = input$pcaFilter_lfc,
+        pcaFilterIncludeIgnoredPrecursors = input$pcaFilterIncludeIgnoredPrecursors,
+        #input$applyPcaFilters
+        pcaScaling                        = input$pcaScaling,
+        pcaLogTransform                   = input$pcaLogTransform,
+        pcaDimensionOne                   = input$pcaDimensionOne,
+        pcaDimensionTwo                   = input$pcaDimensionTwo,
+        #input$drawPCAplots
+        ## plot properties
+        showClusterLabels                 = input$showClusterLabels,
+        showScoresLabels                  = input$showScoresLabels,
+        showLoadingsLabels                = input$showLoadingsLabels,
+        showLoadingsAbundance             = input$showLoadingsAbundance,
+        ## search
+        searchMS1orMS2                    = input$searchMS1orMS2,
+        searchMS1mass                     = input$searchMS1mass,
+        searchMS1massPpm                  = input$searchMS1massPpm,
+        search_ms2_masses1                = input$search_ms2_masses1,
+        search_ms2_masses2                = input$search_ms2_masses2,
+        search_ms2_masses3                = input$search_ms2_masses3,
+        searchMS2massPpm                  = input$searchMS2massPpm,
+        searchIncludeIgnoredPrecursors    = input$searchIncludeIgnoredPrecursors
+      )
+      
+      #######################################
+      ## serialize parameter list
+      
+      ## built matrix with param names and param values
+      tempMatrix    <- matrix(data = c(names(unlist(paramsList)),paste("'", unlist(paramsList), "'", sep = "")), ncol = 2)
+      ## quotation of strings
+      #textEntries <- is.na(as.numeric(tempMatrix[, 2]))
+      #tempMatrix[textEntries, 2] <- paste("'", tempMatrix[textEntries, 2], "'", sep = "")
+      ## param name = param value
+      paramStrings  <- apply(tempMatrix, MARGIN = 1, FUN = function(x) {paste(x, collapse = "=")})
+      ## collapse
+      serialization <- paste(paramStrings, collapse = ";")
+      return(serialization)
+    }
+    deserialization <- function(serialization){
+      #######################################
+      ## deserialize parameters
+      
+      #paramStrings <- strsplit(x = strsplit(x = serialization, split = ";")[[1]], split = "=")
+      #for(i in 1:length(paramStrings))
+      #  paramStrings[[i]] <- paste(paramStrings[[i]][[1]], paste("'", paramStrings[[i]][[2]], "'", sep = ""), sep = "=")
+      #paramString <- paste(paramStrings, collapse = ",")
+      paramString <- paste(strsplit(x = serialization, split = ";")[[1]], collapse = ",")
+      parseText <- paste("paramsList <- list(", paramString, ")", sep = "")
+      
+      #parseText <- paste("paramsList <- list(", paste(paramStrings, collapse = ","), ")", sep = "")
+      eval(parse(text = parseText))
+      
+      #######################################
+      ## update parameter fields
+      
+      #updateTextInput(session = session, inputId = "globalFilter_ms2_masses1", value = "")
+      #updateRadioButtons(session = session, inputId = "hcaFilterGroupOne", choices = dataList$groups, selected = selectedOne)
+      #updateCheckboxInput(session = session, inputId = "hcaFilterIncludeIgnoredPrecursors", value = FALSE)
+      #updateSelectInput(session = session, inputId = "presentAnnotationValue", choices = c("[init]"), selected = lalala)
+      #updateCheckboxGroupInput(session = session, inputId = "pcaGroups",   choices = dataList$groups, selected = dataList$groups)
+      
+      ## global MS2 filter
+      updateTextInput(         session = session, inputId = "globalFilter_ms2_masses1",          value = paramsList$globalFilter_ms2_masses1),
+      updateTextInput(         session = session, inputId = "globalFilter_ms2_masses2",          value = paramsList$globalFilter_ms2_masses2),
+      updateTextInput(         session = session, inputId = "globalFilter_ms2_masses3",          value = paramsList$globalFilter_ms2_masses3),
+      updateTextInput(         session = session, inputId = "globalFilter_ms2_ppm",              value = paramsList$globalFilter_ms2_ppm),
+      #input$applyGlobalMS2filters
+      ## HCA
+      updateRadioButtons(      session = session, inputId = "hcaFilterGroupOne",                 selected = paramsList$hcaFilterGroupOne),
+      updateRadioButtons(      session = session, inputId = "hcaFilterGroupTwo",                 selected = paramsList$hcaFilterGroupTwo),
+      updateTextInput(         session = session, inputId = "hcaFilter_average",                 value = paramsList$hcaFilter_average),
+      updateTextInput(         session = session, inputId = "hcaFilter_lfc",                     value = paramsList$hcaFilter_lfc),
+      updateCheckboxInput(     session = session, inputId = "hcaFilterIncludeIgnoredPrecursors", value = as.logical(paramsList$hcaFilterIncludeIgnoredPrecursors)),
+      #input$applyHcaFilters
+      updateSelectInput(       session = session, inputId = "hcaDistanceFunction",               selected = paramsList$hcaDistanceFunction),
+      updateSelectInput(       session = session, inputId = "hcaClusterMethod",                  selected = paramsList$hcaClusterMethod),
+      #input$drawHCAplots
+      ## PCA
+      updateCheckboxGroupInput(session = session, inputId = "pcaGroups",                         selected = paramsList$pcaGroups),
+      updateTextInput(         session = session, inputId = "pcaFilter_average",                 value = paramsList$pcaFilter_average),
+      updateTextInput(         session = session, inputId = "pcaFilter_lfc",                     value = paramsList$pcaFilter_lfc),
+      updateSelectInput(       session = session, inputId = "pcaFilterIncludeIgnoredPrecursors", selected = paramsList$pcaFilterIncludeIgnoredPrecursors),
+      #input$applyPcaFilters
+      updateSelectInput(       session = session, inputId = "pcaScaling",                        selected = paramsList$pcaScaling),
+      updateCheckboxInput(     session = session, inputId = "pcaLogTransform",                   value = as.logical(paramsList$pcaLogTransform)),
+      updateSelectInput(       session = session, inputId = "pcaDimensionOne",                   selected = paramsList$pcaDimensionOne),
+      updateSelectInput(       session = session, inputId = "pcaDimensionTwo",                   selected = paramsList$pcaDimensionTwo),
+      #input$drawPCAplots
+      ## plot properties
+      updateCheckboxInput(     session = session, inputId = "showClusterLabels",                 value = as.logical(paramsList$showClusterLabels)),
+      updateCheckboxInput(     session = session, inputId = "showScoresLabels",                  value = as.logical(paramsList$showScoresLabels)),
+      updateCheckboxInput(     session = session, inputId = "showLoadingsLabels",                value = as.logical(paramsList$showLoadingsLabels)),
+      updateCheckboxInput(     session = session, inputId = "showLoadingsAbundance",             value = as.logical(paramsList$showLoadingsAbundance)),
+      ## search
+      updateRadioButtons(      session = session, inputId = "searchMS1orMS2",                    selected = paramsList$searchMS1orMS2),
+      updateTextInput(         session = session, inputId = "searchMS1mass",                     value = paramsList$searchMS1mass),
+      updateTextInput(         session = session, inputId = "searchMS1massPpm",                  value = paramsList$searchMS1massPpm),
+      updateTextInput(         session = session, inputId = "search_ms2_masses1",                value = paramsList$search_ms2_masses1),
+      updateTextInput(         session = session, inputId = "search_ms2_masses2",                value = paramsList$search_ms2_masses2),
+      updateTextInput(         session = session, inputId = "search_ms2_masses3",                value = paramsList$search_ms2_masses3),
+      updateTextInput(         session = session, inputId = "searchMS2massPpm",                  value = paramsList$searchMS2massPpm),
+      updateCheckboxInput(     session = session, inputId = "searchIncludeIgnoredPrecursors",    value = as.logical(paramsList$searchIncludeIgnoredPrecursors))
+      #input$applySearch
+      
+      #######################################
+      ## update GUI according to parameters
+      
+      ###################
+      ## global MS2 filter
+      filter_ms2_masses1  <- paramsList$globalFilter_ms2_masses1
+      filter_ms2_masses2  <- paramsList$globalFilter_ms2_masses2
+      filter_ms2_masses3  <- paramsList$globalFilter_ms2_masses3
+      filter_ms2_ppm      <- paramsList$globalFilter_ms2_ppm
+      
+      groupSet        <- dataList$groups
+      filter_average  <- NULL
+      filter_lfc      <- NULL
+      includeIgnoredPrecursors  <- TRUE
+      filter_ms1_mass <- NULL
+      filter_ms1_ppm <- NULL
+      
+      resultObj <- doPerformFiltering(
+        groupSet, filter_average, filter_lfc, 
+        filter_ms2_masses1, filter_ms2_masses2, filter_ms2_masses3, filter_ms2_ppm, 
+        filter_ms1_mass, filter_ms1_ppm, 
+        includeIgnoredPrecursors
+      )
+      filterGlobal <<- resultObj$filter
+      state$globalMS2filterValid <<- TRUE
+      updateGlobalMS2filterInformation()
+      
+      ###################
+      ## HCA filter
+      filter_ms2_masses1  <- filterGlobal$filter_ms2_masses1Original   
+      filter_ms2_masses2  <- filterGlobal$filter_ms2_masses2Original   
+      filter_ms2_masses3  <- filterGlobal$filter_ms2_masses3Original   
+      filter_ms2_ppm      <- filterGlobal$filter_ms2_ppmOriginal
+      
+      groupOne        <- paramsList$hcaFilterGroupOne
+      groupTwo        <- paramsList$hcaFilterGroupTwo
+      filter_average  <- paramsList$hcaFilter_average
+      filter_lfc      <- paramsList$hcaFilter_lfc
+      includeIgnoredPrecursors  <- paramsList$hcaFilterIncludeIgnoredPrecursors
+      filter_ms1_mass <- NULL
+      filter_ms1_ppm  <- NULL
+      groupSet        <- c(groupOne, groupTwo)
+      
+      resultObj <- doPerformFiltering(
+        groupSet, filter_average, filter_lfc, 
+        filter_ms2_masses1, filter_ms2_masses2, filter_ms2_masses3, filter_ms2_ppm, 
+        filter_ms1_mass, filter_ms1_ppm, includeIgnoredPrecursors
+      )
+      filterHca <<- resultObj$filter
+      updateHcaFilterInformation()
+      
+      numberOfPrecursorsFiltered <- filterHca$numberOfPrecursorsFiltered
+      checkHcaFilterValidity(numberOfPrecursorsFiltered)
+      
+      ###################
+      ## draw HCA
+      # TODO
+      
+      ###################
+      ## PCA filter
+      filter_ms2_masses1  <- filterGlobal$filter_ms2_masses1Original   
+      filter_ms2_masses2  <- filterGlobal$filter_ms2_masses2Original   
+      filter_ms2_masses3  <- filterGlobal$filter_ms2_masses3Original   
+      filter_ms2_ppm      <- filterGlobal$filter_ms2_ppmOriginal
+      
+      groupSet        <- paramsList$pcaGroups
+      filter_average  <- paramsList$pcaFilter_average
+      filter_lfc      <- paramsList$pcaFilter_lfc
+      includeIgnoredPrecursors  <- paramsList$pcaFilterIncludeIgnoredPrecursors
+      filter_ms1_mass <- NULL
+      filter_ms1_ppm  <- NULL
+      
+      if(length(groupSet) != 2)
+        filter_lfc <- NULL
+      
+      resultObj <- doPerformFiltering(
+        groupSet, filter_average, filter_lfc, 
+        filter_ms2_masses1, filter_ms2_masses2, filter_ms2_masses3, filter_ms2_ppm, 
+        filter_ms1_mass, filter_ms1_ppm, includeIgnoredPrecursors
+      )
+      filterPca <<- resultObj$filter
+      updatePcaFilterInformation()
+      
+      numberOfPrecursorsFiltered <- filterPca$numberOfPrecursorsFiltered
+      checkPcaFilterValidity(numberOfPrecursorsFiltered)
+      
+      ###################
+      ## draw PCA
+      # TODO
+      
+      ###################
+      ## search
+      searchMode <- paramsListsearchMS1orMS2
+      if(searchMode == 'MS feature m/z'){
+        #################################################
+        ## get inputs
+        filter_ms1_mass <- paramsListsearchMS1mass
+        filter_ms1_ppm  <- paramsListsearchMS1massPpm
+        
+        if(nchar(trimws(filter_ms1_mass)) == 0)
+          return()
+        
+        filter_ms2_masses1  <- NULL
+        filter_ms2_masses2  <- NULL
+        filter_ms2_masses3  <- NULL
+        filter_ms2_ppm      <- NULL
+      }
+      if(searchMode == 'Fragment m/z'){
+        #################################################
+        ## get inputs
+        filter_ms2_masses1 <- paramsListsearch_ms2_masses1
+        filter_ms2_masses2 <- paramsListsearch_ms2_masses2
+        filter_ms2_masses3 <- paramsListsearch_ms2_masses3
+        filter_ms2_ppm     <- paramsListsearchMS2massPpm
+        
+        filter_ms1_mass <- NULL
+        filter_ms1_ppm <- NULL
+      }
+      
+      filter_lfc      <- NULL
+      filter_average  <- NULL
+      groupSet        <- dataList$groups
+      includeIgnoredPrecursors  <- paramsListsearchIncludeIgnoredPrecursors
+      
+      #################################################
+      ## do filtering
+      resultObj <- doPerformFiltering(
+        groupSet, filter_average, filter_lfc, 
+        filter_ms2_masses1, filter_ms2_masses2, filter_ms2_masses3, filter_ms2_ppm, 
+        filter_ms1_mass, filter_ms1_ppm, includeIgnoredPrecursors
+      )
+      processSearchFilterResult(resultObj)
+    }
   }## function(input, output, session)
 )## shinyServer

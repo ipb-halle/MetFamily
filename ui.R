@@ -30,6 +30,13 @@
 # sudo cp /home/htreutle/Code/Java/MetFam/ui.R /vol/R/shiny/srv/shiny-server/MetFam/
 # sudo cp /home/htreutle/Code/Java/MetFam/FragmentMatrixFunctions.R /vol/R/shiny/srv/shiny-server/MetFam/
 # 
+# ############################ files
+# Metabolite_profile_showcase.txt
+# MSMS_library_showcase.msp
+# Fragment_matrix_showcase.csv
+# Annotated_showcase.csv.gz
+# Project_file_showcase.csv.gz
+# 
 # ############################ debug
 # options(warn=1)
 # If warn is negative warnings are ignored; if it is zero they are stored and printed after the top–level function has completed; if it is one they are printed as they occur and if it is 2 (or larger) warnings are turned into errors. 
@@ -128,7 +135,8 @@ shinyUI(
                     accept = c('text/comma-separated-values', 'text/plain', 'text/tab-separated-values')
                   ),
                   bsTooltip(id = "loadProjectData", title = "Press to load the selected project file", placement = "bottom", trigger = "hover"),
-                  actionButton(inputId = "loadProjectData", label = "Load project data")
+                  #bsButton(inputId = "loadProjectData", size = "large", label = "Load project data", type = "action", class="btn-success"),
+                  actionButton(inputId = "loadProjectData", label = "Load project data", class="btn-success")
                 ),
                 conditionalPanel(
                   condition = 'input.fileInputSelection == "Import data"',
@@ -151,7 +159,7 @@ shinyUI(
                     fluidRow(
                       column(width = 6,
                              bsTooltip(id = "minimumIntensityOfMaximalMS2peak", title = "A MS/MS spectrum is considered iff the MS/MS feature with maximum intensity is greater or equal than this value", placement = "bottom", trigger = "hover"),
-                             textInput(inputId = "minimumIntensityOfMaximalMS2peak", label = "Min. MS/MS peak intensity", value = 2000)
+                             textInput(inputId = "minimumIntensityOfMaximalMS2peak", label = "Min. spectrum intensity", value = 2000)
                       ),##column
                       column(width = 6,
                              bsTooltip(id = "minimumProportionOfMS2peaks", title = "A MS/MS feature is considered iff the intensity is greater or equal than the maximum intensity times this value", placement = "bottom", trigger = "hover"),
@@ -223,35 +231,54 @@ shinyUI(
                     )
                   ),
                   h4("Data file input"),
-                  p("Please choose MS data file"),
-                  bsTooltip(id = "ms1DataFile", title = "Press to choose a MS data file", placement = "bottom", trigger = "hover"),
+                  p("Please choose metabolite profile"),
+                  bsTooltip(id = "ms1DataFile", title = "Press to choose a metabolite profile", placement = "bottom", trigger = "hover"),
                   fileInput(
                     multiple = FALSE,
                     inputId = 'ms1DataFile', 
                     label = NULL, #label = 'Choose fragment matrix file',
                     accept = c('text/comma-separated-values', 'text/plain', 'text/tab-separated-values')
                   ),
-                  p("Please choose MS/MS data file"),
-                  bsTooltip(id = "ms2DataFile", title = "Press to choose a MS/MS data file", placement = "bottom", trigger = "hover"),
+                  p("Please choose MS/MS library"),
+                  bsTooltip(id = "ms2DataFile", title = "Press to choose a MS/MS library", placement = "bottom", trigger = "hover"),
                   fileInput(
                     multiple = FALSE,
                     inputId = 'ms2DataFile', 
                     label = NULL, #label = 'Choose fragment matrix file',
                     accept = c('text/plain', 'msp')
                   ),
-                  bsTooltip(id = "importMs1Ms2Data", title = "Press to import the selected MS data file and MS/MS data file", placement = "bottom", trigger = "hover"),
-                  actionButton(inputId = "importMs1Ms2Data", label = "Import MS and MS/MS data")
+                  bsTooltip(id = "importMs1Ms2Data", title = "Press to import the selected metabolite profile and MS/MS library", placement = "bottom", trigger = "hover"),
+                  actionButton(inputId = "importMs1Ms2Data", label = "Import MS and MS/MS data", class="btn-success")
                 ),## conditional
                 conditionalPanel(
                   condition = 'input.fileInputSelection == "Example data"',
                   h4("Example data input"),
                   helpText(
-                    "The data set used as a showcase in the MetFam publication referenced in the tab 'About'."
+                    "The data set used as showcase in the MetFam publication referenced in the tab 'About'."
                   ),
+                  h4("Download original metabolite profile and MS/MS library"),
+                  fluidRow(
+                    column(width = 6,
+                           div(style="float:left",
+                               bsTooltip(id = "downloadMsData", title = "Download the original metabolite profile used in the MetFam publication", placement = "bottom", trigger = "hover"),
+                               downloadButton('downloadMsData', 'Download metabolite profile')
+                           )
+                    ),##column
+                    column(width = 6,
+                           div(style="float:right",
+                               bsTooltip(id = "downloadMsMsData", title = "Download the original MS/MS library used in the MetFam publication", placement = "bottom", trigger = "hover"),
+                               downloadButton('downloadMsMsData', 'Download MS/MS library')
+                           )
+                    )##column
+                  ),##row
+                  h4("Download generated fragment matrix"),
+                  bsTooltip(id = "downloadFragmentMatrix", title = "Download the fragment matrix generated from the original metabolite profile and MS/MS library used in the MetFam publication", placement = "bottom", trigger = "hover"),
+                  downloadButton('downloadFragmentMatrix', 'Download fragment matrix'),
+                  h4("Load full or reduced data set"),
                   bsTooltip(id = "exampleDataSelection", title = "The user is able to choose the full data set or a reduced data set (only MS features with MS abundance >= 5000)", placement = "bottom", trigger = "hover"),
                   radioButtons(inputId = "exampleDataSelection", label = NULL, choices = c("Example data set (full)", "Example data set (reduced)"), selected = "Example data set (reduced)", inline = FALSE),
                   bsTooltip(id = "loadExampleData", title = "Press to load the example data set", placement = "bottom", trigger = "hover"),
-                  actionButton(inputId = "loadExampleData", label = "Load example data")
+                  actionButton(inputId = "loadExampleData", label = "Load example data", class="btn-success")
                 )## conditional
               ),##well
               wellPanel(
@@ -345,7 +372,7 @@ shinyUI(
                   ##############################################################################################
                   ## filter button
                   bsTooltip(id = "applyGlobalMS2filters", title = "Press to determine the global set of MS features which MS/MS spectra comprise the given MS/MS features", placement = "bottom", trigger = "hover"),
-                  actionButton(inputId = "applyGlobalMS2filters", label = "Apply MS/MS filter")
+                  actionButton(inputId = "applyGlobalMS2filters", label = "Apply MS/MS filter", class="btn-success")
                 ),## well
                 wellPanel(
                   h4("Filtered MS features"),
@@ -393,7 +420,7 @@ shinyUI(
                     condition = "input.showHCAfilterOptions",
                     bsTooltip(id = "hcaFilter_average", title = "The average MS abundance should be greater or equal than this value", placement = "bottom", trigger = "hover"),
                     textInput(inputId = "hcaFilter_average", label = "Average MS abundance"),
-                    bsTooltip(id = "hcaFilter_lfc", title = "The log<sub>2</sub>-fold change [ log<sub>2</sub>( mean(group two) / mean(group one) ) ] between the average MS abundances should be greater/smaller or equal than this value", placement = "bottom", trigger = "hover"),
+                    bsTooltip(id = "hcaFilter_lfc", title = "The log<sub>2</sub>-fold change [ log<sub>2</sub>( mean(group one) / mean(group two) ) ] between the average MS abundances should be greater/smaller or equal than this value", placement = "bottom", trigger = "hover"),
                     textInput(inputId = "hcaFilter_lfc", label = "MS log2-fold change"),
                     fluidRow(
                       column(
@@ -418,7 +445,7 @@ shinyUI(
                     ##############################################################################################
                     ## filter button
                     bsTooltip(id = "applyHcaFilters", title = "Press to determine the set of MS features which fulfill the given filter criteria", placement = "bottom", trigger = "hover"),
-                    actionButton(inputId = "applyHcaFilters", label = "Apply filter")
+                    actionButton(inputId = "applyHcaFilters", label = "Apply filter", class="btn-success")
                   )## conditional panel
                 ),##well panel
                 wellPanel(
@@ -477,7 +504,7 @@ shinyUI(
                       ), selectize = FALSE)
                     ),
                     bsTooltip(id = "drawHCAplots", title = "Display the HCA dendrogram given the set of filtered MS features and HCA settings", placement = "bottom", trigger = "hover"),
-                    actionButton(inputId = "drawHCAplots", label = "Draw hierarchical cluster"),
+                    actionButton(inputId = "drawHCAplots", label = "Draw hierarchical cluster", class="btn-success"),
                     conditionalPanel(
                       condition = "output.showGUI && output.plotHcaShown",
                       bsTooltip(id = "downloadDistanceMatrix", title = "Download the distance matrix which is the basis of the hierarchical cluster dendrogram", placement = "bottom", trigger = "hover"),
@@ -527,7 +554,7 @@ shinyUI(
                     condition = "input.showPCAfilterOptions",
                     bsTooltip(id = "pcaFilter_average", title = "The average MS abundance should be greater or equal than this value", placement = "bottom", trigger = "hover"),
                     textInput(inputId = "pcaFilter_average", label = "Average MS abundance"),
-                    bsTooltip(id = "pcaFilter_lfc", title = "The log<sub>2</sub>-fold change [ log<sub>2</sub>( mean(group two) / mean(group one) ) ] between the average MS abundances should be greater/smaller or equal than this value", placement = "bottom", trigger = "hover"),
+                    bsTooltip(id = "pcaFilter_lfc", title = "The log<sub>2</sub>-fold change [ log<sub>2</sub>( mean(group one) / mean(group two) ) ] between the average MS abundances should be greater/smaller or equal than this value", placement = "bottom", trigger = "hover"),
                     textInput(inputId = "pcaFilter_lfc", label = "MS log2-fold change"),
                     tags$div(title="Please select the set of replicate groups",
                              checkboxGroupInput(inputId = "pcaGroups", label = "Groups", choices = c(""))
@@ -538,7 +565,7 @@ shinyUI(
                     ##############################################################################################
                     ## filter button
                     bsTooltip(id = "applyPcaFilters", title = "Press to determine the set of MS features which fulfill the given criteria", placement = "bottom", trigger = "hover"),
-                    actionButton(inputId = "applyPcaFilters", label = "Apply filter")
+                    actionButton(inputId = "applyPcaFilters", label = "Apply filter", class="btn-success")
                   )## conditional panel
                 ),##well panel
                 wellPanel(
@@ -597,7 +624,7 @@ shinyUI(
                       )
                     ),
                     bsTooltip(id = "drawPCAplots", title = "Display the PCA scores and loadings plot given the set of filtered MS features and PCA settings", placement = "bottom", trigger = "hover"),
-                    actionButton(inputId = "drawPCAplots", label = "Draw principal components")
+                    actionButton(inputId = "drawPCAplots", label = "Draw principal components", class="btn-success")
                   )##well
                 )## conditiojal panel
               ),## conditiojal panel
@@ -630,14 +657,20 @@ shinyUI(
                   hr(),
                   conditionalPanel(
                     condition = "input.searchMS1orMS2 == 'MS feature m/z'",
-                    bsTooltip(id = "searchMS1mass", title = "The MS feature m/z should be similar to this value", placement = "bottom", trigger = "hover"),
-                    textInput(inputId = "searchMS1mass", label = "MS feature m/z"),
-                    bsTooltip(id = "searchMS1massPpm", title = "The specified MS feature m/z allows this error in PPM (<b>p</b>arts <b>p</b>er <b>m</b>illion)", placement = "bottom", trigger = "hover"),
-                    textInput(inputId = "searchMS1massPpm", label = "PPM"),
-                    bsTooltip(id = "searchMS1includeIgnoredPrecursors", title = "Include or filter out ignored MS features, i.e. MS features which have been annotated as \\'Ignore\\'", placement = "bottom", trigger = "hover"),
-                    checkboxInput(inputId = "searchMS1includeIgnoredPrecursors", label = "Include ignored MS features", value = FALSE),
-                    bsTooltip(id = "applySearchMS1", title = "Press to mark the set of MS features which fulfill the given criteria", placement = "bottom", trigger = "hover"),
-                    actionButton(inputId = "applySearchMS1", label = "Search")
+                    fluidRow(
+                      column(width = 6,
+                             div(style="float:left",
+                                 bsTooltip(id = "searchMS1mass", title = "The MS feature m/z should be similar to this value", placement = "bottom", trigger = "hover"),
+                                 textInput(inputId = "searchMS1mass", label = "MS feature m/z")
+                             )
+                      ),##column
+                      column(width = 6,
+                             div(style="float:right",
+                                 bsTooltip(id = "searchMS1massPpm", title = "The specified MS feature m/z allows this error in PPM (<b>p</b>arts <b>p</b>er <b>m</b>illion)", placement = "bottom", trigger = "hover"),
+                                 textInput(inputId = "searchMS1massPpm", label = "PPM")
+                             )
+                      )##column
+                    )##row
                   ),## conditional panel
                   conditionalPanel(
                     condition = "input.searchMS1orMS2 == 'Fragment m/z'",
@@ -669,14 +702,24 @@ shinyUI(
                       )
                     ),
                     bsTooltip(id = "searchMS2massPpm", title = "The specified fragment m/z's allow this error in PPM (<b>p</b>arts <b>p</b>er <b>m</b>illion)", placement = "bottom", trigger = "hover"),
-                    textInput(inputId = "searchMS2massPpm", label = "PPM"),
-                    bsTooltip(id = "searchMS2includeIgnoredPrecursors", title = "Include or filter out ignored MS features, i.e. MS features which have been annotated as \\'Ignore\\'", placement = "bottom", trigger = "hover"),
-                    checkboxInput(inputId = "searchMS2includeIgnoredPrecursors", label = "Include ignored MS features", value = FALSE),
-                    bsTooltip(id = "applySearchMS2", title = "Press to mark the set of MS features which fulfill the given criteria", placement = "bottom", trigger = "hover"),
-                    actionButton(inputId = "applySearchMS2", label = "Search")
+                    textInput(inputId = "searchMS2massPpm", label = "PPM")
                   ),## conditional panel
-                  bsTooltip(id = "clearSearch", title = "Press to clear the selected set of MS feature hits in HCA and PCA", placement = "bottom", trigger = "hover"),
-                  actionButton(inputId = "clearSearch", label = "Clear search")
+                  bsTooltip(id = "searchIncludeIgnoredPrecursors", title = "Include or filter out ignored MS features, i.e. MS features which have been annotated as \\'Ignore\\'", placement = "bottom", trigger = "hover"),
+                  checkboxInput(inputId = "searchIncludeIgnoredPrecursors", label = "Include ignored MS features", value = FALSE),
+                  fluidRow(
+                    column(width = 6,
+                           div(style="float:left",
+                               bsTooltip(id = "applySearch", title = "Press to mark the set of MS features which fulfill the given criteria", placement = "bottom", trigger = "hover"),
+                               actionButton(inputId = "applySearch", label = "Search", class="btn-success")
+                           )
+                    ),##column
+                    column(width = 6,
+                           div(style="float:right",
+                               bsTooltip(id = "clearSearch", title = "Press to clear the selected set of MS feature hits in HCA and PCA", placement = "bottom", trigger = "hover"),
+                               actionButton(inputId = "clearSearch", label = "Clear search", class="btn-success")
+                           )
+                    )##column
+                  )##row
                 ),## well panel
                 wellPanel(
                   h4("MS feature hits"),
@@ -710,16 +753,40 @@ shinyUI(
                 condition = "output.showGUI",
                 wellPanel(
                   bsTooltip(id = "downloadAllPrecursors", title = "Download the full project file", placement = "bottom", trigger = "hover"),
-                  downloadButton('downloadAllPrecursors', 'Download project file'),
+                  downloadButton('downloadAllPrecursors', 'Export project'),
                   conditionalPanel(
                     condition = "output.showGUI && output.showHCAplotPanel",
-                    bsTooltip(id = "downloadHcaImage", title = "Download the HCA plots as png image", placement = "bottom", trigger = "hover"),
-                    downloadButton('downloadHcaImage', 'Download HCA as image')
+                    fluidRow(
+                      column(width = 5,
+                             div(style="float:left",
+                                 bsTooltip(id = "downloadHcaImage", title = "Download the HCA plots as image", placement = "bottom", trigger = "hover"),
+                                 downloadButton('downloadHcaImage', 'Export HCA as image')
+                             )
+                      ),##column
+                      column(width = 5,
+                             div(style="float:right",
+                                 bsTooltip(id = "downloadHcaImageType", title = "The user is able to download the HCA plot as image of different types: Portable Network Graphics (*.png) file, Scalable Vector Graphics (*.svg) file, Portable Document Format (*.pdf) file", placement = "bottom", trigger = "hover"),
+                                 radioButtons(inputId = "downloadHcaImageType", label = NULL, choices = c("png", "svg", "pdf"), selected = "png", inline = TRUE)
+                             )
+                      )##column
+                    )##row
                   ),
                   conditionalPanel(
                     condition = "output.showGUI && output.showPCAplotPanel",
-                    bsTooltip(id = "downloadPcaImage", title = "Download the PCA plots as png image", placement = "bottom", trigger = "hover"),
-                    downloadButton('downloadPcaImage', 'Download PCA as image')
+                    fluidRow(
+                      column(width = 5,
+                             div(style="float:left",
+                                 bsTooltip(id = "downloadPcaImage", title = "Download the PCA plots as image", placement = "bottom", trigger = "hover"),
+                                 downloadButton('downloadPcaImage', 'Export PCA as image')
+                             )
+                      ),##column
+                      column(width = 5,
+                             div(style="float:right",
+                                 bsTooltip(id = "downloadPcaImageType", title = "The user is able to download the PCA plot as image of different types: Portable Network Graphics (*.png) file, Scalable Vector Graphics (*.svg) file, Portable Document Format (*.pdf) file", placement = "bottom", trigger = "hover"),
+                                 radioButtons(inputId = "downloadPcaImageType", label = NULL, choices = c("png", "svg", "pdf"), selected = "png", inline = TRUE)
+                             )
+                      )##column
+                    )##row
                   )
                   ## TODO annotated msp file
                   #h4("annotated msp file")
@@ -759,7 +826,7 @@ shinyUI(
             )
           ),##column
           column(width = 3,
-            HTML("<a href='http://www.ipb-halle.de/', target='_blank'><img src='logo_ipb_en.png' /></a>")
+            HTML("<a href='http://www.ipb-halle.de/en/', target='_blank'><img src='logo_ipb_en.png' /></a>")
           )##column
         ),## row
         h4("Reference"),
