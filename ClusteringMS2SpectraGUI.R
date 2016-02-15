@@ -970,7 +970,7 @@ readProjectData <- function(dataFrame, progress = FALSE){
   
   return(dataList)
 }
-filterData <- function(dataList, groups, filter_average, filter_lfc, filterList_ms2_masses, filter_ms2_ppm, filter_ms1_mass, filter_ms1_ppm, includeIgnoredPrecursors, progress = FALSE){
+filterData <- function(dataList, groups, filter_average, filter_lfc, filterList_ms2_masses, filter_ms2_ppm, filter_ms1_masses, filter_ms1_ppm, includeIgnoredPrecursors, progress = FALSE){
   ##########################################
   ## filter
   filter <- rep(x = TRUE, times = dataList$numberOfPrecursors)
@@ -1016,14 +1016,19 @@ filterData <- function(dataList, groups, filter_average, filter_lfc, filterList_
     filter <- filter & filterAll
   }
   
-  ## filter_ms1_mass, filter_ms1_ppm
-  if(!is.null(filter_ms1_mass) & !is.null(filter_ms1_ppm) & length(filter_ms1_mass) > 0){
+  ## filter_ms1_masses, filter_ms1_ppm
+  if(!is.null(filter_ms1_masses) & !is.null(filter_ms1_ppm) & length(filter_ms1_masses) > 0){
     precursorMasses <- as.numeric(dataList$dataFrameInfos$"m/z")
     error <- precursorMasses * filter_ms1_ppm / 1E6
-    distances <- abs(precursorMasses - filter_ms1_mass)
-    filterMS1mass <- distances <= error
     
-    filter <- filter & filterMS1mass
+    filterMS1masses <- rep(x = FALSE, times = dataList$numberOfPrecursors)
+    for(precursorMassIndex in 1:length(filter_ms1_masses)){
+      distances <- abs(precursorMasses - filter_ms1_masses[[precursorMassIndex]])
+      filterPart <- distances <= error
+      filterPart[is.na(filterPart)] <- FALSE
+      filterMS1masses <- filterMS1masses | filterPart
+    }
+    filter <- filter & filterMS1masses
   }
   
   ## include ignored precursors
@@ -1047,6 +1052,7 @@ filterData <- function(dataList, groups, filter_average, filter_lfc, filterList_
 calculateDistanceMatrix <- function(dataList, filter, distanceMeasure = "Jaccard", progress = FALSE){
   numberOfPrecursors <- length(filter)
   
+  if(progress)  incProgress(amount = 0, detail = paste("Distances 0 / ", numberOfPrecursors, sep = ""))
   ## compute distance matrix:
   distanceMatrix <- NULL
   switch(distanceMeasure,
@@ -2099,6 +2105,7 @@ colorLabels <- function(labels, clusterMembers, color, labelsToRemove = NULL){
   return(colLab)
 }
 calcPlotDendrogram <- function(dataList, filter, clusterDataList, annoPresentAnnotationsList, annoPresentColorsList, distanceMeasure, selectionFragmentTreeNodeSet = NULL, selectionAnalysisTreeNodeSet = NULL, selectionSearchTreeNodeSet = NULL, showClusterLabels, xInterval = NULL){
+  print("01")
   if(is.null(xInterval))
     xInterval <- c(1, clusterDataList$numberOfPrecursorsFiltered)
   
@@ -2109,6 +2116,7 @@ calcPlotDendrogram <- function(dataList, filter, clusterDataList, annoPresentAnn
   dend <- as.dendrogram(clusterDataList$cluster)
   
   ## remove labels left of the y-axis
+  print("02")
   rightMostInvisibleLabelIndex <- floor(xInterval[[1]] - (xInterval[[2]] - xInterval[[1]]) * 0.04)
   if(rightMostInvisibleLabelIndex > 0){
     labelsToRemove <- clusterDataList$cluster$labels[clusterDataList$cluster$order][1:rightMostInvisibleLabelIndex]
@@ -2118,6 +2126,7 @@ calcPlotDendrogram <- function(dataList, filter, clusterDataList, annoPresentAnn
   }
   
   ## color labels for search sub-roots
+  print("03")
   if(!is.null(selectionSearchTreeNodeSet)){
     clusterMembers <- c(
       unlist(clusterDataList$innerNodeMembersTree[selectionSearchTreeNodeSet[selectionSearchTreeNodeSet > 0]]), 
@@ -2128,6 +2137,7 @@ calcPlotDendrogram <- function(dataList, filter, clusterDataList, annoPresentAnn
     dend <- dendrapply(dend, colLab)
   }
   ## color labels for fragment sub-roots
+  print("04")
   if(!is.null(selectionFragmentTreeNodeSet)){
     clusterMembers <- c(
       unlist(clusterDataList$innerNodeMembersTree[selectionFragmentTreeNodeSet[selectionFragmentTreeNodeSet > 0]]), 
@@ -2138,6 +2148,7 @@ calcPlotDendrogram <- function(dataList, filter, clusterDataList, annoPresentAnn
     dend <- dendrapply(dend, colLab)
   }
   ## color labels for analysis sub-root
+  print("05")
   if(!is.null(selectionAnalysisTreeNodeSet)){
     for(selectionAnalysisTreeNode in selectionAnalysisTreeNodeSet){
       clusterMembers <- NULL
@@ -2152,9 +2163,11 @@ calcPlotDendrogram <- function(dataList, filter, clusterDataList, annoPresentAnn
     dend <- dendrapply(dend, colLab)
   }
   ## plot
+  print("06")
   plot(x = dend, xlab = "", ylab = distanceMeasure, main = "Hierarchical cluster dendrogram", sub = "", xlim = xInterval)
   
   ## color tree for annotations
+  print("07")
   resultObjTree <- analyzeTreeFromRootForAnnotations(dataList, cluster = clusterDataList$cluster, filter)
   innerNodeFeaturesAnnotations <- resultObjTree$innerNodeFeaturesAnnotations
   
@@ -2171,6 +2184,7 @@ calcPlotDendrogram <- function(dataList, filter, clusterDataList, annoPresentAnn
   poisX <- poisX[clusterDataList$drawPoi]
   poisY <- poisY[clusterDataList$drawPoi]
   
+  print("08")
   a2r_counter <<- 0
   numberOfInnerNodes <- as.integer(numberOfPois / 2)
   resultObjAnno <- getPrecursorColors(dataList = dataList, precursorSet = filter)
@@ -2185,6 +2199,7 @@ calcPlotDendrogram <- function(dataList, filter, clusterDataList, annoPresentAnn
   pointColorsAnno <- unlist(c(innerNodeColors, leafColors)[clusterDataList$drawPoi])
   
   ## selections
+  print("09")
   pointsAnalysis <- vector(mode = "logical", length = numberOfPois)
   if(!is.null(selectionAnalysisTreeNodeSet)){
     indeces <- NULL
@@ -2216,6 +2231,7 @@ calcPlotDendrogram <- function(dataList, filter, clusterDataList, annoPresentAnn
   }
   pointsSearch <- pointsSearch[clusterDataList$drawPoi]
   ## calc points
+  print("10")
   resultObjPoints <- generatePoints(poisX, poisY, pointSizesAnno, pointColorsAnno, pointsAnalysis, pointsFragment, pointsSearch)
   pointSizes  <- resultObjPoints$pointSizes
   pointColors <- resultObjPoints$pointColors
@@ -2223,8 +2239,10 @@ calcPlotDendrogram <- function(dataList, filter, clusterDataList, annoPresentAnn
   poisYpoints <- resultObjPoints$poisYpoints
   
   ## draw points
+  print("11")
   points(x = poisXpoints, y = poisYpoints, col = pointColors, pch=19, cex=pointSizes)
   
+  print("12")
   ## point labels
   if(showClusterLabels){
     poisXlabels <- poisX
@@ -2250,6 +2268,7 @@ calcPlotDendrogram <- function(dataList, filter, clusterDataList, annoPresentAnn
     setOfColors      = uniqueColors
   )
   
+  print("13")
   return(resultList)
 }
 calcPlotHeatmap <- function(dataList, filterObj, clusterDataList, xInterval = NULL){
@@ -2599,23 +2618,25 @@ calcPlotMS2 <- function(dataList, fragmentsX = c(), fragmentsY = c(), fragmentsC
   title("Fragment plot", line = 2)
   #mtext(side = 3, "m/z", line = 2)
   
-  ## a-axis line
-  if(!is.null(fragmentsX_02)){
+  ## x-axis line
+  if(!is.null(fragmentsX) & !is.null(fragmentsX_02)){
     xIntervalSize <- xInterval[[2]] - xInterval[[1]]
     xl <- xInterval[[1]] - xIntervalSize
     xr <- xInterval[[2]] + xIntervalSize
     segments(x0 = xl, x1 = xr, y0 = 0, y1 = 0, col = "black", lwd = 1)
   }
   
+  ## label axis, fragment sticks with clickable points
   tickPositions <- dataX
   if(length(dataX) > 0){
-    ## axis
+    ## axis with the individual fragment m/z's (ticks, labels)
     axis(side = 1, at = dataX, labels = FALSE, las = 2)
     axis(side = 1, at = tickPositions, labels = format(x = dataX, digits = 0, nsmall = 4), las = 2, tick = FALSE)
     
-    ## points
+    ## sticks
     points(x = dataX, y = dataY, col = nodeColors, type = "h", lwd=4)
     
+    ## clickable points
     pointSizes <- rep(x = ms2StickPointSizeInitial, times = length(dataX))
     pointSizesSmall <- rep(x = ms2StickPointSizeInitialSmall, times = length(dataX))
     pointColors <- rep(x = "black", times = length(dataX))
@@ -2629,6 +2650,17 @@ calcPlotMS2 <- function(dataList, fragmentsX = c(), fragmentsY = c(), fragmentsC
     
     points(x = dataX, y = dataY, col = pointColors, pch=19, cex=pointSizes)
     points(x = dataX, y = dataY, col = pointColorsSmall, pch=19, cex=pointSizesSmall)
+  }
+  
+  if(!is.null(fragmentsX) & !is.null(fragmentsX_02)){
+    graphics::text(labels = "Fragments from selection", x = xInterval[[2]], y = 0.9, pos = 2, adj = c(0,0))
+    graphics::text(labels = "Fragments from mouse hover", x = xInterval[[2]], y = -0.9, pos = 2, adj = c(0,0))
+  }
+  if(!is.null(fragmentsX) & is.null(fragmentsX_02)){
+    graphics::text(labels = "Fragments from selection", x = xInterval[[2]], y = 0.95, pos = 2, adj = c(0,0))
+  }
+  if(is.null(fragmentsX) & !is.null(fragmentsX_02)){
+    graphics::text(labels = "Fragments from mouse hover", x = xInterval[[2]], y = 0.95, pos = 2, adj = c(0,0))
   }
 }
 calcPlotPCAscores <- function(pcaObj, dataList, filterObj, pcaDimensionOne, pcaDimensionTwo, showScoresLabels, xInterval = NULL, yInterval = NULL){

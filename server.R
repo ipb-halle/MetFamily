@@ -59,6 +59,7 @@ shinyServer(
     legendColumnWidthPart <- 2
     annoLegendEntryHeight <- 20
     scoresGroupsLegendEntryHeight <- 25
+    maximumNumberOfTableEntries <- 50
     
     ## data
     dataList <- NULL
@@ -204,8 +205,6 @@ shinyServer(
       
       minimumIndex <- which.min(distances)
       minimumDistance <- distances[[minimumIndex]]
-      
-      print(paste("--##--", minimumDistance, "vs", distanceThreshold))
       
       if(minimumDistance > distanceThreshold){
         return(NULL)
@@ -528,7 +527,7 @@ shinyServer(
       }
     }
     ## perform filtering
-    doPerformFiltering <- function(groupSet, filter_average, filter_lfc, filter_ms2_masses1, filter_ms2_masses2, filter_ms2_masses3, filter_ms2_ppm, filter_ms1_mass, filter_ms1_ppm, includeIgnoredPrecursors, preFilter = NULL){
+    doPerformFiltering <- function(groupSet, filter_average, filter_lfc, filter_ms2_masses1, filter_ms2_masses2, filter_ms2_masses3, filter_ms2_ppm, filter_ms1_masses, filter_ms1_ppm, includeIgnoredPrecursors, preFilter = NULL){
       print(paste("Observe applyFilters1", "gs", paste(groupSet, collapse = "-"), "a", filter_average, "lfc", filter_lfc, "ms2_1", filter_ms2_masses1, "ms2_2", filter_ms2_masses2, "ms2_3", filter_ms2_masses3, "ppm", filter_ms2_ppm, "ig", includeIgnoredPrecursors))
       
       groupSetOriginal                 <- groupSet
@@ -538,7 +537,7 @@ shinyServer(
       filter_ms2_masses2Original       <- filter_ms2_masses2
       filter_ms2_masses3Original       <- filter_ms2_masses3
       filter_ms2_ppmOriginal           <- filter_ms2_ppm
-      filter_ms1_massOriginal          <- filter_ms1_mass
+      filter_ms1_massesOriginal        <- filter_ms1_masses
       filter_ms1_ppmOriginal           <- filter_ms1_ppm
       includeIgnoredPrecursorsOriginal <- includeIgnoredPrecursors
       
@@ -607,11 +606,14 @@ shinyServer(
         error <- error | is.na(filter_ms2_ppm)
       }
       
-      if(any(is.null(filter_ms1_mass), length(filter_ms1_mass) == 0, nchar(filter_ms1_mass) == 0))
-        filter_ms1_mass <- NULL
+      if(any(is.null(filter_ms1_masses), length(filter_ms1_masses) == 0, nchar(filter_ms1_masses) == 0))
+        filter_ms1_masses <- NULL
       else{
-        filter_ms1_mass <- as.numeric(filter_ms1_mass)
-        error <- error | is.na(filter_ms1_mass)
+        ms1Masses <- strsplit(x = filter_ms1_masses, split = "[,; ]+")[[1]]
+        filter_ms1_masses <- vector(mode = "numeric", length = length(ms1Masses))
+        for(idx in 1:length(ms1Masses))
+          filter_ms1_masses[[idx]] <- as.numeric(ms1Masses[[idx]])
+        error <- error | any(is.na(filter_ms1_masses))
       }
       
       if(any(is.null(filter_ms1_ppm), length(filter_ms1_ppm) == 0, nchar(filter_ms1_ppm) == 0))
@@ -622,7 +624,7 @@ shinyServer(
       }
       
       ## sanity check
-      error <- error | (!is.null(filter_ms1_mass) & is.null(filter_ms1_ppm))
+      error <- error | (!is.null(filter_ms1_masses) & is.null(filter_ms1_ppm))
       error <- error | ((!is.null(filter_ms2_masses1) | !is.null(filter_ms2_masses2) | !is.null(filter_ms2_masses3)) & is.null(filter_ms2_ppm))
       
       print(paste("Observe applyFilters4", "e", error, "gs", paste(groupSet, collapse = "-"), "a", filter_average, "lfc", filter_lfc, "ms2 1", filter_ms2_masses1, "ms2 2", filter_ms2_masses2, "ms2 3", filter_ms2_masses3, "ppm", filter_ms2_ppm, "i", includeIgnoredPrecursors))
@@ -648,7 +650,7 @@ shinyServer(
           #groupOne = groupOne, groupTwo = groupTwo, 
           groups = groupSet, filter_average = filter_average, filter_lfc = filter_lfc, 
           filterList_ms2_masses = filterList_ms2_masses, filter_ms2_ppm = filter_ms2_ppm, 
-          filter_ms1_mass = filter_ms1_mass, filter_ms1_ppm = filter_ms1_ppm,
+          filter_ms1_masses = filter_ms1_masses, filter_ms1_ppm = filter_ms1_ppm,
           includeIgnoredPrecursors = includeIgnoredPrecursors,
           progress = FALSE
         )
@@ -661,7 +663,7 @@ shinyServer(
         filterHere$filter_ms2_masses2Original       <- filter_ms2_masses2Original      
         filterHere$filter_ms2_masses3Original       <- filter_ms2_masses3Original      
         filterHere$filter_ms2_ppmOriginal           <- filter_ms2_ppmOriginal          
-        filterHere$filter_ms1_massOriginal          <- filter_ms1_massOriginal         
+        filterHere$filter_ms1_massesOriginal        <- filter_ms1_massesOriginal         
         filterHere$filter_ms1_ppmOriginal           <- filter_ms1_ppmOriginal          
         filterHere$includeIgnoredPrecursorsOriginal <- includeIgnoredPrecursorsOriginal
         
@@ -1337,14 +1339,26 @@ shinyServer(
       if(is.null(list$precursorSet))
         return(NULL)
       
-      isArtifact <- dataList$annoArrayIsArtifact[list$precursorSet]
+      if(length(list$precursorSet) > maximumNumberOfTableEntries){
+        precursorSet          <- list$precursorSet[1:maximumNumberOfTableEntries]
+        ms1abundanceDataFrame <- list$ms1abundanceDataFrame[1:maximumNumberOfTableEntries, ]
+        annotationDataFrame   <- list$annotationDataFrame[1:maximumNumberOfTableEntries, ]
+        ms2fragmentDataFrame  <- list$ms2fragmentDataFrame[1:maximumNumberOfTableEntries, ]
+      } else {
+        precursorSet          <- list$precursorSet
+        ms1abundanceDataFrame <- list$ms1abundanceDataFrame
+        annotationDataFrame   <- list$annotationDataFrame
+        ms2fragmentDataFrame  <- list$ms2fragmentDataFrame
+      }
+        
+      isArtifact <- dataList$annoArrayIsArtifact[precursorSet]
       dataFrameIgnore <- data.frame(Ignore = createInputFields(FUN = checkboxInput, id = paste(type, "Ignore", sep = "_"), values = isArtifact))
       
       dataFrame <<- cbind(
-        list$ms1abundanceDataFrame,
+        ms1abundanceDataFrame,
         dataFrameIgnore,
-        list$annotationDataFrame,
-        list$ms2fragmentDataFrame
+        annotationDataFrame,
+        ms2fragmentDataFrame
       )
       
       return(dataFrame)
@@ -1464,14 +1478,19 @@ shinyServer(
       }
     }
     selectionByHca <- function(minimumLabel){
+      print("selectionByHca 1")
       selectionAnalysisTreeNodeSet <<- minimumLabel
       precursorSet <- getPrecursorSetFromTreeSelection(clusterDataList = clusterDataList, clusterLabel = minimumLabel)
+      print("selectionByHca 2")
       listForTable_Analysis_HCA <<- getTableFromPrecursorSet(dataList = dataList, precursorSet = precursorSet)
+      print("selectionByHca 3")
       table$df_Analysis_HCA <<- createTable(listForTable_Analysis_HCA, selectionAnalysisHcaName)
+      print("selectionByHca 4")
       #output$dt_Analysis_HCA <- DT::renderDataTable(table$df_Analysis_HCA)
       if(state$selectedSelection == selectionAnalysisHcaName)
         updateSelectedPrecursorSet()
       
+      print("selectionByHca 5")
       ## pca selection
       if(state$showPCAplotPanel)
         selectionByAnalysisInitPca(precursorSet)
@@ -1480,6 +1499,7 @@ shinyServer(
         updateRadioButtons(session = session, inputId = "changeSelection", label = NULL, choices = c(selectionAnalysisName, selectionFragmentName, selectionSearchName), inline = TRUE, selected = selectionAnalysisName)
         updateSelectedSelection()
       }
+      print("selectionByHca 6")
     }
     selectionByAnalysisInitPca <- function(precursorSet){
       precursorSetPca <- intersect(x = precursorSet, y = filterPca$filter)
@@ -2142,13 +2162,13 @@ shinyServer(
       #################################################
       ## MS1 or MS2?
       searchMode <- input$searchMS1orMS2
-      if(searchMode == 'MS feature m/z'){
+      if(searchMode == 'MS feature mass'){
         #################################################
         ## get inputs
-        filter_ms1_mass <- input$searchMS1mass
-        filter_ms1_ppm  <- input$searchMS1massPpm
+        filter_ms1_masses <- input$searchMS1mass
+        filter_ms1_ppm    <- input$searchMS1massPpm
         
-        if(nchar(trimws(filter_ms1_mass)) == 0)
+        if(nchar(trimws(filter_ms1_masses)) == 0)
           return()
         
         filter_ms2_masses1  <- NULL
@@ -2156,7 +2176,7 @@ shinyServer(
         filter_ms2_masses3  <- NULL
         filter_ms2_ppm      <- NULL
       }
-      if(searchMode == 'Fragment m/z'){
+      if(searchMode == 'Fragment mass'){
         #################################################
         ## get inputs
         filter_ms2_masses1 <- input$search_ms2_masses1
@@ -2164,8 +2184,8 @@ shinyServer(
         filter_ms2_masses3 <- input$search_ms2_masses3
         filter_ms2_ppm     <- input$searchMS2massPpm
         
-        filter_ms1_mass <- NULL
-        filter_ms1_ppm <- NULL
+        filter_ms1_masses <- NULL
+        filter_ms1_ppm    <- NULL
       }
       
       filter_lfc      <- NULL
@@ -2175,8 +2195,8 @@ shinyServer(
       
       #################################################
       ## do filtering
-      print(paste("Observe applySearch", "1m", filter_ms1_mass, "1p", filter_ms1_ppm, "i", includeIgnoredPrecursors, "gs", paste(groupSet, collapse = "-")))
-      resultObj <- doPerformFiltering(groupSet, filter_average, filter_lfc, filter_ms2_masses1, filter_ms2_masses2, filter_ms2_masses3, filter_ms2_ppm, filter_ms1_mass, filter_ms1_ppm, includeIgnoredPrecursors)
+      print(paste("Observe applySearch", "1m", filter_ms1_masses, "1p", filter_ms1_ppm, "i", includeIgnoredPrecursors, "gs", paste(groupSet, collapse = "-")))
+      resultObj <- doPerformFiltering(groupSet, filter_average, filter_lfc, filter_ms2_masses1, filter_ms2_masses2, filter_ms2_masses3, filter_ms2_ppm, filter_ms1_masses, filter_ms1_ppm, includeIgnoredPrecursors)
       processSearchFilterResult(resultObj)
     })
     obsApplyGlobalMS2filters <- observeEvent(input$applyGlobalMS2filters, {
@@ -2201,12 +2221,12 @@ shinyServer(
       filter_average  <- NULL
       filter_lfc      <- NULL
       includeIgnoredPrecursors  <- TRUE
-      filter_ms1_mass <- NULL
+      filter_ms1_masses <- NULL
       filter_ms1_ppm <- NULL
       
       #################################################
       ## do filtering
-      resultObj <- doPerformFiltering(groupSet, filter_average, filter_lfc, filter_ms2_masses1, filter_ms2_masses2, filter_ms2_masses3, filter_ms2_ppm, filter_ms1_mass, filter_ms1_ppm, includeIgnoredPrecursors)
+      resultObj <- doPerformFiltering(groupSet, filter_average, filter_lfc, filter_ms2_masses1, filter_ms2_masses2, filter_ms2_masses3, filter_ms2_ppm, filter_ms1_masses, filter_ms1_ppm, includeIgnoredPrecursors)
       
       if(resultObj$error){
         filterGlobal <<- NULL
@@ -2244,13 +2264,13 @@ shinyServer(
       filter_average  <- input$hcaFilter_average
       filter_lfc      <- input$hcaFilter_lfc
       includeIgnoredPrecursors  <- input$hcaFilterIncludeIgnoredPrecursors
-      filter_ms1_mass <- NULL
+      filter_ms1_masses <- NULL
       filter_ms1_ppm  <- NULL
       groupSet        <- c(groupOne, groupTwo)
       
       #################################################
       ## do filtering and update
-      resultObj <- doPerformFiltering(groupSet, filter_average, filter_lfc, filter_ms2_masses1, filter_ms2_masses2, filter_ms2_masses3, filter_ms2_ppm, filter_ms1_mass, filter_ms1_ppm, includeIgnoredPrecursors)
+      resultObj <- doPerformFiltering(groupSet, filter_average, filter_lfc, filter_ms2_masses1, filter_ms2_masses2, filter_ms2_masses3, filter_ms2_ppm, filter_ms1_masses, filter_ms1_ppm, includeIgnoredPrecursors)
       
       if(resultObj$error){
         shinyjs::disable("drawHCAplots")
@@ -2295,7 +2315,7 @@ shinyServer(
       filter_average  <- input$pcaFilter_average
       filter_lfc      <- input$pcaFilter_lfc
       includeIgnoredPrecursors  <- input$pcaFilterIncludeIgnoredPrecursors
-      filter_ms1_mass <- NULL
+      filter_ms1_masses <- NULL
       filter_ms1_ppm  <- NULL
       
       if(length(groupSet) != 2)
@@ -2303,7 +2323,7 @@ shinyServer(
       
       #################################################
       ## do filtering and update
-      resultObj <- doPerformFiltering(groupSet, filter_average, filter_lfc, filter_ms2_masses1, filter_ms2_masses2, filter_ms2_masses3, filter_ms2_ppm, filter_ms1_mass, filter_ms1_ppm, includeIgnoredPrecursors)
+      resultObj <- doPerformFiltering(groupSet, filter_average, filter_lfc, filter_ms2_masses1, filter_ms2_masses2, filter_ms2_masses3, filter_ms2_ppm, filter_ms1_masses, filter_ms1_ppm, includeIgnoredPrecursors)
       
       if(resultObj$error){
         shinyjs::disable("drawPCAplots")
@@ -2537,7 +2557,7 @@ shinyServer(
           ## reverse MS2 to clicked stuff
           fragmentsXhovered <<- NULL
           fragmentsYhovered <<- NULL
-          
+          fragmentshoveredColor <<- NULL
           #output$information <- renderText({
           #  print(paste("update output$information", resultObj$infoText))
           #  paste("", sep = "")
@@ -2568,6 +2588,7 @@ shinyServer(
       })
     })
     obsDendrogramClick <- observeEvent(input$plotDendrogram_click, {
+      print("obsDendrogramClick1")
       clickX <- input$plotDendrogram_click$x
       clickY <- input$plotDendrogram_click$y
       
@@ -2583,6 +2604,7 @@ shinyServer(
       
       #################################################
       ## decide whether the click is close enough to trigger event
+      print("obsDendrogramClick2")
       minimumIndex <- getSelectedPOI_XY(
         mouseX = clickX, mouseY = clickY, poiCoordinatesX = clusterDataList$poiCoordinatesX, poiCoordinatesY = clusterDataList$poiCoordinatesY,
         plotWidth = plotWidth, plotHeight = plotHeight, plotRangeX = dendrogramPlotRange$xIntervalSize, plotRangeY = dendrogramPlotRangeY
@@ -2603,6 +2625,7 @@ shinyServer(
         selectionByFragmentReset()
       } else {
         ## tree selection
+        print("obsDendrogramClick3")
         minimumLabel <- clusterDataList$poiLabels[[minimumIndex]]
         #minimumText <- clusterDataList$poiText[[minimumIndex]]
         
@@ -2610,6 +2633,7 @@ shinyServer(
         resultObj <- getMS2spectrum(dataList = dataList, clusterDataList = clusterDataList, clusterLabel = minimumLabel)
         
         ## keep fragment selection
+        print("obsDendrogramClick32")
         selectionFragmentSelectedFragmentIndexNew <- NULL
         if(!is.null(selectionFragmentSelectedFragmentIndex)){
           fragmentMass <- fragmentsX[[selectionFragmentSelectedFragmentIndex]]
@@ -2626,7 +2650,9 @@ shinyServer(
         
         #################################################
         ## output as message
+        print("obsDendrogramClick4")
         selectionByHca(minimumLabel)
+        print("obsDendrogramClick5")
         
         ## update the selected fragment in case of overlapping spectra
         if(!is.null(selectionFragmentSelectedFragmentIndexNew))
@@ -2638,11 +2664,13 @@ shinyServer(
           print(paste("update output$information", resultObj$infoText))
           paste(resultObj$infoText, sep = "")
         })
+        print("obsDendrogramClick6")
       }
       
       #################################################
       ## plots
       
+      print("obsDendrogramClick7")
       ## cluster dendrogram
       drawDendrogramPlot(consoleInfo = "dendrogram click output$plotDendrogram")
       
@@ -2653,6 +2681,7 @@ shinyServer(
       if(state$showPCAplotPanel)
         ## update PCA plots
         drawPcaPlots(consoleInfo = "dendrogram click output$plotPcaScores")
+      print("obsDendrogramClick8")
     })
     obsDendrogramdblClick <- observeEvent(input$plotDendrogram_dblclick, {
       brush <- input$plotDendrogram_brush
@@ -2822,7 +2851,7 @@ shinyServer(
     obsMS2dblClick <- observeEvent(input$plotMS2_dblclick, {
       brush <- input$plotMS2_brush
       
-      if(any(is.null(fragmentsX), length(fragmentsX) == 0))
+      if(all(any(is.null(fragmentsX), length(fragmentsX) == 0), any(is.null(fragmentsXhovered), length(fragmentsXhovered) == 0)))
         return()
       
       print(paste("observe MS2 dblclick", is.null(brush)))
@@ -3029,12 +3058,20 @@ shinyServer(
       } else {
         print(paste("Observe PCA Loadings hover", hoverX, hoverY, minimumIndex))
         
+        #################################################
+        ## fetch ms2 spectrum
         precursorIndex <- filterPca$filter[[minimumIndex]]
-        
         resultObj <- getMS2spectrumOfPrecursor(dataList = dataList, precursorIndex = precursorIndex)
-        fragmentsXhovered <<- resultObj$fragmentMasses
-        fragmentsYhovered <<- resultObj$fragmentAbundances
-        fragmentshoveredColor <<- resultObj$fragmentColor
+        if(all(!is.null(selectionAnalysisPcaLoadingSet), minimumIndex == selectionAnalysisPcaLoadingSet)){
+          ## reverse MS2 to clicked stuff
+          fragmentsXhovered <<- NULL
+          fragmentsYhovered <<- NULL
+          fragmentshoveredColor <<- NULL
+        } else {
+          fragmentsXhovered <<- resultObj$fragmentMasses
+          fragmentsYhovered <<- resultObj$fragmentAbundances
+          fragmentshoveredColor <<- resultObj$fragmentColor
+        }
         
         output$information <- renderText({
           print(paste("update output$information PCA Loadings hover ", precursorIndex, sep = ""))
@@ -4095,6 +4132,9 @@ shinyServer(
     #       height = 600
     #  )
     #}, deleteFile = FALSE)
+    
+    ## TODO
+    #http://127.0.0.1:25805/library/utils/html/zip.html
     serialization <- function(){
       #######################################
       ## enlist
@@ -4180,45 +4220,45 @@ shinyServer(
       #updateCheckboxGroupInput(session = session, inputId = "pcaGroups",   choices = dataList$groups, selected = dataList$groups)
       
       ## global MS2 filter
-      updateTextInput(         session = session, inputId = "globalFilter_ms2_masses1",          value = paramsList$globalFilter_ms2_masses1),
-      updateTextInput(         session = session, inputId = "globalFilter_ms2_masses2",          value = paramsList$globalFilter_ms2_masses2),
-      updateTextInput(         session = session, inputId = "globalFilter_ms2_masses3",          value = paramsList$globalFilter_ms2_masses3),
-      updateTextInput(         session = session, inputId = "globalFilter_ms2_ppm",              value = paramsList$globalFilter_ms2_ppm),
+      updateTextInput(         session = session, inputId = "globalFilter_ms2_masses1",          value = paramsList$globalFilter_ms2_masses1)
+      updateTextInput(         session = session, inputId = "globalFilter_ms2_masses2",          value = paramsList$globalFilter_ms2_masses2)
+      updateTextInput(         session = session, inputId = "globalFilter_ms2_masses3",          value = paramsList$globalFilter_ms2_masses3)
+      updateTextInput(         session = session, inputId = "globalFilter_ms2_ppm",              value = paramsList$globalFilter_ms2_ppm)
       #input$applyGlobalMS2filters
       ## HCA
-      updateRadioButtons(      session = session, inputId = "hcaFilterGroupOne",                 selected = paramsList$hcaFilterGroupOne),
-      updateRadioButtons(      session = session, inputId = "hcaFilterGroupTwo",                 selected = paramsList$hcaFilterGroupTwo),
-      updateTextInput(         session = session, inputId = "hcaFilter_average",                 value = paramsList$hcaFilter_average),
-      updateTextInput(         session = session, inputId = "hcaFilter_lfc",                     value = paramsList$hcaFilter_lfc),
-      updateCheckboxInput(     session = session, inputId = "hcaFilterIncludeIgnoredPrecursors", value = as.logical(paramsList$hcaFilterIncludeIgnoredPrecursors)),
+      updateRadioButtons(      session = session, inputId = "hcaFilterGroupOne",                 selected = paramsList$hcaFilterGroupOne)
+      updateRadioButtons(      session = session, inputId = "hcaFilterGroupTwo",                 selected = paramsList$hcaFilterGroupTwo)
+      updateTextInput(         session = session, inputId = "hcaFilter_average",                 value = paramsList$hcaFilter_average)
+      updateTextInput(         session = session, inputId = "hcaFilter_lfc",                     value = paramsList$hcaFilter_lfc)
+      updateCheckboxInput(     session = session, inputId = "hcaFilterIncludeIgnoredPrecursors", value = as.logical(paramsList$hcaFilterIncludeIgnoredPrecursors))
       #input$applyHcaFilters
-      updateSelectInput(       session = session, inputId = "hcaDistanceFunction",               selected = paramsList$hcaDistanceFunction),
-      updateSelectInput(       session = session, inputId = "hcaClusterMethod",                  selected = paramsList$hcaClusterMethod),
+      updateSelectInput(       session = session, inputId = "hcaDistanceFunction",               selected = paramsList$hcaDistanceFunction)
+      updateSelectInput(       session = session, inputId = "hcaClusterMethod",                  selected = paramsList$hcaClusterMethod)
       #input$drawHCAplots
       ## PCA
-      updateCheckboxGroupInput(session = session, inputId = "pcaGroups",                         selected = paramsList$pcaGroups),
-      updateTextInput(         session = session, inputId = "pcaFilter_average",                 value = paramsList$pcaFilter_average),
-      updateTextInput(         session = session, inputId = "pcaFilter_lfc",                     value = paramsList$pcaFilter_lfc),
-      updateSelectInput(       session = session, inputId = "pcaFilterIncludeIgnoredPrecursors", selected = paramsList$pcaFilterIncludeIgnoredPrecursors),
+      updateCheckboxGroupInput(session = session, inputId = "pcaGroups",                         selected = paramsList$pcaGroups)
+      updateTextInput(         session = session, inputId = "pcaFilter_average",                 value = paramsList$pcaFilter_average)
+      updateTextInput(         session = session, inputId = "pcaFilter_lfc",                     value = paramsList$pcaFilter_lfc)
+      updateSelectInput(       session = session, inputId = "pcaFilterIncludeIgnoredPrecursors", selected = paramsList$pcaFilterIncludeIgnoredPrecursors)
       #input$applyPcaFilters
-      updateSelectInput(       session = session, inputId = "pcaScaling",                        selected = paramsList$pcaScaling),
-      updateCheckboxInput(     session = session, inputId = "pcaLogTransform",                   value = as.logical(paramsList$pcaLogTransform)),
-      updateSelectInput(       session = session, inputId = "pcaDimensionOne",                   selected = paramsList$pcaDimensionOne),
-      updateSelectInput(       session = session, inputId = "pcaDimensionTwo",                   selected = paramsList$pcaDimensionTwo),
+      updateSelectInput(       session = session, inputId = "pcaScaling",                        selected = paramsList$pcaScaling)
+      updateCheckboxInput(     session = session, inputId = "pcaLogTransform",                   value = as.logical(paramsList$pcaLogTransform))
+      updateSelectInput(       session = session, inputId = "pcaDimensionOne",                   selected = paramsList$pcaDimensionOne)
+      updateSelectInput(       session = session, inputId = "pcaDimensionTwo",                   selected = paramsList$pcaDimensionTwo)
       #input$drawPCAplots
       ## plot properties
-      updateCheckboxInput(     session = session, inputId = "showClusterLabels",                 value = as.logical(paramsList$showClusterLabels)),
-      updateCheckboxInput(     session = session, inputId = "showScoresLabels",                  value = as.logical(paramsList$showScoresLabels)),
-      updateCheckboxInput(     session = session, inputId = "showLoadingsLabels",                value = as.logical(paramsList$showLoadingsLabels)),
-      updateCheckboxInput(     session = session, inputId = "showLoadingsAbundance",             value = as.logical(paramsList$showLoadingsAbundance)),
+      updateCheckboxInput(     session = session, inputId = "showClusterLabels",                 value = as.logical(paramsList$showClusterLabels))
+      updateCheckboxInput(     session = session, inputId = "showScoresLabels",                  value = as.logical(paramsList$showScoresLabels))
+      updateCheckboxInput(     session = session, inputId = "showLoadingsLabels",                value = as.logical(paramsList$showLoadingsLabels))
+      updateCheckboxInput(     session = session, inputId = "showLoadingsAbundance",             value = as.logical(paramsList$showLoadingsAbundance))
       ## search
-      updateRadioButtons(      session = session, inputId = "searchMS1orMS2",                    selected = paramsList$searchMS1orMS2),
-      updateTextInput(         session = session, inputId = "searchMS1mass",                     value = paramsList$searchMS1mass),
-      updateTextInput(         session = session, inputId = "searchMS1massPpm",                  value = paramsList$searchMS1massPpm),
-      updateTextInput(         session = session, inputId = "search_ms2_masses1",                value = paramsList$search_ms2_masses1),
-      updateTextInput(         session = session, inputId = "search_ms2_masses2",                value = paramsList$search_ms2_masses2),
-      updateTextInput(         session = session, inputId = "search_ms2_masses3",                value = paramsList$search_ms2_masses3),
-      updateTextInput(         session = session, inputId = "searchMS2massPpm",                  value = paramsList$searchMS2massPpm),
+      updateRadioButtons(      session = session, inputId = "searchMS1orMS2",                    selected = paramsList$searchMS1orMS2)
+      updateTextInput(         session = session, inputId = "searchMS1mass",                     value = paramsList$searchMS1mass)
+      updateTextInput(         session = session, inputId = "searchMS1massPpm",                  value = paramsList$searchMS1massPpm)
+      updateTextInput(         session = session, inputId = "search_ms2_masses1",                value = paramsList$search_ms2_masses1)
+      updateTextInput(         session = session, inputId = "search_ms2_masses2",                value = paramsList$search_ms2_masses2)
+      updateTextInput(         session = session, inputId = "search_ms2_masses3",                value = paramsList$search_ms2_masses3)
+      updateTextInput(         session = session, inputId = "searchMS2massPpm",                  value = paramsList$searchMS2massPpm)
       updateCheckboxInput(     session = session, inputId = "searchIncludeIgnoredPrecursors",    value = as.logical(paramsList$searchIncludeIgnoredPrecursors))
       #input$applySearch
       
@@ -4236,13 +4276,13 @@ shinyServer(
       filter_average  <- NULL
       filter_lfc      <- NULL
       includeIgnoredPrecursors  <- TRUE
-      filter_ms1_mass <- NULL
+      filter_ms1_masses <- NULL
       filter_ms1_ppm <- NULL
       
       resultObj <- doPerformFiltering(
         groupSet, filter_average, filter_lfc, 
         filter_ms2_masses1, filter_ms2_masses2, filter_ms2_masses3, filter_ms2_ppm, 
-        filter_ms1_mass, filter_ms1_ppm, 
+        filter_ms1_masses, filter_ms1_ppm, 
         includeIgnoredPrecursors
       )
       filterGlobal <<- resultObj$filter
@@ -4261,14 +4301,14 @@ shinyServer(
       filter_average  <- paramsList$hcaFilter_average
       filter_lfc      <- paramsList$hcaFilter_lfc
       includeIgnoredPrecursors  <- paramsList$hcaFilterIncludeIgnoredPrecursors
-      filter_ms1_mass <- NULL
+      filter_ms1_masses <- NULL
       filter_ms1_ppm  <- NULL
       groupSet        <- c(groupOne, groupTwo)
       
       resultObj <- doPerformFiltering(
         groupSet, filter_average, filter_lfc, 
         filter_ms2_masses1, filter_ms2_masses2, filter_ms2_masses3, filter_ms2_ppm, 
-        filter_ms1_mass, filter_ms1_ppm, includeIgnoredPrecursors
+        filter_ms1_masses, filter_ms1_ppm, includeIgnoredPrecursors
       )
       filterHca <<- resultObj$filter
       updateHcaFilterInformation()
@@ -4291,7 +4331,7 @@ shinyServer(
       filter_average  <- paramsList$pcaFilter_average
       filter_lfc      <- paramsList$pcaFilter_lfc
       includeIgnoredPrecursors  <- paramsList$pcaFilterIncludeIgnoredPrecursors
-      filter_ms1_mass <- NULL
+      filter_ms1_masses <- NULL
       filter_ms1_ppm  <- NULL
       
       if(length(groupSet) != 2)
@@ -4300,7 +4340,7 @@ shinyServer(
       resultObj <- doPerformFiltering(
         groupSet, filter_average, filter_lfc, 
         filter_ms2_masses1, filter_ms2_masses2, filter_ms2_masses3, filter_ms2_ppm, 
-        filter_ms1_mass, filter_ms1_ppm, includeIgnoredPrecursors
+        filter_ms1_masses, filter_ms1_ppm, includeIgnoredPrecursors
       )
       filterPca <<- resultObj$filter
       updatePcaFilterInformation()
@@ -4315,13 +4355,13 @@ shinyServer(
       ###################
       ## search
       searchMode <- paramsListsearchMS1orMS2
-      if(searchMode == 'MS feature m/z'){
+      if(searchMode == 'MS feature mass'){
         #################################################
         ## get inputs
-        filter_ms1_mass <- paramsListsearchMS1mass
+        filter_ms1_masses <- paramsListsearchMS1mass
         filter_ms1_ppm  <- paramsListsearchMS1massPpm
         
-        if(nchar(trimws(filter_ms1_mass)) == 0)
+        if(nchar(trimws(filter_ms1_masses)) == 0)
           return()
         
         filter_ms2_masses1  <- NULL
@@ -4329,7 +4369,7 @@ shinyServer(
         filter_ms2_masses3  <- NULL
         filter_ms2_ppm      <- NULL
       }
-      if(searchMode == 'Fragment m/z'){
+      if(searchMode == 'Fragment mass'){
         #################################################
         ## get inputs
         filter_ms2_masses1 <- paramsListsearch_ms2_masses1
@@ -4337,7 +4377,7 @@ shinyServer(
         filter_ms2_masses3 <- paramsListsearch_ms2_masses3
         filter_ms2_ppm     <- paramsListsearchMS2massPpm
         
-        filter_ms1_mass <- NULL
+        filter_ms1_masses <- NULL
         filter_ms1_ppm <- NULL
       }
       
@@ -4351,7 +4391,7 @@ shinyServer(
       resultObj <- doPerformFiltering(
         groupSet, filter_average, filter_lfc, 
         filter_ms2_masses1, filter_ms2_masses2, filter_ms2_masses3, filter_ms2_ppm, 
-        filter_ms1_mass, filter_ms1_ppm, includeIgnoredPrecursors
+        filter_ms1_masses, filter_ms1_ppm, includeIgnoredPrecursors
       )
       processSearchFilterResult(resultObj)
     }

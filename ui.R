@@ -56,7 +56,7 @@ library(DT)
 #}
 
 shinyUI(
-  ui = navbarPage(title = "MetFam", 
+  ui = navbarPage(title = "MetFamily", 
     ##########################################################################################
     ##########################################################################################
     ##########################################################################################
@@ -105,23 +105,9 @@ shinyUI(
             tabPanel(
               shinyjs::useShinyjs(),
               title = "Input",
-              #selectInput("example", "Choose an example lattice chart (from lattice package documentation):",
-              #            choices = c("xyplot", "dotplot", "barchart")),
-              #includeHTML("svgfiller.js"),
-              #reactiveSvg(outputId = "myImage"),
-              #imageOutput(outputId = "myImage"),
-              #HTML("<b>hallo2</b><p>"),
-              #HTML("<object data='/home/htreutle/Downloads/MetSWATH/svg/tmp2/tooltipLattice.svg' type='image/svg+xml'></object>"),
-              #HTML("<img src='/home/htreutle/Downloads/MetSWATH/svg/tmp2/tooltipLattice.svg' alt=''>"),
-              #HTML("<img src='img/tooltipLattice.svg' alt=''>"),
-              #HTML("<div style='background: url(/home/htreutle/Downloads/MetSWATH/svg/tmp2/tooltipLattice.svg);'>hallo<p><p>holla</div>"),
-              #HTML("<svg><path /home/htreutle/Downloads/MetSWATH/svg/tmp2/tooltipLattice.svg /></svg>"),
-              #HTML("<iframe height='180' width='100%' src='/home/htreutle/Downloads/MetSWATH/svg/tmp2/tooltipLattice.svg' scrolling='no'><p>SVG-Grafik – hier eine Kopie als PNG</p></iframe>"),
-              #HTML("<svg width='96' height='96'> <image xlink:href='/home/htreutle/Downloads/MetSWATH/svg/tmp2/tooltipLattice.svg' src='/home/htreutle/Downloads/MetSWATH/svg/tmp2/tooltipLattice.svg' width='96' height='96'/></svg>"),
-              #HTML("<p><b>hallo1</b>"),
               wellPanel(
                 bsTooltip(id = "fileInputSelection", title = "The user is able to load a project file or to import external data", placement = "bottom", trigger = "hover"),
-                radioButtons(inputId = "fileInputSelection", label = NULL, choices = c("Load project", "Import data", "Example data"), selected = NULL, inline = FALSE),
+                radioButtons(inputId = "fileInputSelection", label = NULL, choices = c("Import data", "Load project", "Example data"), selected = "Load project", inline = FALSE),
                 shiny::hr(),
                 conditionalPanel(
                   condition = 'input.fileInputSelection == "Load project"',
@@ -254,25 +240,25 @@ shinyUI(
                   condition = 'input.fileInputSelection == "Example data"',
                   h4("Example data input"),
                   helpText(
-                    "The data set used as showcase in the MetFam publication referenced in the tab 'About'."
+                    "The data set used as showcase in the MetFamily publication referenced in the tab 'About'."
                   ),
                   h4("Download original metabolite profile and MS/MS library"),
                   fluidRow(
                     column(width = 6,
                            div(style="float:left",
-                               bsTooltip(id = "downloadMsData", title = "Download the original metabolite profile used in the MetFam publication", placement = "bottom", trigger = "hover"),
+                               bsTooltip(id = "downloadMsData", title = "Download the original metabolite profile used in the MetFamily publication", placement = "bottom", trigger = "hover"),
                                downloadButton('downloadMsData', 'Download metabolite profile')
                            )
                     ),##column
                     column(width = 6,
                            div(style="float:right",
-                               bsTooltip(id = "downloadMsMsData", title = "Download the original MS/MS library used in the MetFam publication", placement = "bottom", trigger = "hover"),
+                               bsTooltip(id = "downloadMsMsData", title = "Download the original MS/MS library used in the MetFamily publication", placement = "bottom", trigger = "hover"),
                                downloadButton('downloadMsMsData', 'Download MS/MS library')
                            )
                     )##column
                   ),##row
                   h4("Download generated fragment matrix"),
-                  bsTooltip(id = "downloadFragmentMatrix", title = "Download the fragment matrix generated from the original metabolite profile and MS/MS library used in the MetFam publication", placement = "bottom", trigger = "hover"),
+                  bsTooltip(id = "downloadFragmentMatrix", title = "Download the fragment matrix generated from the original metabolite profile and MS/MS library used in the MetFamily publication", placement = "bottom", trigger = "hover"),
                   downloadButton('downloadFragmentMatrix', 'Download fragment matrix'),
                   h4("Load full or reduced data set"),
                   bsTooltip(id = "exampleDataSelection", title = "The user is able to choose the full data set or a reduced data set (only MS features with MS abundance >= 5000)", placement = "bottom", trigger = "hover"),
@@ -390,6 +376,121 @@ shinyUI(
                 wellPanel(
                   h4("Please import a data file")
                 )
+              )## conditional panel
+            ),## tab panel
+            ##############################################################################################
+            ##############################################################################################
+            ## PCA
+            tabPanel(
+              title = "PCA", 
+              shinyjs::useShinyjs(),
+              conditionalPanel(
+                condition = "output.showGUI && output.globalMS2filterValid",
+                wellPanel(
+                  ##############################################################################################
+                  ## HCA group and abundance filter
+                  fluidRow(
+                    column(width = 7,
+                           div(style="float:left",
+                               h4("MS abundance filter for PCA")
+                           )
+                    ),##column
+                    column(width = 5,
+                           div(style="float:right",
+                               bsTooltip(id = "showPCAfilterOptions", title = "Display filter settings", placement = "bottom", trigger = "hover"),
+                               checkboxInput(inputId = "showPCAfilterOptions", label = "Show filter settings", value = TRUE)
+                           )
+                    )##column
+                  ),##row
+                  conditionalPanel(
+                    condition = "input.showPCAfilterOptions",
+                    bsTooltip(id = "pcaFilter_average", title = "The average MS abundance should be greater or equal than this value", placement = "bottom", trigger = "hover"),
+                    textInput(inputId = "pcaFilter_average", label = "Average MS abundance"),
+                    bsTooltip(id = "pcaFilter_lfc", title = "The log<sub>2</sub>-fold change [ log<sub>2</sub>( mean(group one) / mean(group two) ) ] between the average MS abundances should be greater/smaller or equal than this value", placement = "bottom", trigger = "hover"),
+                    textInput(inputId = "pcaFilter_lfc", label = "MS log2-fold change"),
+                    tags$div(title="Please select the set of replicate groups",
+                             checkboxGroupInput(inputId = "pcaGroups", label = "Groups", choices = c(""))
+                             #selectInput(inputId = "groups", label = "Groups", choices = c(""), multiple = TRUE, selectize = FALSE)
+                    ),
+                    bsTooltip(id = "pcaFilterIncludeIgnoredPrecursors", title = "Include or filter out ignored MS features, i.e. MS features which have been annotated as \\'Ignore\\'", placement = "bottom", trigger = "hover"),
+                    checkboxInput(inputId = "pcaFilterIncludeIgnoredPrecursors", label = "Include ignored MS features", value = FALSE),
+                    ##############################################################################################
+                    ## filter button
+                    bsTooltip(id = "applyPcaFilters", title = "Press to determine the set of MS features which fulfill the given criteria", placement = "bottom", trigger = "hover"),
+                    actionButton(inputId = "applyPcaFilters", label = "Apply filter", class="btn-success")
+                  )## conditional panel
+                ),##well panel
+                wellPanel(
+                  h4("Filtered MS features"),
+                  bsTooltip(id = "pcaFilteredPrecursors", title = "The number of MS features which fulfill the given criteria", placement = "bottom", trigger = "hover"),
+                  verbatimTextOutput("pcaFilteredPrecursors"),
+                  conditionalPanel(
+                    condition = "output.pcaFilterValid",
+                    bsTooltip(id = "downloadPcaFilteredPrecursors", title = "Download a project file which is reduced to the filtered set of MS features", placement = "bottom", trigger = "hover"),
+                    downloadButton('downloadPcaFilteredPrecursors', 'Download reduced project file')
+                  )##conditional
+                ),##well
+                conditionalPanel(
+                  condition = "output.pcaFilterValid",
+                  wellPanel(
+                    ##############################################################################################
+                    ## PCA properties
+                    fluidRow(
+                      column(width = 6,
+                             div(style="float:left",
+                                 h4("PCA properties")
+                             )
+                      ),##column
+                      column(width = 6,
+                             div(style="float:right",
+                                 bsTooltip(id = "showPCAadvancedOptions", title = "Display further PCA settings", placement = "bottom", trigger = "hover"),
+                                 checkboxInput(inputId = "showPCAadvancedOptions", label = "Show advanced options", value = FALSE)
+                             )
+                      )##column
+                    ),##row
+                    conditionalPanel(
+                      condition = "input.showPCAadvancedOptions",
+                      bsTooltip(id = "pcaScaling", title = "Adjust the scaling of MS abundances for PCA", placement = "bottom", trigger = "hover"),
+                      selectInput(multiple = FALSE, inputId = "pcaScaling", label = "Scaling", selected = "Pareto", choices = c(
+                        "None", 
+                        "Mean center", 
+                        "Autoscaling (unit variance)",
+                        "Pareto"
+                        #"Vector normalization", 
+                      ), selectize = FALSE),
+                      bsTooltip(id = "pcaLogTransform", title = "MS abundances for PCA will be log<sub>2</sub> transformed", placement = "bottom", trigger = "hover"),
+                      checkboxInput(inputId = "pcaLogTransform", label = "Log2 transform", value = FALSE),
+                      fluidRow(
+                        column(
+                          width = 6,
+                          tags$div(title="Please select the first principal component",
+                            selectInput(inputId = "pcaDimensionOne", label = "Component 1", choices = c("1", "2", "3", "4", "5"), selected = "1", selectize = FALSE)
+                          )
+                        ),
+                        column(
+                          width = 6,
+                          tags$div(title="Please select the second principal component",
+                            selectInput(inputId = "pcaDimensionTwo", label = "Component 2", choices = c("1", "2", "3", "4", "5"), selected = "2", selectize = FALSE)
+                          )
+                        )
+                      )
+                    ),
+                    bsTooltip(id = "drawPCAplots", title = "Display the PCA scores and loadings plot given the set of filtered MS features and PCA settings", placement = "bottom", trigger = "hover"),
+                    actionButton(inputId = "drawPCAplots", label = "Draw principal components", class="btn-success")
+                  )##well
+                )## conditiojal panel
+              ),## conditiojal panel
+              conditionalPanel(
+                condition = "!output.showGUI",
+                wellPanel(
+                  h4("Please import a data file")
+                )## well panel
+              ),## conditional panel
+              conditionalPanel(
+                condition = "output.showGUI && !output.globalMS2filterValid",
+                wellPanel(
+                  h4("Please apply a valid MS/MS filter")
+                )## well panel
               )## conditional panel
             ),## tab panel
             ##############################################################################################
@@ -514,121 +615,6 @@ shinyUI(
                 )## conditional panel
               ),## conditional panel
               conditionalPanel(
-                 condition = "!output.showGUI",
-                wellPanel(
-                  h4("Please import a data file")
-                )## well panel
-              ),## conditional panel
-              conditionalPanel(
-                condition = "output.showGUI && !output.globalMS2filterValid",
-                wellPanel(
-                  h4("Please apply a valid MS/MS filter")
-                )## well panel
-              )## conditional panel
-            ),## tab panel
-            ##############################################################################################
-            ##############################################################################################
-            ## PCA
-            tabPanel(
-              title = "PCA", 
-              shinyjs::useShinyjs(),
-              conditionalPanel(
-                condition = "output.showGUI && output.globalMS2filterValid",
-                wellPanel(
-                  ##############################################################################################
-                  ## HCA group and abundance filter
-                  fluidRow(
-                    column(width = 7,
-                           div(style="float:left",
-                               h4("MS abundance filter for PCA")
-                           )
-                    ),##column
-                    column(width = 5,
-                           div(style="float:right",
-                               bsTooltip(id = "showPCAfilterOptions", title = "Display filter settings", placement = "bottom", trigger = "hover"),
-                               checkboxInput(inputId = "showPCAfilterOptions", label = "Show filter settings", value = TRUE)
-                           )
-                    )##column
-                  ),##row
-                  conditionalPanel(
-                    condition = "input.showPCAfilterOptions",
-                    bsTooltip(id = "pcaFilter_average", title = "The average MS abundance should be greater or equal than this value", placement = "bottom", trigger = "hover"),
-                    textInput(inputId = "pcaFilter_average", label = "Average MS abundance"),
-                    bsTooltip(id = "pcaFilter_lfc", title = "The log<sub>2</sub>-fold change [ log<sub>2</sub>( mean(group one) / mean(group two) ) ] between the average MS abundances should be greater/smaller or equal than this value", placement = "bottom", trigger = "hover"),
-                    textInput(inputId = "pcaFilter_lfc", label = "MS log2-fold change"),
-                    tags$div(title="Please select the set of replicate groups",
-                             checkboxGroupInput(inputId = "pcaGroups", label = "Groups", choices = c(""))
-                             #selectInput(inputId = "groups", label = "Groups", choices = c(""), multiple = TRUE, selectize = FALSE)
-                    ),
-                    bsTooltip(id = "pcaFilterIncludeIgnoredPrecursors", title = "Include or filter out ignored MS features, i.e. MS features which have been annotated as \\'Ignore\\'", placement = "bottom", trigger = "hover"),
-                    checkboxInput(inputId = "pcaFilterIncludeIgnoredPrecursors", label = "Include ignored MS features", value = FALSE),
-                    ##############################################################################################
-                    ## filter button
-                    bsTooltip(id = "applyPcaFilters", title = "Press to determine the set of MS features which fulfill the given criteria", placement = "bottom", trigger = "hover"),
-                    actionButton(inputId = "applyPcaFilters", label = "Apply filter", class="btn-success")
-                  )## conditional panel
-                ),##well panel
-                wellPanel(
-                  h4("Filtered MS features"),
-                  bsTooltip(id = "pcaFilteredPrecursors", title = "The number of MS features which fulfill the given criteria", placement = "bottom", trigger = "hover"),
-                  verbatimTextOutput("pcaFilteredPrecursors"),
-                  conditionalPanel(
-                    condition = "output.pcaFilterValid",
-                    bsTooltip(id = "downloadPcaFilteredPrecursors", title = "Download a project file which is reduced to the filtered set of MS features", placement = "bottom", trigger = "hover"),
-                    downloadButton('downloadPcaFilteredPrecursors', 'Download reduced project file')
-                  )##conditional
-                ),##well
-                conditionalPanel(
-                  condition = "output.pcaFilterValid",
-                  wellPanel(
-                    ##############################################################################################
-                    ## PCA properties
-                    fluidRow(
-                      column(width = 6,
-                             div(style="float:left",
-                                 h4("PCA properties")
-                             )
-                      ),##column
-                      column(width = 6,
-                             div(style="float:right",
-                                 bsTooltip(id = "showPCAadvancedOptions", title = "Display further PCA settings", placement = "bottom", trigger = "hover"),
-                                 checkboxInput(inputId = "showPCAadvancedOptions", label = "Show advanced options", value = FALSE)
-                             )
-                      )##column
-                    ),##row
-                    conditionalPanel(
-                      condition = "input.showPCAadvancedOptions",
-                      bsTooltip(id = "pcaScaling", title = "Adjust the scaling of MS abundances for PCA", placement = "bottom", trigger = "hover"),
-                      selectInput(multiple = FALSE, inputId = "pcaScaling", label = "Scaling", selected = "Pareto", choices = c(
-                        "None", 
-                        "Mean center", 
-                        "Autoscaling (unit variance)",
-                        "Pareto"
-                        #"Vector normalization", 
-                      ), selectize = FALSE),
-                      bsTooltip(id = "pcaLogTransform", title = "MS abundances for PCA will be log<sub>2</sub> transformed", placement = "bottom", trigger = "hover"),
-                      checkboxInput(inputId = "pcaLogTransform", label = "Log2 transform", value = FALSE),
-                      fluidRow(
-                        column(
-                          width = 6,
-                          tags$div(title="Please select the first principal component",
-                            selectInput(inputId = "pcaDimensionOne", label = "Component 1", choices = c("1", "2", "3", "4", "5"), selected = "1", selectize = FALSE)
-                          )
-                        ),
-                        column(
-                          width = 6,
-                          tags$div(title="Please select the second principal component",
-                            selectInput(inputId = "pcaDimensionTwo", label = "Component 2", choices = c("1", "2", "3", "4", "5"), selected = "2", selectize = FALSE)
-                          )
-                        )
-                      )
-                    ),
-                    bsTooltip(id = "drawPCAplots", title = "Display the PCA scores and loadings plot given the set of filtered MS features and PCA settings", placement = "bottom", trigger = "hover"),
-                    actionButton(inputId = "drawPCAplots", label = "Draw principal components", class="btn-success")
-                  )##well
-                )## conditiojal panel
-              ),## conditiojal panel
-              conditionalPanel(
                 condition = "!output.showGUI",
                 wellPanel(
                   h4("Please import a data file")
@@ -653,27 +639,23 @@ shinyUI(
                 wellPanel(
                   h4("Search mode"),
                   bsTooltip(id = "searchMS1orMS2", title = "Please choose the criterion for selecting MS features", placement = "bottom", trigger = "hover"),
-                  radioButtons(inputId = "searchMS1orMS2", label = NULL, choices = c("MS feature m/z", "Fragment m/z")),
+                  radioButtons(inputId = "searchMS1orMS2", label = NULL, choices = c("MS feature mass", "Fragment mass")),
                   hr(),
                   conditionalPanel(
-                    condition = "input.searchMS1orMS2 == 'MS feature m/z'",
+                    condition = "input.searchMS1orMS2 == 'MS feature mass'",
                     fluidRow(
                       column(width = 6,
-                             div(style="float:left",
-                                 bsTooltip(id = "searchMS1mass", title = "The MS feature m/z should be similar to this value", placement = "bottom", trigger = "hover"),
-                                 textInput(inputId = "searchMS1mass", label = "MS feature m/z")
-                             )
+                             bsTooltip(id = "searchMS1mass", title = "The MS feature mass should be similar to at least one of the given values (separated by \",\")", placement = "bottom", trigger = "hover"),
+                             textInput(inputId = "searchMS1mass", label = "MS feature mass(es)")
                       ),##column
                       column(width = 6,
-                             div(style="float:right",
-                                 bsTooltip(id = "searchMS1massPpm", title = "The specified MS feature m/z allows this error in PPM (<b>p</b>arts <b>p</b>er <b>m</b>illion)", placement = "bottom", trigger = "hover"),
-                                 textInput(inputId = "searchMS1massPpm", label = "PPM")
-                             )
+                             bsTooltip(id = "searchMS1massPpm", title = "The specified MS feature m/z allows this error in PPM (<b>p</b>arts <b>p</b>er <b>m</b>illion)", placement = "bottom", trigger = "hover"),
+                             textInput(inputId = "searchMS1massPpm", label = "PPM")
                       )##column
                     )##row
                   ),## conditional panel
                   conditionalPanel(
-                    condition = "input.searchMS1orMS2 == 'Fragment m/z'",
+                    condition = "input.searchMS1orMS2 == 'Fragment mass'",
                     fluidRow(
                       column(width = 11,
                              bsTooltip(id = "search_ms2_masses1", title = "The MS/MS spectra should include the following fragment / neutral loss mass(es) (separated by \",\")<p>E.g. \"96.969, -162.053\" for a compound with a phosphate - fragment (H<sub>2</sub>PO<sub>4</sub><sup>-</sup>) and a hexose - neutral loss (C<sub>6</sub>O<sub>5</sub>H<sub>10</sub>)", placement = "bottom", trigger = "hover"),
@@ -818,7 +800,7 @@ shinyUI(
       ##############################################################################################
       ## intro
       wellPanel(
-        h4(HTML("<b>MetFam 0.9</b>")),
+        h4(HTML("<b>MetFamily 0.9</b>")),
         fluidRow(
           column(width = 9,
             helpText(
@@ -835,7 +817,7 @@ shinyUI(
         p(HTML("Hendrik Treutler<sup>1*</sup>, Steffen Neumann<sup>1</sup>, Gerd Balcke<sup>2</sup>")), 
         p(HTML("<sup>1</sup>Leibniz Institute for Plant Biochemistry, Dept. of SEB, Weinberg 3, 06120 Halle, Germany")),
         p(HTML("<sup>2</sup>Leibniz Institute for Plant Biochemistry, Dept. of SZB, Weinberg 3, 06120 Halle, Germany")),
-        p(HTML("<sup>*</sup>Corresponding author: Hendrik Treutler <a href='mailto:hendrik.treutler@ipb-halle.de?subject=MetFam%20request'>hendrik.treutler@ipb-halle.de</a>")),
+        p(HTML("<sup>*</sup>Corresponding author: Hendrik Treutler <a href='mailto:hendrik.treutler@ipb-halle.de?subject=MetFamily%20request'>hendrik.treutler@ipb-halle.de</a>")),
         br(),
         h5(HTML("<b>Abstract</b>")),
         p(HTML("Understanding metabolism is fundamental and the identification and quantification of thousands of metabolites by mass spectrometry in modern metabolomics is a prerequisite for elucidating this area. However, the identification of metabolites is a major bottleneck in traditional approaches hampering advances. Here, we present a novel approach for the untargeted discovery of metabolite families offering a bird's eye view on metabolic regulation in comparative metabolomics.")),
