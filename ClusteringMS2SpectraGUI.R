@@ -2105,7 +2105,6 @@ colorLabels <- function(labels, clusterMembers, color, labelsToRemove = NULL){
   return(colLab)
 }
 calcPlotDendrogram <- function(dataList, filter, clusterDataList, annoPresentAnnotationsList, annoPresentColorsList, distanceMeasure, selectionFragmentTreeNodeSet = NULL, selectionAnalysisTreeNodeSet = NULL, selectionSearchTreeNodeSet = NULL, showClusterLabels, xInterval = NULL){
-  print("01")
   if(is.null(xInterval))
     xInterval <- c(1, clusterDataList$numberOfPrecursorsFiltered)
   
@@ -2116,7 +2115,6 @@ calcPlotDendrogram <- function(dataList, filter, clusterDataList, annoPresentAnn
   dend <- as.dendrogram(clusterDataList$cluster)
   
   ## remove labels left of the y-axis
-  print("02")
   rightMostInvisibleLabelIndex <- floor(xInterval[[1]] - (xInterval[[2]] - xInterval[[1]]) * 0.04)
   if(rightMostInvisibleLabelIndex > 0){
     labelsToRemove <- clusterDataList$cluster$labels[clusterDataList$cluster$order][1:rightMostInvisibleLabelIndex]
@@ -2126,7 +2124,6 @@ calcPlotDendrogram <- function(dataList, filter, clusterDataList, annoPresentAnn
   }
   
   ## color labels for search sub-roots
-  print("03")
   if(!is.null(selectionSearchTreeNodeSet)){
     clusterMembers <- c(
       unlist(clusterDataList$innerNodeMembersTree[selectionSearchTreeNodeSet[selectionSearchTreeNodeSet > 0]]), 
@@ -2137,7 +2134,6 @@ calcPlotDendrogram <- function(dataList, filter, clusterDataList, annoPresentAnn
     dend <- dendrapply(dend, colLab)
   }
   ## color labels for fragment sub-roots
-  print("04")
   if(!is.null(selectionFragmentTreeNodeSet)){
     clusterMembers <- c(
       unlist(clusterDataList$innerNodeMembersTree[selectionFragmentTreeNodeSet[selectionFragmentTreeNodeSet > 0]]), 
@@ -2148,7 +2144,6 @@ calcPlotDendrogram <- function(dataList, filter, clusterDataList, annoPresentAnn
     dend <- dendrapply(dend, colLab)
   }
   ## color labels for analysis sub-root
-  print("05")
   if(!is.null(selectionAnalysisTreeNodeSet)){
     for(selectionAnalysisTreeNode in selectionAnalysisTreeNodeSet){
       clusterMembers <- NULL
@@ -2163,11 +2158,9 @@ calcPlotDendrogram <- function(dataList, filter, clusterDataList, annoPresentAnn
     dend <- dendrapply(dend, colLab)
   }
   ## plot
-  print("06")
   plot(x = dend, xlab = "", ylab = distanceMeasure, main = "Hierarchical cluster dendrogram", sub = "", xlim = xInterval)
   
   ## color tree for annotations
-  print("07")
   resultObjTree <- analyzeTreeFromRootForAnnotations(dataList, cluster = clusterDataList$cluster, filter)
   innerNodeFeaturesAnnotations <- resultObjTree$innerNodeFeaturesAnnotations
   
@@ -2184,7 +2177,6 @@ calcPlotDendrogram <- function(dataList, filter, clusterDataList, annoPresentAnn
   poisX <- poisX[clusterDataList$drawPoi]
   poisY <- poisY[clusterDataList$drawPoi]
   
-  print("08")
   a2r_counter <<- 0
   numberOfInnerNodes <- as.integer(numberOfPois / 2)
   resultObjAnno <- getPrecursorColors(dataList = dataList, precursorSet = filter)
@@ -2199,7 +2191,6 @@ calcPlotDendrogram <- function(dataList, filter, clusterDataList, annoPresentAnn
   pointColorsAnno <- unlist(c(innerNodeColors, leafColors)[clusterDataList$drawPoi])
   
   ## selections
-  print("09")
   pointsAnalysis <- vector(mode = "logical", length = numberOfPois)
   if(!is.null(selectionAnalysisTreeNodeSet)){
     indeces <- NULL
@@ -2231,7 +2222,6 @@ calcPlotDendrogram <- function(dataList, filter, clusterDataList, annoPresentAnn
   }
   pointsSearch <- pointsSearch[clusterDataList$drawPoi]
   ## calc points
-  print("10")
   resultObjPoints <- generatePoints(poisX, poisY, pointSizesAnno, pointColorsAnno, pointsAnalysis, pointsFragment, pointsSearch)
   pointSizes  <- resultObjPoints$pointSizes
   pointColors <- resultObjPoints$pointColors
@@ -2239,10 +2229,8 @@ calcPlotDendrogram <- function(dataList, filter, clusterDataList, annoPresentAnn
   poisYpoints <- resultObjPoints$poisYpoints
   
   ## draw points
-  print("11")
   points(x = poisXpoints, y = poisYpoints, col = pointColors, pch=19, cex=pointSizes)
   
-  print("12")
   ## point labels
   if(showClusterLabels){
     poisXlabels <- poisX
@@ -2268,7 +2256,6 @@ calcPlotDendrogram <- function(dataList, filter, clusterDataList, annoPresentAnn
     setOfColors      = uniqueColors
   )
   
-  print("13")
   return(resultList)
 }
 calcPlotHeatmap <- function(dataList, filterObj, clusterDataList, xInterval = NULL){

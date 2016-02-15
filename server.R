@@ -1478,19 +1478,14 @@ shinyServer(
       }
     }
     selectionByHca <- function(minimumLabel){
-      print("selectionByHca 1")
       selectionAnalysisTreeNodeSet <<- minimumLabel
       precursorSet <- getPrecursorSetFromTreeSelection(clusterDataList = clusterDataList, clusterLabel = minimumLabel)
-      print("selectionByHca 2")
       listForTable_Analysis_HCA <<- getTableFromPrecursorSet(dataList = dataList, precursorSet = precursorSet)
-      print("selectionByHca 3")
       table$df_Analysis_HCA <<- createTable(listForTable_Analysis_HCA, selectionAnalysisHcaName)
-      print("selectionByHca 4")
       #output$dt_Analysis_HCA <- DT::renderDataTable(table$df_Analysis_HCA)
       if(state$selectedSelection == selectionAnalysisHcaName)
         updateSelectedPrecursorSet()
       
-      print("selectionByHca 5")
       ## pca selection
       if(state$showPCAplotPanel)
         selectionByAnalysisInitPca(precursorSet)
@@ -1499,7 +1494,6 @@ shinyServer(
         updateRadioButtons(session = session, inputId = "changeSelection", label = NULL, choices = c(selectionAnalysisName, selectionFragmentName, selectionSearchName), inline = TRUE, selected = selectionAnalysisName)
         updateSelectedSelection()
       }
-      print("selectionByHca 6")
     }
     selectionByAnalysisInitPca <- function(precursorSet){
       precursorSetPca <- intersect(x = precursorSet, y = filterPca$filter)
@@ -2588,7 +2582,6 @@ shinyServer(
       })
     })
     obsDendrogramClick <- observeEvent(input$plotDendrogram_click, {
-      print("obsDendrogramClick1")
       clickX <- input$plotDendrogram_click$x
       clickY <- input$plotDendrogram_click$y
       
@@ -2604,7 +2597,6 @@ shinyServer(
       
       #################################################
       ## decide whether the click is close enough to trigger event
-      print("obsDendrogramClick2")
       minimumIndex <- getSelectedPOI_XY(
         mouseX = clickX, mouseY = clickY, poiCoordinatesX = clusterDataList$poiCoordinatesX, poiCoordinatesY = clusterDataList$poiCoordinatesY,
         plotWidth = plotWidth, plotHeight = plotHeight, plotRangeX = dendrogramPlotRange$xIntervalSize, plotRangeY = dendrogramPlotRangeY
@@ -2625,7 +2617,6 @@ shinyServer(
         selectionByFragmentReset()
       } else {
         ## tree selection
-        print("obsDendrogramClick3")
         minimumLabel <- clusterDataList$poiLabels[[minimumIndex]]
         #minimumText <- clusterDataList$poiText[[minimumIndex]]
         
@@ -2633,7 +2624,6 @@ shinyServer(
         resultObj <- getMS2spectrum(dataList = dataList, clusterDataList = clusterDataList, clusterLabel = minimumLabel)
         
         ## keep fragment selection
-        print("obsDendrogramClick32")
         selectionFragmentSelectedFragmentIndexNew <- NULL
         if(!is.null(selectionFragmentSelectedFragmentIndex)){
           fragmentMass <- fragmentsX[[selectionFragmentSelectedFragmentIndex]]
@@ -2650,9 +2640,7 @@ shinyServer(
         
         #################################################
         ## output as message
-        print("obsDendrogramClick4")
         selectionByHca(minimumLabel)
-        print("obsDendrogramClick5")
         
         ## update the selected fragment in case of overlapping spectra
         if(!is.null(selectionFragmentSelectedFragmentIndexNew))
@@ -2664,13 +2652,11 @@ shinyServer(
           print(paste("update output$information", resultObj$infoText))
           paste(resultObj$infoText, sep = "")
         })
-        print("obsDendrogramClick6")
       }
       
       #################################################
       ## plots
       
-      print("obsDendrogramClick7")
       ## cluster dendrogram
       drawDendrogramPlot(consoleInfo = "dendrogram click output$plotDendrogram")
       
@@ -2681,7 +2667,6 @@ shinyServer(
       if(state$showPCAplotPanel)
         ## update PCA plots
         drawPcaPlots(consoleInfo = "dendrogram click output$plotPcaScores")
-      print("obsDendrogramClick8")
     })
     obsDendrogramdblClick <- observeEvent(input$plotDendrogram_dblclick, {
       brush <- input$plotDendrogram_brush
