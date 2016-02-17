@@ -50,15 +50,15 @@ analyzeTreeFromRoot <- function(dataList, cluster, filter){
   innerNodeMembersHere <<- list()
   innerNodeMembersInnerHere <<- list()
   innerNodeFeaturesIntersectionHere <<- list()
-  innerNodeFeaturesAnnotations <<- list()
+  #innerNodeFeaturesAnnotationsHere <<- list()
   innerNodeFeaturesUnionHere <<- list()
   #innerNodeFeaturesCountsHere <<- list()
   #innerNodeFeaturesCountsMatrixHere <<- matrix(nrow = numberOfInnerNodes, ncol = length(dataList$fragmentMasses))
   innerNodeFeaturesCountsMatrixHere <<- sparseMatrix(i = numberOfInnerNodes, j = length(dataList$fragmentMasses), x = 0)
   innerNodeFeaturesPresentHere <<- list()
-  innerNodeFeaturesMeanAbundanceHere <<- list()
-  innerNodeFeaturesCounterIntersectionHere <<- list()
-  innerNodeFeaturesCounterUnionHere <<- list()
+  #innerNodeFeaturesMeanAbundanceHere <<- list()
+  innerNodeFeaturesIntersectionCounterHere <<- list()
+  innerNodeFeaturesUnionCounterHere <<- list()
   innerNodePositionHere <<- vector(mode = "numeric", length = numberOfInnerNodes)
   leafHeightsHere <<- vector(mode = "numeric", length = numberOfPrecursorsFiltered)
   innerNodeMembersHere[1:numberOfPrecursorsFiltered] <<- NA
@@ -72,13 +72,13 @@ analyzeTreeFromRoot <- function(dataList, cluster, filter){
   resultObj$innerNodeMembers <- innerNodeMembersHere
   resultObj$innerNodeMembersInner <- innerNodeMembersInnerHere
   resultObj$innerNodeFeaturesIntersection <- innerNodeFeaturesIntersectionHere
-  resultObj$innerNodeFeaturesAnnotations <- innerNodeFeaturesAnnotations
+  #resultObj$innerNodeFeaturesAnnotations <- innerNodeFeaturesAnnotationsHere
   resultObj$innerNodeFeaturesUnion <- innerNodeFeaturesUnionHere
   resultObj$innerNodeFeaturesCountsMatrix <- innerNodeFeaturesCountsMatrixHere
   resultObj$innerNodeFeaturesPresent <- innerNodeFeaturesPresentHere
-  resultObj$innerNodeFeaturesMeanAbundance <- innerNodeFeaturesMeanAbundanceHere
-  resultObj$innerNodeFeaturesIntersectionCounter <- innerNodeFeaturesCounterIntersectionHere
-  resultObj$innerNodeFeaturesUnionCounter <- innerNodeFeaturesCounterUnionHere
+  #resultObj$innerNodeFeaturesMeanAbundance <- innerNodeFeaturesMeanAbundanceHere
+  resultObj$innerNodeFeaturesIntersectionCounter <- innerNodeFeaturesIntersectionCounterHere
+  resultObj$innerNodeFeaturesUnionCounter <- innerNodeFeaturesUnionCounterHere
   resultObj$innerNodePosition <- innerNodePositionHere
   resultObj$leafHeights <- leafHeightsHere
   
@@ -161,15 +161,15 @@ analyzeTree <- function(dataList, cluster, filter, nodeIdx){
     innerNodeMembersHere[[nodeIdx]] <<- resultObj$members
     innerNodePositionHere[[nodeIdx]] <<- resultObj$position
     innerNodeFeaturesIntersectionHere[[nodeIdx]] <<- which(resultObj$featuresBinaryIntersection)
-    if(!is.null(featuresAnnotations))
-      innerNodeFeaturesAnnotations[[nodeIdx]] <<- resultObj$featuresAnnotations
+    #if(!is.null(featuresAnnotations))
+    #  innerNodeFeaturesAnnotationsHere[[nodeIdx]] <<- resultObj$featuresAnnotations
     innerNodeFeaturesUnionHere[[nodeIdx]] <<- which(resultObj$featuresBinaryUnion)
     #innerNodeFeaturesBinaryHere[[nodeIdx]] <<- resultObj$featuresBinary
     innerNodeFeaturesCountsMatrixHere[nodeIdx, ] <<- resultObj$featuresCounts
     innerNodeFeaturesPresentHere[[nodeIdx]] <<- sum(resultObj$featuresCounts / length(resultObj$members) >= minimumProportionOfLeafs)
     #innerNodeFeaturesMeanAbundanceHere[[nodeIdx]] <<- resultObj$featuresMeanAbundance
-    innerNodeFeaturesCounterIntersectionHere[[nodeIdx]] <<- resultObj$featuresCounterIntersection
-    innerNodeFeaturesCounterUnionHere[[nodeIdx]] <<- resultObj$featuresCounterUnion
+    innerNodeFeaturesIntersectionCounterHere[[nodeIdx]] <<- resultObj$featuresCounterIntersection
+    innerNodeFeaturesUnionCounterHere[[nodeIdx]] <<- resultObj$featuresCounterUnion
     
     ## leaf heights in case of leafs and check wether to show a poi or not
     height <- cluster$height[[nodeIdx]]
@@ -213,13 +213,13 @@ analyzeTreeFromRootForAnnotations <- function(dataList, cluster, filter){
   rootIndex <- length(cluster$height)
   
   ## create fields and compute stuff
-  innerNodeFeaturesAnnotations <<- list()
+  innerNodeFeaturesAnnotationsHere <<- list()
   
   analyzeTreeForAnnotations(dataList, cluster, filter, rootIndex)
   
   ## box
   resultObj <- list()
-  resultObj$innerNodeFeaturesAnnotations <- innerNodeFeaturesAnnotations
+  resultObj$innerNodeFeaturesAnnotations <- innerNodeFeaturesAnnotationsHere
   
   return(resultObj)
 }
@@ -261,7 +261,7 @@ analyzeTreeForAnnotations <- function(dataList, cluster, filter, nodeIdx){
       resultObj$featuresAnnotations <- ""
     } else {
       resultObj$featuresAnnotations <- featuresAnnotations
-      innerNodeFeaturesAnnotations[[nodeIdx]] <<- resultObj$featuresAnnotations
+      innerNodeFeaturesAnnotationsHere[[nodeIdx]] <<- resultObj$featuresAnnotations
     }
     
     return(resultObj)
@@ -1502,29 +1502,29 @@ calculateCluster <- function(dataList, filter, distanceMatrix, method, progress 
   leafHeights <- rep(x = 0, times = length(leafHeights))
   
   ## compute x- and y-coordinates and point-labels
-  coordinatesX <- unlist(c(innerNodePosition, match(x = 1:numberOfPrecursorsFiltered, table = cluster$order)))
-  coordinatesY <- unlist(c(cluster$height, leafHeights))
+  poiCoordinatesX <- unlist(c(innerNodePosition, match(x = 1:numberOfPrecursorsFiltered, table = cluster$order)))
+  poiCoordinatesY <- unlist(c(cluster$height, leafHeights))
   
   precursorFeatureCount <- dataList$featureCount[filter]
-  innerNodeUnionlabels <- as.character(innerNodeFeaturesUnionCounter)
-  innerNodeUnionlabels[!innerNodeHeightIncreases] <- ""
-  innerNodeIntersectionlabels <- as.character(innerNodeFeaturesIntersectionCounter)
-  innerNodeIntersectionlabels[!innerNodeHeightIncreases] <- ""
+  #innerNodeUnionlabels <- as.character(innerNodeFeaturesUnionCounter)
+  #innerNodeUnionlabels[!innerNodeHeightIncreases] <- ""
+  #innerNodeIntersectionlabels <- as.character(innerNodeFeaturesIntersectionCounter)
+  #innerNodeIntersectionlabels[!innerNodeHeightIncreases] <- ""
   
   drawPoi <- unlist(c(
     innerNodeHeightIncreases, 
     rep(x = TRUE, times = length(filter))
   ))
-  union <- unlist(c(
-    innerNodeUnionlabels, 
-    precursorFeatureCount
-  ))
-  intersection <- unlist(c(
-    innerNodeIntersectionlabels, 
-    precursorFeatureCount
-    #vector(mode = "character", length = length(filter))
-  ))
-  intersectionSmooth <- c(innerNodeFeaturesPresent, precursorFeatureCount)
+  #poiUnion <- unlist(c(
+  #  innerNodeUnionlabels, 
+  #  precursorFeatureCount
+  #))
+  #poiIntersection <- unlist(c(
+  #  innerNodeIntersectionlabels, 
+  #  precursorFeatureCount
+  #  #vector(mode = "character", length = length(filter))
+  #))
+  poiIntersectionSmooth <- c(innerNodeFeaturesPresent, precursorFeatureCount)
   poiLabels <- unlist(c(1:numberOfInnerNodes, -(1:numberOfPrecursorsFiltered)))
   
   ##########################################
@@ -1544,18 +1544,18 @@ calculateCluster <- function(dataList, filter, distanceMatrix, method, progress 
   filterList$innerNodeFeaturesIntersection <- innerNodeFeaturesIntersection
   filterList$innerNodeFeaturesUnion <- innerNodeFeaturesUnion
   filterList$innerNodeFeaturesCountsMatrix <- innerNodeFeaturesCountsMatrix
-  filterList$innerNodeFeaturesPresent <- innerNodeFeaturesPresent
+  #filterList$innerNodeFeaturesPresent <- innerNodeFeaturesPresent
   #filterList$innerNodeFeaturesMeanAbundance <- innerNodeFeaturesMeanAbundance
-  filterList$innerNodeFeaturesIntersectionCounter <- innerNodeFeaturesIntersectionCounter
-  filterList$innerNodeFeaturesUnionCounter <- innerNodeFeaturesUnionCounter
+  #filterList$innerNodeFeaturesIntersectionCounter <- innerNodeFeaturesIntersectionCounter
+  #filterList$innerNodeFeaturesUnionCounter <- innerNodeFeaturesUnionCounter
   filterList$cluster <- cluster
   ## poi
-  filterList$numberOfPois    <- length(coordinatesX)
-  filterList$poiCoordinatesX <- coordinatesX
-  filterList$poiCoordinatesY <- coordinatesY
-  filterList$poiUnion        <- union
-  filterList$poiIntersection <- intersection
-  filterList$poiIntersectionSmooth <- intersectionSmooth
+  filterList$numberOfPois    <- length(poiCoordinatesX)
+  filterList$poiCoordinatesX <- poiCoordinatesX
+  filterList$poiCoordinatesY <- poiCoordinatesY
+  #filterList$poiUnion        <- poiUnion
+  #filterList$poiIntersection <- poiIntersection
+  filterList$poiIntersectionSmooth <- poiIntersectionSmooth
   filterList$poiLabels       <- poiLabels
   filterList$drawPoi         <- drawPoi
   
@@ -1691,7 +1691,6 @@ getMetFragLink <- function(dataList, precursorIndex){
     adduct <- dataList$dataFrameInfos$"Adduct.ion.name"[[precursorIndex]]
   neutralMassCorrection <- NA
   ionMode <- NA
-  print(adduct)
   #generateLink <- TRUE
   switch(adduct,
          "[M-H]-"={
@@ -1774,7 +1773,7 @@ getMS2spectrum <- function(dataList, clusterDataList, clusterLabel){
     fragmentsY <- apply(X = data.matrix(dataList$featureMatrix[clusterMembers, featuresUnion]), MARGIN = 2, FUN = mean)
     #fragmentsColor <- rep(x = "black", times = length(fragmentsY))
     
-    props <- clusterDataList$innerNodeFeaturesCounts[clusterIndex, featuresUnion] / length(clusterDataList$innerNodeMembers[[clusterIndex]])
+    props <- clusterDataList$innerNodeFeaturesCountsMatrix[clusterIndex, featuresUnion] / length(clusterMembers)
     #fragmentsColor <- cmap(x = props, map = dataList$colorMapPropabilities)
     fragmentsColor <- vector(length = length(fragmentsX))
     fragmentsColor[props >= minimumProportionOfLeafs] <- "black"

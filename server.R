@@ -2425,7 +2425,12 @@ shinyServer(
       })
       output$tip <- renderText({
         print(paste("update output$tip"))
-        paste("Hover a cluster node or leaf node to view information about the corresponding MS feature cluster or MS feature respectively.", "Brush horizontally and double-click to zoom in.", "Double-click to zoom out.", sep = "\n")
+        paste(
+          "Hover or select a cluster node or leaf node to view information about the corresponding MS feature cluster or MS feature respectively.", 
+          "Brush horizontally and double-click to zoom in.", 
+          "Double-click to zoom out.", 
+          sep = "\n"
+        )
       })
     })
     obsDrawPCA <- observeEvent(input$drawPCAplots, {
@@ -2786,7 +2791,12 @@ shinyServer(
       }
       output$tip <- renderText({
         print(paste("update output$tip"))
-        paste("Click a fragment node to view information about the fragment.", "Brush horizontally and double-click to zoom in.", "Double-click to zoom out.", sep = "\n")
+        paste(
+          "Hover or click a fragment node (only 'Fragments from selection') to view information about this fragment.", 
+          "Brush horizontally and double-click to zoom in.", 
+          "Double-click to zoom out.", 
+          sep = "\n"
+        )
       })
     })
     obsMS2click <- observeEvent(input$plotMS2_click, {
@@ -2801,6 +2811,7 @@ shinyServer(
       if(is.null(clickX) | is.null(clickY))
         return()
       if(!is.null(brush))
+        ## ongoing brushing
         return()
       if(any(is.null(fragmentsX), length(fragmentsX) == 0))
         return()
@@ -3068,7 +3079,12 @@ shinyServer(
       
       output$tip <- renderText({
         print(paste("update output$tip"))
-        paste("Click a loadings node to view information about the MS feature.", "Brush and double-click to zoom in.", "Double-click to zoom out.", sep = "\n")
+        paste(
+          "Hover or click a loadings node to view information about the corresponding MS feature.", 
+          "Brush and double-click to zoom in.", 
+          "Double-click to zoom out.", 
+          sep = "\n"
+        )
       })
     })
     obsPCAloadingsDblClick <- observeEvent(input$plotPcaLoadings_dblclick, {
