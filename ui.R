@@ -126,6 +126,12 @@ shinyUI(
                 ),
                 conditionalPanel(
                   condition = 'input.fileInputSelection == "Import data"',
+                  bsTooltip(id = "projectName", title = "Please type the name of the project", placement = "bottom", trigger = "hover"),
+                  textInput(inputId = "projectName", label = "Project name", value = paste("MetFamily project (created ", gsub(" ", "_", gsub(":", ".", Sys.time())), ")", sep = "")),
+                  bsTooltip(id = "projectDescription", title = "Please type a description of this project as free text", placement = "bottom", trigger = "hover"),
+                  tags$style(type="text/css", "textarea {width:100%}"),
+                  tags$textarea(id = 'projectDescription', placeholder = 'Comments here', rows = 3, ""),
+                  #textInput(inputId = "projectDescription", label = "Project description", value = "", placeholder = "Comments here"),
                   fluidRow(
                     column(width = 6,
                            div(style="float:left",
@@ -141,6 +147,12 @@ shinyUI(
                   ),##row
                   conditionalPanel(
                     condition = "input.showImportParameters",
+                    fileInput(
+                      multiple = FALSE,
+                      inputId = 'importParameterFileInput', 
+                      label = 'Apply parameters from import parameter file',
+                      accept = c('text/comma-separated-values', 'text/plain', 'text/tab-separated-values')
+                    ),
                     h5("Fragment filter"),
                     fluidRow(
                       column(width = 6,
@@ -150,6 +162,17 @@ shinyUI(
                       column(width = 6,
                              bsTooltip(id = "minimumProportionOfMS2peaks", title = "A MS/MS feature is considered iff the intensity is greater or equal than the maximum intensity times this value", placement = "bottom", trigger = "hover"),
                              textInput(inputId = "minimumProportionOfMS2peaks", label = "MS/MS peak proportion", value = 0.05)
+                      )##column
+                    ),##row
+                    h5("Neutral losses"),
+                    fluidRow(
+                      column(width = 6,
+                             bsTooltip(id = "neutralLossesPrecursorToFragments", title = "Include neutral losses relative to the precursor ion, i.e. the m/z difference between the m/z of the precursor ion and the m/z of each fragment ion of the corresponding MS/MS spectrum", placement = "bottom", trigger = "hover"),
+                             checkboxInput(inputId = "neutralLossesPrecursorToFragments", label = "Fragment vs. precursor", value = TRUE)
+                      ),##column
+                      column(width = 6,
+                             bsTooltip(id = "neutralLossesFragmentsToFragments", title = "Include neutral losses amongst fragment ions, i.e. the m/z difference between the m/z's of all pairs of fragment ions within each MS/MS spectrum", placement = "bottom", trigger = "hover"),
+                             checkboxInput(inputId = "neutralLossesFragmentsToFragments", label = "Fragment vs. fragment", value = FALSE)
                       )##column
                     ),##row
                     h5("Fragment grouping"),
@@ -180,22 +203,22 @@ shinyUI(
                     ),##row
                     conditionalPanel(
                       condition = "input.showImportParametersAdvanced",
-                      h5("MS feature deisotoping"),
-                      bsTooltip(id = "doPrecursorDeisotoping", title = "If checked, the set of MS features is deisotoped", placement = "bottom", trigger = "hover"),
-                      checkboxInput(inputId = "doPrecursorDeisotoping", label = "MS feature deisotoping", value = TRUE),
+                      h5("MS¹ feature deisotoping"),
+                      bsTooltip(id = "doPrecursorDeisotoping", title = "If checked, the set of MS¹ features is deisotoped", placement = "bottom", trigger = "hover"),
+                      checkboxInput(inputId = "doPrecursorDeisotoping", label = "MS¹ feature deisotoping", value = TRUE),
                       conditionalPanel(
                         condition = "input.doPrecursorDeisotoping",
                         fluidRow(
                           column(width = 6,
-                                 bsTooltip(id = "mzDeviationAbsolute_precursorDeisotoping", title = "A MS feature is considered an +1 isotopic peak if the absolute of the m/z difference to the (putative) monoisotopic peak minus 1.0033548378 (=<sup>13</sup>C - <sup>12</sup>C) is smaller or equal than this value (analog for the +2 isotopic peak)", placement = "bottom", trigger = "hover"),
+                                 bsTooltip(id = "mzDeviationAbsolute_precursorDeisotoping", title = "A MS¹ feature is considered an +1 isotopic peak if the absolute of the m/z difference to the (putative) monoisotopic peak minus 1.0033548378 (=<sup>13</sup>C - <sup>12</sup>C) is smaller or equal than this value (analog for the +2 isotopic peak)", placement = "bottom", trigger = "hover"),
                                  textInput(inputId = "mzDeviationAbsolute_precursorDeisotoping", label = "m/z deviation (abs.)", value = 0.01)
                           ),##column
                           column(width = 6,
-                                 bsTooltip(id = "mzDeviationInPPM_precursorDeisotoping", title = "A MS feature is considered an +1 isotopic peak if the absolute of the m/z difference to the (putative) monoisotopic peak minus 1.0033548378 (=<sup>13</sup>C - <sup>12</sup>C) is smaller or equal than the m/z times this value divided by 1,000,000 (<b>p</b>arts <b>p</b>er <b>m</b>illion, analog for the +2 isotopic peak)", placement = "bottom", trigger = "hover"),
+                                 bsTooltip(id = "mzDeviationInPPM_precursorDeisotoping", title = "A MS¹ feature is considered an +1 isotopic peak if the absolute of the m/z difference to the (putative) monoisotopic peak minus 1.0033548378 (=<sup>13</sup>C - <sup>12</sup>C) is smaller or equal than the m/z times this value divided by 1,000,000 (<b>p</b>arts <b>p</b>er <b>m</b>illion, analog for the +2 isotopic peak)", placement = "bottom", trigger = "hover"),
                                  textInput(inputId = "mzDeviationInPPM_precursorDeisotoping", label = "m/z deviation (PPM)", value = 10)
                           )##column
                         ),##row
-                        bsTooltip(id = "maximumRtDifference", title = "A MS feature is considered an isotopic peak if the absolute of the retention time difference to the (putative) monoisotopic peak is smaller or equal than this value (in minutes)", placement = "bottom", trigger = "hover"),
+                        bsTooltip(id = "maximumRtDifference", title = "A MS¹ feature is considered an isotopic peak if the absolute of the retention time difference to the (putative) monoisotopic peak is smaller or equal than this value (in minutes)", placement = "bottom", trigger = "hover"),
                         textInput(inputId = "maximumRtDifference", label = "Retention time difference", value = 0.02)
                       ),##conditional
                       h5("Fragment deisotoping"),
@@ -234,7 +257,7 @@ shinyUI(
                     accept = c('text/plain', 'msp')
                   ),
                   bsTooltip(id = "importMs1Ms2Data", title = "Press to import the selected metabolite profile and MS/MS library", placement = "bottom", trigger = "hover"),
-                  actionButton(inputId = "importMs1Ms2Data", label = "Import MS and MS/MS data", class="btn-success")
+                  actionButton(inputId = "importMs1Ms2Data", label = "Import MS¹ and MS/MS data", class="btn-success")
                 ),## conditional
                 conditionalPanel(
                   condition = 'input.fileInputSelection == "Example data"',
@@ -261,7 +284,7 @@ shinyUI(
                   bsTooltip(id = "downloadFragmentMatrix", title = "Download the fragment matrix generated from the original metabolite profile and MS/MS library used in the MetFamily publication", placement = "bottom", trigger = "hover"),
                   downloadButton('downloadFragmentMatrix', 'Download fragment matrix'),
                   h4("Load full or reduced data set"),
-                  bsTooltip(id = "exampleDataSelection", title = "The user is able to choose the full data set or a reduced data set (only MS features with MS abundance >= 5000)", placement = "bottom", trigger = "hover"),
+                  bsTooltip(id = "exampleDataSelection", title = "The user is able to choose the full data set or a reduced data set (only MS¹ features with MS¹ abundance >= 5000)", placement = "bottom", trigger = "hover"),
                   radioButtons(inputId = "exampleDataSelection", label = NULL, choices = c("Example data set (full)", "Example data set (reduced)"), selected = "Example data set (reduced)", inline = FALSE),
                   bsTooltip(id = "loadExampleData", title = "Press to load the example data set", placement = "bottom", trigger = "hover"),
                   actionButton(inputId = "loadExampleData", label = "Load example data", class="btn-success")
@@ -357,16 +380,16 @@ shinyUI(
                   textInput(inputId = "globalFilter_ms2_ppm", label = "PPM"),
                   ##############################################################################################
                   ## filter button
-                  bsTooltip(id = "applyGlobalMS2filters", title = "Press to determine the global set of MS features which MS/MS spectra comprise the given MS/MS features", placement = "bottom", trigger = "hover"),
+                  bsTooltip(id = "applyGlobalMS2filters", title = "Press to determine the global set of MS¹ features which MS/MS spectra comprise the given MS/MS features", placement = "bottom", trigger = "hover"),
                   actionButton(inputId = "applyGlobalMS2filters", label = "Apply MS/MS filter", class="btn-success")
                 ),## well
                 wellPanel(
-                  h4("Filtered MS features"),
-                  bsTooltip(id = "globalMS2filteredPrecursors", title = "The number of MS features which MS/MS spectra comprise the given MS/MS features", placement = "bottom", trigger = "hover"),
+                  h4("Filtered MS¹ features"),
+                  bsTooltip(id = "globalMS2filteredPrecursors", title = "The number of MS¹ features which MS/MS spectra comprise the given MS/MS features", placement = "bottom", trigger = "hover"),
                   verbatimTextOutput("globalMS2filteredPrecursors"),
                   conditionalPanel(
                     condition = "output.globalMS2filterValid",
-                    bsTooltip(id = "downloadGlobalMS2filteredPrecursors", title = "Download a project file which is reduced to the filtered set of MS features", placement = "bottom", trigger = "hover"),
+                    bsTooltip(id = "downloadGlobalMS2filteredPrecursors", title = "Download a project file which is reduced to the filtered set of MS¹ features", placement = "bottom", trigger = "hover"),
                     downloadButton('downloadGlobalMS2filteredPrecursors', 'Download reduced project file')
                   )
                 )## well
@@ -392,7 +415,7 @@ shinyUI(
                   fluidRow(
                     column(width = 7,
                            div(style="float:left",
-                               h4("MS abundance filter for PCA")
+                               h4("MS¹ abundance filter for PCA")
                            )
                     ),##column
                     column(width = 5,
@@ -404,29 +427,29 @@ shinyUI(
                   ),##row
                   conditionalPanel(
                     condition = "input.showPCAfilterOptions",
-                    bsTooltip(id = "pcaFilter_average", title = "The average MS abundance should be greater or equal than this value", placement = "bottom", trigger = "hover"),
-                    textInput(inputId = "pcaFilter_average", label = "Average MS abundance"),
-                    bsTooltip(id = "pcaFilter_lfc", title = "The log<sub>2</sub>-fold change [ log<sub>2</sub>( mean(group one) / mean(group two) ) ] between the average MS abundances should be greater/smaller or equal than this value", placement = "bottom", trigger = "hover"),
-                    textInput(inputId = "pcaFilter_lfc", label = "MS log2-fold change"),
+                    bsTooltip(id = "pcaFilter_average", title = "The average MS¹ abundance should be greater or equal than this value", placement = "bottom", trigger = "hover"),
+                    textInput(inputId = "pcaFilter_average", label = "Average MS¹ abundance"),
+                    bsTooltip(id = "pcaFilter_lfc", title = "The log<sub>2</sub>-fold change [ log<sub>2</sub>( mean(group one) / mean(group two) ) ] between the average MS¹ abundances should be greater/smaller or equal than this value", placement = "bottom", trigger = "hover"),
+                    textInput(inputId = "pcaFilter_lfc", label = "MS¹ log2-fold change"),
                     tags$div(title="Please select the set of replicate groups",
                              checkboxGroupInput(inputId = "pcaGroups", label = "Groups", choices = c(""))
                              #selectInput(inputId = "groups", label = "Groups", choices = c(""), multiple = TRUE, selectize = FALSE)
                     ),
-                    bsTooltip(id = "pcaFilterIncludeIgnoredPrecursors", title = "Include or filter out ignored MS features, i.e. MS features which have been annotated as \\'Ignore\\'", placement = "bottom", trigger = "hover"),
-                    checkboxInput(inputId = "pcaFilterIncludeIgnoredPrecursors", label = "Include ignored MS features", value = FALSE),
+                    bsTooltip(id = "pcaFilterIncludeIgnoredPrecursors", title = "Include or filter out ignored MS¹ features, i.e. MS¹ features which have been annotated as \\'Ignore\\'", placement = "bottom", trigger = "hover"),
+                    checkboxInput(inputId = "pcaFilterIncludeIgnoredPrecursors", label = "Include ignored MS¹ features", value = FALSE),
                     ##############################################################################################
                     ## filter button
-                    bsTooltip(id = "applyPcaFilters", title = "Press to determine the set of MS features which fulfill the given criteria", placement = "bottom", trigger = "hover"),
+                    bsTooltip(id = "applyPcaFilters", title = "Press to determine the set of MS¹ features which fulfill the given criteria", placement = "bottom", trigger = "hover"),
                     actionButton(inputId = "applyPcaFilters", label = "Apply filter", class="btn-success")
                   )## conditional panel
                 ),##well panel
                 wellPanel(
-                  h4("Filtered MS features"),
-                  bsTooltip(id = "pcaFilteredPrecursors", title = "The number of MS features which fulfill the given criteria", placement = "bottom", trigger = "hover"),
+                  h4("Filtered MS¹ features"),
+                  bsTooltip(id = "pcaFilteredPrecursors", title = "The number of MS¹ features which fulfill the given criteria", placement = "bottom", trigger = "hover"),
                   verbatimTextOutput("pcaFilteredPrecursors"),
                   conditionalPanel(
                     condition = "output.pcaFilterValid",
-                    bsTooltip(id = "downloadPcaFilteredPrecursors", title = "Download a project file which is reduced to the filtered set of MS features", placement = "bottom", trigger = "hover"),
+                    bsTooltip(id = "downloadPcaFilteredPrecursors", title = "Download a project file which is reduced to the filtered set of MS¹ features", placement = "bottom", trigger = "hover"),
                     downloadButton('downloadPcaFilteredPrecursors', 'Download reduced project file')
                   )##conditional
                 ),##well
@@ -450,7 +473,7 @@ shinyUI(
                     ),##row
                     conditionalPanel(
                       condition = "input.showPCAadvancedOptions",
-                      bsTooltip(id = "pcaScaling", title = "Adjust the scaling of MS abundances for PCA", placement = "bottom", trigger = "hover"),
+                      bsTooltip(id = "pcaScaling", title = "Adjust the scaling of MS¹ abundances for PCA", placement = "bottom", trigger = "hover"),
                       selectInput(multiple = FALSE, inputId = "pcaScaling", label = "Scaling", selected = "Pareto", choices = c(
                         "None", 
                         "Mean center", 
@@ -458,7 +481,7 @@ shinyUI(
                         "Pareto"
                         #"Vector normalization", 
                       ), selectize = FALSE),
-                      bsTooltip(id = "pcaLogTransform", title = "MS abundances for PCA will be log<sub>2</sub> transformed", placement = "bottom", trigger = "hover"),
+                      bsTooltip(id = "pcaLogTransform", title = "MS¹ abundances for PCA will be log<sub>2</sub> transformed", placement = "bottom", trigger = "hover"),
                       checkboxInput(inputId = "pcaLogTransform", label = "Log2 transform", value = FALSE),
                       fluidRow(
                         column(
@@ -475,7 +498,7 @@ shinyUI(
                         )
                       )
                     ),
-                    bsTooltip(id = "drawPCAplots", title = "Display the PCA scores and loadings plot given the set of filtered MS features and PCA settings", placement = "bottom", trigger = "hover"),
+                    bsTooltip(id = "drawPCAplots", title = "Display the PCA scores and loadings plot given the set of filtered MS¹ features and PCA settings", placement = "bottom", trigger = "hover"),
                     actionButton(inputId = "drawPCAplots", label = "Draw principal components", class="btn-success")
                   )##well
                 )## conditiojal panel
@@ -507,7 +530,7 @@ shinyUI(
                   fluidRow(
                     column(width = 7,
                            div(style="float:left",
-                               h4("MS abundance filter for HCA")
+                               h4("MS¹ abundance filter for HCA")
                            )
                     ),##column
                     column(width = 5,
@@ -519,10 +542,10 @@ shinyUI(
                   ),##row
                   conditionalPanel(
                     condition = "input.showHCAfilterOptions",
-                    bsTooltip(id = "hcaFilter_average", title = "The average MS abundance should be greater or equal than this value", placement = "bottom", trigger = "hover"),
-                    textInput(inputId = "hcaFilter_average", label = "Average MS abundance"),
-                    bsTooltip(id = "hcaFilter_lfc", title = "The log<sub>2</sub>-fold change [ log<sub>2</sub>( mean(group one) / mean(group two) ) ] between the average MS abundances should be greater/smaller or equal than this value", placement = "bottom", trigger = "hover"),
-                    textInput(inputId = "hcaFilter_lfc", label = "MS log2-fold change"),
+                    bsTooltip(id = "hcaFilter_average", title = "The average MS¹ abundance should be greater or equal than this value", placement = "bottom", trigger = "hover"),
+                    textInput(inputId = "hcaFilter_average", label = "Average MS¹ abundance"),
+                    bsTooltip(id = "hcaFilter_lfc", title = "The log<sub>2</sub>-fold change [ log<sub>2</sub>( mean(group one) / mean(group two) ) ] between the average MS¹ abundances should be greater/smaller or equal than this value", placement = "bottom", trigger = "hover"),
+                    textInput(inputId = "hcaFilter_lfc", label = "MS¹ log2-fold change"),
                     fluidRow(
                       column(
                         width = 6,
@@ -541,21 +564,21 @@ shinyUI(
                         )
                       )
                     ),
-                    bsTooltip(id = "hcaFilterIncludeIgnoredPrecursors", title = "Include or filter out ignored MS features, i.e. MS features which have been annotated as \\'Ignore\\'", placement = "bottom", trigger = "hover"),
-                    checkboxInput(inputId = "hcaFilterIncludeIgnoredPrecursors", label = "Include ignored MS features", value = FALSE),
+                    bsTooltip(id = "hcaFilterIncludeIgnoredPrecursors", title = "Include or filter out ignored MS¹ features, i.e. MS¹ features which have been annotated as \\'Ignore\\'", placement = "bottom", trigger = "hover"),
+                    checkboxInput(inputId = "hcaFilterIncludeIgnoredPrecursors", label = "Include ignored MS¹ features", value = FALSE),
                     ##############################################################################################
                     ## filter button
-                    bsTooltip(id = "applyHcaFilters", title = "Press to determine the set of MS features which fulfill the given filter criteria", placement = "bottom", trigger = "hover"),
+                    bsTooltip(id = "applyHcaFilters", title = "Press to determine the set of MS¹ features which fulfill the given filter criteria", placement = "bottom", trigger = "hover"),
                     actionButton(inputId = "applyHcaFilters", label = "Apply filter", class="btn-success")
                   )## conditional panel
                 ),##well panel
                 wellPanel(
-                  h4("Filtered MS features"),
-                  bsTooltip(id = "hcaFilteredPrecursors", title = "The number of MS features which fulfill the given filter criteria", placement = "bottom", trigger = "hover"),
+                  h4("Filtered MS¹ features"),
+                  bsTooltip(id = "hcaFilteredPrecursors", title = "The number of MS¹ features which fulfill the given filter criteria", placement = "bottom", trigger = "hover"),
                   verbatimTextOutput("hcaFilteredPrecursors"),
                   conditionalPanel(
                     condition = "output.hcaFilterValid",
-                    bsTooltip(id = "downloadHcaFilteredPrecursors", title = "Download a project file which is reduced to the filtered set of MS features", placement = "bottom", trigger = "hover"),
+                    bsTooltip(id = "downloadHcaFilteredPrecursors", title = "Download a project file which is reduced to the filtered set of MS¹ features", placement = "bottom", trigger = "hover"),
                     downloadButton('downloadHcaFilteredPrecursors', 'Download reduced project file')
                   )##conditional
                 ),##well panel
@@ -604,7 +627,7 @@ shinyUI(
                         "ward.D2"
                       ), selectize = FALSE)
                     ),
-                    bsTooltip(id = "drawHCAplots", title = "Display the HCA dendrogram given the set of filtered MS features and HCA settings", placement = "bottom", trigger = "hover"),
+                    bsTooltip(id = "drawHCAplots", title = "Display the HCA dendrogram given the set of filtered MS¹ features and HCA settings", placement = "bottom", trigger = "hover"),
                     actionButton(inputId = "drawHCAplots", label = "Draw hierarchical cluster", class="btn-success"),
                     conditionalPanel(
                       condition = "output.showGUI && output.plotHcaShown",
@@ -638,18 +661,18 @@ shinyUI(
                 #condition = "output.showGUI",
                 wellPanel(
                   h4("Search mode"),
-                  bsTooltip(id = "searchMS1orMS2", title = "Please choose the criterion for selecting MS features", placement = "bottom", trigger = "hover"),
-                  radioButtons(inputId = "searchMS1orMS2", label = NULL, choices = c("MS feature mass", "Fragment mass")),
+                  bsTooltip(id = "searchMS1orMS2", title = "Please choose the criterion for selecting MS¹ features", placement = "bottom", trigger = "hover"),
+                  radioButtons(inputId = "searchMS1orMS2", label = NULL, choices = c("MS¹ feature mass", "Fragment mass")),
                   hr(),
                   conditionalPanel(
-                    condition = "input.searchMS1orMS2 == 'MS feature mass'",
+                    condition = "input.searchMS1orMS2 == 'MS¹ feature mass'",
                     fluidRow(
                       column(width = 6,
-                             bsTooltip(id = "searchMS1mass", title = "The MS feature mass should be similar to at least one of the given values (separated by \",\")", placement = "bottom", trigger = "hover"),
-                             textInput(inputId = "searchMS1mass", label = "MS feature mass(es)")
+                             bsTooltip(id = "searchMS1mass", title = "The MS¹ feature mass should be similar to at least one of the given values (separated by \",\")", placement = "bottom", trigger = "hover"),
+                             textInput(inputId = "searchMS1mass", label = "MS¹ feature mass(es)")
                       ),##column
                       column(width = 6,
-                             bsTooltip(id = "searchMS1massPpm", title = "The specified MS feature m/z allows this error in PPM (<b>p</b>arts <b>p</b>er <b>m</b>illion)", placement = "bottom", trigger = "hover"),
+                             bsTooltip(id = "searchMS1massPpm", title = "The specified MS¹ feature m/z allows this error in PPM (<b>p</b>arts <b>p</b>er <b>m</b>illion)", placement = "bottom", trigger = "hover"),
                              textInput(inputId = "searchMS1massPpm", label = "PPM")
                       )##column
                     )##row
@@ -686,30 +709,30 @@ shinyUI(
                     bsTooltip(id = "searchMS2massPpm", title = "The specified fragment m/z's allow this error in PPM (<b>p</b>arts <b>p</b>er <b>m</b>illion)", placement = "bottom", trigger = "hover"),
                     textInput(inputId = "searchMS2massPpm", label = "PPM")
                   ),## conditional panel
-                  bsTooltip(id = "searchIncludeIgnoredPrecursors", title = "Include or filter out ignored MS features, i.e. MS features which have been annotated as \\'Ignore\\'", placement = "bottom", trigger = "hover"),
-                  checkboxInput(inputId = "searchIncludeIgnoredPrecursors", label = "Include ignored MS features", value = FALSE),
+                  bsTooltip(id = "searchIncludeIgnoredPrecursors", title = "Include or filter out ignored MS¹ features, i.e. MS¹ features which have been annotated as \\'Ignore\\'", placement = "bottom", trigger = "hover"),
+                  checkboxInput(inputId = "searchIncludeIgnoredPrecursors", label = "Include ignored MS¹ features", value = FALSE),
                   fluidRow(
                     column(width = 6,
                            div(style="float:left",
-                               bsTooltip(id = "applySearch", title = "Press to mark the set of MS features which fulfill the given criteria", placement = "bottom", trigger = "hover"),
+                               bsTooltip(id = "applySearch", title = "Press to mark the set of MS¹ features which fulfill the given criteria", placement = "bottom", trigger = "hover"),
                                actionButton(inputId = "applySearch", label = "Search", class="btn-success")
                            )
                     ),##column
                     column(width = 6,
                            div(style="float:right",
-                               bsTooltip(id = "clearSearch", title = "Press to clear the selected set of MS feature hits in HCA and PCA", placement = "bottom", trigger = "hover"),
+                               bsTooltip(id = "clearSearch", title = "Press to clear the selected set of MS¹ feature hits in HCA and PCA", placement = "bottom", trigger = "hover"),
                                actionButton(inputId = "clearSearch", label = "Clear search", class="btn-success")
                            )
                     )##column
                   )##row
                 ),## well panel
                 wellPanel(
-                  h4("MS feature hits"),
-                  bsTooltip(id = "searchInfo", title = "The number of MS features which fulfill the given filter criteria", placement = "bottom", trigger = "hover"),
+                  h4("MS¹ feature hits"),
+                  bsTooltip(id = "searchInfo", title = "The number of MS¹ features which fulfill the given filter criteria", placement = "bottom", trigger = "hover"),
                   verbatimTextOutput("searchInfo"),
                   conditionalPanel(
                     condition = "output.searchfilterValid & output.filterSearchActive",
-                    bsTooltip(id = "downloadSearchPrecursors", title = "Download a project file which is reduced to the searched set of MS features", placement = "bottom", trigger = "hover"),
+                    bsTooltip(id = "downloadSearchPrecursors", title = "Download a project file which is reduced to the searched set of MS¹ features", placement = "bottom", trigger = "hover"),
                     downloadButton('downloadSearchPrecursors', 'Download reduced project file')
                   )##conditional
                 )##well
@@ -729,47 +752,274 @@ shinyUI(
               )## conditional panel
             ),## tab panel
             tabPanel(
+              title = "Project", 
+              shinyjs::useShinyjs(),
+              conditionalPanel(
+                condition = "output.showGUI",
+                wellPanel(
+                  h4("MetFamily project"),
+                  
+                  fluidRow(
+                    column(width = 6, div(style="float:left",  
+                                          h5("Project name")                           
+                    )),##column
+                    column(width = 6, div(style="float:right", 
+                                          bsTooltip(id = "projectName2", title = "The name of the project", placement = "bottom", trigger = "hover"),
+                                          textInput(inputId = "projectName2", label = NULL, value = "")
+                    ))##column
+                  ),##row
+                  fluidRow(
+                    column(width = 6, div(style="float:left",  
+                                          h5("Project description")
+                    )),##column
+                    column(width = 6, div(style="float:right", 
+                                          bsTooltip(id = "projectDescription2", title = "Please update the description of this project as free text", placement = "bottom", trigger = "hover"),
+                                          tags$style(type="text/css", "textarea {width:100%}"), 
+                                          tags$textarea(id = 'projectDescription2', placeholder = 'Comments here', rows = 3, ""),
+                                          bsTooltip(id = "updateProjectDescription", title = "Press to update the project description", placement = "bottom", trigger = "hover"),
+                                          actionButton(inputId = "updateProjectDescription", label = "Update project description", class="btn-success")
+                    ))##column
+                  ),##row
+                  fluidRow(
+                    column(width = 6,
+                           div(style="float:left",
+                               h4("Data import parameters")
+                           )
+                    ),##column
+                    column(width = 6,
+                           div(style="float:right",
+                               bsTooltip(id = "displayImportParameters", title = "Display parameters used for the initial data import", placement = "bottom", trigger = "hover"),
+                               checkboxInput(inputId = "displayImportParameters", label = "Display import parameters", value = FALSE)
+                           )
+                    )##column
+                  ),##row
+                  conditionalPanel(
+                    condition = "input.displayImportParameters",
+                    # fluidRow(
+                    #   column(width = 6, div(style="float:left",  h5("Min. spectrum intensity")  )),##column
+                    #   column(width = 6, div(style="float:right", 
+                    #                         bsTooltip(id = "minimumIntensityOfMaximalMS2peak2", title = "A MS/MS spectrum is considered iff the MS/MS feature with maximum intensity is greater or equal than this value", placement = "bottom", trigger = "hover"),
+                    #                         textInput(inputId = "minimumIntensityOfMaximalMS2peak2", label = NULL, value = 2000)
+                    #   ))##column
+                    # ),##row
+                    # fluidRow(
+                    #   column(width = 6, div(style="float:left",  h5("MS/MS peak proportion")  )),##column
+                    #   column(width = 6, div(style="float:right", 
+                    #                         bsTooltip(id = "minimumProportionOfMS2peaks2", title = "A MS/MS feature is considered iff the intensity is greater or equal than the maximum intensity times this value", placement = "bottom", trigger = "hover"),
+                    #                         textInput(inputId = "minimumProportionOfMS2peaks2", label = NULL, value = 0.05)
+                    #   ))##column
+                    # ),##row
+                    # fluidRow(
+                    #   column(width = 6, div(style="float:left",  h5("Fragment vs. precursor")  )),##column
+                    #   column(width = 6, div(style="float:right", 
+                    #                         bsTooltip(id = "neutralLossesPrecursorToFragments2", title = "Include neutral losses relative to the precursor ion, i.e. the m/z difference between the m/z of the precursor ion and the m/z of each fragment ion of the corresponding MS/MS spectrum", placement = "bottom", trigger = "hover"),
+                    #                         checkboxInput(inputId = "neutralLossesPrecursorToFragments2", label = NULL, value = TRUE)
+                    #   ))##column
+                    # ),##row
+                    # fluidRow(
+                    #   column(width = 6, div(style="float:left",  h5("Fragment vs. fragment")  )),##column
+                    #   column(width = 6, div(style="float:right", 
+                    #                         bsTooltip(id = "neutralLossesFragmentsToFragments2", title = "Include neutral losses amongst fragment ions, i.e. the m/z difference between the m/z's of all pairs of fragment ions within each MS/MS spectrum", placement = "bottom", trigger = "hover"),
+                    #                         checkboxInput(inputId = "neutralLossesFragmentsToFragments2", label = NULL, value = FALSE)
+                    #   ))##column
+                    # ),##row
+                    # fluidRow(
+                    #   column(width = 6, div(style="float:left",  h5("m/z deviation (abs.)")  )),##column
+                    #   column(width = 6, div(style="float:right", 
+                    #                         bsTooltip(id = "mzDeviationAbsolute_grouping2", title = "A MS/MS feature is added to a fragment group if the absolute m/z difference is smaller or equal than this value", placement = "bottom", trigger = "hover"),
+                    #                         textInput(inputId = "mzDeviationAbsolute_grouping2", label = NULL, value = 0.01)
+                    #   ))##column
+                    # ),##row
+                    # fluidRow(
+                    #   column(width = 6, div(style="float:left",  h5("m/z deviation (PPM)")  )),##column
+                    #   column(width = 6, div(style="float:right", 
+                    #                         bsTooltip(id = "mzDeviationInPPM_grouping2", title = "A MS/MS feature is added to a fragment group if the absolute m/z difference is smaller or equal than the m/z times this value divided by 1,000,000 (<b>p</b>arts <b>p</b>er <b>m</b>illion)", placement = "bottom", trigger = "hover"),
+                    #                         textInput(inputId = "mzDeviationInPPM_grouping2", label = NULL, value = 10)
+                    #   ))##column
+                    # ),##row
+                    # fluidRow(
+                    #   column(width = 6, div(style="float:left",  h5("MS feature deisotoping")  )),##column
+                    #   column(width = 6, div(style="float:right", 
+                    #                         bsTooltip(id = "doPrecursorDeisotoping2", title = "If checked, the set of MS features is deisotoped", placement = "bottom", trigger = "hover"),
+                    #                         checkboxInput(inputId = "doPrecursorDeisotoping2", label = NULL, value = TRUE)
+                    #   ))##column
+                    # ),##row
+                    # fluidRow(
+                    #   column(width = 6, div(style="float:left",  h5("m/z deviation (abs.)")  )),##column
+                    #   column(width = 6, div(style="float:right", 
+                    #                         bsTooltip(id = "mzDeviationAbsolute_precursorDeisotoping2", title = "A MS feature is considered an +1 isotopic peak if the absolute of the m/z difference to the (putative) monoisotopic peak minus 1.0033548378 (=<sup>13</sup>C - <sup>12</sup>C) is smaller or equal than this value (analog for the +2 isotopic peak)", placement = "bottom", trigger = "hover"),
+                    #                         textInput(inputId = "mzDeviationAbsolute_precursorDeisotoping2", label = NULL, value = 0.01)
+                    #   ))##column
+                    # ),##row
+                    # fluidRow(
+                    #   column(width = 6, div(style="float:left",  h5("m/z deviation (PPM)")  )),##column
+                    #   column(width = 6, div(style="float:right", 
+                    #                         bsTooltip(id = "mzDeviationInPPM_precursorDeisotoping2", title = "A MS feature is considered an +1 isotopic peak if the absolute of the m/z difference to the (putative) monoisotopic peak minus 1.0033548378 (=<sup>13</sup>C - <sup>12</sup>C) is smaller or equal than the m/z times this value divided by 1,000,000 (<b>p</b>arts <b>p</b>er <b>m</b>illion, analog for the +2 isotopic peak)", placement = "bottom", trigger = "hover"),
+                    #                         textInput(inputId = "mzDeviationInPPM_precursorDeisotoping2", label = NULL, value = 10)
+                    #   ))##column
+                    # ),##row
+                    # fluidRow(
+                    #   column(width = 6, div(style="float:left",  h5("Retention time difference")  )),##column
+                    #   column(width = 6, div(style="float:right", 
+                    #                         bsTooltip(id = "maximumRtDifference2", title = "A MS feature is considered an isotopic peak if the absolute of the retention time difference to the (putative) monoisotopic peak is smaller or equal than this value (in minutes)", placement = "bottom", trigger = "hover"),
+                    #                         textInput(inputId = "maximumRtDifference2", label = NULL, value = 0.02)
+                    #   ))##column
+                    # ),##row
+                    # fluidRow(
+                    #   column(width = 6, div(style="float:left",  h5("Fragment deisotoping")  )),##column
+                    #   column(width = 6, div(style="float:right", 
+                    #                         bsTooltip(id = "doMs2PeakGroupDeisotoping2", title = "If checked, the set of MS/MS features is deisotoped", placement = "bottom", trigger = "hover"),
+                    #                         checkboxInput(inputId = "doMs2PeakGroupDeisotoping2", label = NULL, value = TRUE)
+                    #   ))##column
+                    # ),##row
+                    # fluidRow(
+                    #   column(width = 6, div(style="float:left",  h5("m/z deviation (abs.)")  )),##column
+                    #   column(width = 6, div(style="float:right", 
+                    #                         bsTooltip(id = "mzDeviationAbsolute_ms2PeakGroupDeisotoping2", title = "_A MS/MS feature is considered an +1 isotopic peak if the absolute of the m/z difference to the (putative) monoisotopic peak minus 1.0033548378 (=<sup>13</sup>C - <sup>12</sup>C) is smaller or equal than this value", placement = "bottom", trigger = "hover"),
+                    #                         textInput(inputId = "mzDeviationAbsolute_ms2PeakGroupDeisotoping2", label = NULL, value = 0.01)
+                    #   ))##column
+                    # ),##row
+                    # fluidRow(
+                    #   column(width = 6, div(style="float:left",  h5("m/z deviation (PPM)")  )),##column
+                    #   column(width = 6, div(style="float:right", 
+                    #                         bsTooltip(id = "mzDeviationInPPM_ms2PeakGroupDeisotoping2", title = "A MS/MS feature is considered an +1 isotopic peak if the absolute of the m/z difference to the (putative) monoisotopic peak minus 1.0033548378 (=<sup>13</sup>C - <sup>12</sup>C) is smaller or equal than the m/z times this value divided by 1,000,000 (<b>p</b>arts <b>p</b>er <b>m</b>illion)", placement = "bottom", trigger = "hover"),
+                    #                         textInput(inputId = "mzDeviationInPPM_ms2PeakGroupDeisotoping2", label = NULL, value = 10)
+                    #   ))##column
+                    # )##row
+                    h5("Fragment filter"),
+                    fluidRow(
+                      column(width = 6,
+                             bsTooltip(id = "minimumIntensityOfMaximalMS2peak2", title = "A MS/MS spectrum is considered iff the MS/MS feature with maximum intensity is greater or equal than this value", placement = "bottom", trigger = "hover"),
+                             textInput(inputId = "minimumIntensityOfMaximalMS2peak2", label = "Min. spectrum intensity", value = 2000)
+                      ),##column
+                      column(width = 6,
+                             bsTooltip(id = "minimumProportionOfMS2peaks2", title = "A MS/MS feature is considered iff the intensity is greater or equal than the maximum intensity times this value", placement = "bottom", trigger = "hover"),
+                             textInput(inputId = "minimumProportionOfMS2peaks2", label = "MS/MS peak proportion", value = 0.05)
+                      )##column
+                    ),##row
+                    h5("Neutral losses"),
+                    fluidRow(
+                      column(width = 6,
+                             bsTooltip(id = "neutralLossesPrecursorToFragments2", title = "Include neutral losses relative to the precursor ion, i.e. the m/z difference between the m/z of the precursor ion and the m/z of each fragment ion of the corresponding MS/MS spectrum", placement = "bottom", trigger = "hover"),
+                             checkboxInput(inputId = "neutralLossesPrecursorToFragments2", label = "Fragment vs. precursor", value = TRUE)
+                      ),##column
+                      column(width = 6,
+                             bsTooltip(id = "neutralLossesFragmentsToFragments2", title = "Include neutral losses amongst fragment ions, i.e. the m/z difference between the m/z's of all pairs of fragment ions within each MS/MS spectrum", placement = "bottom", trigger = "hover"),
+                             checkboxInput(inputId = "neutralLossesFragmentsToFragments2", label = "Fragment vs. fragment", value = FALSE)
+                      )##column
+                    ),##row
+                    h5("Fragment grouping"),
+                    fluidRow(
+                      column(width = 6,
+                             bsTooltip(id = "mzDeviationAbsolute_grouping2", title = "A MS/MS feature is added to a fragment group if the absolute m/z difference is smaller or equal than this value", placement = "bottom", trigger = "hover"),
+                             textInput(inputId = "mzDeviationAbsolute_grouping2", label = "m/z deviation (abs.)", value = 0.01)
+                      ),##column
+                      column(width = 6,
+                             bsTooltip(id = "mzDeviationInPPM_grouping2", title = "A MS/MS feature is added to a fragment group if the absolute m/z difference is smaller or equal than the m/z times this value divided by 1,000,000 (<b>p</b>arts <b>p</b>er <b>m</b>illion)", placement = "bottom", trigger = "hover"),
+                             textInput(inputId = "mzDeviationInPPM_grouping2", label = "m/z deviation (PPM)", value = 10)
+                      )##column
+                    ),##row
+                    
+                    h4("Advanced parameters"),
+                    
+                    h5("MS¹ feature deisotoping"),
+                    bsTooltip(id = "doPrecursorDeisotoping2", title = "If checked, the set of MS¹ features is deisotoped", placement = "bottom", trigger = "hover"),
+                    checkboxInput(inputId = "doPrecursorDeisotoping2", label = "MS¹ feature deisotoping done", value = TRUE),
+                    conditionalPanel(
+                      condition = "input.doPrecursorDeisotoping2",
+                      fluidRow(
+                        column(width = 6,
+                               bsTooltip(id = "mzDeviationAbsolute_precursorDeisotoping2", title = "A MS¹ feature is considered an +1 isotopic peak if the absolute of the m/z difference to the (putative) monoisotopic peak minus 1.0033548378 (=<sup>13</sup>C - <sup>12</sup>C) is smaller or equal than this value (analog for the +2 isotopic peak)", placement = "bottom", trigger = "hover"),
+                               textInput(inputId = "mzDeviationAbsolute_precursorDeisotoping2", label = "m/z deviation (abs.)", value = 0.01)
+                        ),##column
+                        column(width = 6,
+                               bsTooltip(id = "mzDeviationInPPM_precursorDeisotoping2", title = "A MS¹ feature is considered an +1 isotopic peak if the absolute of the m/z difference to the (putative) monoisotopic peak minus 1.0033548378 (=<sup>13</sup>C - <sup>12</sup>C) is smaller or equal than the m/z times this value divided by 1,000,000 (<b>p</b>arts <b>p</b>er <b>m</b>illion, analog for the +2 isotopic peak)", placement = "bottom", trigger = "hover"),
+                               textInput(inputId = "mzDeviationInPPM_precursorDeisotoping2", label = "m/z deviation (PPM)", value = 10)
+                        )##column
+                      ),##row
+                      bsTooltip(id = "maximumRtDifference2", title = "A MS¹ feature is considered an isotopic peak if the absolute of the retention time difference to the (putative) monoisotopic peak is smaller or equal than this value (in minutes)", placement = "bottom", trigger = "hover"),
+                      textInput(inputId = "maximumRtDifference2", label = "Retention time difference", value = 0.02)
+                    ),##conditional
+                    h5("Fragment deisotoping"),
+                    bsTooltip(id = "doMs2PeakGroupDeisotoping2", title = "If checked, the set of MS/MS features is deisotoped", placement = "bottom", trigger = "hover"),
+                    checkboxInput(inputId = "doMs2PeakGroupDeisotoping2", label = "Fragment deisotoping done", value = TRUE),
+                    conditionalPanel(
+                      condition = "input.doMs2PeakGroupDeisotoping2",
+                      fluidRow(
+                        column(width = 6,
+                               bsTooltip(id = "mzDeviationAbsolute_ms2PeakGroupDeisotoping2", title = "_A MS/MS feature is considered an +1 isotopic peak if the absolute of the m/z difference to the (putative) monoisotopic peak minus 1.0033548378 (=<sup>13</sup>C - <sup>12</sup>C) is smaller or equal than this value", placement = "bottom", trigger = "hover"),
+                               textInput(inputId = "mzDeviationAbsolute_ms2PeakGroupDeisotoping2", label = "m/z deviation (abs.)", value = 0.01)
+                        ),##column
+                        column(width = 6,
+                               bsTooltip(id = "mzDeviationInPPM_ms2PeakGroupDeisotoping2", title = "A MS/MS feature is considered an +1 isotopic peak if the absolute of the m/z difference to the (putative) monoisotopic peak minus 1.0033548378 (=<sup>13</sup>C - <sup>12</sup>C) is smaller or equal than the m/z times this value divided by 1,000,000 (<b>p</b>arts <b>p</b>er <b>m</b>illion)", placement = "bottom", trigger = "hover"),
+                               textInput(inputId = "mzDeviationInPPM_ms2PeakGroupDeisotoping2", label = "m/z deviation (PPM)", value = 10)
+                        )##column
+                      )##row
+                    )##conditional
+                  )
+                )##well
+              ),## conditional panel
+              conditionalPanel(
+                condition = "!output.showGUI",
+                wellPanel(
+                  h4("Please import a data file")
+                )## well panel
+              )## conditional panel
+            ),## tab panel
+            tabPanel(
               title = "Export", 
               shinyjs::useShinyjs(),
               conditionalPanel(
                 condition = "output.showGUI",
                 wellPanel(
-                  bsTooltip(id = "downloadAllPrecursors", title = "Download the full project file", placement = "bottom", trigger = "hover"),
-                  downloadButton('downloadAllPrecursors', 'Export project'),
-                  conditionalPanel(
-                    condition = "output.showGUI && output.showHCAplotPanel",
-                    fluidRow(
-                      column(width = 5,
-                             div(style="float:left",
-                                 bsTooltip(id = "downloadHcaImage", title = "Download the HCA plots as image", placement = "bottom", trigger = "hover"),
-                                 downloadButton('downloadHcaImage', 'Export HCA as image')
-                             )
-                      ),##column
-                      column(width = 5,
-                             div(style="float:right",
-                                 bsTooltip(id = "downloadHcaImageType", title = "The user is able to download the HCA plot as image of different types: Portable Network Graphics (*.png) file, Scalable Vector Graphics (*.svg) file, Portable Document Format (*.pdf) file", placement = "bottom", trigger = "hover"),
-                                 radioButtons(inputId = "downloadHcaImageType", label = NULL, choices = c("png", "svg", "pdf"), selected = "png", inline = TRUE)
-                             )
-                      )##column
-                    )##row
-                  ),
-                  conditionalPanel(
-                    condition = "output.showGUI && output.showPCAplotPanel",
-                    fluidRow(
-                      column(width = 5,
-                             div(style="float:left",
-                                 bsTooltip(id = "downloadPcaImage", title = "Download the PCA plots as image", placement = "bottom", trigger = "hover"),
-                                 downloadButton('downloadPcaImage', 'Export PCA as image')
-                             )
-                      ),##column
-                      column(width = 5,
-                             div(style="float:right",
-                                 bsTooltip(id = "downloadPcaImageType", title = "The user is able to download the PCA plot as image of different types: Portable Network Graphics (*.png) file, Scalable Vector Graphics (*.svg) file, Portable Document Format (*.pdf) file", placement = "bottom", trigger = "hover"),
-                                 radioButtons(inputId = "downloadPcaImageType", label = NULL, choices = c("png", "svg", "pdf"), selected = "png", inline = TRUE)
-                             )
-                      )##column
-                    )##row
-                  )
+                  fluidRow(
+                    column(width = 6,
+                           div(style="float:left",
+                               bsTooltip(id = "downloadAllPrecursors", title = "Download the full project file", placement = "bottom", trigger = "hover"),
+                               downloadButton('downloadAllPrecursors', 'Export project')
+                           )
+                    ),##column
+                    column(width = 6,
+                           div(style="float:right",
+                               bsTooltip(id = "downloadImportParameterSet", title = "Download a parameter file with the parameters which have been used for the initial data import", placement = "bottom", trigger = "hover"),
+                               downloadButton('downloadImportParameterSet', 'Export import parameter set')
+                           )
+                    )##column
+                  ),##row
+                  #conditionalPanel(
+                  #  condition = "output.showGUI && output.showHCAplotPanel",
+                  fluidRow(
+                    column(width = 6,
+                           div(style="float:left",
+                               bsTooltip(id = "downloadHcaImage", title = "Download the currently displayed HCA plots as image", placement = "bottom", trigger = "hover"),
+                               downloadButton('downloadHcaImage', 'Export HCA as image')
+                           )
+                    ),##column
+                    column(width = 6,
+                           div(style="float:right",
+                               bsTooltip(id = "downloadHcaImageType", title = "The user is able to download the HCA plot as image of different types: Portable Network Graphics (*.png) file, Scalable Vector Graphics (*.svg) file, Portable Document Format (*.pdf) file", placement = "bottom", trigger = "hover"),
+                               radioButtons(inputId = "downloadHcaImageType", label = NULL, choices = c("png", "svg", "pdf"), selected = "png", inline = TRUE)
+                           )
+                    )##column
+                  ),##row
+                  #),
+                  #conditionalPanel(
+                  #  condition = "output.showGUI && output.showPCAplotPanel",
+                  fluidRow(
+                    column(width = 6,
+                           div(style="float:left",
+                               bsTooltip(id = "downloadPcaImage", title = "Download the currently displayed PCA plots as image", placement = "bottom", trigger = "hover"),
+                               downloadButton('downloadPcaImage', 'Export PCA as image')
+                           )
+                    ),##column
+                    column(width = 6,
+                           div(style="float:right",
+                               bsTooltip(id = "downloadPcaImageType", title = "The user is able to download the PCA plot as image of different types: Portable Network Graphics (*.png) file, Scalable Vector Graphics (*.svg) file, Portable Document Format (*.pdf) file", placement = "bottom", trigger = "hover"),
+                               radioButtons(inputId = "downloadPcaImageType", label = NULL, choices = c("png", "svg", "pdf"), selected = "png", inline = TRUE)
+                           )
+                    )##column
+                  )##row
+                  #)
                   ## TODO annotated msp file
                   #h4("annotated msp file")
                 )##well
@@ -804,7 +1054,7 @@ shinyUI(
         fluidRow(
           column(width = 9,
             helpText(
-              "This web application is designed for the identification of regulated metabolite families. This is possible on the basis of metabolite profiles for a set of MS features as well as one MS/MS spectrum for each MS feature. Group-discriminating MS features are identified using a principal component analysis (PCA) of metabolite profiles and metabolite families are identified using a hierarchical cluster analysis (HCA) of MS/MS spectra. Regulated metabolite families are identified by considering group-discriminating MS features from corporate metabolite families."
+              "This web application is designed for the identification of regulated metabolite families. This is possible on the basis of metabolite profiles for a set of MS¹ features as well as one MS/MS spectrum for each MS¹ feature. Group-discriminating MS¹ features are identified using a principal component analysis (PCA) of metabolite profiles and metabolite families are identified using a hierarchical cluster analysis (HCA) of MS/MS spectra. Regulated metabolite families are identified by considering group-discriminating MS¹ features from corporate metabolite families."
             )
           ),##column
           column(width = 3,

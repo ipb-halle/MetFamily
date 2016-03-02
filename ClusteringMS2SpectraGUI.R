@@ -494,12 +494,19 @@ readProjectData <- function(dataFrame, progress = FALSE){
   ## read and parse
   columnNames <- unlist(as.matrix(dataFrame[3, ]))
   
+  ## import parameterSet
+  if(nchar(dataFrame[[1, 1]]) == 0){
+    ## backward compatibility - add if not there
+    dataFrame[[1, 1]] <- "ImportParameters={projectName=MetFamily project; projectDescription=N/A; toolVersion=MetFamily 1.0; minimumIntensityOfMaximalMS2peak=2000; minimumProportionOfMS2peaks=0.05; mzDeviationAbsolute_grouping=0.01; mzDeviationInPPM_grouping=10; doPrecursorDeisotoping=TRUE; mzDeviationAbsolute_precursorDeisotoping=0.001; mzDeviationInPPM_precursorDeisotoping=10; maximumRtDifference=0.02; doMs2PeakGroupDeisotoping=FALSE; mzDeviationAbsolute_ms2PeakGroupDeisotoping=0.01; mzDeviationInPPM_ms2PeakGroupDeisotoping=10; proportionOfMatchingPeaks_ms2PeakGroupDeisotoping=0.9; mzDeviationAbsolute_mapping=0.01; minimumNumberOfMS2PeaksPerGroup=1; neutralLossesPrecursorToFragments=TRUE; neutralLossesFragmentsToFragments=FALSE}"
+  }
+  importParameterSet <- deserializeParameterSet(dataFrame[[1, 1]])
+  
   ## insert annotation column if not there XXX remove?
   annotationColorsName <- "AnnotationColors"
   annotationColorsMapInitValue <- paste(annotationColorsName, "={}", sep = "")
   annotationColumnName <- "Annotation"
   if(!any(columnNames == annotationColumnName, na.rm = TRUE)){
-    ## insert if not there
+    ## backward compatibility - insert if not there
     target <- 2
     
     if(target == 0 | target == ncol(dataFrame))
@@ -855,7 +862,7 @@ readProjectData <- function(dataFrame, progress = FALSE){
   annotationColorsMapValue <- substr(
     x = annotationColorsValue, 
     start = nchar(paste(annotationColorsName, "={", sep = "")) + 1, 
-    stop = nchar(annotationColorsValue) - 1
+    stop = nchar(annotationColorsValue) - nchar("}")
   )
   
   if(nchar(annotationColorsMapValue) > 0){
@@ -887,6 +894,7 @@ readProjectData <- function(dataFrame, progress = FALSE){
   dataList$dataFrameHeader <- dataFrameHeader
   dataList$dataFrameMS1Header <- dataFrameMS1Header
   dataList$dataFrameInfos <- dataFrameInfos
+  dataList$importParameterSet <- importParameterSet
   #dataList$dataFrame <- dataFrame
   dataList$numberOfPrecursors <- numberOfPrecursors
   dataList$groups <- groups
@@ -969,6 +977,79 @@ readProjectData <- function(dataFrame, progress = FALSE){
   #memory.profile()
   
   return(dataList)
+}
+serializeParameterSetFile <- function(importParameterSet, toolName, toolVersion){
+  ## wrap
+  importParametersValue <- paste(names(importParameterSet), importParameterSet, sep = "=", collapse = "\n")
+  ## box
+  comment <- paste(
+    "# This is the set of parameters which have been used for the initial data import to ",
+    importParameterSet$toolVersion,
+    "\n",
+    "# Exported with ",
+    toolName, " ", toolVersion,
+    sep = ""
+  )
+  importParametersFileValue <- paste(comment, importParametersValue, sep = "\n")
+  return(importParametersFileValue)
+}
+deserializeParameterSetFile <- function(importParametersFileContent){
+  ## remove comments
+  importParametersValuePairs <- importParametersFileContent[-grep(pattern = "#.*", x = importParametersFileContent)]
+  ## deserialize
+  importParameterSet <- deserializeParameterSetKeyValuePairs(importParametersValuePairs)
+  return(importParameterSet)
+}
+serializeParameterSet <- function(importParameterSet){
+  ## wrap
+  importParametersValue <- paste(names(importParameterSet), importParameterSet, sep = "=", collapse = "; ")
+  ## box
+  importParametersName <- "ImportParameters"
+  importParametersFieldValue <- paste(importParametersName, "={", importParametersValue, "}", sep = "")
+  return(importParametersFieldValue)
+}
+deserializeParameterSet <- function(importParametersFieldValue){
+  ## unbox
+  importParametersName <- "ImportParameters"
+  importParametersValue <- substr(
+    x = importParametersFieldValue, 
+    start = nchar(paste(importParametersName, "={", sep = "")) + 1, 
+    stop = nchar(importParametersFieldValue) - nchar("}")
+  )
+  
+  ## unwrap
+  importParametersValuePairs <- unlist(strsplit(x = importParametersValue, split = "; "))
+  importParameterSet <- deserializeParameterSetKeyValuePairs(importParametersValuePairs)
+  return(importParameterSet)
+}
+deserializeParameterSetKeyValuePairs <- function(importParametersValuePairs){
+  ## unwrap
+  importParametersValues <- unlist(strsplit(x = importParametersValuePairs, split = "="))
+  importParametersKeys   <- importParametersValues[seq(from = 1, to = length(importParametersValues), by = 2)]
+  importParametersValues <- importParametersValues[seq(from = 2, to = length(importParametersValues), by = 2)]
+  
+  ## box to list
+  importParameterSet        <- as.list(importParametersValues)
+  names(importParameterSet) <- importParametersKeys
+  
+  ## cast logical's and numeric's
+  importParameterSet <- castListEntries(importParameterSet)
+  return(importParameterSet)
+}
+castListEntries <- function(list){
+  ## cast logical's and numeric's
+  for(idx in 1:length(list)){
+    if(!is.na(as.logical(list[[idx]]))){
+      ## logical
+      list[[idx]] <- as.logical(list[[idx]])
+    } else if(!is.na(as.numeric(list[[idx]]))){
+      ## numeric
+      list[[idx]] <- as.numeric(list[[idx]])
+    } else {
+      ## string
+    }
+  }
+  return(list)
 }
 filterData <- function(dataList, groups, filter_average, filter_lfc, filterList_ms2_masses, filter_ms2_ppm, filter_ms1_masses, filter_ms1_ppm, includeIgnoredPrecursors, progress = FALSE){
   ##########################################
@@ -1382,7 +1463,7 @@ calculateDistanceMatrix <- function(dataList, filter, distanceMeasure = "Jaccard
            distanceMatrix <- apply(X = featureIndexMatrix, MARGIN = 1, FUN = function(x)
            {  
              counter <<- counter + 1
-             if(numberOfPrecursors >= 10 & ((i %% (as.integer(numberOfPrecursors/10))) == 0))
+             if(numberOfPrecursors >= 10 & ((counter %% (as.integer(numberOfPrecursors/10))) == 0))
                if(progress)  incProgress(amount = 1 / 10, detail = paste("Distances ", counter, " / ", numberOfPrecursors, sep = ""))
              intersectionSum <- apply(X = featureIndexMatrix, MARGIN = 1, FUN = function(y){  sum(fragmentFrequency[x[x %in% y]], na.rm = TRUE)  })
              unionSum        <- apply(X = featureIndexMatrix, MARGIN = 1, FUN = function(y){  sum(fragmentFrequency[c(x[!x %in% y], y)], na.rm = TRUE)  })
@@ -1433,7 +1514,8 @@ calculateDistanceMatrix <- function(dataList, filter, distanceMeasure = "Jaccard
                  next
                }
                
-               intersection    <- intersect(x = featureIndeces[[i]], y = featureIndeces[[j]])
+               intersection    <- featureIndeces[[i]][featureIndeces[[i]] %in% featureIndeces[[j]]]
+               #intersection    <- intersect(x = featureIndeces[[i]], y = featureIndeces[[j]])
                intersectionSum <- sum(sqrt(featureMatrix[i, intersection]) * dataList$fragmentMasses[intersection]^2 * sqrt(featureMatrix[j, intersection]) * dataList$fragmentMasses[intersection]^2)^2
                iSum            <- sum((sqrt(featureMatrix[i, featureIndeces[[i]]]) * dataList$fragmentMasses[featureIndeces[[i]]]^2)^2)
                jSum            <- sum((sqrt(featureMatrix[j, featureIndeces[[j]]]) * dataList$fragmentMasses[featureIndeces[[j]]]^2)^2)
@@ -1754,7 +1836,7 @@ getMS2spectrum <- function(dataList, clusterDataList, clusterLabel){
     fragmentsY[fragmentsY > 1] <- 1
     fragmentsColor <- rep(x = "black", times = length(fragmentsY))
     
-    infoText <- paste("The MS/MS spectrum of MS feature '", trimws(gsub(x = clusterDataList$cluster$labels[[-clusterLabel]], pattern = " +", replacement = " ")), "' comprises ", length(fragmentsX), " fragments.", sep = "")
+    infoText <- paste("The MS/MS spectrum of MS¹ feature '", trimws(gsub(x = clusterDataList$cluster$labels[[-clusterLabel]], pattern = " +", replacement = " ")), "' comprises ", length(fragmentsX), " fragments.", sep = "")
     
     landingPageUrlForLink <- getMetFragLink(dataList, precursorIndex)
     
@@ -1783,7 +1865,7 @@ getMS2spectrum <- function(dataList, clusterDataList, clusterLabel){
     fragmentsY <- fragmentsY[props > minimumProportionToShowFragment]
     fragmentsColor <- fragmentsColor[props > minimumProportionToShowFragment]
     
-    infoText <- paste("This cluster comprises ", length(clusterMembers), " MS features which have ", length(fragmentsX), " fragment(s) in common.", sep = "")
+    infoText <- paste("This cluster comprises ", length(clusterMembers), " MS¹ features which have ", length(fragmentsX), " fragment(s) in common.", sep = "")
     landingPageUrlForLink <- NULL
     
     precursorSet <- clusterMembers
@@ -1991,7 +2073,7 @@ getMS2spectrumOfPrecursor <- function(dataList, precursorIndex){
   featureValues[featureValues > 1] <- 1
   featureColor   <- rep(x = "black", times = length(featureMasses))
   
-  infoText <- paste("The MS/MS spectrum of MS feature '", trimws(gsub(x = dataList$precursorLabels[[precursorIndex]], pattern = " +", replacement = " ")), "' comprises ", length(featureMasses), " fragments.", sep = "")
+  infoText <- paste("The MS/MS spectrum of MS¹ feature '", trimws(gsub(x = dataList$precursorLabels[[precursorIndex]], pattern = " +", replacement = " ")), "' comprises ", length(featureMasses), " fragments.", sep = "")
   
   resultObj <- list()
   resultObj$fragmentMasses <- featureMasses
@@ -2002,8 +2084,18 @@ getMS2spectrumOfPrecursor <- function(dataList, precursorIndex){
   return(resultObj)
 }
 getMS2plotData <- function(dataList){
-  numberOfFragments <- apply(X = dataList$featureMatrix, MARGIN = 2, FUN = function(x){sum(x != 0)})
-  sumOfAbundances <- apply(X = dataList$featureMatrix, MARGIN = 2, FUN = sum)
+  numberOfFragments <- vector(mode = "numeric", length = ncol(dataList$featureMatrix))
+  sumOfAbundances   <- vector(mode = "numeric", length = ncol(dataList$featureMatrix))
+  for(colIdx in 1:ncol(dataList$featureMatrix)){
+    columnContent <- dataList$featureMatrix[, colIdx]
+    numberOfFragments[[colIdx]] <- sum(columnContent != 0)
+    sumOfAbundances[[colIdx]]   <- sum(columnContent)
+  }
+  
+  ## TODO apply
+  #numberOfFragments <- apply(X = dataList$featureMatrix, MARGIN = 2, FUN = function(x){sum(x != 0)})
+  #sumOfAbundances <- apply(X = dataList$featureMatrix, MARGIN = 2, FUN = sum)
+  
   averageAbundance <- sumOfAbundances / numberOfFragments
   averageAbundance[numberOfFragments == 0] <- 0
   masses <- dataList$fragmentMasses
@@ -2537,7 +2629,7 @@ calcPlotHeatmapLegend <- function(dataList){
     y0  = c(minY, absMaxY, minY   , minY   ),
     y1  = c(minY, absMaxY, absMaxY, absMaxY)
   )
-  graphics::text(x = -0.2, y = absMaxY + 0.05, labels = "log10(MS abundance)", pos = 4)
+  graphics::text(x = -0.2, y = absMaxY + 0.05, labels = "log10(MS¹ abundance)", pos = 4)
   
   ## lfc legend
   rasterImage(image = legend_imageLFC, xleft = 0, ybottom = lfcMinY, xright = 1, ytop = maxY)
@@ -2554,7 +2646,7 @@ calcPlotHeatmapLegend <- function(dataList){
     y0  = lfcLegendPositions,
     y1  = lfcLegendPositions
   )
-  graphics::text(x = -0.2, y = maxY + 0.05, labels = "log2(MS fold change)", pos = 4)
+  graphics::text(x = -0.2, y = maxY + 0.05, labels = "log2(MS¹ fold change)", pos = 4)
 }
 calcPlotMS2 <- function(dataList, fragmentsX = c(), fragmentsY = c(), fragmentsColor = c(), fragmentsX_02 = NULL, fragmentsY_02 = NULL, fragmentsColor_02 = NULL, xInterval = NULL, selectedFragmentIndex = NULL){
   ####################
