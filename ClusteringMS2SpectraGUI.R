@@ -497,7 +497,7 @@ readProjectData <- function(dataFrame, progress = FALSE){
   ## import parameterSet
   if(nchar(dataFrame[[1, 1]]) == 0){
     ## backward compatibility - add if not there
-    dataFrame[[1, 1]] <- "ImportParameters={projectName=MetFamily project; projectDescription=N/A; toolVersion=MetFamily 1.0; minimumIntensityOfMaximalMS2peak=2000; minimumProportionOfMS2peaks=0.05; mzDeviationAbsolute_grouping=0.01; mzDeviationInPPM_grouping=10; doPrecursorDeisotoping=TRUE; mzDeviationAbsolute_precursorDeisotoping=0.001; mzDeviationInPPM_precursorDeisotoping=10; maximumRtDifference=0.02; doMs2PeakGroupDeisotoping=FALSE; mzDeviationAbsolute_ms2PeakGroupDeisotoping=0.01; mzDeviationInPPM_ms2PeakGroupDeisotoping=10; proportionOfMatchingPeaks_ms2PeakGroupDeisotoping=0.9; mzDeviationAbsolute_mapping=0.01; minimumNumberOfMS2PeaksPerGroup=1; neutralLossesPrecursorToFragments=TRUE; neutralLossesFragmentsToFragments=FALSE}"
+    dataFrame[[1, 1]] <- "ImportParameters={projectName=MetFamily project; projectDescription=; toolVersion=MetFamily 1.0; minimumIntensityOfMaximalMS2peak=2000; minimumProportionOfMS2peaks=0.05; mzDeviationAbsolute_grouping=0.01; mzDeviationInPPM_grouping=10; doPrecursorDeisotoping=TRUE; mzDeviationAbsolute_precursorDeisotoping=0.001; mzDeviationInPPM_precursorDeisotoping=10; maximumRtDifference=0.02; doMs2PeakGroupDeisotoping=FALSE; mzDeviationAbsolute_ms2PeakGroupDeisotoping=0.01; mzDeviationInPPM_ms2PeakGroupDeisotoping=10; proportionOfMatchingPeaks_ms2PeakGroupDeisotoping=0.9; mzDeviationAbsolute_mapping=0.01; minimumNumberOfMS2PeaksPerGroup=1; neutralLossesPrecursorToFragments=TRUE; neutralLossesFragmentsToFragments=FALSE}"
   }
   importParameterSet <- deserializeParameterSet(dataFrame[[1, 1]])
   
@@ -1024,7 +1024,15 @@ deserializeParameterSet <- function(importParametersFieldValue){
 }
 deserializeParameterSetKeyValuePairs <- function(importParametersValuePairs){
   ## unwrap
-  importParametersValues <- unlist(strsplit(x = importParametersValuePairs, split = "="))
+  importParametersValuePairsList <- strsplit(x = importParametersValuePairs, split = "=")
+  
+  ## catch empty parameter values
+  for(i in 1:length(importParametersValuePairsList))
+    if(length(importParametersValuePairsList[[i]]) == 1)
+      importParametersValuePairsList[[i]][[2]] <- ""
+  
+  ## split
+  importParametersValues <- unlist(importParametersValuePairsList)
   importParametersKeys   <- importParametersValues[seq(from = 1, to = length(importParametersValues), by = 2)]
   importParametersValues <- importParametersValues[seq(from = 2, to = length(importParametersValues), by = 2)]
   

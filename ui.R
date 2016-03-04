@@ -171,7 +171,7 @@ shinyUI(
                              checkboxInput(inputId = "neutralLossesPrecursorToFragments", label = "Fragment vs. precursor", value = TRUE)
                       ),##column
                       column(width = 6,
-                             bsTooltip(id = "neutralLossesFragmentsToFragments", title = "Include neutral losses amongst fragment ions, i.e. the m/z difference between the m/z's of all pairs of fragment ions within each MS/MS spectrum", placement = "bottom", trigger = "hover"),
+                             bsTooltip(id = "neutralLossesFragmentsToFragments", title = "Include neutral losses amongst fragment ions, i.e. the m/z difference between the m/z's of all pairs of fragment ions within each MS/MS spectrum; this needs more time for processing", placement = "bottom", trigger = "hover"),
                              checkboxInput(inputId = "neutralLossesFragmentsToFragments", label = "Fragment vs. fragment", value = FALSE)
                       )##column
                     ),##row
@@ -631,7 +631,7 @@ shinyUI(
                     actionButton(inputId = "drawHCAplots", label = "Draw hierarchical cluster", class="btn-success"),
                     conditionalPanel(
                       condition = "output.showGUI && output.plotHcaShown",
-                      bsTooltip(id = "downloadDistanceMatrix", title = "Download the distance matrix which is the basis of the hierarchical cluster dendrogram", placement = "bottom", trigger = "hover"),
+                      bsTooltip(id = "downloadDistanceMatrix", title = "Download the distance matrix of the currently displayed hierarchical cluster dendrogram", placement = "bottom", trigger = "hover"),
                       downloadButton('downloadDistanceMatrix', 'Download distance matrix')
                     )
                   )## well panel

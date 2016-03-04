@@ -1,4 +1,6 @@
 
+library("xcms")
+
 ####################################################################################
 ## aligned spectra
 parsePeakAbundanceMatrix <- function(filePeakMatrix, doPrecursorDeisotoping, mzDeviationInPPM_precursorDeisotoping, mzDeviationAbsolute_precursorDeisotoping, maximumRtDifference){
@@ -183,7 +185,8 @@ parseMSP <- function(fileSpectra, minimumIntensityOfMaximalMS2peak, minimumPropo
   fileLines <- readLines(con = fileSpectra)
   numberOfFileLines <- length(fileLines)
   spectraList <- list()
-  ms2Peaks <- list()
+  ms2Peaks_mz  <- vector(mode = "numeric")
+  ms2Peaks_int <- vector(mode = "numeric")
   numberOfMS2Peaks <- 0
   numberOfMS2PeaksWithNeutralLosses <- 0
   numberOfMS2PeaksAboveThreshold <- 0
@@ -201,59 +204,33 @@ parseMSP <- function(fileSpectra, minimumIntensityOfMaximalMS2peak, minimumPropo
       
       ###################################################################
       ## filter for ms2 peak intensity
-      peakNumber <- length(ms2Peaks)
+      peakNumber <- length(ms2Peaks_mz)
       if(peakNumber > 0){
-        ms2PeaksFiltered <- list()
         
-        if(TRUE){
-          ###################################################################
-          ## filter for ms2 peak intensity relative to maximum peak intensity in spectrum
-          maximumIntensity <- 0
-          for(ms2PeakIdx in 1:length(ms2Peaks)){
-            if(ms2Peaks[[ms2PeakIdx]]$intensity > maximumIntensity){
-              maximumIntensity <- ms2Peaks[[ms2PeakIdx]]$intensity
-            }
-          }
-          if(maximumIntensity >= minimumIntensityOfMaximalMS2peak){
-            intensityThreshold <- maximumIntensity * minimumProportionOfMS2peaks
-            for(ms2PeakIdx in 1:length(ms2Peaks)){
-              numberOfMS2Peaks <- numberOfMS2Peaks + 1
-              if(ms2Peaks[[ms2PeakIdx]]$intensity >= intensityThreshold){
-                ms2PeaksFiltered[[length(ms2PeaksFiltered) + 1]] <- ms2Peaks[[ms2PeakIdx]]
-                numberOfMS2PeaksAboveThreshold <- numberOfMS2PeaksAboveThreshold + 1
-              } else
-                numberOfMS2PeaksBelowThreshold <- numberOfMS2PeaksBelowThreshold + 1
-            }
-          }
+        ###################################################################
+        ## filter for ms2 peak intensity relative to maximum peak intensity in spectrum
+        maximumIntensity <- max(ms2Peaks_int)
+        if(maximumIntensity >= minimumIntensityOfMaximalMS2peak){
+          ## spectrum is considered
+          intensityThreshold <- maximumIntensity * minimumProportionOfMS2peaks
+          fragmentsAboveThreshold <- ms2Peaks_int >= intensityThreshold
+          
+          ms2Peaks_mz  <- ms2Peaks_mz [fragmentsAboveThreshold]
+          ms2Peaks_int <- ms2Peaks_int[fragmentsAboveThreshold]
+          numberOfMS2PeaksAboveThreshold <- numberOfMS2PeaksAboveThreshold + length(ms2Peaks_mz)
+        } else {
+          ## spectrum is not considered
+          ms2Peaks_mz  <- vector(mode = "numeric")
+          ms2Peaks_int <- vector(mode = "numeric")
         }
-        ####
-        if(FALSE){
-          ###################################################################
-          ## filter for ms2 peak intensity regarding absolute threshold
-          ms2PeaksFiltered <- list()
-          for(ms2PeakIdx in 1:length(ms2Peaks)){
-            numberOfMS2Peaks <- numberOfMS2Peaks + 1
-            if(ms2Peaks[[ms2PeakIdx]]$intensity >= minimumMS2PeakIntensity){
-              ms2PeaksFiltered[[length(ms2PeaksFiltered) + 1]] <- ms2Peaks[[ms2PeakIdx]]
-              numberOfMS2PeaksAboveThreshold <- numberOfMS2PeaksAboveThreshold + 1
-            } else
-              numberOfMS2PeaksBelowThreshold <- numberOfMS2PeaksBelowThreshold + 1
-          }
-        }
-        
-        ms2Peaks <- ms2PeaksFiltered
       }
       
       ###################################################################
       ## normalize ms2 peaks to maximum = 1
-      peakNumber <- length(ms2Peaks)
+      peakNumber <- length(ms2Peaks_mz)
       if(peakNumber > 0){
-        max <- 0
-        for(ms2PeakIdx in 1:length(ms2Peaks))
-          if(ms2Peaks[[ms2PeakIdx]]$intensity > max)
-            max <- ms2Peaks[[ms2PeakIdx]]$intensity
-        for(ms2PeakIdx in 1:length(ms2Peaks))
-          ms2Peaks[[ms2PeakIdx]]$intensity <- ms2Peaks[[ms2PeakIdx]]$intensity / max
+        max <- max(ms2Peaks_int)
+        ms2Peaks_int <- ms2Peaks_int / max
       }
       
       ###################################################################
@@ -262,49 +239,52 @@ parseMSP <- function(fileSpectra, minimumIntensityOfMaximalMS2peak, minimumPropo
         #################################
         ## neutral losses regarding the precursor
         if(neutralLossesPrecursorToFragments){
-          ms2PeaksNL <- list()
-          for(ms2PeakIdx in 1:length(ms2Peaks))
-            ms2PeaksNL[[length(ms2PeaksNL) + 1]] <- list(
-              mz        = ms2Peaks[[ms2PeakIdx]]$mz - as.numeric(mz),
-              intensity = ms2Peaks[[ms2PeakIdx]]$intensity
-            )
-          ms2Peaks <- c(ms2Peaks, ms2PeaksNL)
+          ms2PeaksNLPF_mz  <- ms2Peaks_mz - as.numeric(mz)
+          ms2PeaksNLPF_int <- ms2Peaks_int
+        } else {
+          ms2PeaksNLPF_mz  <- vector(mode = "numeric")
+          ms2PeaksNLPF_int <- vector(mode = "numeric")
         }
         #################################
         ## neutral losses amongst fragments
         if(neutralLossesFragmentsToFragments){
-          ms2PeaksNL <- list()
-          for(ms2PeakIdx1 in 1:(length(ms2Peaks) - 1))
-            for(ms2PeakIdx2 in (ms2PeakIdx1 + 1):length(ms2Peaks))
-              ms2PeaksNL[[length(ms2PeaksNL) + 1]] <- list(
-                mz        = -abs(ms2Peaks[[ms2PeakIdx1]]$mz - ms2Peaks[[ms2PeakIdx2]]$mz),
-                intensity = (ms2Peaks[[ms2PeakIdx1]]$intensity + ms2Peaks[[ms2PeakIdx2]]$intensity) / 2
-              )
-          ms2Peaks <- c(ms2Peaks, ms2PeaksNL)
+          m_mz  <- outer(X = ms2Peaks_mz,  Y = ms2Peaks_mz,  FUN = function(x,y){x-y})
+          m_int <- outer(X = ms2Peaks_int, Y = ms2Peaks_int, FUN = function(x,y){(x+y) / 2})
+          upper <- upper.tri(x = m_mz)
+          ms2PeaksNLFF_mz  <- m_mz [upper]
+          ms2PeaksNLFF_int <- m_int[upper]
+        } else {
+          ms2PeaksNLFF_mz  <- vector(mode = "numeric")
+          ms2PeaksNLFF_int <- vector(mode = "numeric")
         }
+        
+        ms2Peaks_mz  <- c(ms2Peaks_mz,  ms2PeaksNLPF_mz,  ms2PeaksNLFF_mz)
+        ms2Peaks_int <- c(ms2Peaks_int, ms2PeaksNLPF_int, ms2PeaksNLFF_int)
       }
       
       ###################################################################
       ## built ms set
-      msItem <- list(
+      spectrumItem <- list(
         name = name,
         rt = round(as.numeric(rt), digits = 2),
         mz = round(as.numeric(mz), digits = 4),
         metName = metName,
         adduct = adduct,
         #peakNumber = as.numeric(peakNumber),
-        peakNumber = length(ms2Peaks),
-        ms2Peaks = ms2Peaks
+        peakNumber = length(ms2Peaks_mz),
+        ms2Peaks_mz  = ms2Peaks_mz,
+        ms2Peaks_int = ms2Peaks_int
       )
-      if(msItem$peakNumber > 0){
+      if(spectrumItem$peakNumber > 0){
         ## add
-        spectraList[[length(spectraList) + 1]] <- msItem
-        numberOfMS2PeaksWithNeutralLosses <- numberOfMS2PeaksWithNeutralLosses + msItem$peakNumber
+        spectraList[[length(spectraList) + 1]] <- spectrumItem
+        numberOfMS2PeaksWithNeutralLosses <- numberOfMS2PeaksWithNeutralLosses + spectrumItem$peakNumber
       }
       
       ###################################################################
       ## init for next entry
-      ms2Peaks <- list()
+      ms2Peaks_mz  <- vector(mode = "numeric")
+      ms2Peaks_int <- vector(mode = "numeric")
     } else if(grepl(pattern = "^NAME:", x = line)[[1]]){
       #name        <- strsplit(x = line, split = " ")[[1]][[2]]
       name        <- trimws(substring(text = line, first = nchar("NAME:") + 1))
@@ -325,11 +305,8 @@ parseMSP <- function(fileSpectra, minimumIntensityOfMaximalMS2peak, minimumPropo
     } else{
       ## MS2 peaks: "178.88669\t230"
       tokens <- strsplit(x = line, split = "[ \t]")[[1]]
-      ms2item <- list(
-        mz        = as.numeric(tokens[[1]]),
-        intensity = as.numeric(tokens[[2]])
-      )
-      ms2Peaks[[length(ms2Peaks) + 1]] <- ms2item
+      ms2Peaks_mz[[length(ms2Peaks_mz) + 1]]  <- as.numeric(tokens[[1]])
+      ms2Peaks_int[[length(ms2Peaks_int) + 1]] <- as.numeric(tokens[[2]])
     }
   }
   numberOfSpectra <- length(spectraList)
@@ -363,6 +340,415 @@ parseMSP <- function(fileSpectra, minimumIntensityOfMaximalMS2peak, minimumPropo
 ## built matrix
 
 builtMatrix <- function(spectraList, mzDeviationAbsolute_grouping, mzDeviationInPPM_grouping, doMs2PeakGroupDeisotoping, mzDeviationAbsolute_ms2PeakGroupDeisotoping, mzDeviationInPPM_ms2PeakGroupDeisotoping, proportionOfMatchingPeaks_ms2PeakGroupDeisotoping, progress = FALSE){
+  
+  if(progress)  incProgress(amount = 0.005, detail = paste("Fragment grouping preprocessing...", sep = "")) else print(paste("Fragment grouping preprocessing...", sep = ""))
+  numberOfSpectra <- length(spectraList)
+  
+  # spectrumItem <- list(
+  #   name = name,
+  #   rt = round(as.numeric(rt), digits = 2),
+  #   mz = round(as.numeric(mz), digits = 4),
+  #   metName = metName,
+  #   adduct = adduct,
+  #   #peakNumber = as.numeric(peakNumber),
+  #   peakNumber = length(ms2Peaks_mz),
+  #   ms2Peaks_mz  = ms2Peaks_mz,
+  #   ms2Peaks_int = ms2Peaks_int
+  # )
+  
+  fragment_mz   <- as.vector(unlist(lapply(X = spectraList, FUN = function(x){x$ms2Peaks_mz })))
+  fragment_int  <- as.vector(unlist(lapply(X = spectraList, FUN = function(x){x$ms2Peaks_int})))
+  fragment_spec <- as.vector(unlist(lapply(X = spectraList, FUN = function(x){x$peakNumber  })))
+  fragment_spec <- rep(x = 1:numberOfSpectra, times = fragment_spec)
+  numberOfMS2Peaks <- length(fragment_mz)
+  
+  if(progress)  incProgress(amount = 0.005, detail = paste("Fragment grouping preprocessing ready", sep = "")) else print(paste("Fragment grouping preprocessing ready", sep = ""))
+  if(progress)  incProgress(amount = 0,     detail = paste("Fragment grouping", sep = "")) else print(paste("Fragment grouping", sep = ""))
+  
+  resultObj <- xcms:::mzClustGeneric(
+    p = matrix(data = c(fragment_mz, fragment_spec), nrow = numberOfMS2Peaks, ncol = 2), 
+    sampclass = NULL, 
+    mzppm = mzDeviationInPPM_grouping, mzabs = mzDeviationAbsolute_grouping, 
+    minsamp = 1, minfrac = 0
+  )
+  if(progress)  incProgress(amount = 0.2,     detail = paste("Fragment grouping ready", sep = "")) else print(paste("Fragment grouping ready", sep = ""))
+  
+  # $mat
+  # mzmed mzmin mzmax npeaks
+  # [1,]  1.05     1   1.1      2
+  # [2,]  2.05     2   2.1      2
+  # [3,]  3.00     3   3.0      1
+  # 
+  # $idx
+  # $idx[[1]]
+  # [1] 1 3
+  # $idx[[2]]
+  # [1] 2 4
+  # $idx[[3]]
+  # [1] 5
+  
+  if(progress)  incProgress(amount = 0.05, detail = paste("Fragment group postprocessing", sep = "")) else print(paste("Fragment group postprocessing", sep = ""))
+  matrixRows <- vector(mode = "numeric")
+  matrixCols <- vector(mode = "numeric")
+  matrixVals <- vector(mode = "numeric")
+  
+  numberOfMS2PeakGroups <- nrow(resultObj$mat)
+  fragmentMasses <- resultObj$mat[, "mzmed"]
+  for(groupIdx in 1:numberOfMS2PeakGroups){
+    if((groupIdx %% (as.integer(numberOfMS2PeakGroups/10))) == 0)
+      if(progress)  incProgress(amount = 0.01, detail = paste("Fragment group postprocessing: ", groupIdx, " / ", numberOfMS2PeakGroups, sep = "")) else print(paste("Fragment group postprocessing: ", groupIdx, " / ", numberOfMS2PeakGroups, sep = ""))
+    
+    groupMembers <- resultObj$idx[[groupIdx]]
+    numberOfFragmentsInGroup <- length(groupMembers)
+    
+    matrixCols <- c(matrixCols, rep(x = groupIdx, times = numberOfFragmentsInGroup))
+    matrixRows <- c(matrixRows, fragment_spec[groupMembers])
+    matrixVals <- c(matrixVals, fragment_int[groupMembers])
+  }
+  
+  #rm(ms2PeakGroupList)
+  numberOfCollisions <- sum(duplicated(cbind(matrixRows, matrixCols)))
+  if(progress)  incProgress(amount = 0, detail = paste("Fragment group postprocessing ready", sep = "")) else print(paste("Fragment group postprocessing ready", sep = ""))
+  
+  if(length(matrixRows) == 0){
+    ## box results
+    if(progress)  incProgress(amount = 0.05, detail = paste("Fragment group boxing", sep = "")) else print(paste("Fragment group boxing", sep = ""))
+    returnObj <- list()
+    returnObj$matrix <- matrix(nrow = 0, ncol = 0)
+    returnObj$numberOfSpectra <- numberOfSpectra
+    returnObj$fragmentMasses <- vector(mode = "numeric", length = 0)
+    returnObj$numberOfCollisions <- numberOfCollisions
+    
+    returnObj$numberOfMS2Peaks <- numberOfMS2Peaks
+    returnObj$numberOfMS2PeaksPrior <- 0
+    returnObj$numberOfRemovedMS2IsotopePeaks <- 0
+    returnObj$numberOfMS2PeakGroups <- numberOfMS2PeakGroups
+    returnObj$numberOfMS2PeakGroupsPrior <- 0
+    returnObj$numberOfRemovedMS2PeakGroupIsotopeColumns <- 0
+    
+    return(returnObj)
+  }
+  
+  if(progress)  incProgress(amount = 0, detail = paste("Boxing to matrix", sep = "")) else print(paste("Boxing to matrix", sep = ""))
+  matrix <- sparseMatrix(i = matrixRows, j = matrixCols, x = matrixVals)
+  #rm(matrixRows)
+  #rm(matrixCols)
+  #rm(matrixVals)
+  #gc()
+  
+  
+  orderTempCol <- order(fragmentMasses)
+  matrix <- matrix[, orderTempCol]
+  fragmentMasses <- fragmentMasses[orderTempCol]
+  
+  ## deisotoping
+  numberOfMS2PeakGroupsPrior <- numberOfMS2PeakGroups
+  numberOfRemovedMS2PeakGroupIsotopeColumns <- 0
+  numberOfMS2PeaksPrior <- numberOfMS2Peaks
+  numberOfRemovedMS2IsotopePeaks <- 0
+  if(doMs2PeakGroupDeisotoping){
+    if(progress)  incProgress(amount = 0.05, detail = paste("Fragment group deisotoping", sep = "")) else print(paste("Fragment group deisotoping", sep = ""))
+    distance13Cminus12C <- 1.0033548378
+    ## mark isotope precursors
+    ms2PeakGroupsToRemove <- vector(mode = "logical", length = numberOfMS2PeakGroups)
+    for(ms2PeakGroupIdx in 1:numberOfMS2PeakGroups){
+      if((ms2PeakGroupIdx %% (as.integer(numberOfMS2PeakGroups/10))) == 0)
+        if(progress)  incProgress(amount = 0.0, detail = paste("Fragment group deisotoping ", ms2PeakGroupIdx, " / ", numberOfMS2PeakGroups, sep = "")) else print(paste("Fragment group deisotoping ", ms2PeakGroupIdx, " / ", numberOfMS2PeakGroups, sep = ""))
+      mzError <- abs(fragmentMasses[[ms2PeakGroupIdx]] * mzDeviationInPPM_ms2PeakGroupDeisotoping / 1E6)
+      mzError <- max(mzError, mzDeviationAbsolute_ms2PeakGroupDeisotoping)
+      
+      ## MZ difference around 1.0033548378 (first isotope) or 1.0033548378 * 2 (second isotope)
+      if(fragmentMasses[[ms2PeakGroupIdx]] > 0){
+        ## fragment
+        distances <- (fragmentMasses[[ms2PeakGroupIdx]] - distance13Cminus12C)     - fragmentMasses[-ms2PeakGroupIdx]
+      } else {
+        ## neutral loss
+        distances <- (fragmentMasses[[ms2PeakGroupIdx]] + distance13Cminus12C)     - fragmentMasses[-ms2PeakGroupIdx]
+      }
+      validInMz <- abs(distances) <= mzError
+      #validInMz1 <- abs((fragmentMasses[[ms2PeakGroupIdx]] - distance13Cminus12C)     - fragmentMasses[-ms2PeakGroupIdx]) <= mzError
+      #validInMz2 <- abs((fragmentMasses[[ms2PeakGroupIdx]] - distance13Cminus12C * 2) - fragmentMasses[-ms2PeakGroupIdx]) <= mzError
+      #validInMz <- validInMz1 | validInMz2
+      if(!any(validInMz))
+        next
+      validInMz <- which(validInMz)
+      if(fragmentMasses[[ms2PeakGroupIdx]] < 0)
+        validInMz <- validInMz + 1
+      
+      ## isotopic fragments are mainly in spectra with monoisotopic fragments
+      fragmentIntensitiesHere <- matrix[, ms2PeakGroupIdx]
+      isotopicThere <- fragmentIntensitiesHere != 0
+      numberOfFragmentPeaksHere <- sum(isotopicThere)
+      
+      validInOverlap <- apply(X = matrix(data = matrix[, validInMz], nrow = numberOfSpectra), MARGIN = 2, FUN = function(x){
+        monoisotopicThere <- x != 0
+        precursorInCommon <- isotopicThere & monoisotopicThere
+        validOverlap <- (sum(precursorInCommon) / sum(isotopicThere)) >= proportionOfMatchingPeaks_ms2PeakGroupDeisotoping
+        return(validOverlap)
+      })
+      
+      if(!any(validInOverlap))
+        next
+      
+      monoisotopicFragmentColumn <- min(validInMz[validInOverlap])
+      
+      ## intensity gets smaller in the isotope spectrum
+      monoisotopicFragmentIntensities <- matrix[, monoisotopicFragmentColumn]
+      monoisotopicThere <- matrix[, monoisotopicFragmentColumn] != 0
+      numberOfMonoisotopicFragmentPeaks <- sum(monoisotopicThere)
+      precursorInCommon <- isotopicThere & monoisotopicThere
+      validToRemove <- (matrix[, monoisotopicFragmentColumn] > matrix[, ms2PeakGroupIdx]) & isotopicThere
+      numberOfRemovedPeaks <- sum(validToRemove)
+      matrix[validToRemove, ms2PeakGroupIdx] <- rep(x = 0, times = numberOfRemovedPeaks)
+      numberOfRemovedMS2IsotopePeaks <- numberOfRemovedMS2IsotopePeaks + numberOfRemovedPeaks
+      
+      #print(paste(ms2PeakGroupIdx, "(", numberOfFragmentPeaksHere, ")", "vs", monoisotopicFragmentColumn, "(", numberOfMonoisotopicFragmentPeaks, ")", "is", fragmentMasses[[ms2PeakGroupIdx]], "vs", fragmentMasses[[monoisotopicFragmentColumn]]))
+      
+      if(sum(matrix[, ms2PeakGroupIdx] != 0) == 0)
+        ms2PeakGroupsToRemove[[ms2PeakGroupIdx]] <- TRUE
+    }
+    
+    ## remove
+    matrix <- matrix[, !ms2PeakGroupsToRemove]
+    
+    numberOfRemovedMS2PeakGroupIsotopeColumns <- sum(ms2PeakGroupsToRemove)
+    fragmentMasses <- fragmentMasses[!ms2PeakGroupsToRemove]
+    numberOfMS2PeakGroups <- length(fragmentMasses)
+    numberOfMS2Peaks <- numberOfMS2PeaksPrior - numberOfRemovedMS2IsotopePeaks
+    
+    if(progress)  incProgress(amount = 0.05, detail = paste("Fragment group deisotoping ready", sep = "")) else print(paste("Fragment group deisotoping ready", sep = ""))
+  }
+  
+  ## box results
+  if(progress)  incProgress(amount = 0.05, detail = paste("Fragment group boxing", sep = "")) else print(paste("Fragment group boxing", sep = ""))
+  returnObj <- list()
+  returnObj$matrix <- matrix
+  returnObj$numberOfSpectra <- numberOfSpectra
+  returnObj$fragmentMasses <- fragmentMasses
+  returnObj$numberOfCollisions <- numberOfCollisions
+  
+  returnObj$numberOfMS2Peaks <- numberOfMS2Peaks
+  returnObj$numberOfMS2PeaksPrior <- numberOfMS2PeaksPrior
+  returnObj$numberOfRemovedMS2IsotopePeaks <- numberOfRemovedMS2IsotopePeaks
+  returnObj$numberOfMS2PeakGroups <- numberOfMS2PeakGroups
+  returnObj$numberOfMS2PeakGroupsPrior <- numberOfMS2PeakGroupsPrior
+  returnObj$numberOfRemovedMS2PeakGroupIsotopeColumns <- numberOfRemovedMS2PeakGroupIsotopeColumns
+  
+  return(returnObj)
+}
+builtMatrixOld <- function(spectraList, mzDeviationAbsolute_grouping, mzDeviationInPPM_grouping, doMs2PeakGroupDeisotoping, mzDeviationAbsolute_ms2PeakGroupDeisotoping, mzDeviationInPPM_ms2PeakGroupDeisotoping, proportionOfMatchingPeaks_ms2PeakGroupDeisotoping, progress = FALSE){
+  
+  if(progress)  incProgress(amount = 0.005, detail = paste("Fragment grouping preprocessing...", sep = "")) else print(paste("Fragment grouping preprocessing...", sep = ""))
+  numberOfSpectra <- length(spectraList)
+  
+  muList <- vector(mode = "numeric", length = 0)
+  ms2PeakGroupList <- list()
+  newGroupCreated <- FALSE
+  
+  matrixRows <- vector(mode = "numeric")
+  matrixCols <- vector(mode = "numeric")
+  matrixVals <- vector(mode = "numeric")
+  itemIndex <- 1
+  if(progress)  incProgress(amount = 0.005, detail = paste("Fragment grouping preprocessing ready", sep = "")) else print(paste("Fragment grouping preprocessing ready", sep = ""))
+  
+  #Rprof("/home/htreutle/Code/RprofMetSWATH03.txt")
+  for(spectrumIdx in seq_len(length.out = numberOfSpectra)){
+    ## progress
+    if((spectrumIdx %% (as.integer(numberOfSpectra/10))) == 0)
+      if(progress)  incProgress(amount = 1/numberOfSpectra * 0.2, detail = paste("Fragment grouping: ", spectrumIdx, " / ", numberOfSpectra, sep = "")) else print(paste("Fragment grouping: ", spectrumIdx, " / ", numberOfSpectra, sep = ""))
+    #if((spectrumIdx %% (as.integer(numberOfSpectra/100))) == 0)
+    #  if(progress)  incProgress(amount = 0.005, detail = paste("Fragment grouping: ", spectrumIdx, " / ", numberOfSpectra, sep = "")) else print(paste("Fragment grouping: ", spectrumIdx, " / ", numberOfSpectra, sep = ""))
+    
+    ## current spectrum
+    spectrum <- spectraList[[spectrumIdx]]
+    
+    ## iterate MS2 peaks
+    for(ms2PeakIdx in 1:spectrum$peakNumber){
+      ## current MS2 peak
+      ms2Peak_mz  <- spectrum$ms2Peaks_mz [[ms2PeakIdx]]
+      ms2Peak_int <- spectrum$ms2Peaks_int[[ms2PeakIdx]]
+      
+      ## determine similar MS2 peak group if there
+      #groupIdxForMS2Peak <- -1
+      error <- max(mzDeviationAbsolute_grouping, ms2Peak_mz * (mzDeviationInPPM_grouping / 1E6))
+      deviations <- abs(muList - ms2Peak_mz)
+      indeces <- which(deviations <= error)
+      if(length(indeces) > 0){
+        ## take best matching fragment group
+        groupIdxForMS2Peak <- indeces[[which.min(deviations[indeces])]]
+        #groupIdxForMS2Peak <- indeces[[1]]
+        
+        ## update MS2 peak group
+        ms2PeakGroupList[[groupIdxForMS2Peak]][[length(ms2PeakGroupList[[groupIdxForMS2Peak]]) + 1]] <- ms2Peak_mz
+        muList[[groupIdxForMS2Peak]] <- mean(x = ms2PeakGroupList[[groupIdxForMS2Peak]])
+      } else {
+        ## create new MS2 peak group
+        groupIdxForMS2Peak <- length(ms2PeakGroupList) + 1
+        
+        ms2PeakGroupList[[groupIdxForMS2Peak]] <- ms2Peak_mz
+        
+        # ms2PeakGroupList[[groupIdxForMS2Peak]] <- vector(mode = "numeric", length = 1)
+        # 
+        # ## update MS2 peak group
+        # ms2PeakGroupList[[groupIdxForMS2Peak]][[1]] <- ms2Peak$mz
+        muList[[groupIdxForMS2Peak]] <- ms2Peak_mz
+      }
+      
+      ## add MS2 peak intensity
+      matrixRows[[itemIndex]] <- spectrumIdx
+      matrixCols[[itemIndex]] <- groupIdxForMS2Peak
+      matrixVals[[itemIndex]] <- ms2Peak_int
+      
+      # ## update MS2 peak group
+      # ms2PeakGroupList[[groupIdxForMS2Peak]][[length(ms2PeakGroupList[[groupIdxForMS2Peak]]) + 1]] <- ms2Peak$mz
+      # #muList[[groupIdxForMS2Peak]] <- median(x = unlist(ms2PeakGroupList[[groupIdxForMS2Peak]], use.names = FALSE))
+      # muList[[groupIdxForMS2Peak]] <- mean(x = unlist(ms2PeakGroupList[[groupIdxForMS2Peak]], use.names = FALSE))
+      
+      # ## handle unlisted list
+      # if(newGroupCreated){
+      #   muListUnlisted <- unlist(muList, use.names = FALSE)
+      # } else {
+      #   muListUnlisted[[groupIdxForMS2Peak]] <- muList[[groupIdxForMS2Peak]]
+      # }
+      
+      itemIndex <- itemIndex + 1
+    }
+  }
+  #Rprof(NULL)
+  #summaryRprof(filename = "/home/htreutle/Code/RprofMetSWATH03.txt")
+  
+  if(progress)  incProgress(amount = 0.05, detail = paste("Fragment group postprocessing", sep = "")) else print(paste("Fragment group postprocessing", sep = ""))
+  
+  #rm(ms2PeakGroupList)
+  numberOfCollisions <- sum(duplicated(cbind(matrixRows, matrixCols)))
+  numberOfMS2PeakGroups <- length(muList)
+  numberOfMS2Peaks <- itemIndex - 1
+  
+  if(length(matrixRows) == 0){
+    ## box results
+    if(progress)  incProgress(amount = 0.05, detail = paste("Fragment group boxing", sep = "")) else print(paste("Fragment group boxing", sep = ""))
+    returnObj <- list()
+    returnObj$matrix <- matrix(nrow = 0, ncol = 0)
+    returnObj$numberOfSpectra <- numberOfSpectra
+    returnObj$fragmentMasses <- vector(mode = "numeric", length = 0)
+    returnObj$numberOfCollisions <- numberOfCollisions
+    
+    returnObj$numberOfMS2Peaks <- numberOfMS2Peaks
+    returnObj$numberOfMS2PeaksPrior <- 0
+    returnObj$numberOfRemovedMS2IsotopePeaks <- 0
+    returnObj$numberOfMS2PeakGroups <- numberOfMS2PeakGroups
+    returnObj$numberOfMS2PeakGroupsPrior <- 0
+    returnObj$numberOfRemovedMS2PeakGroupIsotopeColumns <- 0
+    
+    return(returnObj)
+  }
+  fragmentMasses <- unlist(muList)
+  matrix <- sparseMatrix(i = matrixRows, j = matrixCols, x = matrixVals)
+  #rm(matrixRows)
+  #rm(matrixCols)
+  #rm(matrixVals)
+  #gc()
+  
+  
+  orderTempCol <- order(fragmentMasses)
+  matrix <- matrix[, orderTempCol]
+  fragmentMasses <- fragmentMasses[orderTempCol]
+  
+  ## deisotoping
+  numberOfMS2PeakGroupsPrior <- numberOfMS2PeakGroups
+  numberOfRemovedMS2PeakGroupIsotopeColumns <- 0
+  numberOfMS2PeaksPrior <- itemIndex - 1
+  numberOfMS2Peaks <- numberOfMS2PeaksPrior
+  numberOfRemovedMS2IsotopePeaks <- 0
+  if(doMs2PeakGroupDeisotoping){
+    if(progress)  incProgress(amount = 0.05, detail = paste("Fragment group deisotoping", sep = "")) else print(paste("Fragment group deisotoping", sep = ""))
+    distance13Cminus12C <- 1.0033548378
+    ## mark isotope precursors
+    ms2PeakGroupsToRemove <- vector(mode = "logical", length = numberOfMS2PeakGroups)
+    for(ms2PeakGroupIdx in 1:numberOfMS2PeakGroups){
+      if((ms2PeakGroupIdx %% (as.integer(numberOfMS2PeakGroups/10))) == 0)
+        if(progress)  incProgress(amount = 0.0, detail = paste("Fragment group deisotoping ", ms2PeakGroupIdx, " / ", numberOfMS2PeakGroups, sep = "")) else print(paste("Fragment group deisotoping ", ms2PeakGroupIdx, " / ", numberOfMS2PeakGroups, sep = ""))
+      mzError <- abs(fragmentMasses[[ms2PeakGroupIdx]] * mzDeviationInPPM_ms2PeakGroupDeisotoping / 1E6)
+      mzError <- max(mzError, mzDeviationAbsolute_ms2PeakGroupDeisotoping)
+      
+      ## MZ difference around 1.0033548378 (first isotope) or 1.0033548378 * 2 (second isotope)
+      if(fragmentMasses[[ms2PeakGroupIdx]] > 0){
+        ## fragment
+        distances <- (fragmentMasses[[ms2PeakGroupIdx]] - distance13Cminus12C)     - fragmentMasses[-ms2PeakGroupIdx]
+      } else {
+        ## neutral loss
+        distances <- (fragmentMasses[[ms2PeakGroupIdx]] + distance13Cminus12C)     - fragmentMasses[-ms2PeakGroupIdx]
+      }
+      validInMz <- abs(distances) <= mzError
+      #validInMz1 <- abs((fragmentMasses[[ms2PeakGroupIdx]] - distance13Cminus12C)     - fragmentMasses[-ms2PeakGroupIdx]) <= mzError
+      #validInMz2 <- abs((fragmentMasses[[ms2PeakGroupIdx]] - distance13Cminus12C * 2) - fragmentMasses[-ms2PeakGroupIdx]) <= mzError
+      #validInMz <- validInMz1 | validInMz2
+      if(!any(validInMz))
+        next
+      validInMz <- which(validInMz)
+      if(fragmentMasses[[ms2PeakGroupIdx]] < 0)
+        validInMz <- validInMz + 1
+      
+      ## isotopic fragments are mainly in spectra with monoisotopic fragments
+      fragmentIntensitiesHere <- matrix[, ms2PeakGroupIdx]
+      isotopicThere <- fragmentIntensitiesHere != 0
+      numberOfFragmentPeaksHere <- sum(isotopicThere)
+      
+      validInOverlap <- apply(X = matrix(data = matrix[, validInMz], nrow = numberOfSpectra), MARGIN = 2, FUN = function(x){
+        monoisotopicThere <- x != 0
+        precursorInCommon <- isotopicThere & monoisotopicThere
+        validOverlap <- (sum(precursorInCommon) / sum(isotopicThere)) >= proportionOfMatchingPeaks_ms2PeakGroupDeisotoping
+        return(validOverlap)
+      })
+      
+      if(!any(validInOverlap))
+        next
+      
+      monoisotopicFragmentColumn <- min(validInMz[validInOverlap])
+      
+      ## intensity gets smaller in the isotope spectrum
+      monoisotopicFragmentIntensities <- matrix[, monoisotopicFragmentColumn]
+      monoisotopicThere <- matrix[, monoisotopicFragmentColumn] != 0
+      numberOfMonoisotopicFragmentPeaks <- sum(monoisotopicThere)
+      precursorInCommon <- isotopicThere & monoisotopicThere
+      validToRemove <- (matrix[, monoisotopicFragmentColumn] > matrix[, ms2PeakGroupIdx]) & isotopicThere
+      numberOfRemovedPeaks <- sum(validToRemove)
+      matrix[validToRemove, ms2PeakGroupIdx] <- rep(x = 0, times = numberOfRemovedPeaks)
+      numberOfRemovedMS2IsotopePeaks <- numberOfRemovedMS2IsotopePeaks + numberOfRemovedPeaks
+      
+      #print(paste(ms2PeakGroupIdx, "(", numberOfFragmentPeaksHere, ")", "vs", monoisotopicFragmentColumn, "(", numberOfMonoisotopicFragmentPeaks, ")", "is", fragmentMasses[[ms2PeakGroupIdx]], "vs", fragmentMasses[[monoisotopicFragmentColumn]]))
+      
+      if(sum(matrix[, ms2PeakGroupIdx] != 0) == 0)
+        ms2PeakGroupsToRemove[[ms2PeakGroupIdx]] <- TRUE
+    }
+    
+    ## remove
+    matrix <- matrix[, !ms2PeakGroupsToRemove]
+    
+    numberOfRemovedMS2PeakGroupIsotopeColumns <- sum(ms2PeakGroupsToRemove)
+    fragmentMasses <- fragmentMasses[!ms2PeakGroupsToRemove]
+    numberOfMS2PeakGroups <- length(fragmentMasses)
+    numberOfMS2Peaks <- numberOfMS2PeaksPrior - numberOfRemovedMS2IsotopePeaks
+  }
+  
+  ## box results
+  if(progress)  incProgress(amount = 0.05, detail = paste("Fragment group boxing", sep = "")) else print(paste("Fragment group boxing", sep = ""))
+  returnObj <- list()
+  returnObj$matrix <- matrix
+  returnObj$numberOfSpectra <- numberOfSpectra
+  returnObj$fragmentMasses <- fragmentMasses
+  returnObj$numberOfCollisions <- numberOfCollisions
+  
+  returnObj$numberOfMS2Peaks <- numberOfMS2Peaks
+  returnObj$numberOfMS2PeaksPrior <- numberOfMS2PeaksPrior
+  returnObj$numberOfRemovedMS2IsotopePeaks <- numberOfRemovedMS2IsotopePeaks
+  returnObj$numberOfMS2PeakGroups <- numberOfMS2PeakGroups
+  returnObj$numberOfMS2PeakGroupsPrior <- numberOfMS2PeakGroupsPrior
+  returnObj$numberOfRemovedMS2PeakGroupIsotopeColumns <- numberOfRemovedMS2PeakGroupIsotopeColumns
+  
+  return(returnObj)
+}
+builtMatrixOld2 <- function(spectraList, mzDeviationAbsolute_grouping, mzDeviationInPPM_grouping, doMs2PeakGroupDeisotoping, mzDeviationAbsolute_ms2PeakGroupDeisotoping, mzDeviationInPPM_ms2PeakGroupDeisotoping, proportionOfMatchingPeaks_ms2PeakGroupDeisotoping, progress = FALSE){
   
   if(progress)  incProgress(amount = 0.005, detail = paste("Fragment grouping preprocessing...", sep = "")) else print(paste("Fragment grouping preprocessing...", sep = ""))
   numberOfSpectra <- length(spectraList)
@@ -447,6 +833,7 @@ builtMatrix <- function(spectraList, mzDeviationAbsolute_grouping, mzDeviationIn
   #rm(ms2PeakGroupList)
   numberOfCollisions <- sum(duplicated(cbind(matrixRows, matrixCols)))
   numberOfMS2PeakGroups <- length(muList)
+  numberOfMS2Peaks <- itemIndex - 1
   
   if(length(matrixRows) == 0){
     ## box results
@@ -894,9 +1281,12 @@ convertToProjectFile <- function(filePeakMatrix, fileSpectra, parameterSet, prog
   if(progress)  setProgress(1) else print("Ready")
   return(resultObj)
 }
+
 exampleInput <- function(){
-  filePeakMatrix <- "/home/htreutle/Downloads/MetSWATH/20158251022_rawmatrix_0_less.txt"
-  fileSpectra    <- "/home/htreutle/Downloads/MetSWATH/20158251022_spectra_0_less.msp"
+  #filePeakMatrix <- "/home/htreutle/Downloads/MetSWATH/20158251022_rawmatrix_0_less.txt"
+  #fileSpectra    <- "/home/htreutle/Downloads/MetSWATH/20158251022_spectra_0_less.msp"
+  filePeakMatrix <- "/home/htreutle/Downloads/MetSWATH/Metabolite_profile_showcase.txt"
+  fileSpectra    <- "/home/htreutle/Downloads/MetSWATH/MSMS_library_showcase.msp"
   parameterSet <- list()
   parameterSet$minimumIntensityOfMaximalMS2peak                  <- 2000
   parameterSet$minimumProportionOfMS2peaks                       <- 0.05
