@@ -152,9 +152,11 @@ shinyServer(
     fragmentsX <- NULL
     fragmentsY <- NULL
     fragmentsColor <- NULL
+    fragmentsDiscriminativity <- NULL
     fragmentsXhovered <- NULL
     fragmentsYhovered <- NULL
-    fragmentshoveredColor <- NULL
+    fragmentsColorHovered <- NULL
+    fragmentsDiscriminativityHovered <- NULL
     
     ##############################################
     ## plot ranges
@@ -257,8 +259,9 @@ shinyServer(
       distanceThreshold <- factorX * plotRangeX / 35
       
       minimumIndex <- which.min(distances)
+      if(is.na(minimumIndex))
+        return(NULL)
       minimumDistance <- distances[[minimumIndex]]
-      
       if(minimumDistance > distanceThreshold){
         return(NULL)
       } else {
@@ -299,9 +302,11 @@ shinyServer(
       fragmentsX <<- NULL
       fragmentsY <<- NULL
       fragmentsColor <<- NULL
+      fragmentsDiscriminativity <<- NULL
       fragmentsXhovered <<- NULL
       fragmentsYhovered <<- NULL
-      fragmentshoveredColor <<- NULL
+      fragmentsColorHovered <<- NULL
+      fragmentsDiscriminativityHovered <<- NULL
       
       ## reset state
       state$importedOrLoadedFile_s_ <<- NULL
@@ -458,8 +463,8 @@ shinyServer(
       #dataList$importParameterSet$proportionOfMatchingPeaks_ms2PeakGroupDeisotoping
       #dataList$importParameterSet$mzDeviationAbsolute_mapping
       #dataList$importParameterSet$minimumNumberOfMS2PeaksPerGroup
-      updateCheckboxInput(session = session, inputId = "neutralLossesPrecursorToFragments2",           value = dataList$importParameterSet$neutralLossesPrecursorToFragments)
-      updateCheckboxInput(session = session, inputId = "neutralLossesFragmentsToFragments2",           value = dataList$importParameterSet$neutralLossesFragmentsToFragments)
+      #updateCheckboxInput(session = session, inputId = "neutralLossesPrecursorToFragments2",           value = dataList$importParameterSet$neutralLossesPrecursorToFragments)
+      #updateCheckboxInput(session = session, inputId = "neutralLossesFragmentsToFragments2",           value = dataList$importParameterSet$neutralLossesFragmentsToFragments)
       
       shinyjs::toggleState("minimumIntensityOfMaximalMS2peak2", FALSE)
       shinyjs::toggleState("minimumProportionOfMS2peaks2", FALSE)
@@ -472,8 +477,8 @@ shinyServer(
       shinyjs::toggleState("doMs2PeakGroupDeisotoping2", FALSE)
       shinyjs::toggleState("mzDeviationAbsolute_ms2PeakGroupDeisotoping2", FALSE)
       shinyjs::toggleState("mzDeviationInPPM_ms2PeakGroupDeisotoping2", FALSE)
-      shinyjs::toggleState("neutralLossesPrecursorToFragments2", FALSE)
-      shinyjs::toggleState("neutralLossesFragmentsToFragments2", FALSE)
+      #shinyjs::toggleState("neutralLossesPrecursorToFragments2", FALSE)
+      #shinyjs::toggleState("neutralLossesFragmentsToFragments2", FALSE)
       
       ## MS2 plot range
       resetMS2PlotRange()
@@ -488,7 +493,7 @@ shinyServer(
       } else {
         output$globalMS2filteredPrecursors <- renderText({
           print(paste("update output$globalMS2filteredPrecursors", sep = ""))
-          paste("Number of filtered MS¹ features: ", filterGlobal$numberOfPrecursorsFiltered, " / ", dataList$numberOfPrecursors, sep = "")
+          paste("Number of filtered MS\u00B9 features: ", filterGlobal$numberOfPrecursorsFiltered, " / ", dataList$numberOfPrecursors, sep = "")
         })
       }
     }
@@ -507,7 +512,7 @@ shinyServer(
           ## filter valid
           output$hcaFilteredPrecursors <- renderText({
             print(paste("update output$hcaFilteredPrecursors ", minimumNumberOfPrecursorsForHca, " <= # <= ", maximumNumberOfPrecursorsForHca, sep = ""))
-            paste("Number of filtered MS¹ features: ", filterHca$numberOfPrecursorsFiltered, " / ", filterGlobal$numberOfPrecursorsFiltered, globalMs2Filter, sep = "")
+            paste("Number of filtered MS\u00B9 features: ", filterHca$numberOfPrecursorsFiltered, " / ", filterGlobal$numberOfPrecursorsFiltered, globalMs2Filter, sep = "")
           })
         } else {
           ## filter invalid
@@ -516,19 +521,19 @@ shinyServer(
           if(filterHca$numberOfPrecursorsFiltered == 0){
             output$hcaFilteredPrecursors <- renderText({
               print(paste("update output$hcaFilteredPrecursors # = 0", sep = ""))
-              paste("There are no MS¹ features which fulfill the given criteria.", globalMs2Filter, sep = "")
+              paste("There are no MS\u00B9 features which fulfill the given criteria.", globalMs2Filter, sep = "")
             })
           }
           if(filterHca$numberOfPrecursorsFiltered > 0 & filterHca$numberOfPrecursorsFiltered < minimumNumberOfPrecursorsForHca){
             output$hcaFilteredPrecursors <- renderText({
               print(paste("update output$hcaFilteredPrecursors 0 < # < ", minimumNumberOfPrecursorsForHca, sep = ""))
-              paste("There are only ", filterHca$numberOfPrecursorsFiltered, " / ", filterGlobal$numberOfPrecursorsFiltered, " MS¹ features which fulfill the given criteria. There must be at least more than five MS¹ features to proceed.", globalMs2Filter, sep = "")
+              paste("There are only ", filterHca$numberOfPrecursorsFiltered, " / ", filterGlobal$numberOfPrecursorsFiltered, " MS\u00B9 features which fulfill the given criteria. There must be at least more than five MS\u00B9 features to proceed.", globalMs2Filter, sep = "")
             })
           }
           if(filterHca$numberOfPrecursorsFiltered > maximumNumberOfPrecursorsForHca){
             output$hcaFilteredPrecursors <- renderText({
               print(paste("update output$hcaFilteredPrecursors # > ", maximumNumberOfPrecursorsForHca, sep = ""))
-              paste("There are ", filterHca$numberOfPrecursorsFiltered, " / ", filterGlobal$numberOfPrecursorsFiltered, " MS¹ features which fulfill the given criteria. There must be at most ", maximumNumberOfPrecursorsForHca, " MS¹ features to proceed.", globalMs2Filter, sep = "")
+              paste("There are ", filterHca$numberOfPrecursorsFiltered, " / ", filterGlobal$numberOfPrecursorsFiltered, " MS\u00B9 features which fulfill the given criteria. There must be at most ", maximumNumberOfPrecursorsForHca, " MS\u00B9 features to proceed.", globalMs2Filter, sep = "")
             })
           }
         }
@@ -545,12 +550,12 @@ shinyServer(
         if(filterPca$numberOfPrecursorsFiltered > 0){
           output$pcaFilteredPrecursors <- renderText({
             print(paste("update output$pcaFilteredPrecursors", sep = ""))
-            paste("Number of filtered MS¹ features: ", filterPca$numberOfPrecursorsFiltered, " / ", filterGlobal$numberOfPrecursorsFiltered, globalMs2Filter, sep = "")
+            paste("Number of filtered MS\u00B9 features: ", filterPca$numberOfPrecursorsFiltered, " / ", filterGlobal$numberOfPrecursorsFiltered, globalMs2Filter, sep = "")
           })
         } else {
           output$pcaFilteredPrecursors <- renderText({
             print(paste("update output$pcaFilteredPrecursors", sep = ""))
-            paste("There are no MS¹ features which fulfill the given criteria.", globalMs2Filter, sep = "")
+            paste("There are no MS\u00B9 features which fulfill the given criteria.", globalMs2Filter, sep = "")
           })
         }
       }
@@ -559,7 +564,7 @@ shinyServer(
       if(!state$filterSearchActive)
         output$searchInfo <- renderText({
           print(paste("update output$searchInfo inactive search", sep = ""))
-          paste("Please search for MS¹ features", sep = "")
+          paste("Please search for MS\u00B9 features", sep = "")
         })
       if(state$filterSearchActive & is.null(filterSearch))
         output$searchInfo <- renderText({
@@ -586,7 +591,7 @@ shinyServer(
         
         output$searchInfo <- renderText({
           print(paste("update output$searchInfo", sep = ""))
-          paste("Number of hits among MS¹ features: ", val, sep = "")
+          paste("Number of hits among MS\u00B9 features: ", val, sep = "")
         })
       }
     }
@@ -812,13 +817,13 @@ shinyServer(
       if(all(fileInputSelection == "Load project", !is.null(filePath), !is.null(state$importedOrLoadedFile_s_), fileName == state$importedOrLoadedFile_s_))
         output$fileInfo <- renderText({paste(fileName)})
       if(all(fileInputSelection == "Import data", is.null(fileMs1Path), is.null(fileMs2Path)))
-        output$fileInfo <- renderText({paste("Please select a metabolite profile, a MS/MS library, and press 'Import MS¹ and MS/MS data'")})
+        output$fileInfo <- renderText({paste("Please select a metabolite profile, a MS/MS library, and press 'Import MS\u00B9 and MS/MS data'")})
       if(all(fileInputSelection == "Import data", is.null(fileMs1Path), !is.null(fileMs2Path)))
-        output$fileInfo <- renderText({paste("Please select a metabolite profile and press 'Import MS¹ and MS/MS data'")})
+        output$fileInfo <- renderText({paste("Please select a metabolite profile and press 'Import MS\u00B9 and MS/MS data'")})
       if(all(fileInputSelection == "Import data", !is.null(fileMs1Path), is.null(fileMs2Path)))
-        output$fileInfo <- renderText({paste("Please select a MS/MS library and press 'Import MS¹ and MS/MS data'")})
+        output$fileInfo <- renderText({paste("Please select a MS/MS library and press 'Import MS\u00B9 and MS/MS data'")})
       if(all(fileInputSelection == "Import data", !is.null(fileMs1Path), !is.null(fileMs2Path), any(is.null(state$importedOrLoadedFile_s_), c(fileMs1Name,fileMs2Name) != state$importedOrLoadedFile_s_)))
-        output$fileInfo <- renderText({paste("Please press 'Import MS¹ and MS/MS data'")})
+        output$fileInfo <- renderText({paste("Please press 'Import MS\u00B9 and MS/MS data'")})
       if(all(fileInputSelection == "Import data", !is.null(fileMs1Path), !is.null(fileMs2Path), !is.null(state$importedOrLoadedFile_s_), c(fileMs1Name,fileMs2Name) == state$importedOrLoadedFile_s_))
         output$fileInfo <- renderText({paste(fileMs1Name, "\n", fileMs2Name, sep = "")})
     }
@@ -873,9 +878,11 @@ shinyServer(
         fragmentsX = fragmentsX, 
         fragmentsY = fragmentsY, 
         fragmentsColor = fragmentsColor, 
+        fragmentsDiscriminativity = fragmentsDiscriminativity, 
         fragmentsX_02 = fragmentsXhovered, 
         fragmentsY_02 = fragmentsYhovered, 
-        fragmentsColor_02 = fragmentshoveredColor, 
+        fragmentsColor_02 = fragmentsColorHovered, 
+        fragmentsDiscriminativity_02 = fragmentsDiscriminativityHovered, 
         xInterval = ms2PlotRange$xInterval, 
         selectedFragmentIndex = selectionFragmentSelectedFragmentIndex  
       )
@@ -1341,19 +1348,19 @@ shinyServer(
       selectionInfo <- ""
       if(selectionPresent){
         switch(as.character(length(selectedPrecursorSet)), 
-          "0"={ selectionInfo <- paste("The set of selected MS¹ features is empty", sep = "")         },
-          "1"={ selectionInfo <- paste(length(selectedPrecursorSet), " MS¹ feature selected", sep = "")  },
-          {     selectionInfo <- paste(length(selectedPrecursorSet), " MS¹ features selected", sep = "") }
+          "0"={ selectionInfo <- paste("The set of selected MS\u00B9 features is empty", sep = "")         },
+          "1"={ selectionInfo <- paste(length(selectedPrecursorSet), " MS\u00B9 feature selected", sep = "")  },
+          {     selectionInfo <- paste(length(selectedPrecursorSet), " MS\u00B9 features selected", sep = "") }
         )
       } else {
         if(selection == selectionAnalysisHcaName)
-          selectionInfo <- paste("Please select a cluster or MS¹ feature in the HCA plot", sep = "")
+          selectionInfo <- paste("Please select a cluster or MS\u00B9 feature in the HCA plot", sep = "")
         if(selection == selectionAnalysisPcaName)
           selectionInfo <- paste("Please select a loading in the PCA plot", sep = "")
         if(selection == selectionFragmentHcaName | selection == selectionFragmentPcaName)
           selectionInfo <- paste("Please select a fragment in the Fragment plot above", sep = "")
         if(selection == selectionSearchHcaName | selection == selectionSearchPcaName)
-          selectionInfo <- paste("Please select a set of MS¹ features in the 'Search' tab of the sidebar panel", sep = "")
+          selectionInfo <- paste("Please select a set of MS\u00B9 features in the 'Search' tab of the sidebar panel", sep = "")
       }
       
       output$selectionInfo <- renderText({
@@ -1997,8 +2004,10 @@ shinyServer(
       mzDeviationAbsolute_ms2PeakGroupDeisotoping <- input$mzDeviationAbsolute_ms2PeakGroupDeisotoping
       mzDeviationInPPM_ms2PeakGroupDeisotoping <- input$mzDeviationInPPM_ms2PeakGroupDeisotoping
       ## neutral losses
-      neutralLossesPrecursorToFragments <- input$neutralLossesPrecursorToFragments
-      neutralLossesFragmentsToFragments <- input$neutralLossesFragmentsToFragments
+      #neutralLossesPrecursorToFragments <- input$neutralLossesPrecursorToFragments
+      #neutralLossesFragmentsToFragments <- input$neutralLossesFragmentsToFragments
+      neutralLossesPrecursorToFragments <- TRUE
+      neutralLossesFragmentsToFragments <- FALSE
       
       ## fixed
       proportionOfMatchingPeaks_ms2PeakGroupDeisotopingHere <- proportionOfMatchingPeaks_ms2PeakGroupDeisotoping
@@ -2087,7 +2096,7 @@ shinyServer(
       }
       
       if(error){
-        output$fileInfo <- renderText({paste("There are invalid parameter values. Please check the parameters and press 'Import MS¹ and MS/MS data' again.")})
+        output$fileInfo <- renderText({paste("There are invalid parameter values. Please check the parameters and press 'Import MS\u00B9 and MS/MS data' again.")})
         return()
       }
       
@@ -2141,7 +2150,7 @@ shinyServer(
         return()
       }
       if(resultObj == "Number of spectra is zero"){
-        output$fileInfo <- renderText({paste("There are no MS/MS spectra which fulfill the given criteria. Please refine parameter 'Spectrum intensity' and try 'Import MS¹ and MS/MS data' again.")})
+        output$fileInfo <- renderText({paste("There are no MS/MS spectra which fulfill the given criteria. Please refine parameter 'Spectrum intensity' and try 'Import MS\u00B9 and MS/MS data' again.")})
         session$sendCustomMessage("enableButton", "importMs1Ms2Data")
         return()
       }
@@ -2208,8 +2217,8 @@ shinyServer(
       #parameterSet$proportionOfMatchingPeaks_ms2PeakGroupDeisotoping
       #parameterSet$mzDeviationAbsolute_mapping
       #parameterSet$minimumNumberOfMS2PeaksPerGroup
-      updateCheckboxInput(session = session, inputId = "neutralLossesPrecursorToFragments",           value = parameterSet$neutralLossesPrecursorToFragments)
-      updateCheckboxInput(session = session, inputId = "neutralLossesFragmentsToFragments",           value = parameterSet$neutralLossesFragmentsToFragments)
+      #updateCheckboxInput(session = session, inputId = "neutralLossesPrecursorToFragments",           value = parameterSet$neutralLossesPrecursorToFragments)
+      #updateCheckboxInput(session = session, inputId = "neutralLossesFragmentsToFragments",           value = parameterSet$neutralLossesFragmentsToFragments)
     })
     obsUpdateProjectDescription <- observeEvent(input$updateProjectDescription, {
       updateProjectDescription <- as.numeric(input$updateProjectDescription)
@@ -2311,7 +2320,7 @@ shinyServer(
       #################################################
       ## MS1 or MS2?
       searchMode <- input$searchMS1orMS2
-      if(searchMode == 'MS¹ feature mass'){
+      if(searchMode == 'MS\u00B9 feature mass'){
         #################################################
         ## get inputs
         filter_ms1_masses <- input$searchMS1mass
@@ -2549,9 +2558,11 @@ shinyServer(
         fragmentsX <<- NULL
         fragmentsY <<- NULL
         fragmentsColor <<- NULL
+        fragmentsDiscriminativity <<- NULL
         fragmentsXhovered <<- NULL
         fragmentsYhovered <<- NULL
-        fragmentshoveredColor <<- NULL
+        fragmentsColorHovered <<- NULL
+        fragmentsDiscriminativityHovered <<- NULL
       }
       
       ##########################
@@ -2581,7 +2592,7 @@ shinyServer(
       output$tip <- renderText({
         print(paste("update output$tip"))
         paste(
-          "Hover or select a cluster node or leaf node to view information about the corresponding MS¹ feature cluster or MS¹ feature respectively.", 
+          "Hover or select a cluster node or leaf node to view information about the corresponding MS\u00B9 feature cluster or MS\u00B9 feature respectively.", 
           "Brush horizontally and double-click to zoom in.", 
           "Double-click to zoom out.", 
           sep = "\n"
@@ -2645,9 +2656,11 @@ shinyServer(
         fragmentsX <<- NULL
         fragmentsY <<- NULL
         fragmentsColor <<- NULL
+        fragmentsDiscriminativity <<- NULL
         fragmentsXhovered <<- NULL
         fragmentsYhovered <<- NULL
-        fragmentshoveredColor <<- NULL
+        fragmentsColorHovered <<- NULL
+        fragmentsDiscriminativityHovered <<- NULL
       }
       
       ##########################
@@ -2677,7 +2690,7 @@ shinyServer(
       })
       output$tip <- renderText({
         print(paste("update output$tip"))
-        paste("Hover a score node in the scores plot or a loadings node in the loadings plot to view information about the corresponding sample or MS¹ feature respectively.", "Brush and double-click to zoom in.", "Double-click to zoom out.", sep = "\n")
+        paste("Hover a score node in the scores plot or a loadings node in the loadings plot to view information about the corresponding sample or MS\u00B9 feature respectively.", "Brush and double-click to zoom in.", "Double-click to zoom out.", sep = "\n")
       })
     })
     ## listen to dendrogram/heatmap plot mouse events
@@ -2711,7 +2724,8 @@ shinyServer(
           ## reverse MS2 to clicked stuff
           fragmentsXhovered <<- NULL
           fragmentsYhovered <<- NULL
-          fragmentshoveredColor <<- NULL
+          fragmentsColorHovered <<- NULL
+          fragmentsDiscriminativityHovered <<- NULL
           #output$information <- renderText({
           #  print(paste("update output$information", resultObj$infoText))
           #  paste("", sep = "")
@@ -2719,10 +2733,11 @@ shinyServer(
         } else {
           #################################################
           ## fetch ms2 spectrum
-          resultObj <- getMS2spectrum(dataList = dataList, clusterDataList = clusterDataList, clusterLabel = minimumLabel)
+          resultObj <- getMS2spectrum(dataList = dataList, clusterDataList = clusterDataList, treeLabel = minimumLabel)
           fragmentsXhovered <<- resultObj$fragmentMasses
           fragmentsYhovered <<- resultObj$fragmentAbundances
-          fragmentshoveredColor <<- resultObj$fragmentColor
+          fragmentsColorHovered <<- resultObj$fragmentColor
+          fragmentsDiscriminativityHovered <<- resultObj$fragmentDiscriminativity
           
           #################################################
           ## output as message
@@ -2738,7 +2753,7 @@ shinyServer(
       
       output$tip <- renderText({
         print(paste("update output$tip"))
-        paste("Hover a cluster node or leaf node to view information about the corresponding MS¹ feature cluster or MS¹ feature respectively.", "Brush horizontally and double-click to zoom in.", "Double-click to zoom out.", sep = "\n")
+        paste("Hover a cluster node or leaf node to view information about the corresponding MS\u00B9 feature cluster or MS\u00B9 feature respectively.", "Brush horizontally and double-click to zoom in.", "Double-click to zoom out.", sep = "\n")
       })
     })
     obsDendrogramClick <- observeEvent(input$plotDendrogram_click, {
@@ -2769,9 +2784,11 @@ shinyServer(
         fragmentsX <<- NULL
         fragmentsY <<- NULL
         fragmentsColor <<- NULL
+        fragmentsDiscriminativity <<- NULL
         fragmentsXhovered <<- NULL
         fragmentsYhovered <<- NULL
-        fragmentshoveredColor <<- NULL
+        fragmentsColorHovered <<- NULL
+        fragmentsDiscriminativityHovered <<- NULL
         
         selectionByAnalysisReset()
         selectionByFragmentReset()
@@ -2781,7 +2798,7 @@ shinyServer(
         #minimumText <- clusterDataList$poiText[[minimumIndex]]
         
         ## fetch ms2 spectrum
-        resultObj <- getMS2spectrum(dataList = dataList, clusterDataList = clusterDataList, clusterLabel = minimumLabel)
+        resultObj <- getMS2spectrum(dataList = dataList, clusterDataList = clusterDataList, treeLabel = minimumLabel)
         
         ## keep fragment selection
         selectionFragmentSelectedFragmentIndexNew <- NULL
@@ -2794,9 +2811,11 @@ shinyServer(
         fragmentsX <<- resultObj$fragmentMasses
         fragmentsY <<- resultObj$fragmentAbundances
         fragmentsColor <<- resultObj$fragmentColor
+        fragmentsDiscriminativity <<- resultObj$fragmentDiscriminativity
         fragmentsXhovered <<- NULL
         fragmentsYhovered <<- NULL
-        fragmentshoveredColor <<- NULL
+        fragmentsColorHovered <<- NULL
+        fragmentsDiscriminativityHovered <<- NULL
         
         #################################################
         ## output as message
@@ -2877,7 +2896,7 @@ shinyServer(
       precursorIndex <- filterHca$filter[[treeLeafIndex]]
       
       msg <- list()
-      msg[[length(msg) + 1]] <- "MS¹ feature: "
+      msg[[length(msg) + 1]] <- "MS\u00B9 feature: "
       msg[[length(msg) + 1]] <- dataList$precursorLabels[[precursorIndex]]
       msg[[length(msg) + 1]] <- "\n"
       
@@ -2938,10 +2957,10 @@ shinyServer(
       } else {
         ## point selected
         fragmentIndex <- which(dataList$fragmentMasses == fragmentsX[[minimumIndex]])
-        numberOfPrecursors <- sum(dataList$featureMatrix [, fragmentIndex] != 0)
+        numberOfPrecursors <- sum(dataList$featureMatrix[clusterDataList$filter, fragmentIndex] != 0)
         output$information <- renderText({
           print(paste("update output$information"))
-          paste("Fragment with m/z = ", fragmentsX[[minimumIndex]], " and (average) abundance = ", fragmentsY[[minimumIndex]], " is present in ", numberOfPrecursors, " MS/MS spectra.", sep = "")
+          paste("Fragment with m/z = ", fragmentsX[[minimumIndex]], " and (average) abundance = ", format(x = fragmentsY[[minimumIndex]], digits = 0, nsmall = 4), " is present in ", numberOfPrecursors, " MS/MS spectra.", sep = "")
         })
       }
       output$tip <- renderText({
@@ -3138,9 +3157,11 @@ shinyServer(
         fragmentsX <<- NULL
         fragmentsY <<- NULL
         fragmentsColor <<- NULL
+        fragmentsDiscriminativity <<- NULL
         fragmentsXhovered <<- NULL
         fragmentsYhovered <<- NULL
-        fragmentshoveredColor <<- NULL
+        fragmentsColorHovered <<- NULL
+        fragmentsDiscriminativityHovered <<- NULL
         
         selectionByAnalysisReset()
         selectionByFragmentReset()
@@ -3161,9 +3182,11 @@ shinyServer(
         fragmentsX <<- resultObj$fragmentMasses
         fragmentsY <<- resultObj$fragmentAbundances
         fragmentsColor <<- resultObj$fragmentColor
+        fragmentsDiscriminativity <<- resultObj$fragmentDiscriminativity
         fragmentsXhovered <<- NULL
         fragmentsYhovered <<- NULL
-        fragmentshoveredColor <<- NULL
+        fragmentsColorHovered <<- NULL
+        fragmentsDiscriminativityHovered <<- NULL
         
         selectionByPca(minimumIndex)
         
@@ -3217,11 +3240,13 @@ shinyServer(
           ## reverse MS2 to clicked stuff
           fragmentsXhovered <<- NULL
           fragmentsYhovered <<- NULL
-          fragmentshoveredColor <<- NULL
+          fragmentsColorHovered <<- NULL
+          fragmentsDiscriminativityHovered <<- NULL
         } else {
           fragmentsXhovered <<- resultObj$fragmentMasses
           fragmentsYhovered <<- resultObj$fragmentAbundances
-          fragmentshoveredColor <<- resultObj$fragmentColor
+          fragmentsColorHovered <<- resultObj$fragmentColor
+          fragmentsDiscriminativityHovered <<- resultObj$fragmentDiscriminativity
         }
         
         output$information <- renderText({
@@ -3235,7 +3260,7 @@ shinyServer(
       output$tip <- renderText({
         print(paste("update output$tip"))
         paste(
-          "Hover or click a loadings node to view information about the corresponding MS¹ feature.", 
+          "Hover or click a loadings node to view information about the corresponding MS\u00B9 feature.", 
           "Brush and double-click to zoom in.", 
           "Double-click to zoom out.", 
           sep = "\n"
@@ -3733,7 +3758,7 @@ shinyServer(
                     h5("PCA loadings"),
                     bsTooltip(id = "showLoadingsLabels", title = "Display loadings labels", placement = "bottom", trigger = "hover"),
                     checkboxInput(inputId = "showLoadingsLabels", label = "Show labels", value = FALSE),
-                    bsTooltip(id = "showLoadingsAbundance", title = "Use abundance in MS¹ to scale the size of loadings nodes", placement = "bottom", trigger = "hover"),
+                    bsTooltip(id = "showLoadingsAbundance", title = "Use abundance in MS\u00B9 to scale the size of loadings nodes", placement = "bottom", trigger = "hover"),
                     checkboxInput(inputId = "showLoadingsAbundance", label = "Show abundance", value = FALSE)
                 #  )
                 #)
@@ -3744,7 +3769,7 @@ shinyServer(
                 #  style = "border: 1px solid silver;padding: 0px 6px;",
                 #  div(
                     h5("HCA dendrogram"),
-                    bsTooltip(id = "showClusterLabels", title = "Display the labels of cluster nodes and MS¹ feature nodes representing the number of characteristic fragments", placement = "bottom", trigger = "hover"),
+                    bsTooltip(id = "showClusterLabels", title = "Display the labels of cluster nodes and MS\u00B9 feature nodes representing the number of characteristic fragments", placement = "bottom", trigger = "hover"),
                     checkboxInput(inputId = "showClusterLabels", label = "Show labels", value = TRUE)
                 #  )
                 #)
@@ -3836,10 +3861,10 @@ shinyServer(
            condition = '(output.showHCAplotPanel && output.analysisType == "HCA") || (output.showPCAplotPanel && output.analysisType == "PCA")',
            fluidRow(
              wellPanel(
-               h4("MS¹ feature selections"),
-               bsTooltip(id = "changeSelection", title = "Switch MS¹ feature selection", placement = "bottom", trigger = "hover"),
+               h4("MS\u00B9 feature selections"),
+               bsTooltip(id = "changeSelection", title = "Switch MS\u00B9 feature selection", placement = "bottom", trigger = "hover"),
                radioButtons(inputId = "changeSelection", label = NULL, choices = c(selectionAnalysisName, selectionFragmentName, selectionSearchName), selected = changeSelectionCurrentSelection, inline = TRUE),
-               bsTooltip(id = "selectionInfo", title = "The number of MS¹ features in the current selection", placement = "bottom", trigger = "hover"),
+               bsTooltip(id = "selectionInfo", title = "The number of MS\u00B9 features in the current selection", placement = "bottom", trigger = "hover"),
                hr(),
                verbatimTextOutput("selectionInfo"),
                conditionalPanel(
@@ -3848,9 +3873,9 @@ shinyServer(
                    tabPanel(title = precursorSelectionTabSelection, 
                      wellPanel(
                        ## selection infos
-                       bsTooltip(id = "metFragLink", title = "Press to send the current MS¹ feature as well as the corresponding MS/MS spectrum to MetFrag", placement = "bottom", trigger = "hover"),
+                       bsTooltip(id = "metFragLink", title = "Press to send the current MS\u00B9 feature as well as the corresponding MS/MS spectrum to MetFrag", placement = "bottom", trigger = "hover"),
                        htmlOutput(outputId = "metFragLink"),
-                       bsTooltip(id = "downloadSelectedPrecursors", title = "Download a project file which is reduced to the selected set of MS¹ features", placement = "bottom", trigger = "hover"),
+                       bsTooltip(id = "downloadSelectedPrecursors", title = "Download a project file which is reduced to the selected set of MS\u00B9 features", placement = "bottom", trigger = "hover"),
                        downloadButton('downloadSelectedPrecursors', 'Download reduced project file'),
                        bsTooltip(id = "clearSelection", title = "Press to clear this selection", placement = "bottom", trigger = "hover"),
                        actionButton(inputId = "clearSelection", label = "Clear selection", class="btn-success")
@@ -3862,17 +3887,17 @@ shinyServer(
                         fluidRow(
                           column(
                             width = 3,
-                            bsTooltip(id = "presentAnnotationValue", title = "The set of present annotations for the set of selected MS¹ features", placement = "bottom", trigger = "hover"),
+                            bsTooltip(id = "presentAnnotationValue", title = "The set of present annotations for the set of selected MS\u00B9 features", placement = "bottom", trigger = "hover"),
                             selectInput(inputId = "presentAnnotationValue", label = NULL, choices = c("[init]"), selectize = FALSE)
                           ),## column
                           column(
                             width = 3,
-                            bsTooltip(id = "setPresentAnnotationPrimary", title = "Sets the selected annotation primary for the set of selected MS¹ features; i.e. this annotation will be used preferentially for coloring in HCA and PCA", placement = "bottom", trigger = "hover"),
+                            bsTooltip(id = "setPresentAnnotationPrimary", title = "Sets the selected annotation primary for the set of selected MS\u00B9 features; i.e. this annotation will be used preferentially for coloring in HCA and PCA", placement = "bottom", trigger = "hover"),
                             actionButton(inputId = "setPresentAnnotationPrimary", label = "Set primary", class="btn-success")
                           ),## column
                           column(
                             width = 6,
-                            bsTooltip(id = "removePresentAnnotation", title = "Removes the selected annotation from the set of selected MS¹ features", placement = "bottom", trigger = "hover"),
+                            bsTooltip(id = "removePresentAnnotation", title = "Removes the selected annotation from the set of selected MS\u00B9 features", placement = "bottom", trigger = "hover"),
                             actionButton(inputId = "removePresentAnnotation", label = "Remove annotation", class="btn-success")
                           )## column
                         ),##row
@@ -3885,7 +3910,7 @@ shinyServer(
                             #colourInput(inputId = "newAnnotationColor", label = "Select annotation color", palette = "limited", showColour = "background", allowedCols = c("blue")),
                             bsTooltip(id = "newAnnotationColor", title = "The color of this annotation", placement = "bottom", trigger = "hover"),
                             colourInput(inputId = "newAnnotationColor", label = "Select annotation color", palette = "limited", showColour = "background", allowedCols = colorPalette()),
-                            bsTooltip(id = "submitNewAnnotation", title = "Adds this annotation to the set of selected MS¹ features", placement = "bottom", trigger = "hover"),
+                            bsTooltip(id = "submitNewAnnotation", title = "Adds this annotation to the set of selected MS\u00B9 features", placement = "bottom", trigger = "hover"),
                             actionButton(inputId = "submitNewAnnotation", label = "Add new annotation", class="btn-success")
                           ),
                           column(
@@ -3893,7 +3918,7 @@ shinyServer(
                             h4("Add previous annotation"),
                             bsTooltip(id = "previousAnnotationValue", title = "The set of annotations which have been assigned before", placement = "bottom", trigger = "hover"),
                             selectInput(inputId = "previousAnnotationValue", label = "Select previous annotation", choices = c("Artifact"), selectize = FALSE),
-                            bsTooltip(id = "submitPreviousAnnotation", title = "Adds this annotation to the set of selected MS¹ features", placement = "bottom", trigger = "hover"),
+                            bsTooltip(id = "submitPreviousAnnotation", title = "Adds this annotation to the set of selected MS\u00B9 features", placement = "bottom", trigger = "hover"),
                             actionButton(inputId = "submitPreviousAnnotation", label = "Add previous annotation", class="btn-success")
                           )
                         )
@@ -3901,9 +3926,9 @@ shinyServer(
                    ),## tab
                    tabPanel(title = precursorSelectionTabTable, 
                       wellPanel(
-                        h4("Selected MS¹ features"),
-                        bsTooltip(id = "updateArtifactsFromCheckboxes", title = "Adds the annotation \\'ignore\\' to the set of checked MS¹ features", placement = "bottom", trigger = "hover"),
-                        actionButton(inputId = "updateArtifactsFromCheckboxes", label = "Apply annotation 'Ignore' to MS¹ features", class="btn-success"),
+                        h4("Selected MS\u00B9 features"),
+                        bsTooltip(id = "updateArtifactsFromCheckboxes", title = "Adds the annotation \\'ignore\\' to the set of checked MS\u00B9 features", placement = "bottom", trigger = "hover"),
+                        actionButton(inputId = "updateArtifactsFromCheckboxes", label = "Apply annotation 'Ignore' to MS\u00B9 features", class="btn-success"),
                         DT::dataTableOutput("table")
                       )## well
                    )## tab
@@ -4553,7 +4578,7 @@ shinyServer(
       ###################
       ## search
       searchMode <- paramsListsearchMS1orMS2
-      if(searchMode == 'MS¹ feature mass'){
+      if(searchMode == 'MS\u00B9 feature mass'){
         #################################################
         ## get inputs
         filter_ms1_masses <- paramsListsearchMS1mass

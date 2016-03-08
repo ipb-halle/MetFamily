@@ -365,11 +365,13 @@ builtMatrix <- function(spectraList, mzDeviationAbsolute_grouping, mzDeviationIn
   if(progress)  incProgress(amount = 0.005, detail = paste("Fragment grouping preprocessing ready", sep = "")) else print(paste("Fragment grouping preprocessing ready", sep = ""))
   if(progress)  incProgress(amount = 0,     detail = paste("Fragment grouping", sep = "")) else print(paste("Fragment grouping", sep = ""))
   
-  resultObj <- xcms:::mzClustGeneric(
+  #resultObj <- xcms:::mzClustGeneric(
+  resultObj <- mzClustGeneric(
     p = matrix(data = c(fragment_mz, fragment_spec), nrow = numberOfMS2Peaks, ncol = 2), 
     sampclass = NULL, 
     mzppm = mzDeviationInPPM_grouping, mzabs = mzDeviationAbsolute_grouping, 
-    minsamp = 1, minfrac = 0
+    minsamp = 1, minfrac = 0,
+    progress
   )
   if(progress)  incProgress(amount = 0.2,     detail = paste("Fragment grouping ready", sep = "")) else print(paste("Fragment grouping ready", sep = ""))
   
@@ -536,6 +538,175 @@ builtMatrix <- function(spectraList, mzDeviationAbsolute_grouping, mzDeviationIn
   
   return(returnObj)
 }
+## adapted from xcms_1.44.0, R/mzClust.R
+mzClustGeneric <- function(p, sampclass=NULL, mzppm = 20, mzabs = 0, minsamp = 1, minfrac=0.5, progress = FALSE){
+  makeBin <- function(pos){
+    if(pos > numpeaks)
+      return(list(pos=pos,bin=c(-1)))
+    
+    bin <- pord[pos]
+    pos <- pos+1
+    basepeak <- p[bin[1],1]
+    error_range <- c(basepeak, basepeak*error_window+basepeak+2*mzabs)
+    while(pos < numpeaks && p[pord[pos],1] <= error_range[2]) {
+      bin <- c(bin,pord[pos])
+      pos <- pos + 1
+    }
+    
+    #if(pos %% (numpeaks%/%100+1) == 0) {
+    #  cat(format(((pos-1)/numpeaks*100),digits=1,nsmall=2)," ")
+    #  flush.console()
+    #}
+    
+    lst <- list(pos=pos,bin=bin)
+    lst
+  }
+  meanDeviationOverLimit <- function(bin){
+    bin_mz <- p[bin,1]
+    m <- mean(bin_mz)
+    error_range <- c(m-ppm_error*m-mzabs, ppm_error*m+m+mzabs)
+    if(length(bin_mz[(bin_mz > error_range[2]) |
+                     (bin_mz < error_range[1])]) > 0 ) {
+      return(TRUE)
+    } else { FALSE }
+  }
+  bin2output <- function(bin){
+    gcount <- integer(length(classnum))
+    if(length(gcount) != 0){
+      for(i in seq(along = bin)){
+        class_idx <- sampclass[p[bin[i],2]]
+        gcount[class_idx] <- gcount[class_idx] + 1
+      }
+    }
+    ## make sure, that if no classes given, 'any' is false
+    if(length(bin) < minsamp || (!any(gcount >= classnum*minfrac) && length(gcount)>0))
+      return(list())
+    groupvec <- c(rep(NA,4+length(gcount)))
+    groupvec[1] <- mean(p[bin,1])
+    groupvec[2:3] <- range(p[bin,1])
+    groupvec[4] <- length(bin)
+    sorted <- order(p[bin,1])
+    grp_members <- bin[sorted]
+    groupvec[4+seq(along = gcount)] <- gcount
+    lst <- list(stat=groupvec,members=grp_members)
+    lst
+  }
+  ppm_error <- mzppm/1000000
+  error_window <- 2*ppm_error
+  
+  ## numeric version of classlabel
+  if(is.null(sampclass)){
+    classnum <- integer(0)
+    classnames <- seq(along=classnum)
+  } else {
+    classnames <- levels(sampclass)
+    sampclass <- as.vector(unclass(sampclass))
+    
+    classnum <- integer(max(sampclass))
+  }
+  
+  for(i in seq(along = classnum))
+    classnum[i] <- sum(sampclass == i)
+  
+  numpeaks <- nrow(p)
+  
+  groupmat <- matrix(nrow = 512, ncol = 4 + length(classnum))
+  groupindex <- vector("list", 512)
+  
+  pord <- order(p[,1])
+  pos <- c(1)
+  binNumber <- 1
+  newbin <- makeBin(pos)
+  binA <- newbin$bin
+  pos <- newbin$pos
+  
+  lastOut <- proc.time()["user.self"]
+  lastPos <- 1
+  while(TRUE){
+    if(binNumber +4 > nrow(groupmat)){
+      groupmat <- rbind(groupmat, matrix(nrow = nrow(groupmat), ncol = ncol(groupmat)))
+      groupindex <- c(groupindex, vector("list", length(groupindex)))
+    }
+    
+    time <- proc.time()["user.self"]
+    if(time - lastOut > 1){
+      lastOut <- time
+      peakProgress <- (pos - lastPos) / numpeaks
+      lastPos <- pos
+      if(progress)  incProgress(amount = peakProgress * 0.2,     detail = paste("Fragment grouping ", pos, " / ", numpeaks, sep = "")) else print(paste("Fragment grouping ", pos, " / ", numpeaks, sep = ""))
+    }
+    
+    newbin <- makeBin(pos)
+    binB <- newbin$bin
+    pos <- newbin$pos
+    
+    if(binB[1] < 0){
+      out <- bin2output(binA)
+      if(length(out) != 0){
+        groupmat[binNumber,] <- out$stat
+        groupindex[[binNumber]] <- out$members
+        binNumber <- binNumber + 1
+      }
+      break
+    }
+    max_binA <- max(p[binA,1])
+    min_binB <- min(p[binB,1])
+    
+    binclust <- 0
+    if(max_binA + max_binA*error_window+2*mzabs >= min_binB && min_binB - min_binB*error_window - 2*mzabs <= max_binA){
+      binC <- c(binA,binB)
+      binclust <- 1
+    } else {
+      if(meanDeviationOverLimit(binA)){
+        binC <- binA
+        binclust <- 2
+      }
+    }
+    
+    ## case: not in range or mean deviation over limit
+    ## perform hierarchical clustering
+    if(binclust != 0){
+      groups <- xcms:::mzClust_hclust(p[binC,1],ppm_error,mzabs)
+      
+      last_group <- groups[which.max(p[binC,1])]
+      binA <- binC[which(groups == last_group)]
+      if(max(groups) >1){
+        for(c in 1:max(groups)){
+          if(c == last_group){
+            next
+          }
+          tmp_grp <- which(groups == c)
+          tmp_c <- binC[tmp_grp]
+          out <- bin2output(tmp_c)
+          if(length(out) != 0){
+            groupmat[binNumber,] <- out$stat
+            groupindex[[binNumber]] <- out$members
+            binNumber <- binNumber + 1
+          }
+        }
+      }
+    }
+    
+    if(binclust != 1){
+      out <- bin2output(binA)
+      if(length(out) != 0){
+        groupmat[binNumber,] <- out$stat
+        groupindex[[binNumber]] <- out$members
+        binNumber <- binNumber + 1
+      }
+      binA <- binB
+    }
+  }
+  colnames(groupmat) <- c("mzmed", "mzmin", "mzmax", "npeaks", classnames)
+  
+  binNumber <- binNumber - 1
+  groupmat <- groupmat[seq(length = binNumber), ]
+  groupindex <- groupindex[seq(length = binNumber)]
+  cat("\n")
+  flush.console()
+  return(list(mat=groupmat,idx=groupindex))
+}
+
 builtMatrixOld <- function(spectraList, mzDeviationAbsolute_grouping, mzDeviationInPPM_grouping, doMs2PeakGroupDeisotoping, mzDeviationAbsolute_ms2PeakGroupDeisotoping, mzDeviationInPPM_ms2PeakGroupDeisotoping, proportionOfMatchingPeaks_ms2PeakGroupDeisotoping, progress = FALSE){
   
   if(progress)  incProgress(amount = 0.005, detail = paste("Fragment grouping preprocessing...", sep = "")) else print(paste("Fragment grouping preprocessing...", sep = ""))
@@ -586,11 +757,6 @@ builtMatrixOld <- function(spectraList, mzDeviationAbsolute_grouping, mzDeviatio
         groupIdxForMS2Peak <- length(ms2PeakGroupList) + 1
         
         ms2PeakGroupList[[groupIdxForMS2Peak]] <- ms2Peak_mz
-        
-        # ms2PeakGroupList[[groupIdxForMS2Peak]] <- vector(mode = "numeric", length = 1)
-        # 
-        # ## update MS2 peak group
-        # ms2PeakGroupList[[groupIdxForMS2Peak]][[1]] <- ms2Peak$mz
         muList[[groupIdxForMS2Peak]] <- ms2Peak_mz
       }
       
@@ -598,18 +764,6 @@ builtMatrixOld <- function(spectraList, mzDeviationAbsolute_grouping, mzDeviatio
       matrixRows[[itemIndex]] <- spectrumIdx
       matrixCols[[itemIndex]] <- groupIdxForMS2Peak
       matrixVals[[itemIndex]] <- ms2Peak_int
-      
-      # ## update MS2 peak group
-      # ms2PeakGroupList[[groupIdxForMS2Peak]][[length(ms2PeakGroupList[[groupIdxForMS2Peak]]) + 1]] <- ms2Peak$mz
-      # #muList[[groupIdxForMS2Peak]] <- median(x = unlist(ms2PeakGroupList[[groupIdxForMS2Peak]], use.names = FALSE))
-      # muList[[groupIdxForMS2Peak]] <- mean(x = unlist(ms2PeakGroupList[[groupIdxForMS2Peak]], use.names = FALSE))
-      
-      # ## handle unlisted list
-      # if(newGroupCreated){
-      #   muListUnlisted <- unlist(muList, use.names = FALSE)
-      # } else {
-      #   muListUnlisted[[groupIdxForMS2Peak]] <- muList[[groupIdxForMS2Peak]]
-      # }
       
       itemIndex <- itemIndex + 1
     }
@@ -649,7 +803,7 @@ builtMatrixOld <- function(spectraList, mzDeviationAbsolute_grouping, mzDeviatio
   #rm(matrixVals)
   #gc()
   
-  
+  ## order
   orderTempCol <- order(fragmentMasses)
   matrix <- matrix[, orderTempCol]
   fragmentMasses <- fragmentMasses[orderTempCol]
@@ -1034,7 +1188,8 @@ convertToProjectFile <- function(filePeakMatrix, fileSpectra, parameterSet, prog
   #print("building matrix...")
   
   if(progress)  incProgress(amount = 0.01, detail = paste("Building fragment groups...", sep = "")) else print(paste("Building fragment groups...", sep = ""))
-  returnObj <- builtMatrix(
+  #returnObj <- builtMatrix(
+  returnObj <- builtMatrixOld(
     spectraList = spectraList, 
     mzDeviationAbsolute_grouping = parameterSet$mzDeviationAbsolute_grouping, 
     mzDeviationInPPM_grouping = parameterSet$mzDeviationInPPM_grouping, 
