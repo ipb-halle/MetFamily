@@ -64,15 +64,15 @@ shinyServer(
     selectionAnalysisPcaName <- "Analysis_PCA"
     selectionFragmentHcaName <- "Fragment_HCA"
     selectionFragmentPcaName <- "Fragment_PCA"
-    selectionSearchHcaName <- "Search_HCA"
-    selectionSearchPcaName <- "Search_PCA"
+    selectionSearchHcaName   <- "Search_HCA"
+    selectionSearchPcaName   <- "Search_PCA"
     ## GUI
     runRightColumnWidthFull <- 12
     legendColumnWidthFull <- 2
     runRightColumnWidthPart <- 8
     legendColumnWidthPart <- 2
     annoLegendEntryHeight <- 20
-    scoresGroupsLegendEntryHeight <- 25
+    scoresGroupsLegendEntryHeight <- 20
     maximumNumberOfTableEntries <- 50
     
     ##############################################
@@ -463,8 +463,8 @@ shinyServer(
       #dataList$importParameterSet$proportionOfMatchingPeaks_ms2PeakGroupDeisotoping
       #dataList$importParameterSet$mzDeviationAbsolute_mapping
       #dataList$importParameterSet$minimumNumberOfMS2PeaksPerGroup
-      #updateCheckboxInput(session = session, inputId = "neutralLossesPrecursorToFragments2",           value = dataList$importParameterSet$neutralLossesPrecursorToFragments)
-      #updateCheckboxInput(session = session, inputId = "neutralLossesFragmentsToFragments2",           value = dataList$importParameterSet$neutralLossesFragmentsToFragments)
+      updateCheckboxInput(session = session, inputId = "neutralLossesPrecursorToFragments2",           value = dataList$importParameterSet$neutralLossesPrecursorToFragments)
+      updateCheckboxInput(session = session, inputId = "neutralLossesFragmentsToFragments2",           value = dataList$importParameterSet$neutralLossesFragmentsToFragments)
       
       shinyjs::toggleState("minimumIntensityOfMaximalMS2peak2", FALSE)
       shinyjs::toggleState("minimumProportionOfMS2peaks2", FALSE)
@@ -477,8 +477,8 @@ shinyServer(
       shinyjs::toggleState("doMs2PeakGroupDeisotoping2", FALSE)
       shinyjs::toggleState("mzDeviationAbsolute_ms2PeakGroupDeisotoping2", FALSE)
       shinyjs::toggleState("mzDeviationInPPM_ms2PeakGroupDeisotoping2", FALSE)
-      #shinyjs::toggleState("neutralLossesPrecursorToFragments2", FALSE)
-      #shinyjs::toggleState("neutralLossesFragmentsToFragments2", FALSE)
+      shinyjs::toggleState("neutralLossesPrecursorToFragments2", FALSE)
+      shinyjs::toggleState("neutralLossesFragmentsToFragments2", FALSE)
       
       ## MS2 plot range
       resetMS2PlotRange()
@@ -804,12 +804,14 @@ shinyServer(
       fileMs1Name <- input$ms1DataFile$name
       fileMs2Path <- input$ms2DataFile$datapath
       fileMs2Name <- input$ms2DataFile$name
-      exampleDataSelection <- input$exampleDataSelection
+      #exampleDataSelection <- input$exampleDataSelection
       
-      if(all(fileInputSelection == "Example data", exampleDataSelection == "Example data set (full)"))
+      if(all(fileInputSelection == "Example data"))
         output$fileInfo <- renderText({paste("Please press 'Load example data' to load the full example data set")})
-      if(all(fileInputSelection == "Example data", exampleDataSelection == "Example data set (reduced)"))
-        output$fileInfo <- renderText({paste("Please press 'Load example data' to load the reduced example data set")})
+      #if(all(fileInputSelection == "Example data", exampleDataSelection == "Example data set (full)"))
+      #  output$fileInfo <- renderText({paste("Please press 'Load example data' to load the full example data set")})
+      #if(all(fileInputSelection == "Example data", exampleDataSelection == "Example data set (reduced)"))
+      #  output$fileInfo <- renderText({paste("Please press 'Load example data' to load the reduced example data set")})
       if(all(fileInputSelection == "Load project", is.null(filePath)))
         output$fileInfo <- renderText({paste("Please select a project file and press 'Load project data'")})
       if(all(fileInputSelection == "Load project", !is.null(filePath), any(is.null(state$importedOrLoadedFile_s_), fileName != state$importedOrLoadedFile_s_)))
@@ -863,6 +865,10 @@ shinyServer(
       })
       output$plotMS2Legend <- renderPlot({
         print(paste("reset output$plotMS2Legend"))
+        NULL
+      })
+      output$plotFragmentDiscriminativityLegend <- renderPlot({
+        print(paste("reset output$plotFragmentDiscriminativityLegend"))
         NULL
       })
     }
@@ -1018,6 +1024,15 @@ shinyServer(
     }
     drawDendrogramLegendImpl <- function(){
       calcPlotDendrogramLegend()
+    }
+    drawFragmentDiscriminativityLegend <- function(consoleInfo = NULL){
+      output$plotFragmentDiscriminativityLegend <- renderPlot({
+        print(paste("### leg ###", consoleInfo))
+        drawFragmentDiscriminativityLegendImpl()
+      })
+    }
+    drawFragmentDiscriminativityLegendImpl <- function(){
+      calcPlotDiscriminativityLegend()
     }
     drawFragmentPlot <- function(consoleInfo = NULL){
       output$fragmentPlot <- renderPlot({
@@ -1878,25 +1893,28 @@ shinyServer(
         return()
       loadProjectDataButtonValue <<- loadExampleData
       
-      exampleDataSelection <- input$exampleDataSelection
+      #exampleDataSelection <- input$exampleDataSelection
       
       #################################################
       ## files
       ## TODO relative paths or as R package
-      if(exampleDataSelection == "Example data set (full)"){
-        filePath <- paste(shinyAppFolder, "files/Fragment_matrix_showcase.csv", sep = "")
-        fileName <- "Fragment_matrix_showcase.csv"
-      }
-      if(exampleDataSelection == "Example data set (reduced)"){
-        filePath <- paste(shinyAppFolder, "files/Project_file_showcase_reduced.csv.gz", sep = "")
-        fileName <- "Project_file_showcase.csv.gz"
-      }
+      #filePath <- paste(shinyAppFolder, "files/Fragment_matrix_showcase.csv", sep = "")
+      filePath <- paste(shinyAppFolder, "files/Project_file_showcase_annotated.csv.gz", sep = "")
+      fileName <- "Fragment_matrix_showcase.csv"
+      #if(exampleDataSelection == "Example data set (full)"){
+      #  filePath <- paste(shinyAppFolder, "files/Fragment_matrix_showcase.csv", sep = "")
+      #  fileName <- "Fragment_matrix_showcase.csv"
+      #}
+      #if(exampleDataSelection == "Example data set (reduced)"){
+      #  filePath <- paste(shinyAppFolder, "files/Project_file_showcase_reduced.csv.gz", sep = "")
+      #  fileName <- "Project_file_showcase.csv.gz"
+      #}
       
       loadProjectFile(filePath = filePath, fileName = fileName, buttonId = "loadExampleData")
     })
-    obsExampleDataSelection <- observeEvent(input$exampleDataSelection, {
-      updateFileInputInfo()
-    })
+    #obsExampleDataSelection <- observeEvent(input$exampleDataSelection, {
+    #  updateFileInputInfo()
+    #})
     loadProjectFile <- function(filePath, fileName, buttonId){
       #########################################################################################
       ## read data
@@ -2004,10 +2022,10 @@ shinyServer(
       mzDeviationAbsolute_ms2PeakGroupDeisotoping <- input$mzDeviationAbsolute_ms2PeakGroupDeisotoping
       mzDeviationInPPM_ms2PeakGroupDeisotoping <- input$mzDeviationInPPM_ms2PeakGroupDeisotoping
       ## neutral losses
-      #neutralLossesPrecursorToFragments <- input$neutralLossesPrecursorToFragments
-      #neutralLossesFragmentsToFragments <- input$neutralLossesFragmentsToFragments
-      neutralLossesPrecursorToFragments <- TRUE
-      neutralLossesFragmentsToFragments <- FALSE
+      neutralLossesPrecursorToFragments <- input$neutralLossesPrecursorToFragments
+      neutralLossesFragmentsToFragments <- input$neutralLossesFragmentsToFragments
+      #neutralLossesPrecursorToFragments <- TRUE
+      #neutralLossesFragmentsToFragments <- FALSE
       
       ## fixed
       proportionOfMatchingPeaks_ms2PeakGroupDeisotopingHere <- proportionOfMatchingPeaks_ms2PeakGroupDeisotoping
@@ -2217,8 +2235,8 @@ shinyServer(
       #parameterSet$proportionOfMatchingPeaks_ms2PeakGroupDeisotoping
       #parameterSet$mzDeviationAbsolute_mapping
       #parameterSet$minimumNumberOfMS2PeaksPerGroup
-      #updateCheckboxInput(session = session, inputId = "neutralLossesPrecursorToFragments",           value = parameterSet$neutralLossesPrecursorToFragments)
-      #updateCheckboxInput(session = session, inputId = "neutralLossesFragmentsToFragments",           value = parameterSet$neutralLossesFragmentsToFragments)
+      updateCheckboxInput(session = session, inputId = "neutralLossesPrecursorToFragments",           value = parameterSet$neutralLossesPrecursorToFragments)
+      updateCheckboxInput(session = session, inputId = "neutralLossesFragmentsToFragments",           value = parameterSet$neutralLossesFragmentsToFragments)
     })
     obsUpdateProjectDescription <- observeEvent(input$updateProjectDescription, {
       updateProjectDescription <- as.numeric(input$updateProjectDescription)
@@ -2255,6 +2273,10 @@ shinyServer(
       ## restore gui state
       updateCheckboxInput(session = session, inputId = "showClusterLabels", value = state$showClusterLabels)
       updateCheckboxInput(session = session, inputId = "showScoresLabels", value = state$showScoresLabels)
+      #values <- c(ifelse(state$showLoadingsLabels, "Show labels", ""), ifelse(state$showLoadingsAbundance, "Show abundance", ""))
+      #values <- values[values != ""]
+      #if(length(values) > 0)
+      #  updateCheckboxGroupInput(session = session, inputId = "pcaLoadingsProperties", value = values)
       updateCheckboxInput(session = session, inputId = "showLoadingsLabels", value = state$showLoadingsLabels)
       updateCheckboxInput(session = session, inputId = "showLoadingsAbundance", value = state$showLoadingsAbundance)
     })
@@ -2270,6 +2292,37 @@ shinyServer(
       state$showScoresLabels <<- showScoresLabels
       drawPcaScoresPlot(consoleInfo = "showScoresLabels")
     })
+    # observePcaLoadingsProperties <- observeEvent(input$pcaLoadingsProperties, {
+    #   pcaLoadingsProperties <- input$pcaLoadingsProperties
+    #   print(paste("observe pcaLoadingsProperties", pcaLoadingsProperties))
+    #   
+    #   switch(as.character(length(pcaLoadingsProperties)),
+    #          "0"={## 
+    #            showLoadingsLabels <- FALSE
+    #            showLoadingsAbundance <- FALSE
+    #          },
+    #          "1"={## 
+    #            if(pcaLoadingsProperties == "Show labels"){
+    #              showLoadingsLabels <- TRUE
+    #              showLoadingsAbundance <- FALSE
+    #            } else {
+    #              showLoadingsLabels <- FALSE
+    #              showLoadingsAbundance <- TRUE
+    #            }
+    #          },
+    #          "2"={## 
+    #            showLoadingsLabels <- TRUE
+    #            showLoadingsAbundance <- TRUE
+    #          },
+    #          {## multiple annotations --> take the one which is primary
+    #            stop(paste("unknown pcaLoadingsProperties state: ", paste(pcaLoadingsProperties, collapse = "; ")))
+    #          }
+    #   )## end switch
+    #   
+    #   state$showLoadingsLabels <<- showLoadingsLabels
+    #   state$showLoadingsAbundance <<- showLoadingsAbundance
+    #   drawPcaLoadingsPlot(consoleInfo = "pcaLoadingsProperties")
+    # })
     obsShowLoadingsLabels <- observeEvent(input$showLoadingsLabels, {
       showLoadingsLabels <- input$showLoadingsLabels
       print(paste("Observe showLoadingsLabels", showLoadingsLabels))
@@ -2574,6 +2627,7 @@ shinyServer(
       
       if(!state$anyPlotDrawn){
         drawMS2Legend(consoleInfo = "init output$ms2LegendPlot")
+        drawFragmentDiscriminativityLegend(consoleInfo = "init output$plotFragmentDiscriminativityLegend")
         drawHeatmapLegend(consoleInfo = "init output$plotHeatmapLegend")
         drawDendrogramLegend(consoleInfo = "init output$calcPlotDendrogramLegend")
         state$anyPlotDrawn <<- TRUE
@@ -2673,6 +2727,7 @@ shinyServer(
       
       if(!state$anyPlotDrawn){
         drawMS2Legend(consoleInfo = "init output$ms2LegendPlot")
+        drawFragmentDiscriminativityLegend(consoleInfo = "init output$plotFragmentDiscriminativityLegend")
         drawHeatmapLegend(consoleInfo = "init output$plotHeatmapLegend")
         drawDendrogramLegend(consoleInfo = "init output$calcPlotDendrogramLegend")
         state$anyPlotDrawn <<- TRUE
@@ -3450,7 +3505,7 @@ shinyServer(
       obsClearSelection$suspend()
       obsFile$suspend()
       obsLoadProjectData$suspend()
-      obsExampleDataSelection$suspend()
+      #obsExampleDataSelection$suspend()
       obsLoadExampleData$suspend()
       obsImportMs1DataFile$suspend()
       obsImportMs2DataFile$suspend()
@@ -3460,6 +3515,7 @@ shinyServer(
       obsShowSideBar$suspend()
       obsShowClusterLabels$suspend()
       obsShowScoresLabels$suspend()
+      #observePcaLoadingsProperties$suspend()
       obsShowLoadingsLabels$suspend()
       obsShowLoadingsAbundance$suspend()
       ## filter
@@ -3760,6 +3816,8 @@ shinyServer(
                     checkboxInput(inputId = "showLoadingsLabels", label = "Show labels", value = FALSE),
                     bsTooltip(id = "showLoadingsAbundance", title = "Use abundance in MS\u00B9 to scale the size of loadings nodes", placement = "bottom", trigger = "hover"),
                     checkboxInput(inputId = "showLoadingsAbundance", label = "Show abundance", value = FALSE)
+                    #bsTooltip(id = "pcaLoadingsProperties", title = "Check to display loadings labels or to use abundance in MS\u00B9 to scale the size of loadings nodes", placement = "bottom", trigger = "hover"),
+                    #checkboxGroupInput(inputId = "pcaLoadingsProperties", label = NULL, choices = c("Show labels", "Show abundance"))
                 #  )
                 #)
               ),
@@ -3792,14 +3850,14 @@ shinyServer(
                 condition = '(output.analysisType == "HCA" && output.showHCAplotPanel) || (output.analysisType == "PCA" && output.showPCAplotPanel)',
                 splitLayout(
                   style = "border: 1px solid silver;",
-                  plotOutput(outputId = "calcPlotDendrogramLegend", height = 100)
+                  plotOutput(outputId = "calcPlotDendrogramLegend", height = 80)
                 )
               ),## conditional
               conditionalPanel(
                 condition = 'output.analysisType == "HCA" && output.showHCAplotPanel',
                 splitLayout(
                   style = "border: 1px solid silver;",
-                  plotOutput(outputId = "plotHeatmapLegend", height = 200)
+                  plotOutput(outputId = "plotHeatmapLegend", height = 150)
                 )
               ),## conditional
               conditionalPanel(## loadings properties
@@ -3813,7 +3871,14 @@ shinyServer(
                 condition = '(output.analysisType == "HCA" && output.showHCAplotPanel) || (output.analysisType == "PCA" && output.showPCAplotPanel)',
                 splitLayout(
                   style = "border: 1px solid silver;",
-                  plotOutput(outputId = "plotMS2Legend", height = 100)
+                  plotOutput(outputId = "plotMS2Legend", height = 80)
+                )
+              ),## conditional
+              conditionalPanel(
+                condition = '(output.analysisType == "HCA" && output.showHCAplotPanel)',
+                splitLayout(
+                  style = "border: 1px solid silver;",
+                  plotOutput(outputId = "plotFragmentDiscriminativityLegend", height = 100)
                 )
               )## conditional
            )## column
@@ -4218,19 +4283,21 @@ shinyServer(
         
         layout(
           mat = matrix(
-            data = c(1, 1, 1, 2, 3,
-                     4, 5, 6, 7, 7), 
-            nrow = 5, ncol = 2), 
+            data = c(1, 1, 1, 1, 2, 3,
+                     4, 5, 6, 7, 8, 8), 
+            nrow = 6, ncol = 2), 
           widths = c(4, 1), 
-          heights = c(0.6, 2, 0.6, 0.5, 1.5)
+          heights = c(0.6, 1.4, 0.6, 0.6, 0.5, 1.5)
         )
         
         drawDendrogramPlotImpl()
         drawHeatmapPlotImpl()
         drawMS2PlotImpl()
+        
         drawDendrogramLegendImpl()
         drawHeatmapLegendImpl()
         drawMS2LegendImpl()
+        drawFragmentDiscriminativityLegendImpl()
         calcPlotAnnoLegendForImage(state$annotationsHca$setOfAnnotations, state$annotationsHca$setOfColors, 15)
         #drawAnnotationLegendImpl()
         
@@ -4285,20 +4352,22 @@ shinyServer(
         
         layout(
           mat = matrix(
-            data = c(1, 1, 1, 1, 3,
-                     2, 2, 2, 2, 3, 
-                     4, 5, 6, 7, 7), 
-            nrow = 5, ncol = 3), 
+            data = c(1, 1, 1, 1, 1, 3,
+                     2, 2, 2, 2, 2, 3, 
+                     4, 5, 6, 7, 8, 8), 
+            nrow = 6, ncol = 3), 
           widths = c(2, 2, 1), 
-          heights = c(1.3, 0.6, 0.6, 1.2, 1.5)
+          heights = c(0.7, 0.6, 0.6, 0.6, 1.2, 1.5)
         )
         
         drawPcaScoresPlotImpl()
         drawPcaLoadingsPlotImpl()
         drawMS2PlotImpl()
-        calcPlotScoresGroupsLegendForImage(state$scoresGroups$groups, state$scoresGroups$colors, 10)
+        
+        calcPlotScoresGroupsLegendForImage(state$scoresGroups$groups, state$scoresGroups$colors, 5)
         drawDendrogramLegendImpl()
         drawMS2LegendImpl()
+        drawFragmentDiscriminativityLegendImpl()
         calcPlotAnnoLegendForImage(state$annotationsPca$setOfAnnotations, state$annotationsPca$setOfColors, 20)
         #drawAnnotationLegendImpl()
         
@@ -4394,6 +4463,8 @@ shinyServer(
         showScoresLabels                  = input$showScoresLabels,
         showLoadingsLabels                = input$showLoadingsLabels,
         showLoadingsAbundance             = input$showLoadingsAbundance,
+        #showLoadingsLabels                = "Show labels"    %in% input$pcaLoadingsProperties,
+        #showLoadingsAbundance             = "Show abundance" %in% input$pcaLoadingsProperties,
         ## search
         searchMS1orMS2                    = input$searchMS1orMS2,
         searchMS1mass                     = input$searchMS1mass,
@@ -4472,6 +4543,7 @@ shinyServer(
       ## plot properties
       updateCheckboxInput(     session = session, inputId = "showClusterLabels",                 value = as.logical(paramsList$showClusterLabels))
       updateCheckboxInput(     session = session, inputId = "showScoresLabels",                  value = as.logical(paramsList$showScoresLabels))
+      #updateCheckboxGroupInput(session = session, inputId = "pcaLoadingsProperties",             selected = c(ifelse(as.logical(paramsList$showLoadingsLabels), "Show labels", NULL), ifelse(as.logical(paramsList$showLoadingsAbundance), "Show abundance", NULL)))
       updateCheckboxInput(     session = session, inputId = "showLoadingsLabels",                value = as.logical(paramsList$showLoadingsLabels))
       updateCheckboxInput(     session = session, inputId = "showLoadingsAbundance",             value = as.logical(paramsList$showLoadingsAbundance))
       ## search

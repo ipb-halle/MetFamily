@@ -164,17 +164,17 @@ shinyUI(
                              textInput(inputId = "minimumProportionOfMS2peaks", label = "MS/MS peak proportion", value = 0.05)
                       )##column
                     ),##row
-                    #h5("Neutral losses"),
-                    #fluidRow(
-                    #  column(width = 6,
-                    #         bsTooltip(id = "neutralLossesPrecursorToFragments", title = "Include neutral losses relative to the precursor ion, i.e. the m/z difference between the m/z of the precursor ion and the m/z of each fragment ion of the corresponding MS/MS spectrum", placement = "bottom", trigger = "hover"),
-                    #         checkboxInput(inputId = "neutralLossesPrecursorToFragments", label = "Fragment vs. precursor", value = TRUE)
-                    #  ),##column
-                    #  column(width = 6,
-                    #         bsTooltip(id = "neutralLossesFragmentsToFragments", title = "Include neutral losses amongst fragment ions, i.e. the m/z difference between the m/z's of all pairs of fragment ions within each MS/MS spectrum; this needs more time for processing", placement = "bottom", trigger = "hover"),
-                    #         checkboxInput(inputId = "neutralLossesFragmentsToFragments", label = "Fragment vs. fragment", value = FALSE)
-                    #  )##column
-                    #),##row
+                    h5("Neutral losses"),
+                    fluidRow(
+                      column(width = 6,
+                             bsTooltip(id = "neutralLossesPrecursorToFragments", title = "Include neutral losses relative to the precursor ion, i.e. the m/z difference between the m/z of the precursor ion and the m/z of each fragment ion of the corresponding MS/MS spectrum", placement = "bottom", trigger = "hover"),
+                             checkboxInput(inputId = "neutralLossesPrecursorToFragments", label = "Fragment vs. precursor", value = TRUE)
+                      ),##column
+                      column(width = 6,
+                             bsTooltip(id = "neutralLossesFragmentsToFragments", title = "Include neutral losses amongst fragment ions, i.e. the m/z difference between the m/z of all pairs of fragment ions within each MS/MS spectrum; this involves the incorporation of potentially nonexistent neutral losses and needs more time for processing", placement = "bottom", trigger = "hover"),
+                             checkboxInput(inputId = "neutralLossesFragmentsToFragments", label = "Fragment vs. fragment", value = FALSE)
+                      )##column
+                    ),##row
                     h5("Fragment grouping"),
                     fluidRow(
                       column(width = 6,
@@ -283,9 +283,10 @@ shinyUI(
                   h4("Download generated fragment matrix"),
                   bsTooltip(id = "downloadFragmentMatrix", title = "Download the fragment matrix generated from the original metabolite profile and MS/MS library used in the MetFamily publication", placement = "bottom", trigger = "hover"),
                   downloadButton('downloadFragmentMatrix', 'Download fragment matrix'),
-                  h4("Load full or reduced data set"),
-                  bsTooltip(id = "exampleDataSelection", title = "The user is able to choose the full data set or a reduced data set (only MS\u00B9 features with MS\u00B9 abundance >= 5000)", placement = "bottom", trigger = "hover"),
-                  radioButtons(inputId = "exampleDataSelection", label = NULL, choices = c("Example data set (full)", "Example data set (reduced)"), selected = "Example data set (reduced)", inline = FALSE),
+                  #h4("Load full or reduced data set"),
+                  #bsTooltip(id = "exampleDataSelection", title = "The user is able to choose the full data set or a reduced data set (only MS\u00B9 features with MS\u00B9 abundance >= 5000)", placement = "bottom", trigger = "hover"),
+                  #radioButtons(inputId = "exampleDataSelection", label = NULL, choices = c("Example data set (full)", "Example data set (reduced)"), selected = "Example data set (reduced)", inline = FALSE),
+                  h4("Load full data set"),
                   bsTooltip(id = "loadExampleData", title = "Press to load the example data set", placement = "bottom", trigger = "hover"),
                   actionButton(inputId = "loadExampleData", label = "Load example data", class="btn-success")
                 )## conditional
@@ -897,17 +898,17 @@ shinyUI(
                              textInput(inputId = "minimumProportionOfMS2peaks2", label = "MS/MS peak proportion", value = 0.05)
                       )##column
                     ),##row
-                    #h5("Neutral losses"),
-                    #fluidRow(
-                    #  column(width = 6,
-                    #         bsTooltip(id = "neutralLossesPrecursorToFragments2", title = "Include neutral losses relative to the precursor ion, i.e. the m/z difference between the m/z of the precursor ion and the m/z of each fragment ion of the corresponding MS/MS spectrum", placement = "bottom", trigger = "hover"),
-                    #         checkboxInput(inputId = "neutralLossesPrecursorToFragments2", label = "Fragment vs. precursor", value = TRUE)
-                    #  ),##column
-                    #  column(width = 6,
-                    #         bsTooltip(id = "neutralLossesFragmentsToFragments2", title = "Include neutral losses amongst fragment ions, i.e. the m/z difference between the m/z's of all pairs of fragment ions within each MS/MS spectrum", placement = "bottom", trigger = "hover"),
-                    #         checkboxInput(inputId = "neutralLossesFragmentsToFragments2", label = "Fragment vs. fragment", value = FALSE)
-                    #  )##column
-                    #),##row
+                    h5("Neutral losses"),
+                    fluidRow(
+                      column(width = 6,
+                             bsTooltip(id = "neutralLossesPrecursorToFragments2", title = "Include neutral losses relative to the precursor ion, i.e. the m/z difference between the m/z of the precursor ion and the m/z of each fragment ion of the corresponding MS/MS spectrum", placement = "bottom", trigger = "hover"),
+                             checkboxInput(inputId = "neutralLossesPrecursorToFragments2", label = "Fragment vs. precursor", value = TRUE)
+                      ),##column
+                      column(width = 6,
+                             bsTooltip(id = "neutralLossesFragmentsToFragments2", title = "Include neutral losses amongst fragment ions, i.e. the m/z difference between the m/z's of all pairs of fragment ions within each MS/MS spectrum", placement = "bottom", trigger = "hover"),
+                             checkboxInput(inputId = "neutralLossesFragmentsToFragments2", label = "Fragment vs. fragment", value = FALSE)
+                      )##column
+                    ),##row
                     h5("Fragment grouping"),
                     fluidRow(
                       column(width = 6,

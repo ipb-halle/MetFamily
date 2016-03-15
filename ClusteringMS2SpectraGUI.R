@@ -38,7 +38,7 @@ ms2StickPointSizeInitialSmall <- 2/3.
 #ms2StickPointSizeEmphSmall <- 3/3.
 ms2StickPointSizeEmph <- 1
 ms2StickPointSizeEmphSmall <- 2/3.
-ms2StickPointSizeMaximumMultiplier <- 1.0
+ms2StickPointSizeMaximumMultiplier <- 0.75
 dendrogramClusterPointSizeMaximumMultiplier <- 0.75
 
 #########################################################################################
@@ -475,7 +475,8 @@ readClusterDataFromProjectFile <- function(file, progress = FALSE){
 readProjectData <- function(dataFrame, progress = FALSE){
   #########################################################################################
   ## read and parse
-  columnNames <- unlist(as.matrix(dataFrame[3, ]))
+  #columnNames <- unlist(as.matrix(dataFrame[3, ]))
+  columnNames <- dataFrame[3, ]
   
   ## import parameterSet
   if(nchar(dataFrame[[1, 1]]) == 0){
@@ -929,14 +930,12 @@ readProjectData <- function(dataFrame, progress = FALSE){
   dataList$annoPresentColorsList <- annoPresentColorsList
   
   resultObj <- getMS2plotData(dataList = dataList)
-  
   maxNumberOfFragments <- max(resultObj$numberOfFragments)
   colorMapFragmentData  <- makecmap(
     x = c(0, maxNumberOfFragments), n = 100, 
     colFn = colorRampPalette(c('grey', 'black'))
   )
   #fragmentCountColors <- ?cmap(0:maxNumberOfFragments, colorMapFragmentData)
-  
   dataList$numberOfFragments <- resultObj$numberOfFragments
   dataList$averageAbundance  <- resultObj$averageAbundance
   dataList$masses            <- resultObj$masses
@@ -1704,7 +1703,7 @@ calculateCluster <- function(dataList, filter, distanceMatrix, method, progress 
   ## calculate cluster discriminativity
   if(progress)  incProgress(amount = 0.1, detail = "Calculate cluster discriminativity")
   #clusterDiscriminativity <- vector(mode = "numeric", length = numberOfInnerNodes)
-  clusterDiscriminativity <- unlist(lapply(X = ms2spectrumInfoForClusters, FUN = function(x){max(x$fragmentDiscriminativity)}))
+  clusterDiscriminativity <- unlist(suppressWarnings(lapply(X = ms2spectrumInfoForClusters, FUN = function(x){max(x$fragmentDiscriminativity)})))
   clusterDiscriminativity[is.infinite(clusterDiscriminativity)] <- 0 ## in case of empty fragment set
   clusterDiscriminativity <- c(clusterDiscriminativity, rep(x = 0, times = numberOfPrecursorsFiltered))
   
@@ -2050,8 +2049,10 @@ getTableFromPrecursorSet <- function(dataList, precursorSet){
   rownames(featureMatrix) <- dataList$precursorLabels[precursorSet]
   colnames(featureMatrix) <- colnames(dataList$featureMatrix)[featureIndeces]
   featureMatrix <- format(x = featureMatrix, digits = 0, nsmall = 4)
-  featureMatrix[featureMatrix=="0.0000"] <- "-"
-  featureMatrix[featureMatrix=="1.0000"] <- "1"
+  if(length(featureIndeces) > 0){
+    featureMatrix[featureMatrix=="0.0000"] <- "-"
+    featureMatrix[featureMatrix=="1.0000"] <- "1"
+  }
   
   ## annotations
   setOfAnnotationSets <- precursorSetToSetOfAnnotationSets(dataList, precursorSet)
@@ -2113,17 +2114,22 @@ getMS2spectrumOfPrecursor <- function(dataList, precursorIndex){
   return(resultObj)
 }
 getMS2plotData <- function(dataList){
-  numberOfFragments <- vector(mode = "numeric", length = ncol(dataList$featureMatrix))
-  sumOfAbundances   <- vector(mode = "numeric", length = ncol(dataList$featureMatrix))
-  for(colIdx in 1:ncol(dataList$featureMatrix)){
-    columnContent <- dataList$featureMatrix[, colIdx]
-    numberOfFragments[[colIdx]] <- sum(columnContent != 0)
-    sumOfAbundances[[colIdx]]   <- sum(columnContent)
-  }
+  # numberOfFragments <- vector(mode = "numeric", length = ncol(dataList$featureMatrix))
+  # sumOfAbundances   <- vector(mode = "numeric", length = ncol(dataList$featureMatrix))
+  # for(colIdx in 1:ncol(dataList$featureMatrix)){
+  #   columnContent <- dataList$featureMatrix[, colIdx]
+  #   numberOfFragments[[colIdx]] <- sum(columnContent != 0)
+  #   sumOfAbundances[[colIdx]]   <- sum(columnContent)
+  # }
+  # 
+  # apply(X = dataList$featureMatrix, MARGIN = 2, FUN = function(x){sum(x != 0)})
+  # apply(X = dataList$featureMatrix, MARGIN = 2, FUN = function(x){sum(x)})
   
-  ## TODO apply
-  #numberOfFragments <- apply(X = dataList$featureMatrix, MARGIN = 2, FUN = function(x){sum(x != 0)})
-  #sumOfAbundances <- apply(X = dataList$featureMatrix, MARGIN = 2, FUN = sum)
+  fragmentInfos <- apply(X = dataList$featureMatrix, MARGIN = 2, FUN = function(x){
+    c(sum(x != 0), sum(x))
+  })
+  numberOfFragments <- fragmentInfos[1, ]
+  sumOfAbundances   <- fragmentInfos[2, ]
   
   averageAbundance <- sumOfAbundances / numberOfFragments
   averageAbundance[numberOfFragments == 0] <- 0
@@ -2547,7 +2553,7 @@ calcPlotMS2Legend <- function(dataList){
   labels <- c("Fragment stick colors", stickLabels)
   xPositions <- c(-0.05, rep(x = xSpacing, times = length(stickLabels)))
   #yPositions <- seq(from = 1, to = 0, by = 1/(-length(xPositions)))
-  yPositions <- seq(from = 0.9, to = -0.1, by = -0.25)[1:length(xPositions)]
+  yPositions <- seq(from = 0.9, to = -0.1, by = -1/length(labels))[1:length(xPositions)]
   
   symbolXPositions <- rep(x = xSpacing * 0.75, times = length(stickLabels))
   symbolYPositions <- yPositions[2:length(yPositions)]
@@ -2584,7 +2590,7 @@ calcPlotDendrogramLegend <- function(){
   labels <- c("Selection marks", stickLabels)
   xPositions <- c(-0.05, rep(x = xSpacing, times = length(stickLabels)))
   #yPositions <- seq(from = 1, to = 0, by = 1/(-length(xPositions)))
-  yPositions <- seq(from = 0.9, to = -0.1, by = -0.25)[1:length(xPositions)]
+  yPositions <- seq(from = 0.9, to = -0.1, by = -1/length(labels))[1:length(xPositions)]
   
   symbolXPositions <- rep(x = xSpacing * 0.75, times = length(stickLabels))
   symbolYPositions <- yPositions[2:length(yPositions)]
@@ -2604,48 +2610,91 @@ calcPlotDendrogramLegend <- function(){
   ## labels
   graphics::text(x = xPositions, y = yPositions, labels = labels, pos = 4)
 }
+calcPlotDiscriminativityLegend <- function(){
+  ####################
+  ## heatmap legend
+  par(mar=c(0,0,0,0), mgp = c(3, 1, 0))  ## c(bottom, left, top, right)
+  
+  xSpacing <- 0.1
+  stickLabels <- c(
+    "0%", 
+    "25%", 
+    "50%", 
+    "75%", 
+    "100%"
+  )
+  labels <- c("Fragment discriminativity", stickLabels)
+  xPositions <- c(-0.05, rep(x = xSpacing, times = length(stickLabels)))
+  #yPositions <- seq(from = 1, to = 0, by = 1/(-length(xPositions)))
+  yPositions <- seq(from = 0.9, to = -0.1, by = -1/length(labels))[1:length(xPositions)]
+  
+  symbolXPositions <- rep(x = xSpacing * 0.75, times = length(stickLabels))
+  symbolYPositions <- yPositions[2:length(yPositions)]
+  
+  ##################################################################################################
+  ## plot
+  plot.new()
+  plot.window(xlim = c(0, 1), ylim = c(0, 1))
+  
+  ## points
+  pointSizes      <- ms2StickPointSizeInitialSmall + c(0, 0.25, 0.5, 0.75, 1) * ms2StickPointSizeMaximumMultiplier
+  
+  #dendrogramClusterPointSizeMaximumMultiplier <- 0.75
+  points(x = symbolXPositions, y = symbolYPositions, col = "black", pch=19, cex=pointSizes)
+  
+  ## labels
+  graphics::text(x = xPositions, y = yPositions, labels = labels, pos = 4)
+  #graphics::text(x = xPositions[[1]], y = yPositions[[1]], labels = labels[[1]], pos = 4)
+  #graphics::text(x = xPositions[2:length(xPositions)], y = yPositions[2:length(yPositions)], labels = labels[2:length(labels)], pos = 4, adj = 1)
+}
 calcPlotHeatmapLegend <- function(dataList){
   ####################
   ## heatmap legend
   par(mar=c(0,0,0,0), mgp = c(3, 1, 0))  ## c(bottom, left, top, right)
   
-  legend_imageAbs <- as.raster(x = t(x = matrix(data = cmap(x = seq(from = dataList$logAbsMax,           to =  0,                         length.out = 100), map = dataList$colorMapAbsoluteData ), nrow=1)))
+  legend_imageAbs <- as.raster(x = t(x = matrix(data = cmap(x = seq(from = dataList$logAbsMax,        to =  0,                         length.out = 100), map = dataList$colorMapAbsoluteData ), nrow=1)))
   legend_imageLFC <- as.raster(x = t(x = matrix(data = cmap(x = seq(from = dataList$logFoldChangeMax, to = -dataList$logFoldChangeMax, length.out = 100), map = dataList$colorMapLogFoldChange), nrow=1)))
   
+  maximumNumberOfLabelsAbs <- 5
+  maximumNumberOfLabelsLFC <- 2.5
   minY <- 0.0
   maxY <- 0.9
   epsilon <- 0.075
   middle <- ((maxY - minY) / 2)
-  #absMaxY <- 0.5-epsilon
   absMaxY <- middle - epsilon
   lfcMinY <- middle + epsilon
   
+  ##############################################
   ## abs
-  maxExp <- as.integer(dataList$logAbsMax)
-  exps <- 0:maxExp
-  absLegendLabels    = paste("10^", exps, sep = "")
-  #absLegendLabels    = vector(length = length(exps))
-  #for(i in 1:length(exps)){
-  #  print(paste('10', exps[[i]]))
-  #  print(expression('10'^exps[[i]]))
-  #  print(expression('10'^eval(exps[[i]])))
-  #  print(bquote(10^.(exps[[i]])))
-  #  print(expression(bquote(10^.(exps[[i]]))))
-  #  #absLegendLabels[[i]] <- expression('10'^exps[[i]])
-  #  absLegendLabels[[i]] <- expression('10'^"g")
-  #}
-  maxYlabelPosition <- absMaxY * (maxExp / dataList$logAbsMax)
-  if(is.na(maxYlabelPosition))  ## data range is zero
-    maxYlabelPosition <- absMaxY
-  yLabelPositionIncrement <- maxYlabelPosition / (length(exps) - 1)
-  if(is.na(yLabelPositionIncrement) | is.infinite(yLabelPositionIncrement)) ## data range is zero
-    yLabelPositionIncrement <- maxYlabelPosition
+  returnObj <- createTickLabels(maximumNumberOfLabelsAbs, dataList$logAbsMax, "10^")
+  absLegendPositions <- returnObj$legendPositions
+  absLegendLabels    <- returnObj$legendLabels
   
-  absLegendPositions <- seq(from = minY, to = maxYlabelPosition, by = yLabelPositionIncrement)
+  absLegendPositions <- minY + absLegendPositions * (absMaxY - minY)
   
+  ##############################################
   ## lfc
-  lfcLegendPositions <- seq(lfcMinY,maxY,l=5)
-  lfcLegendLabels <- format(x = seq(-dataList$logFoldChangeMax, dataList$logFoldChangeMax, l=5), digits = 0)
+  returnObj <- createTickLabels(maximumNumberOfLabelsLFC, dataList$logFoldChangeMax, "")
+  lfcLegendPositions <- returnObj$legendPositions
+  lfcLegendLabels    <- returnObj$legendLabels
+  
+  ## double
+  if(lfcLegendLabels[[1]] == "0"){
+    ## do not copy zero
+    lfcLegendPositions <- c(rev(lfcLegendPositions), -lfcLegendPositions[2:length(lfcLegendPositions)])
+    revLabels <- lfcLegendLabels[2:length(lfcLegendLabels)]
+    revLabels[revLabels != ""] <- paste("-", revLabels[revLabels != ""])
+    lfcLegendLabels    <- c(rev(lfcLegendLabels   ), revLabels)
+  } else {
+    lfcLegendPositions <- c(rev(lfcLegendPositions), -lfcLegendPositions)
+    revLabels <- lfcLegendLabels
+    revLabels[revLabels != ""] <- paste("-", revLabels[revLabels != ""])
+    lfcLegendLabels    <- c(rev(lfcLegendLabels   ), revLabels)
+  }
+  
+  lfcLegendPositions <- lfcLegendPositions - min(lfcLegendPositions)
+  lfcLegendPositions <- lfcLegendPositions / max(lfcLegendPositions)
+  lfcLegendPositions <- lfcMinY + lfcLegendPositions * (maxY - lfcMinY)
   
   ##################################################################################################
   ## plot
@@ -2667,11 +2716,12 @@ calcPlotHeatmapLegend <- function(dataList){
     y0  = c(minY, absMaxY, minY   , minY   ),
     y1  = c(minY, absMaxY, absMaxY, absMaxY)
   )
-  graphics::text(x = -0.2, y = absMaxY + 0.05, labels = "log10(MS\u00B9 abundance)", pos = 4)
+  graphics::text(x = -0.2, y = absMaxY + 0.065, labels = "log10(MS\u00B9 abundance)", pos = 4)
   
   ## lfc legend
   rasterImage(image = legend_imageLFC, xleft = 0, ybottom = lfcMinY, xright = 1, ytop = maxY)
-  graphics::text(x = 2, y = seq(lfcMinY,maxY,l=5), labels = lfcLegendLabels)
+  graphics::text(x = 2, y = lfcLegendPositions, labels = lfcLegendLabels)
+  #graphics::text(x = 2, y = seq(lfcMinY,maxY,l=5), labels = lfcLegendLabels)
   segments(## lower hori; upper hori; left vert; right vert
     x0  = c(0, 0, 0, 1),
     x1  = c(1, 1, 0, 1),
@@ -2684,7 +2734,37 @@ calcPlotHeatmapLegend <- function(dataList){
     y0  = lfcLegendPositions,
     y1  = lfcLegendPositions
   )
-  graphics::text(x = -0.2, y = maxY + 0.05, labels = "log2(MS\u00B9 fold change)", pos = 4)
+  graphics::text(x = -0.2, y = maxY + 0.065, labels = "log2(MS\u00B9 fold change)", pos = 4)
+}
+createTickLabels <- function(maximumNumberOfLabels, max, labelPrefix){
+  maxInteger <- as.integer(max)
+  numbers <- 0:maxInteger
+  
+  maxYlabelPosition <- maxInteger / max
+  if(is.na(maxYlabelPosition))  ## data range is zero
+    maxYlabelPosition <- 1
+  legendPositions <- seq(from = 0, to = maxYlabelPosition, length.out = length(numbers))
+  
+  # if(length(legendPositions) > maximumNumberOfTicks){
+  #   indeces <- rev(seq(from = length(numbers), to = 1, by = -ceiling( length(numbers) / maximumNumberOfTicks )))
+  #   
+  #   legendPositions <- legendPositions[indeces]
+  #   numbers         <- numbers        [indeces]
+  # }
+  
+  legendLabels    = paste(labelPrefix, numbers, sep = "")
+  if(length(numbers) > maximumNumberOfLabels){
+    indeces <- rev(seq(from = length(numbers), to = 1, by = -ceiling( length(numbers) / maximumNumberOfLabels )))
+    
+    legendLabels    <- legendLabels[indeces]
+    legendPositions <- legendPositions[indeces]
+  }
+    
+  returnObj <- list()
+  returnObj$legendPositions <- legendPositions
+  returnObj$legendLabels    <- legendLabels
+  
+  return(returnObj)
 }
 calcPlotMS2 <- function(dataList, fragmentsX = NULL, fragmentsY = NULL, fragmentsColor = NULL, fragmentsDiscriminativity = NULL, fragmentsX_02 = NULL, fragmentsY_02 = NULL, fragmentsColor_02 = NULL, fragmentsDiscriminativity_02 = NULL, xInterval = NULL, selectedFragmentIndex = NULL){
   ####################

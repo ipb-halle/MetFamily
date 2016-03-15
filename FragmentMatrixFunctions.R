@@ -1188,8 +1188,8 @@ convertToProjectFile <- function(filePeakMatrix, fileSpectra, parameterSet, prog
   #print("building matrix...")
   
   if(progress)  incProgress(amount = 0.01, detail = paste("Building fragment groups...", sep = "")) else print(paste("Building fragment groups...", sep = ""))
-  #returnObj <- builtMatrix(
-  returnObj <- builtMatrixOld(
+  returnObj <- builtMatrix(
+  #returnObj <- builtMatrixOld(
     spectraList = spectraList, 
     mzDeviationAbsolute_grouping = parameterSet$mzDeviationAbsolute_grouping, 
     mzDeviationInPPM_grouping = parameterSet$mzDeviationInPPM_grouping, 
