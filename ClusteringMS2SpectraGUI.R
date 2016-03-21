@@ -232,12 +232,6 @@ analyzeTreeForAnnotations <- function(dataList, cluster, filter, nodeIdx){
     else
       featuresAnnotations <- ""
     
-    #print(paste(nodeIdx, cluster$merge[nodeIdx, 1], cluster$merge[nodeIdx, 2]))
-    #print(paste(featuresAnnotations, length(resultObj.l$featuresAnnotations), length(resultObj.r$featuresAnnotations)))
-    #print(paste(featuresAnnotations, resultObj.l$featuresAnnotations, resultObj.r$featuresAnnotations))
-    #print(paste(featuresAnnotations, resultObj.l$featuresAnnotations[[1]], resultObj.r$featuresAnnotations[[1]]))
-    #print(paste(class(featuresAnnotations), class(resultObj.l$featuresAnnotations), class(resultObj.r$featuresAnnotations)))
-    
     resultObj <- list()
     if(any(length(featuresAnnotations) == 0, featuresAnnotations == "")){
       featuresAnnotations <- NULL
@@ -410,15 +404,6 @@ colorSubTreeForAnnotations <- function(cluster, index, innerNodeAnnotations, set
     color      <- newColors[[1]]
   }
   
-  #print("hihi")
-  ##print(paste(setOfColorSets[[index]]))
-  #print(paste(is.null(newAnnotations), "; ", is.null(parentAnnotations), "; ", is.null(currentAnnotations), sep = ""))
-  #print(paste(length(newAnnotations), "; ", length(parentAnnotations), "; ", length(currentAnnotations), sep = ""))
-  #print(paste(class(newAnnotations), "; ", class(parentAnnotations), "; ", class(currentAnnotations), sep = ""))
-  #print(paste(newAnnotations, "; ", parentAnnotations, "; ", currentAnnotations), sep = "")
-  #print(paste(unlist(newAnnotations), "; ", unlist(parentAnnotations), "; ", unlist(currentAnnotations), sep = ""))
-  #print(paste(length(unlist(newAnnotations)), "; ", length(unlist(parentAnnotations)), "; ", length(unlist(currentAnnotations)), sep = ""))
-  #print(paste(index, color))
   innerNodeAnnotations[[index]] <<- annotation
   innerNodeColors[[index]] <<- color
   
@@ -1703,8 +1688,7 @@ calculateCluster <- function(dataList, filter, distanceMatrix, method, progress 
   ## calculate cluster discriminativity
   if(progress)  incProgress(amount = 0.1, detail = "Calculate cluster discriminativity")
   #clusterDiscriminativity <- vector(mode = "numeric", length = numberOfInnerNodes)
-  clusterDiscriminativity <- unlist(suppressWarnings(lapply(X = ms2spectrumInfoForClusters, FUN = function(x){max(x$fragmentDiscriminativity)})))
-  clusterDiscriminativity[is.infinite(clusterDiscriminativity)] <- 0 ## in case of empty fragment set
+  clusterDiscriminativity <- unlist(suppressWarnings(lapply(X = ms2spectrumInfoForClusters, FUN = function(x){x$clusterDiscriminativity})))
   clusterDiscriminativity <- c(clusterDiscriminativity, rep(x = 0, times = numberOfPrecursorsFiltered))
   
   clusterDataList$ms2spectrumInfoForLeaves    <- ms2spectrumInfoForLeaves
@@ -1759,6 +1743,7 @@ calculatePCA <- function(dataList, filterObj, scaling, logTransform){
   
   dataFrame2[is.na(dataFrame2)] <- dataFrame[is.na(dataFrame2)]
   
+  ## TODO pcaMethods confidence intervals analog to MetaboAnalyst
   numberOfComponents <- 5
   returnObj <- list()
   pcaLibrary <- c("stats", "FactoMineR", "pcaMethods")[[2]]
@@ -2001,8 +1986,18 @@ getMS2spectrumInfoForCluster <- function(dataList, clusterDataList, treeLabel){
   fragmentsColor           <- fragmentsColor          [coverageSelected > minimumProportionToShowFragment]
   fragmentDiscriminativity <- fragmentDiscriminativity[coverageSelected > minimumProportionToShowFragment]
   
+  if(length(fragmentDiscriminativity) > 0)
+    clusterDiscriminativity <- max(fragmentDiscriminativity)
+  else
+    clusterDiscriminativity <- 0
+  
   ## info
-  infoText <- paste("This cluster comprises ", length(clusterMembersPrecursors), " MS\u00B9 features which have ", length(fragmentsX), " fragment(s) in common.", sep = "")
+  infoText <- paste(
+    "This cluster has a cluster discriminativity of ", format(x = clusterDiscriminativity*100, digits = 3, nsmall = 2), "%",
+    " and comprises ", length(clusterMembersPrecursors), " MS\u00B9 features",
+    " which have ", length(fragmentsX), " fragment(s) in common.", 
+    sep = ""
+  )
   landingPageUrlForLink <- NULL
   
   ## order data
@@ -2018,6 +2013,7 @@ getMS2spectrumInfoForCluster <- function(dataList, clusterDataList, treeLabel){
   resultObj$fragmentAbundances <- fragmentsY
   resultObj$fragmentColor <- fragmentsColor
   resultObj$fragmentDiscriminativity <- fragmentDiscriminativity
+  resultObj$clusterDiscriminativity <- clusterDiscriminativity
   resultObj$infoText <- infoText
   resultObj$landingPageUrl <- landingPageUrlForLink
   resultObj$precursorSet <- precursorSet
@@ -2582,7 +2578,7 @@ calcPlotDendrogramLegend <- function(){
   
   xSpacing <- 0.1
   stickLabels <- c(
-    "Selection by analysis", 
+    "Selection by HCA/PCA", 
     "Selection by fragment", 
     "Selection by search"
   )
@@ -2658,7 +2654,7 @@ calcPlotHeatmapLegend <- function(dataList){
   maximumNumberOfLabelsAbs <- 5
   maximumNumberOfLabelsLFC <- 2.5
   minY <- 0.0
-  maxY <- 0.9
+  maxY <- 0.875
   epsilon <- 0.075
   middle <- ((maxY - minY) / 2)
   absMaxY <- middle - epsilon
@@ -2703,13 +2699,16 @@ calcPlotHeatmapLegend <- function(dataList){
   
   ## abs legend
   rasterImage(image = legend_imageAbs, xleft = 0, ybottom = minY, xright = 1, ytop = absMaxY)
-  graphics::text(x = 2, y = absLegendPositions, labels = absLegendLabels)
+  graphics::text(x = 1.2, y = absLegendPositions, labels = absLegendLabels, pos = 4)
+  
+  ## axis marks
   segments(
     x0  = rep(x = 0, times = length(absLegendPositions)),
     x1  = rep(x = 1.2, times = length(absLegendPositions)),
     y0  = absLegendPositions,
     y1  = absLegendPositions
   )
+  ## frame
   segments(## lower hori; upper hori; left vert; right vert
     x0  = c(0, 0, 0, 1),
     x1  = c(1, 1, 0, 1),
@@ -2720,21 +2719,23 @@ calcPlotHeatmapLegend <- function(dataList){
   
   ## lfc legend
   rasterImage(image = legend_imageLFC, xleft = 0, ybottom = lfcMinY, xright = 1, ytop = maxY)
-  graphics::text(x = 2, y = lfcLegendPositions, labels = lfcLegendLabels)
+  graphics::text(x = 1.2, y = lfcLegendPositions, labels = lfcLegendLabels, pos = 4)
   #graphics::text(x = 2, y = seq(lfcMinY,maxY,l=5), labels = lfcLegendLabels)
+  ## frame
   segments(## lower hori; upper hori; left vert; right vert
     x0  = c(0, 0, 0, 1),
     x1  = c(1, 1, 0, 1),
     y0  = c(lfcMinY, maxY, lfcMinY, lfcMinY),
     y1  = c(lfcMinY, maxY, maxY   , maxY   )
   )
+  ## axis marks
   segments(
     x0  = rep(x = 0, times = length(lfcLegendPositions)),
     x1  = rep(x = 1.2, times = length(lfcLegendPositions)),
     y0  = lfcLegendPositions,
     y1  = lfcLegendPositions
   )
-  graphics::text(x = -0.2, y = maxY + 0.065, labels = "log2(MS\u00B9 fold change)", pos = 4)
+  graphics::text(x = -0.2, y = maxY + 0.09, labels = "log2(MS\u00B9 fold change)", pos = 4)
 }
 createTickLabels <- function(maximumNumberOfLabels, max, labelPrefix){
   maxInteger <- as.integer(max)
@@ -2777,27 +2778,37 @@ calcPlotMS2 <- function(dataList, fragmentsX = NULL, fragmentsY = NULL, fragment
   
   ## y-axis
   if(is.null(fragmentsX_02)){
+    ## nothing hovered; maybe something selected
     yInterval <- c(0, 1)
     #nodeColors <- rep(x = "black", times = length(fragmentsX))
     nodeColors <- fragmentsColor
     dataX <- fragmentsX
     dataY <- fragmentsY
+    dataX2 <- fragmentsX
+    dataY2 <- fragmentsY
     yTickPositions <- c(0, 0.25, 0.5, 0.75, 1)
     yTickLabels <- c(0, "", 0.5, "", 1)
   } else {
+    ## something hovered; maybe something selected
     #nodeColors <- rep(x = "black", times = length(fragmentsX) + length(fragmentsX_02))
     nodeColors <- c(fragmentsColor, fragmentsColor_02)
     
     if(is.null(fragmentsX)){
+      ## something hovered; nothing selected
       yInterval <- c(0, 1)
       dataX <- fragmentsX_02
       dataY <- fragmentsY_02
+      dataX2 <- NULL
+      dataY2 <- NULL
       yTickPositions <- c(0, 0.25, 0.5, 0.75, 1)
       yTickLabels <- c(0, "", 0.5, "", 1)
     } else {
+      ## something hovered; something selected
       yInterval <- c(-1, 1)
       dataX <- c(fragmentsX, fragmentsX_02)
       dataY <- c(fragmentsY, -fragmentsY_02)
+      dataX2 <- fragmentsX
+      dataY2 <- fragmentsY
       yTickPositions <- c(-1, -0.75, -0.5, -0.25, 0, 0.25, 0.5, 0.75, 1)
       yTickLabels <- c(1, "", 0.5, "", 0, "", 0.5, "", 1)
     }
@@ -2807,7 +2818,7 @@ calcPlotMS2 <- function(dataList, fragmentsX = NULL, fragmentsY = NULL, fragment
   if(!is.null(selectedFragmentIndex))
     nodeColors[[selectedFragmentIndex]] <- "green"
   
-  par(mar=c(5,4,3,0), mgp = c(3, 1, 0))  ## c(bottom, left, top, right)
+  par(mar=c(6,4,3,0), mgp = c(3, 1, 0))  ## c(bottom, left, top, right)
   plot(x = dataX, y = dataX, ylab = "Relative abundance", xlab = "m/z", xlim = xInterval, ylim = yInterval, xaxt='n', yaxt='n', col = nodeColors)
   axis(side = 2, at = yTickPositions, labels = yTickLabels)
   axis(side = 3)
@@ -2832,23 +2843,25 @@ calcPlotMS2 <- function(dataList, fragmentsX = NULL, fragmentsY = NULL, fragment
     ## sticks
     points(x = dataX, y = dataY, col = nodeColors, type = "h", lwd=4)
     
-    ## clickable points
-    pointSizes <- rep(x = ms2StickPointSizeInitial, times = length(dataX))
-    pointSizesSmall <- rep(x = ms2StickPointSizeInitialSmall, times = length(dataX))
-    pointColors <- rep(x = "black", times = length(dataX))
-    pointColorsSmall <- rep(x = "gray", times = length(dataX))
-    if(!is.null(selectedFragmentIndex)){
-      pointSizes[[selectedFragmentIndex]] <- ms2StickPointSizeEmph
-      pointSizesSmall[[selectedFragmentIndex]] <- ms2StickPointSizeEmphSmall
-      pointColors[[selectedFragmentIndex]] <- "green"
-      #pointColorsSmall[[selectedFragmentIndex]] <- "green"
+    if(!is.null(dataX2)){
+      ## clickable points
+      pointSizes <- rep(x = ms2StickPointSizeInitial, times = length(dataX2))
+      pointSizesSmall <- rep(x = ms2StickPointSizeInitialSmall, times = length(dataX2))
+      pointColors <- rep(x = "black", times = length(dataX2))
+      pointColorsSmall <- rep(x = "gray", times = length(dataX2))
+      if(!is.null(selectedFragmentIndex)){
+        pointSizes[[selectedFragmentIndex]] <- ms2StickPointSizeEmph
+        pointSizesSmall[[selectedFragmentIndex]] <- ms2StickPointSizeEmphSmall
+        pointColors[[selectedFragmentIndex]] <- "green"
+        #pointColorsSmall[[selectedFragmentIndex]] <- "green"
+      }
+      pointSizeMultiplier <- c(fragmentsDiscriminativity, fragmentsDiscriminativity_02) * ms2StickPointSizeMaximumMultiplier
+      pointSizes      <- pointSizes      + pointSizeMultiplier
+      pointSizesSmall <- pointSizesSmall + pointSizeMultiplier
+      
+      points(x = dataX2, y = dataY2, col = pointColors,      pch=19, cex=pointSizes)
+      points(x = dataX2, y = dataY2, col = pointColorsSmall, pch=19, cex=pointSizesSmall)
     }
-    pointSizeMultiplier <- c(fragmentsDiscriminativity, fragmentsDiscriminativity_02) * ms2StickPointSizeMaximumMultiplier
-    pointSizes      <- pointSizes      + pointSizeMultiplier
-    pointSizesSmall <- pointSizesSmall + pointSizeMultiplier
-    
-    points(x = dataX, y = dataY, col = pointColors, pch=19, cex=pointSizes)
-    points(x = dataX, y = dataY, col = pointColorsSmall, pch=19, cex=pointSizesSmall)
   }
   
   if(!is.null(fragmentsX) & !is.null(fragmentsX_02)){

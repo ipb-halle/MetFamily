@@ -1,6 +1,7 @@
 # 
 # shiny::runApp(appDir = "/home/htreutle/Code/Java/MetFam")
 # shiny::runApp(appDir = "/home/htreutle/Code/Java/MetFam", host="0.0.0.0")
+# shiny::runApp(appDir = "/home/htreutle/Code/Java/MetFam", launch.browser = TRUE)
 # 
 # ############################ shinyapps
 # htreutle@ipb-halle.de
@@ -265,6 +266,7 @@ shinyUI(
                   helpText(
                     "The data set used as showcase in the MetFamily publication referenced in the tab 'About'."
                   ),
+                  br(),
                   h4("Download original metabolite profile and MS/MS library"),
                   fluidRow(
                     column(width = 6,
@@ -280,12 +282,18 @@ shinyUI(
                            )
                     )##column
                   ),##row
-                  h4("Download generated fragment matrix"),
-                  bsTooltip(id = "downloadFragmentMatrix", title = "Download the fragment matrix generated from the original metabolite profile and MS/MS library used in the MetFamily publication", placement = "bottom", trigger = "hover"),
-                  downloadButton('downloadFragmentMatrix', 'Download fragment matrix'),
+                  br(),
+                  fluidRow(
+                    column(width = 12,
+                           h4("Download generated fragment matrix"),
+                           bsTooltip(id = "downloadFragmentMatrix", title = "Download the fragment matrix generated from the original metabolite profile and MS/MS library used in the MetFamily publication", placement = "bottom", trigger = "hover"),
+                           downloadButton('downloadFragmentMatrix', 'Download fragment matrix')
+                    )
+                  ),
                   #h4("Load full or reduced data set"),
                   #bsTooltip(id = "exampleDataSelection", title = "The user is able to choose the full data set or a reduced data set (only MS\u00B9 features with MS\u00B9 abundance >= 5000)", placement = "bottom", trigger = "hover"),
                   #radioButtons(inputId = "exampleDataSelection", label = NULL, choices = c("Example data set (full)", "Example data set (reduced)"), selected = "Example data set (reduced)", inline = FALSE),
+                  br(),
                   h4("Load full data set"),
                   bsTooltip(id = "loadExampleData", title = "Press to load the example data set", placement = "bottom", trigger = "hover"),
                   actionButton(inputId = "loadExampleData", label = "Load example data", class="btn-success")
@@ -382,9 +390,10 @@ shinyUI(
                   ##############################################################################################
                   ## filter button
                   bsTooltip(id = "applyGlobalMS2filters", title = "Press to determine the global set of MS\u00B9 features which MS/MS spectra comprise the given MS/MS features", placement = "bottom", trigger = "hover"),
-                  actionButton(inputId = "applyGlobalMS2filters", label = "Apply MS/MS filter", class="btn-success")
-                ),## well
-                wellPanel(
+                  actionButton(inputId = "applyGlobalMS2filters", label = "Apply MS/MS filter", class="btn-success"),
+                # ),## well
+                # wellPanel(
+                  hr(),
                   h4("Filtered MS\u00B9 features"),
                   bsTooltip(id = "globalMS2filteredPrecursors", title = "The number of MS\u00B9 features which MS/MS spectra comprise the given MS/MS features", placement = "bottom", trigger = "hover"),
                   verbatimTextOutput("globalMS2filteredPrecursors"),
@@ -442,9 +451,10 @@ shinyUI(
                     ## filter button
                     bsTooltip(id = "applyPcaFilters", title = "Press to determine the set of MS\u00B9 features which fulfill the given criteria", placement = "bottom", trigger = "hover"),
                     actionButton(inputId = "applyPcaFilters", label = "Apply filter", class="btn-success")
-                  )## conditional panel
-                ),##well panel
-                wellPanel(
+                  ),## conditional panel
+                # ),##well panel
+                # wellPanel(
+                  hr(),
                   h4("Filtered MS\u00B9 features"),
                   bsTooltip(id = "pcaFilteredPrecursors", title = "The number of MS\u00B9 features which fulfill the given criteria", placement = "bottom", trigger = "hover"),
                   verbatimTextOutput("pcaFilteredPrecursors"),
@@ -488,13 +498,15 @@ shinyUI(
                         column(
                           width = 6,
                           tags$div(title="Please select the first principal component",
-                            selectInput(inputId = "pcaDimensionOne", label = "Component 1", choices = c("1", "2", "3", "4", "5"), selected = "1", selectize = FALSE)
+                            #bsTooltip(id = "pcaDimensionOne", title = "The first principal component to display", placement = "bottom", trigger = "hover"),
+                            selectInput(inputId = "pcaDimensionOne", label = "PC 1", choices = c("1", "2", "3", "4", "5"), selected = "1", selectize = FALSE)
                           )
                         ),
                         column(
                           width = 6,
                           tags$div(title="Please select the second principal component",
-                            selectInput(inputId = "pcaDimensionTwo", label = "Component 2", choices = c("1", "2", "3", "4", "5"), selected = "2", selectize = FALSE)
+                            #bsTooltip(id = "pcaDimensionTwo", title = "The second principal component to display", placement = "bottom", trigger = "hover"),
+                            selectInput(inputId = "pcaDimensionTwo", label = "PC 2", choices = c("1", "2", "3", "4", "5"), selected = "2", selectize = FALSE)
                           )
                         )
                       )
@@ -571,9 +583,10 @@ shinyUI(
                     ## filter button
                     bsTooltip(id = "applyHcaFilters", title = "Press to determine the set of MS\u00B9 features which fulfill the given filter criteria", placement = "bottom", trigger = "hover"),
                     actionButton(inputId = "applyHcaFilters", label = "Apply filter", class="btn-success")
-                  )## conditional panel
-                ),##well panel
-                wellPanel(
+                  ),## conditional panel
+                # ),##well panel
+                # wellPanel(
+                  hr(),
                   h4("Filtered MS\u00B9 features"),
                   bsTooltip(id = "hcaFilteredPrecursors", title = "The number of MS\u00B9 features which fulfill the given filter criteria", placement = "bottom", trigger = "hover"),
                   verbatimTextOutput("hcaFilteredPrecursors"),
@@ -632,6 +645,7 @@ shinyUI(
                     actionButton(inputId = "drawHCAplots", label = "Draw hierarchical cluster", class="btn-success"),
                     conditionalPanel(
                       condition = "output.showGUI && output.plotHcaShown",
+                      br(),
                       bsTooltip(id = "downloadDistanceMatrix", title = "Download the distance matrix of the currently displayed hierarchical cluster dendrogram", placement = "bottom", trigger = "hover"),
                       downloadButton('downloadDistanceMatrix', 'Download distance matrix')
                     )
@@ -663,14 +677,14 @@ shinyUI(
                 wellPanel(
                   h4("Search mode"),
                   bsTooltip(id = "searchMS1orMS2", title = "Please choose the criterion for selecting MS\u00B9 features", placement = "bottom", trigger = "hover"),
-                  radioButtons(inputId = "searchMS1orMS2", label = NULL, choices = c("MS\u00B9 feature mass", "Fragment mass")),
+                  radioButtons(inputId = "searchMS1orMS2", label = NULL, choices = c("MS\u00B9 feature m/z", "Fragment m/z")),
                   hr(),
                   conditionalPanel(
-                    condition = "input.searchMS1orMS2 == 'MS\u00B9 feature mass'",
+                    condition = "input.searchMS1orMS2 == 'MS\u00B9 feature m/z'",
                     fluidRow(
                       column(width = 6,
-                             bsTooltip(id = "searchMS1mass", title = "The MS\u00B9 feature mass should be similar to at least one of the given values (separated by \",\")", placement = "bottom", trigger = "hover"),
-                             textInput(inputId = "searchMS1mass", label = "MS\u00B9 feature mass(es)")
+                             bsTooltip(id = "searchMS1mass", title = "The MS\u00B9 feature m/z should be similar to at least one of the given values (separated by \",\")", placement = "bottom", trigger = "hover"),
+                             textInput(inputId = "searchMS1mass", label = "MS\u00B9 feature m/z('s)")
                       ),##column
                       column(width = 6,
                              bsTooltip(id = "searchMS1massPpm", title = "The specified MS\u00B9 feature m/z allows this error in PPM (<b>p</b>arts <b>p</b>er <b>m</b>illion)", placement = "bottom", trigger = "hover"),
@@ -679,7 +693,7 @@ shinyUI(
                     )##row
                   ),## conditional panel
                   conditionalPanel(
-                    condition = "input.searchMS1orMS2 == 'Fragment mass'",
+                    condition = "input.searchMS1orMS2 == 'Fragment m/z'",
                     fluidRow(
                       column(width = 11,
                              bsTooltip(id = "search_ms2_masses1", title = "The MS/MS spectra should include the following fragment / neutral loss mass(es) (separated by \",\")<p>E.g. \"96.969, -162.053\" for a compound with a phosphate - fragment (H<sub>2</sub>PO<sub>4</sub><sup>-</sup>) and a hexose - neutral loss (C<sub>6</sub>O<sub>5</sub>H<sub>10</sub>)", placement = "bottom", trigger = "hover"),
@@ -725,9 +739,10 @@ shinyUI(
                                actionButton(inputId = "clearSearch", label = "Clear search", class="btn-success")
                            )
                     )##column
-                  )##row
-                ),## well panel
-                wellPanel(
+                  ),##row
+                # ),## well panel
+                # wellPanel(
+                  hr(),
                   h4("MS\u00B9 feature hits"),
                   bsTooltip(id = "searchInfo", title = "The number of MS\u00B9 features which fulfill the given filter criteria", placement = "bottom", trigger = "hover"),
                   verbatimTextOutput("searchInfo"),
@@ -748,7 +763,7 @@ shinyUI(
               conditionalPanel(
                 condition = "output.showGUI && !(output.plotHcaShown || output.plotPcaShown)",
                 wellPanel(
-                  h4("Please search HCA or PCA")
+                  h4("Please perform HCA or PCA prior to search")
                 )## well
               )## conditional panel
             ),## tab panel
@@ -957,22 +972,23 @@ shinyUI(
                         )##column
                       )##row
                     )##conditional
-                  )
-                )##well
-              ),## conditional panel
-              conditionalPanel(
-                condition = "!output.showGUI",
-                wellPanel(
-                  h4("Please import a data file")
-                )## well panel
-              )## conditional panel
-            ),## tab panel
-            tabPanel(
-              title = "Export", 
-              shinyjs::useShinyjs(),
-              conditionalPanel(
-                condition = "output.showGUI",
-                wellPanel(
+                  ),##conditional
+            #     )##well
+            #   ),## conditional panel
+            #   conditionalPanel(
+            #     condition = "!output.showGUI",
+            #     wellPanel(
+            #       h4("Please import a data file")
+            #     )## well panel
+            #   )## conditional panel
+            # ),## tab panel
+            # tabPanel(
+            #   title = "Export", 
+            #   shinyjs::useShinyjs(),
+            #   conditionalPanel(
+            #     condition = "output.showGUI",
+            #     wellPanel(
+                  h4("Export"),
                   fluidRow(
                     column(width = 6,
                            div(style="float:left",
@@ -987,25 +1003,7 @@ shinyUI(
                            )
                     )##column
                   ),##row
-                  #conditionalPanel(
-                  #  condition = "output.showGUI && output.showHCAplotPanel",
-                  fluidRow(
-                    column(width = 6,
-                           div(style="float:left",
-                               bsTooltip(id = "downloadHcaImage", title = "Download the currently displayed HCA plots as image", placement = "bottom", trigger = "hover"),
-                               downloadButton('downloadHcaImage', 'Export HCA as image')
-                           )
-                    ),##column
-                    column(width = 6,
-                           div(style="float:right",
-                               bsTooltip(id = "downloadHcaImageType", title = "The user is able to download the HCA plot as image of different types: Portable Network Graphics (*.png) file, Scalable Vector Graphics (*.svg) file, Portable Document Format (*.pdf) file", placement = "bottom", trigger = "hover"),
-                               radioButtons(inputId = "downloadHcaImageType", label = NULL, choices = c("png", "svg", "pdf"), selected = "png", inline = TRUE)
-                           )
-                    )##column
-                  ),##row
-                  #),
-                  #conditionalPanel(
-                  #  condition = "output.showGUI && output.showPCAplotPanel",
+                  br(),
                   fluidRow(
                     column(width = 6,
                            div(style="float:left",
@@ -1019,10 +1017,22 @@ shinyUI(
                                radioButtons(inputId = "downloadPcaImageType", label = NULL, choices = c("png", "svg", "pdf"), selected = "png", inline = TRUE)
                            )
                     )##column
+                  ),##row
+                  br(),
+                  fluidRow(
+                    column(width = 6,
+                           div(style="float:left",
+                               bsTooltip(id = "downloadHcaImage", title = "Download the currently displayed HCA plots as image", placement = "bottom", trigger = "hover"),
+                               downloadButton('downloadHcaImage', 'Export HCA as image')
+                           )
+                    ),##column
+                    column(width = 6,
+                           div(style="float:right",
+                               bsTooltip(id = "downloadHcaImageType", title = "The user is able to download the HCA plot as image of different types: Portable Network Graphics (*.png) file, Scalable Vector Graphics (*.svg) file, Portable Document Format (*.pdf) file", placement = "bottom", trigger = "hover"),
+                               radioButtons(inputId = "downloadHcaImageType", label = NULL, choices = c("png", "svg", "pdf"), selected = "png", inline = TRUE)
+                           )
+                    )##column
                   )##row
-                  #)
-                  ## TODO annotated msp file
-                  #h4("annotated msp file")
                 )##well
               ),## conditional panel
               conditionalPanel(
@@ -1055,7 +1065,7 @@ shinyUI(
         fluidRow(
           column(width = 9,
             helpText(
-              "This web application is designed for the identification of regulated metabolite families. This is possible on the basis of metabolite profiles for a set of MS\u00B9 features as well as one MS/MS spectrum for each MS\u00B9 feature. Group-discriminating MS\u00B9 features are identified using a principal component analysis (PCA) of metabolite profiles and metabolite families are identified using a hierarchical cluster analysis (HCA) of MS/MS spectra. Regulated metabolite families are identified by considering group-discriminating MS\u00B9 features from corporate metabolite families."
+              "The MetFamily web application is designed for the identification of regulated metabolite families. This is possible on the basis of metabolite profiles for a set of MS\u00B9 features as well as one MS/MS spectrum for each MS\u00B9 feature. Group-discriminating MS\u00B9 features are identified using a principal component analysis (PCA) of metabolite profiles and metabolite families are identified using a hierarchical cluster analysis (HCA) of MS/MS spectra. Regulated metabolite families are identified by considering group-discriminating MS\u00B9 features from corporate metabolite families."
             )
           ),##column
           column(width = 3,

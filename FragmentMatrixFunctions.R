@@ -3,7 +3,7 @@ library("xcms")
 
 ####################################################################################
 ## aligned spectra
-parsePeakAbundanceMatrix <- function(filePeakMatrix, doPrecursorDeisotoping, mzDeviationInPPM_precursorDeisotoping, mzDeviationAbsolute_precursorDeisotoping, maximumRtDifference){
+parsePeakAbundanceMatrix <- function(filePeakMatrix, doPrecursorDeisotoping, mzDeviationInPPM_precursorDeisotoping, mzDeviationAbsolute_precursorDeisotoping, maximumRtDifference, progress){
   ## known columns
   assumedColumns <- c(
     ## in file            ## parsed
@@ -25,6 +25,8 @@ parsePeakAbundanceMatrix <- function(filePeakMatrix, doPrecursorDeisotoping, mzD
   )
   
   ## read file
+  if(progress)  incProgress(amount = 0.1, detail = paste("Parsing MS¹ file content...", sep = "")) else print(paste("Parsing MS¹ file content...", sep = ""))
+  
   dataFrameAll <- read.table(filePeakMatrix, header=FALSE, sep = "\t", as.is=TRUE, quote = "")
   dataFrameHeader <- dataFrameAll[1:4, ]
   dataFrame <- dataFrameAll[5:nrow(dataFrameAll), ]
@@ -116,6 +118,8 @@ parsePeakAbundanceMatrix <- function(filePeakMatrix, doPrecursorDeisotoping, mzD
   ## deisotoping
   numberOfRemovedIsotopePeaks <- 0
   if(doPrecursorDeisotoping){
+    if(progress)  incProgress(amount = 0, detail = paste("Precursor deisotoping...", sep = "")) else print(paste("Precursor deisotoping...", sep = ""))
+    
     distance13Cminus12C <- 1.0033548378
     ## mark isotope precursors
     precursorsToRemove <- vector(mode = "logical", length = numberOfPrecursors)
@@ -125,6 +129,9 @@ parsePeakAbundanceMatrix <- function(filePeakMatrix, doPrecursorDeisotoping, mzD
       medians <- apply(X = as.matrix(intensities), MARGIN = 1, FUN = median)
     }
     for(precursorIdx in 1:numberOfPrecursors){
+      if((precursorIdx %% (as.integer(numberOfPrecursors/10))) == 0)
+        if(progress)  incProgress(amount = 0.0, detail = paste("Precursor deisotoping ", precursorIdx, " / ", numberOfPrecursors, sep = "")) else print(paste("Precursor deisotoping ", precursorIdx, " / ", numberOfPrecursors, sep = ""))
+      
       mzError <- dataFrame$"Average Mz"[[precursorIdx]] * mzDeviationInPPM_precursorDeisotoping / 1000000
       mzError <- max(mzError, mzDeviationAbsolute_precursorDeisotoping)
       
@@ -152,6 +159,7 @@ parsePeakAbundanceMatrix <- function(filePeakMatrix, doPrecursorDeisotoping, mzD
     numberOfPrecursors <- nrow(dataFrame)
   }
   
+  if(progress)  incProgress(amount = 0, detail = paste("Boxing...", sep = "")) else print(paste("Boxing...", sep = ""))
   returnObj <- list()
   returnObj$dataFrame <- dataFrame
   ## meta
@@ -193,7 +201,7 @@ parseMSP <- function(fileSpectra, minimumIntensityOfMaximalMS2peak, minimumPropo
   numberOfMS2PeaksBelowThreshold <- 0
   for(lineIdx in 1:numberOfFileLines){
     ## progress
-    if((lineIdx %% (as.integer(numberOfFileLines/10))) == 0)
+    if(numberOfFileLines >= 10 & (lineIdx %% (as.integer(numberOfFileLines/10))) == 0)
       if(progress)  incProgress(amount = 0.01, detail = paste("MS/MS file: ", lineIdx, " / ", numberOfFileLines, sep = "")) else print(paste("MS/MS file: ", lineIdx, " / ", numberOfFileLines, sep = ""))
     
     ## current line
@@ -298,13 +306,13 @@ parseMSP <- function(fileSpectra, minimumIntensityOfMaximalMS2peak, minimumPropo
       } else{
         metName     <- trimws(substring(text = line, first = nchar("METABOLITENAME:") + 1))
       }
-    } else if(grepl(pattern = "^ADDUCTIONNAME:", x = line)[[1]]){
+    } else if(grepl(pattern = "^ADDUCTIONNAME:", x = line)[[1]] | grepl(pattern = "^Adductionname:", x = line)[[1]]){
       adduct      <- trimws(substring(text = line, first = nchar("ADDUCTIONNAME:") + 1))
     } else if(grepl(pattern = "^Num Peaks:", x = line)[[1]]){
       peakNumber  <- trimws(substring(text = line, first = nchar("Num Peaks:") + 1))
-    } else{
+    } else {
       ## MS2 peaks: "178.88669\t230"
-      tokens <- strsplit(x = line, split = "[ \t]")[[1]]
+      tokens <- strsplit(x = trimws(line), split = "[ \t]")[[1]]
       ms2Peaks_mz[[length(ms2Peaks_mz) + 1]]  <- as.numeric(tokens[[1]])
       ms2Peaks_int[[length(ms2Peaks_int) + 1]] <- as.numeric(tokens[[2]])
     }
@@ -495,7 +503,7 @@ builtMatrix <- function(spectraList, mzDeviationAbsolute_grouping, mzDeviationIn
       monoisotopicFragmentColumn <- min(validInMz[validInOverlap])
       
       ## intensity gets smaller in the isotope spectrum
-      monoisotopicFragmentIntensities <- matrix[, monoisotopicFragmentColumn]
+      #monoisotopicFragmentIntensities <- matrix[, monoisotopicFragmentColumn]
       monoisotopicThere <- matrix[, monoisotopicFragmentColumn] != 0
       numberOfMonoisotopicFragmentPeaks <- sum(monoisotopicThere)
       precursorInCommon <- isotopicThere & monoisotopicThere
@@ -538,7 +546,7 @@ builtMatrix <- function(spectraList, mzDeviationAbsolute_grouping, mzDeviationIn
   
   return(returnObj)
 }
-## adapted from xcms_1.44.0, R/mzClust.R
+## adapted from R package xcms: xcms_1.44.0, package path: R/mzClust.R
 mzClustGeneric <- function(p, sampclass=NULL, mzppm = 20, mzabs = 0, minsamp = 1, minfrac=0.5, progress = FALSE){
   makeBin <- function(pos){
     if(pos > numpeaks)
@@ -1124,7 +1132,8 @@ convertToProjectFile <- function(filePeakMatrix, fileSpectra, parameterSet, prog
     doPrecursorDeisotoping = parameterSet$doPrecursorDeisotoping, 
     mzDeviationInPPM_precursorDeisotoping = parameterSet$mzDeviationInPPM_precursorDeisotoping, 
     mzDeviationAbsolute_precursorDeisotoping = parameterSet$mzDeviationAbsolute_precursorDeisotoping, 
-    maximumRtDifference = parameterSet$maximumRtDifference
+    maximumRtDifference = parameterSet$maximumRtDifference,
+    progress = progress
   )
   dataFrame <- returnObj$dataFrame
   numberOfPrecursors <- returnObj$numberOfPrecursors
@@ -1267,7 +1276,7 @@ convertToProjectFile <- function(filePeakMatrix, fileSpectra, parameterSet, prog
   
   ########################################
   ## filter by the minimum number of fragment abundance
-  #numberOfMS2PeaksPerGroupAll <- apply(X = matrixAll, MARGIN = 2, FUN = function(x) length(which(x > 0)))
+  #numberOfMS2PeaksPerGroupAll <- apply(X = matrixAll, MARGIN = 2, FUN = function(x){ sum(x > 0) })
   numberOfMS2PeaksPerGroupAll <- vector(mode = "numeric", length = numberOfMS2PeakGroups)
   for(ms2Idx in 1:numberOfMS2PeakGroups)
     numberOfMS2PeaksPerGroupAll[[ms2Idx]] <- sum(matrixAll[, ms2Idx] > 0)
@@ -1442,6 +1451,8 @@ exampleInput <- function(){
   #fileSpectra    <- "/home/htreutle/Downloads/MetSWATH/20158251022_spectra_0_less.msp"
   filePeakMatrix <- "/home/htreutle/Downloads/MetSWATH/Metabolite_profile_showcase.txt"
   fileSpectra    <- "/home/htreutle/Downloads/MetSWATH/MSMS_library_showcase.msp"
+  filePeakMatrix <- "/home/htreutle/Downloads/MetSWATH/Janine/2016-03-16 redundantpeaklistmsms_halle_ed.csv"
+  fileSpectra    <- "/home/htreutle/Downloads/MetSWATH/Janine/20160315_msms_halle.txt"
   parameterSet <- list()
   parameterSet$minimumIntensityOfMaximalMS2peak                  <- 2000
   parameterSet$minimumProportionOfMS2peaks                       <- 0.05
@@ -1460,4 +1471,14 @@ exampleInput <- function(){
   parameterSet$neutralLossesPrecursorToFragments                 <- TRUE
   parameterSet$neutralLossesFragmentsToFragments                 <- FALSE
   progress       <- FALSE
+  
+  doPrecursorDeisotoping <- parameterSet$doPrecursorDeisotoping
+  mzDeviationInPPM_precursorDeisotoping <- parameterSet$mzDeviationInPPM_precursorDeisotoping
+  mzDeviationAbsolute_precursorDeisotoping <- parameterSet$mzDeviationAbsolute_precursorDeisotoping
+  maximumRtDifference <- parameterSet$maximumRtDifference
+  
+  minimumIntensityOfMaximalMS2peak <- parameterSet$minimumIntensityOfMaximalMS2peak
+  minimumProportionOfMS2peaks <- parameterSet$minimumProportionOfMS2peaks
+  neutralLossesPrecursorToFragments <- parameterSet$neutralLossesPrecursorToFragments
+  neutralLossesFragmentsToFragments <- parameterSet$neutralLossesFragmentsToFragments
 }

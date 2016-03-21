@@ -54,7 +54,7 @@ shinyServer(
     minimumNumberOfPrecursorsForHca <- 6
     maximumNumberOfPrecursorsForHca <- 1000000
     ## selections
-    selectionAnalysisName <- "Selection by analysis"
+    selectionAnalysisName <- "Selection by HCA/PCA"
     selectionFragmentName <- "Selection by fragment"
     selectionSearchName   <- "Selection by search"
     precursorSelectionTabSelection  <- "Selection"
@@ -493,7 +493,7 @@ shinyServer(
       } else {
         output$globalMS2filteredPrecursors <- renderText({
           print(paste("update output$globalMS2filteredPrecursors", sep = ""))
-          paste("Number of filtered MS\u00B9 features: ", filterGlobal$numberOfPrecursorsFiltered, " / ", dataList$numberOfPrecursors, sep = "")
+          paste("Number of filtered MS1 features: ", filterGlobal$numberOfPrecursorsFiltered, " / ", dataList$numberOfPrecursors, sep = "")
         })
       }
     }
@@ -512,7 +512,7 @@ shinyServer(
           ## filter valid
           output$hcaFilteredPrecursors <- renderText({
             print(paste("update output$hcaFilteredPrecursors ", minimumNumberOfPrecursorsForHca, " <= # <= ", maximumNumberOfPrecursorsForHca, sep = ""))
-            paste("Number of filtered MS\u00B9 features: ", filterHca$numberOfPrecursorsFiltered, " / ", filterGlobal$numberOfPrecursorsFiltered, globalMs2Filter, sep = "")
+            paste("Number of filtered MS1 features: ", filterHca$numberOfPrecursorsFiltered, " / ", filterGlobal$numberOfPrecursorsFiltered, globalMs2Filter, sep = "")
           })
         } else {
           ## filter invalid
@@ -550,7 +550,7 @@ shinyServer(
         if(filterPca$numberOfPrecursorsFiltered > 0){
           output$pcaFilteredPrecursors <- renderText({
             print(paste("update output$pcaFilteredPrecursors", sep = ""))
-            paste("Number of filtered MS\u00B9 features: ", filterPca$numberOfPrecursorsFiltered, " / ", filterGlobal$numberOfPrecursorsFiltered, globalMs2Filter, sep = "")
+            paste("Number of filtered MS1 features: ", filterPca$numberOfPrecursorsFiltered, " / ", filterGlobal$numberOfPrecursorsFiltered, globalMs2Filter, sep = "")
           })
         } else {
           output$pcaFilteredPrecursors <- renderText({
@@ -1836,7 +1836,7 @@ shinyServer(
       clearSelectionButtonValue <<- clearSelection
       
       switch(selection, 
-          "Selection by analysis"={
+          "Selection by HCA/PCA"={
           #selectionAnalysisName={
             selectionByAnalysisReset()
         },"Selection by fragment"={
@@ -2373,7 +2373,7 @@ shinyServer(
       #################################################
       ## MS1 or MS2?
       searchMode <- input$searchMS1orMS2
-      if(searchMode == 'MS\u00B9 feature mass'){
+      if(searchMode == 'MS\u00B9 feature m/z'){
         #################################################
         ## get inputs
         filter_ms1_masses <- input$searchMS1mass
@@ -2387,7 +2387,7 @@ shinyServer(
         filter_ms2_masses3  <- NULL
         filter_ms2_ppm      <- NULL
       }
-      if(searchMode == 'Fragment mass'){
+      if(searchMode == 'Fragment m/z'){
         #################################################
         ## get inputs
         filter_ms2_masses1 <- input$search_ms2_masses1
@@ -3015,7 +3015,13 @@ shinyServer(
         numberOfPrecursors <- sum(dataList$featureMatrix[clusterDataList$filter, fragmentIndex] != 0)
         output$information <- renderText({
           print(paste("update output$information"))
-          paste("Fragment with m/z = ", fragmentsX[[minimumIndex]], " and (average) abundance = ", format(x = fragmentsY[[minimumIndex]], digits = 0, nsmall = 4), " is present in ", numberOfPrecursors, " MS/MS spectra.", sep = "")
+          paste(
+            "Fragment with m/z = ", fragmentsX[[minimumIndex]], 
+            " and (average) abundance = ", format(x = fragmentsY[[minimumIndex]], digits = 0, nsmall = 4), 
+            " is present in ", numberOfPrecursors, " MS/MS spectra",
+            "\nand has a fragment discriminativity of ", format(x = fragmentsDiscriminativity[[minimumIndex]]*100, digits = 3, nsmall = 2), "%.", 
+            sep = ""
+          )
         })
       }
       output$tip <- renderText({
@@ -4328,7 +4334,9 @@ shinyServer(
         
         ## parameters
         widthInInch     <- 10
-        heigthInInch    <- 7.5
+        #widthInInch     <- 10 * 4 / 5
+        heigthInInch    <- 6
+        #heigthInInch    <- 6 * 4 / 5
         resolutionInDPI <- 600
         widthInPixel    <- widthInInch  * resolutionInDPI
         heightInPixel   <- heigthInInch * resolutionInDPI
@@ -4650,7 +4658,7 @@ shinyServer(
       ###################
       ## search
       searchMode <- paramsListsearchMS1orMS2
-      if(searchMode == 'MS\u00B9 feature mass'){
+      if(searchMode == 'MS\u00B9 feature m/z'){
         #################################################
         ## get inputs
         filter_ms1_masses <- paramsListsearchMS1mass
@@ -4664,7 +4672,7 @@ shinyServer(
         filter_ms2_masses3  <- NULL
         filter_ms2_ppm      <- NULL
       }
-      if(searchMode == 'Fragment mass'){
+      if(searchMode == 'Fragment m/z'){
         #################################################
         ## get inputs
         filter_ms2_masses1 <- paramsListsearch_ms2_masses1
