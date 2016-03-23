@@ -8,22 +8,12 @@ library(shiny)
 library(htmltools)
 #install.packages("shinyjs")
 library(shinyjs)
-
-#library(devtools)
-#install_github("shinyTable", "trestletech")
-#library(shinyTable)
 #install.packages("DT")
 library(DT)
 library("Matrix")
 
-#library("lattice")
-#library("stats")
-#library("gridSVG")
-
 source("ClusteringMS2SpectraGUI.R")
 source("FragmentMatrixFunctions.R")
-#source("/vol/R/shiny/srv/shiny-server/MetFam/ClusteringMS2SpectraGUI.R")
-#source("/vol/R/shiny/srv/shiny-server/MetFam/FragmentMatrixFunctions.R")
 
 #########################################################################################
 #########################################################################################
@@ -112,7 +102,6 @@ shinyServer(
       showScoresLabels = TRUE,
       showLoadingsLabels = FALSE,
       showLoadingsAbundance = FALSE,
-      #annotationLegendHeight = annoLegendEntryHeight * (2 + 1 + 1)
       annotationLegendHeightHca = -1,
       annotationLegendHeightPca = -1,
       ## plot annotations
@@ -808,10 +797,6 @@ shinyServer(
       
       if(all(fileInputSelection == "Example data"))
         output$fileInfo <- renderText({paste("Please press 'Load example data' to load the full example data set")})
-      #if(all(fileInputSelection == "Example data", exampleDataSelection == "Example data set (full)"))
-      #  output$fileInfo <- renderText({paste("Please press 'Load example data' to load the full example data set")})
-      #if(all(fileInputSelection == "Example data", exampleDataSelection == "Example data set (reduced)"))
-      #  output$fileInfo <- renderText({paste("Please press 'Load example data' to load the reduced example data set")})
       if(all(fileInputSelection == "Load project", is.null(filePath)))
         output$fileInfo <- renderText({paste("Please select a project file and press 'Load project data'")})
       if(all(fileInputSelection == "Load project", !is.null(filePath), any(is.null(state$importedOrLoadedFile_s_), fileName != state$importedOrLoadedFile_s_)))
@@ -1321,11 +1306,9 @@ shinyServer(
                if(!is.null(listForTable_Search_HCA)) selectedPrecursorSet <<- listForTable_Search_HCA$precursorSet
                else                                    selectedPrecursorSet <<- NULL
              },"Search_PCA"  ={  
-               #output$table <- output$dt_Search_PCA
                state$precursorSetSelected <<- !is.null(listForTable_Search_PCA)
                if(!is.null(listForTable_Search_PCA)) selectedPrecursorSet <<- listForTable_Search_PCA$precursorSet
                else                                    selectedPrecursorSet <<- NULL
-               #selectedPrecursorSet <<- ifelse(!is.null(listForTable_Search_PCA), listForTable_Search_PCA$precursorSet, NULL)
              },{
                print(paste("### unknown state$selectedSelection: '", state$selectedSelection, "'", sep = ""))
              }
@@ -1717,35 +1700,6 @@ shinyServer(
     #########################################################################################
     ## observer
     
-    ### TODO
-    #exampleInput <- reactive(function(){
-    #  print(input$example) #for debugging
-    #  paste(input$example,"example",sep=".")
-    #})
-    #output$myImage <- reactive(function(){
-    #  #from lattice package documentation
-    #  Depth <- equal.count(quakes$depth, number=8, overlap=.1)
-    #  xyplot.example <- xyplot(lat ~ long | Depth, data = quakes)
-    #  dotplot.example <- dotplot(variety ~ yield | site, data = barley, groups = year,
-    #                             key = simpleKey(levels(barley$year), space = "right"),
-    #                             xlab = "Barley Yield (bushels/acre) ",
-    #                             aspect=0.5, layout = c(1,6), ylab=NULL)
-    #  barchart.example <- barchart(yield ~ variety | site, data = barley,
-    #                               groups = year, layout = c(1,6), stack = TRUE,
-    #                               auto.key = list(space = "right"),
-    #                               ylab = "Barley Yield (bushels/acre)",
-    #                               scales = list(x = list(rot = 45)))
-    #  print(get(exampleInput()))
-    #  #print((paste(input$example,"example",sep=".")))
-    #  tempsvg <- tempfile(fileext=".svg")
-    #  on.exit(unlink(tempsvg))
-    #  gridToSVG(name=tempsvg)
-    #  
-    #  svgoutput <- readLines("/home/htreutle/Downloads/MetSWATH/svg/svgTestScoresPlot01.svg", n=-1)
-    #  #svgoutput <- readLines(tempsvg, n=-1)
-    #  svgoutput
-    #})
-    
     ## controls
     obsTabs <- observeEvent(input$runTabs, {
       tabId <- input$runTabs
@@ -1893,44 +1847,29 @@ shinyServer(
         return()
       loadProjectDataButtonValue <<- loadExampleData
       
-      #exampleDataSelection <- input$exampleDataSelection
-      
       #################################################
       ## files
       ## TODO relative paths or as R package
       #filePath <- paste(shinyAppFolder, "files/Fragment_matrix_showcase.csv", sep = "")
       filePath <- paste(shinyAppFolder, "files/Project_file_showcase_annotated.csv.gz", sep = "")
       fileName <- "Fragment_matrix_showcase.csv"
-      #if(exampleDataSelection == "Example data set (full)"){
-      #  filePath <- paste(shinyAppFolder, "files/Fragment_matrix_showcase.csv", sep = "")
-      #  fileName <- "Fragment_matrix_showcase.csv"
-      #}
-      #if(exampleDataSelection == "Example data set (reduced)"){
-      #  filePath <- paste(shinyAppFolder, "files/Project_file_showcase_reduced.csv.gz", sep = "")
-      #  fileName <- "Project_file_showcase.csv.gz"
-      #}
       
       loadProjectFile(filePath = filePath, fileName = fileName, buttonId = "loadExampleData")
     })
-    #obsExampleDataSelection <- observeEvent(input$exampleDataSelection, {
-    #  updateFileInputInfo()
-    #})
     loadProjectFile <- function(filePath, fileName, buttonId){
       #########################################################################################
       ## read data
-      #output$fileInfo <- renderText({paste("Please wait for the project data to be loaded...")})
-      
       session$sendCustomMessage("disableButton", buttonId)
       
       error <- NULL
       withProgress(message = 'Reading file...', value = 0, {
         dataList <<- tryCatch(
-        {
-          #dataList <<- calcClusterData(file = "/mnt/VOL1/ABT/Alle/Balcke/MetSWATH/data/MS-DIAL/UC Davis/Results/201558139_matrixPrecursorsVersusFragmentsDeisotoped_withoutZerosTest01.txt")
-          readClusterDataFromProjectFile(file = filePath, progress = TRUE)
-        }, error = function(e) {
-          error <- e
-        }
+          {
+            readClusterDataFromProjectFile(file = filePath, progress = TRUE)
+          }, 
+          error = function(e) {
+            error <- e
+          }
         )
       })
       
@@ -1962,7 +1901,6 @@ shinyServer(
         shinyjs::disable("importMs1Ms2Data")
       
       updateFileInputInfo()
-      #processMs1Ms2Files(fileMs1Path = fileMs1Path, fileMs2Path = fileMs2Path)
     })
     obsImportMs2DataFile <- observeEvent(input$ms2DataFile$datapath, {
       fileMs1Path <- input$ms1DataFile$datapath
@@ -1977,7 +1915,6 @@ shinyServer(
         shinyjs::disable("importMs1Ms2Data")
       
       updateFileInputInfo()
-      #processMs1Ms2Files(fileMs1Path = fileMs1Path, fileMs2Path = fileMs2Path)
     })
     obsImportMs1Ms2Data <- observeEvent(input$importMs1Ms2Data, {
       importMs1Ms2Data <- as.numeric(input$importMs1Ms2Data)
@@ -2273,10 +2210,6 @@ shinyServer(
       ## restore gui state
       updateCheckboxInput(session = session, inputId = "showClusterLabels", value = state$showClusterLabels)
       updateCheckboxInput(session = session, inputId = "showScoresLabels", value = state$showScoresLabels)
-      #values <- c(ifelse(state$showLoadingsLabels, "Show labels", ""), ifelse(state$showLoadingsAbundance, "Show abundance", ""))
-      #values <- values[values != ""]
-      #if(length(values) > 0)
-      #  updateCheckboxGroupInput(session = session, inputId = "pcaLoadingsProperties", value = values)
       updateCheckboxInput(session = session, inputId = "showLoadingsLabels", value = state$showLoadingsLabels)
       updateCheckboxInput(session = session, inputId = "showLoadingsAbundance", value = state$showLoadingsAbundance)
     })
@@ -2292,37 +2225,6 @@ shinyServer(
       state$showScoresLabels <<- showScoresLabels
       drawPcaScoresPlot(consoleInfo = "showScoresLabels")
     })
-    # observePcaLoadingsProperties <- observeEvent(input$pcaLoadingsProperties, {
-    #   pcaLoadingsProperties <- input$pcaLoadingsProperties
-    #   print(paste("observe pcaLoadingsProperties", pcaLoadingsProperties))
-    #   
-    #   switch(as.character(length(pcaLoadingsProperties)),
-    #          "0"={## 
-    #            showLoadingsLabels <- FALSE
-    #            showLoadingsAbundance <- FALSE
-    #          },
-    #          "1"={## 
-    #            if(pcaLoadingsProperties == "Show labels"){
-    #              showLoadingsLabels <- TRUE
-    #              showLoadingsAbundance <- FALSE
-    #            } else {
-    #              showLoadingsLabels <- FALSE
-    #              showLoadingsAbundance <- TRUE
-    #            }
-    #          },
-    #          "2"={## 
-    #            showLoadingsLabels <- TRUE
-    #            showLoadingsAbundance <- TRUE
-    #          },
-    #          {## multiple annotations --> take the one which is primary
-    #            stop(paste("unknown pcaLoadingsProperties state: ", paste(pcaLoadingsProperties, collapse = "; ")))
-    #          }
-    #   )## end switch
-    #   
-    #   state$showLoadingsLabels <<- showLoadingsLabels
-    #   state$showLoadingsAbundance <<- showLoadingsAbundance
-    #   drawPcaLoadingsPlot(consoleInfo = "pcaLoadingsProperties")
-    # })
     obsShowLoadingsLabels <- observeEvent(input$showLoadingsLabels, {
       showLoadingsLabels <- input$showLoadingsLabels
       print(paste("Observe showLoadingsLabels", showLoadingsLabels))
@@ -2569,7 +2471,8 @@ shinyServer(
       drawHCAButtonValue <<- drawPlots
       
       distanceMeasure <- input$hcaDistanceFunction
-      clusterMethod <- input$hcaClusterMethod
+      #clusterMethod <- input$hcaClusterMethod
+      clusterMethod <- "ward.D"
       print(paste("Observe draw HCA plots", "D", distanceMeasure, "M", clusterMethod))
       
       ##########################
@@ -3019,7 +2922,7 @@ shinyServer(
             "Fragment with m/z = ", fragmentsX[[minimumIndex]], 
             " and (average) abundance = ", format(x = fragmentsY[[minimumIndex]], digits = 0, nsmall = 4), 
             " is present in ", numberOfPrecursors, " MS/MS spectra",
-            "\nand has a fragment discriminativity of ", format(x = fragmentsDiscriminativity[[minimumIndex]]*100, digits = 3, nsmall = 2), "%.", 
+            "\nand has a cluster-discriminating power of ", format(x = fragmentsDiscriminativity[[minimumIndex]]*100, digits = 3, nsmall = 2), "%.", 
             sep = ""
           )
         })
@@ -3416,7 +3319,7 @@ shinyServer(
       value     <- input$presentAnnotationValue
       
       drawPlots <- as.numeric(input$removePresentAnnotation)
-      ## why?
+      ## XXX why?
       #if(drawPlots == removePresentAnnotationValue)
       #  return()
       #removePresentAnnotationValue <<- drawPlots
@@ -3806,37 +3709,20 @@ shinyServer(
            column(width = state$legendColumnWidth,
               conditionalPanel(## scores / loadings properties
                 condition = 'output.analysisType == "PCA" && output.showPCAplotPanel',
-                #splitLayout(
-                #  style = "border: 1px solid silver;padding: 0px 6px;",
-                #  div(
-                    h5("PCA scores"),
-                    bsTooltip(id = "showScoresLabels", title = "Display scores labels", placement = "bottom", trigger = "hover"),
-                    checkboxInput(inputId = "showScoresLabels", label = "Show labels", value = TRUE),
-                #  )
-                #),
-                #splitLayout(
-                #  style = "border: 1px solid silver;padding: 0px 6px;",
-                #  div(
-                    h5("PCA loadings"),
-                    bsTooltip(id = "showLoadingsLabels", title = "Display loadings labels", placement = "bottom", trigger = "hover"),
-                    checkboxInput(inputId = "showLoadingsLabels", label = "Show labels", value = FALSE),
-                    bsTooltip(id = "showLoadingsAbundance", title = "Use abundance in MS\u00B9 to scale the size of loadings nodes", placement = "bottom", trigger = "hover"),
-                    checkboxInput(inputId = "showLoadingsAbundance", label = "Show abundance", value = FALSE)
-                    #bsTooltip(id = "pcaLoadingsProperties", title = "Check to display loadings labels or to use abundance in MS\u00B9 to scale the size of loadings nodes", placement = "bottom", trigger = "hover"),
-                    #checkboxGroupInput(inputId = "pcaLoadingsProperties", label = NULL, choices = c("Show labels", "Show abundance"))
-                #  )
-                #)
+                h5("PCA scores"),
+                bsTooltip(id = "showScoresLabels", title = "Display scores labels", placement = "bottom", trigger = "hover"),
+                checkboxInput(inputId = "showScoresLabels", label = "Show labels", value = TRUE),
+                h5("PCA loadings"),
+                bsTooltip(id = "showLoadingsLabels", title = "Display loadings labels", placement = "bottom", trigger = "hover"),
+                checkboxInput(inputId = "showLoadingsLabels", label = "Show labels", value = FALSE),
+                bsTooltip(id = "showLoadingsAbundance", title = "Use abundance in MS\u00B9 to scale the size of loadings nodes", placement = "bottom", trigger = "hover"),
+                checkboxInput(inputId = "showLoadingsAbundance", label = "Show abundance", value = FALSE)
               ),
               conditionalPanel(## dendrogram properties
                 condition = 'output.analysisType == "HCA" && output.showHCAplotPanel',
-                #splitLayout(
-                #  style = "border: 1px solid silver;padding: 0px 6px;",
-                #  div(
-                    h5("HCA dendrogram"),
-                    bsTooltip(id = "showClusterLabels", title = "Display the labels of cluster nodes and MS\u00B9 feature nodes representing the number of characteristic fragments", placement = "bottom", trigger = "hover"),
-                    checkboxInput(inputId = "showClusterLabels", label = "Show labels", value = TRUE)
-                #  )
-                #)
+                h5("HCA dendrogram"),
+                bsTooltip(id = "showClusterLabels", title = "Display the labels of cluster nodes and MS\u00B9 feature nodes representing the number of characteristic fragments", placement = "bottom", trigger = "hover"),
+                checkboxInput(inputId = "showClusterLabels", label = "Show labels", value = TRUE)
               ),
               conditionalPanel(
                 condition = 'output.analysisType == "HCA" && output.showHCAplotPanel',
@@ -4124,34 +4010,9 @@ shinyServer(
       return(dataFrame)
     }
     writeTable <- function(precursorSet, file){
-      #compressed
-      #[1] "create 22
-      #[1] "write 23
-      
-      #uncompressed
-      #[1] "create 23
-      #[1] "write 19
-      
-      ## 02 with zeros
-      #[1] "create 4
-      #[1] "write 38
-      
-      ## sparse matrix
-      #[1] "create 5
-      #[1] "write 19
-      
-      ## matrix
-      #[1] "create 6
-      #[1] "write 12
-      
-      #print(paste("create", Sys.time()))
       dataFrame <- createExportMatrix(precursorSet)
-      #print(paste("create ready", Sys.time()))
       gz1 <- gzfile(description = file, open = "w")
-      #print(paste("write", Sys.time()))
       write.table(x = dataFrame, file = gz1, sep = "\t", row.names = FALSE, col.names = FALSE, quote = FALSE)
-      #write.table(x = dataFrame, file = file, sep = "\t", row.names = FALSE, col.names = FALSE, quote = FALSE)
-      #print(paste("write ready", Sys.time()))
       close(gz1)
     }
     ## individual downloads
@@ -4271,9 +4132,6 @@ shinyServer(
         widthInPixel    <- widthInInch  * resolutionInDPI
         heightInPixel   <- heigthInInch * resolutionInDPI
         
-        #tmpFile <- paste("/home/htreutle/Downloads/MetSWATH/", createExportImageName("PCA"), sep = "")
-        #print(tmpFile)
-        #png(filename = tmpFile, 3000, 2000, res = 300, bg = "white")
         switch(fileType,
                "png"={
                  png(filename = file, width = widthInPixel, height = heightInPixel, res = resolutionInDPI, bg = "white")
@@ -4308,7 +4166,6 @@ shinyServer(
         #drawAnnotationLegendImpl()
         
         dev.off()
-        ## cannot open file 'Rplots.pdf'
       }#,
       #contentType = 'image/png'
     )
@@ -4340,10 +4197,6 @@ shinyServer(
         resolutionInDPI <- 600
         widthInPixel    <- widthInInch  * resolutionInDPI
         heightInPixel   <- heigthInInch * resolutionInDPI
-        
-        #tmpFile <- paste("/home/htreutle/Downloads/MetSWATH/", createExportImageName("PCA"), sep = "")
-        #print(tmpFile)
-        #png(filename = tmpFile, 3000, 2000, res = 300, bg = "white")
         
         switch(fileType,
                "png"={
@@ -4423,15 +4276,6 @@ shinyServer(
       },
       contentType = "application/zip"
     )
-    ### TODO
-    #output$myImage <- renderImage({
-    #  #list(src = "/home/htreutle/Downloads/MetSWATH/svg/svgTestScoresPlot01.svg",
-    #  list(src = "/home/htreutle/Downloads/MetSWATH/svg/tmp2/tooltipLattice.svg",
-    #       contentType = 'image/svg',
-    #       width = 800,
-    #       height = 600
-    #  )
-    #}, deleteFile = FALSE)
     
     ## TODO
     #http://127.0.0.1:25805/library/utils/html/zip.html
@@ -4453,7 +4297,8 @@ shinyServer(
         hcaFilterIncludeIgnoredPrecursors = input$hcaFilterIncludeIgnoredPrecursors,
         #input$applyHcaFilters
         hcaDistanceFunction               = input$hcaDistanceFunction,
-        hcaClusterMethod                  = input$hcaClusterMethod,
+        #hcaClusterMethod                  = input$hcaClusterMethod,
+        hcaClusterMethod                  = "ward.D",
         #input$drawHCAplots
         ## PCA
         pcaGroups                         = input$pcaGroups,
@@ -4535,7 +4380,7 @@ shinyServer(
       updateCheckboxInput(     session = session, inputId = "hcaFilterIncludeIgnoredPrecursors", value = as.logical(paramsList$hcaFilterIncludeIgnoredPrecursors))
       #input$applyHcaFilters
       updateSelectInput(       session = session, inputId = "hcaDistanceFunction",               selected = paramsList$hcaDistanceFunction)
-      updateSelectInput(       session = session, inputId = "hcaClusterMethod",                  selected = paramsList$hcaClusterMethod)
+      #updateSelectInput(       session = session, inputId = "hcaClusterMethod",                  selected = paramsList$hcaClusterMethod)
       #input$drawHCAplots
       ## PCA
       updateCheckboxGroupInput(session = session, inputId = "pcaGroups",                         selected = paramsList$pcaGroups)

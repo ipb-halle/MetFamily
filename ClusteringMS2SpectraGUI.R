@@ -2619,7 +2619,7 @@ calcPlotDiscriminativityLegend <- function(){
     "75%", 
     "100%"
   )
-  labels <- c("Fragment discriminativity", stickLabels)
+  labels <- c("Cluster-discriminating power", stickLabels)
   xPositions <- c(-0.05, rep(x = xSpacing, times = length(stickLabels)))
   #yPositions <- seq(from = 1, to = 0, by = 1/(-length(xPositions)))
   yPositions <- seq(from = 0.9, to = -0.1, by = -1/length(labels))[1:length(xPositions)]
