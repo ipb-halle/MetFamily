@@ -18,7 +18,7 @@ source("FragmentMatrixFunctions.R")
 #########################################################################################
 #########################################################################################
 ## global variables
-shinyAppFolder <- "/vol/R/shiny/srv/shiny-server/MetFam/"
+#shinyAppFolder <- "/vol/R/shiny/srv/shiny-server/MetFam/"
 
 shinyServer(
   func = function(input, output, session) {
@@ -79,8 +79,8 @@ shinyServer(
     
     ##############################################
     ## program state
+    initialGuiUpdatePerformed <- FALSE
     state <- reactiveValues(
-      initialGuiUpdatePerformed = FALSE, 
       importedOrLoadedFile_s_ = NULL, 
       globalMS2filterValid = FALSE, 
       hcafilterValid = FALSE, 
@@ -107,9 +107,9 @@ shinyServer(
       ## plot annotations
       annotationsHca = NULL,
       annotationsPca = NULL,
-      scoresGroups = NULL,
       scoresGroupsLegendHeight = -1
     )
+    scoresGroups <- NULL
     changeSelectionCurrentSelection <- selectionAnalysisName
     precursorSelectionTabCurrentTab <- precursorSelectionTabSelection
     plotToShow <- "Display HCA"
@@ -310,7 +310,7 @@ shinyServer(
       selectedTable <<- NULL
       state$annotationsHca <<- NULL
       state$annotationsPca <<- NULL
-      state$scoresGroups <<- NULL
+      scoresGroups <<- NULL
       
       ## reset plot range
       dendrogramPlotRangeY <<- NULL
@@ -926,6 +926,7 @@ shinyServer(
       })
     }
     drawPcaScoresPlotImpl <- function(){
+      #resultObj <- calcPlotPCAscores(
       resultObj <- calcPlotPCAscores(
         pcaObj = pcaDataList$pcaObj, 
         dataList = dataList, 
@@ -936,9 +937,6 @@ shinyServer(
         xInterval = pcaScoresPlotRange$xInterval, 
         yInterval = pcaScoresPlotRange$yInterval
       )
-      
-      state$scoresGroups <<- resultObj
-      state$scoresGroupsLegendHeight <<- scoresGroupsLegendEntryHeight * (length(state$scoresGroups$groups) + 1)
     }
     drawPcaLoadingsPlot <- function(consoleInfo = NULL){
       output$plotPcaLoadings <- renderPlot({
@@ -989,7 +987,7 @@ shinyServer(
     drawScoresGroupsLegend <- function(consoleInfo = NULL){
       output$plotScoresGroupsLegend <- renderPlot({
         print(paste("### leg ###", consoleInfo))
-        calcPlotScoresGroupsLegend(state$scoresGroups$groups, state$scoresGroups$colors)
+        calcPlotScoresGroupsLegend(scoresGroups$groups, scoresGroups$colors)
       })
     }
     drawMS2Legend <- function(consoleInfo = NULL){
@@ -1724,14 +1722,16 @@ shinyServer(
           state$plotPcaShown <<- FALSE
         }
       }
-      if(tabId == "Input" & !state$initialGuiUpdatePerformed){
+      if(tabId == "Input" & !initialGuiUpdatePerformed){
         ## initial gui update
         print(paste("update GUI initially", tabId))
         shinyjs::disable("importMs1Ms2Data")
         shinyjs::disable("loadProjectData")
-        state$runRightColumnWidth <<- 8
+        #state$runRightColumnWidth <<- 8
         
-        state$initialGuiUpdatePerformed <<- TRUE
+        print(getwd())
+        
+        initialGuiUpdatePerformed <<- TRUE
       }
       
       if(tabId == "HCA" | tabId == "PCA")
@@ -1852,7 +1852,7 @@ shinyServer(
       ## files
       ## TODO relative paths or as R package
       #filePath <- paste(shinyAppFolder, "files/Fragment_matrix_showcase.csv", sep = "")
-      filePath <- paste(shinyAppFolder, "files/Project_file_showcase_annotated.csv.gz", sep = "")
+      filePath <- paste(getwd(), "/files/Project_file_showcase_annotated.csv.gz", sep = "")
       fileName <- "Fragment_matrix_showcase.csv"
       
       loadProjectFile(filePath = filePath, fileName = fileName, buttonId = "loadExampleData")
@@ -2639,6 +2639,12 @@ shinyServer(
       drawPcaPlots(consoleInfo = "drawPCA output$plotPcaScores")
       drawMS2Plot(consoleInfo = "drawPCA output$plotMS2")
       drawAnnotationLegendPCA(consoleInfo = "init output$plotAnnoLegend")
+      
+      scoresGroups <<- list(
+        groups = filterPca$groups,
+        colors = colorPalette()[unlist(lapply(X = filterPca$groups, FUN = dataList$groupIdxFromGroupName))]
+      )
+      state$scoresGroupsLegendHeight <<- scoresGroupsLegendEntryHeight * (length(scoresGroups$groups) + 1)
       drawScoresGroupsLegend(consoleInfo = "init output$plotScoresGroupsLegend")
       
       if(!state$anyPlotDrawn){
@@ -3497,6 +3503,7 @@ shinyServer(
     })
     output$rInfo <- renderText({
       print(paste("init rInfo"))
+      #paste(R.Version()$version.string, "\nwd: ", getwd(), sep = "")
       R.Version()$version.string
     })
     
@@ -4239,7 +4246,7 @@ shinyServer(
         drawPcaLoadingsPlotImpl()
         drawMS2PlotImpl()
         
-        calcPlotScoresGroupsLegendForImage(state$scoresGroups$groups, state$scoresGroups$colors, 5)
+        calcPlotScoresGroupsLegendForImage(scoresGroups$groups, scoresGroups$colors, 5)
         drawDendrogramLegendImpl()
         drawMS2LegendImpl()
         drawFragmentDiscriminativityLegendImpl()
@@ -4266,7 +4273,7 @@ shinyServer(
       },
       content = function(file) {
         ## copy data for download
-        file.copy(paste(shinyAppFolder, "files/Metabolite_profile_showcase.txt", sep = ""), file)
+        file.copy(paste(getwd(), "/files/Metabolite_profile_showcase.txt", sep = ""), file)
       },
       contentType = "application/zip"
     )
@@ -4276,7 +4283,7 @@ shinyServer(
       },
       content = function(file) {
         ## copy data for download
-        file.copy(paste(shinyAppFolder, "files/MSMS_library_showcase.msp", sep = ""), file)
+        file.copy(paste(getwd(), "/files/MSMS_library_showcase.msp", sep = ""), file)
       },
       contentType = "application/zip"
     )
@@ -4286,7 +4293,7 @@ shinyServer(
       },
       content = function(file) {
         ## copy data for download
-        file.copy(paste(shinyAppFolder, "files/Fragment_matrix_showcase.csv", sep = ""), file)
+        file.copy(paste(getwd(), "/files/Fragment_matrix_showcase.csv", sep = ""), file)
       },
       contentType = "application/zip"
     )

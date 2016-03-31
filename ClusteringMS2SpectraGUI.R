@@ -3419,7 +3419,6 @@ calcPlotPCAscores <- function(pcaObj, dataList, filterObj, pcaDimensionOne, pcaD
     groupIdx <- dataList$groupIdxFromGroupName(x)
     rep(x = groupIdx, times = length(dataList$dataColumnsNameFunctionFromName(x)))
   }))]
-  colorsForGroups <- palette[unlist(lapply(X = filterObj$groups, FUN = dataList$groupIdxFromGroupName))]
   
   dataDimOne <- pcaObj$scores[, pcaDimensionOne]
   dataDimTwo <- pcaObj$scores[, pcaDimensionTwo]
@@ -3464,12 +3463,6 @@ calcPlotPCAscores <- function(pcaObj, dataList, filterObj, pcaDimensionOne, pcaD
     labels <- dataList$dataColumnsNameFunctionFromNames(filterObj$groups)
     graphics::text(x = dataDimOne, y = dataDimTwo, labels = labels, pos = 4)
   }
-  
-  resultList <- list(
-    groups = filterObj$groups,
-    colors = colorsForGroups
-  )
-  return(resultList)
 }
 calcPlotPCAloadings <- function(pcaObj, dataList, filter, pcaDimensionOne, pcaDimensionTwo, selectionFragmentPcaLoadingSet = NULL, selectionAnalysisPcaLoadingSet = NULL, selectionSearchPcaLoadingSet = NULL, xInterval = NULL, yInterval = NULL, showLoadingsLabels = FALSE, showLoadingsAbundance = FALSE){
   varianceOne <- format(x = pcaObj$variance[[pcaDimensionOne]], digits = 3)
