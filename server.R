@@ -36,7 +36,7 @@ shinyServer(
     ## data import
     proportionOfMatchingPeaks_ms2PeakGroupDeisotoping <- 0.9
     mzDeviationAbsolute_mapping <- 0.01
-    minimumNumberOfMS2PeaksPerGroup <- 1
+    #minimumNumberOfMS2PeaksPerGroup <- 1
     ## annotation
     artifact <- "Ignore"
     artifactColor <- "red"
@@ -804,13 +804,13 @@ shinyServer(
       if(all(fileInputSelection == "Load project", !is.null(filePath), !is.null(state$importedOrLoadedFile_s_), fileName == state$importedOrLoadedFile_s_))
         output$fileInfo <- renderText({paste(fileName)})
       if(all(fileInputSelection == "Import data", is.null(fileMs1Path), is.null(fileMs2Path)))
-        output$fileInfo <- renderText({paste("Please select a metabolite profile, a MS/MS library, and press 'Import MS\u00B9 and MS/MS data'")})
+        output$fileInfo <- renderText({paste("Please select a metabolite profile, a MS/MS library, and press 'Import MS1 and MS/MS data'")})
       if(all(fileInputSelection == "Import data", is.null(fileMs1Path), !is.null(fileMs2Path)))
-        output$fileInfo <- renderText({paste("Please select a metabolite profile and press 'Import MS\u00B9 and MS/MS data'")})
+        output$fileInfo <- renderText({paste("Please select a metabolite profile and press 'Import MS1 and MS/MS data'")})
       if(all(fileInputSelection == "Import data", !is.null(fileMs1Path), is.null(fileMs2Path)))
-        output$fileInfo <- renderText({paste("Please select a MS/MS library and press 'Import MS\u00B9 and MS/MS data'")})
+        output$fileInfo <- renderText({paste("Please select a MS/MS library and press 'Import MS1 and MS/MS data'")})
       if(all(fileInputSelection == "Import data", !is.null(fileMs1Path), !is.null(fileMs2Path), any(is.null(state$importedOrLoadedFile_s_), c(fileMs1Name,fileMs2Name) != state$importedOrLoadedFile_s_)))
-        output$fileInfo <- renderText({paste("Please press 'Import MS\u00B9 and MS/MS data'")})
+        output$fileInfo <- renderText({paste("Please press 'Import MS1 and MS/MS data'")})
       if(all(fileInputSelection == "Import data", !is.null(fileMs1Path), !is.null(fileMs2Path), !is.null(state$importedOrLoadedFile_s_), c(fileMs1Name,fileMs2Name) == state$importedOrLoadedFile_s_))
         output$fileInfo <- renderText({paste(fileMs1Name, "\n", fileMs2Name, sep = "")})
     }
@@ -1729,6 +1729,7 @@ shinyServer(
         print(paste("update GUI initially", tabId))
         shinyjs::disable("importMs1Ms2Data")
         shinyjs::disable("loadProjectData")
+        state$runRightColumnWidth <<- 8
         
         state$initialGuiUpdatePerformed <<- TRUE
       }
@@ -1967,7 +1968,7 @@ shinyServer(
       ## fixed
       proportionOfMatchingPeaks_ms2PeakGroupDeisotopingHere <- proportionOfMatchingPeaks_ms2PeakGroupDeisotoping
       mzDeviationAbsolute_mappingHere <- mzDeviationAbsolute_mapping
-      minimumNumberOfMS2PeaksPerGroupHere <- minimumNumberOfMS2PeaksPerGroup
+      #minimumNumberOfMS2PeaksPerGroupHere <- minimumNumberOfMS2PeaksPerGroup
       
       #################################################
       ## check params
@@ -2043,12 +2044,12 @@ shinyServer(
         mzDeviationAbsolute_mappingHere <- as.numeric(mzDeviationAbsolute_mappingHere)
         error <- error | is.na(mzDeviationAbsolute_mappingHere)
       }
-      if(any(is.null(minimumNumberOfMS2PeaksPerGroupHere), length(minimumNumberOfMS2PeaksPerGroupHere) == 0, nchar(minimumNumberOfMS2PeaksPerGroupHere) == 0))
-        error <- TRUE
-      else{
-        minimumNumberOfMS2PeaksPerGroupHere <- as.numeric(minimumNumberOfMS2PeaksPerGroupHere)
-        error <- error | is.na(minimumNumberOfMS2PeaksPerGroupHere)
-      }
+      # if(any(is.null(minimumNumberOfMS2PeaksPerGroupHere), length(minimumNumberOfMS2PeaksPerGroupHere) == 0, nchar(minimumNumberOfMS2PeaksPerGroupHere) == 0))
+      #   error <- TRUE
+      # else{
+      #   minimumNumberOfMS2PeaksPerGroupHere <- as.numeric(minimumNumberOfMS2PeaksPerGroupHere)
+      #   error <- error | is.na(minimumNumberOfMS2PeaksPerGroupHere)
+      # }
       
       if(error){
         output$fileInfo <- renderText({paste("There are invalid parameter values. Please check the parameters and press 'Import MS\u00B9 and MS/MS data' again.")})
@@ -2056,7 +2057,7 @@ shinyServer(
       }
       
       ## box parameters
-      print(paste("Observe importMs1Ms2Data", "e", error, "mi", minimumIntensityOfMaximalMS2peak, "mp", minimumProportionOfMS2peaks, "ga", mzDeviationAbsolute_grouping, "gr", mzDeviationInPPM_grouping, "pd", doPrecursorDeisotoping, "pa", mzDeviationAbsolute_precursorDeisotoping, "pr", mzDeviationInPPM_precursorDeisotoping, "mr", maximumRtDifference, "fd", doMs2PeakGroupDeisotoping, "fa", mzDeviationAbsolute_ms2PeakGroupDeisotoping, "fr", mzDeviationInPPM_ms2PeakGroupDeisotoping, "pm", proportionOfMatchingPeaks_ms2PeakGroupDeisotopingHere, "ma", mzDeviationAbsolute_mappingHere, "mn", minimumNumberOfMS2PeaksPerGroupHere))
+      print(paste("Observe importMs1Ms2Data", "e", error, "mi", minimumIntensityOfMaximalMS2peak, "mp", minimumProportionOfMS2peaks, "ga", mzDeviationAbsolute_grouping, "gr", mzDeviationInPPM_grouping, "pd", doPrecursorDeisotoping, "pa", mzDeviationAbsolute_precursorDeisotoping, "pr", mzDeviationInPPM_precursorDeisotoping, "mr", maximumRtDifference, "fd", doMs2PeakGroupDeisotoping, "fa", mzDeviationAbsolute_ms2PeakGroupDeisotoping, "fr", mzDeviationInPPM_ms2PeakGroupDeisotoping, "pm", proportionOfMatchingPeaks_ms2PeakGroupDeisotopingHere, "ma", mzDeviationAbsolute_mappingHere))
       parameterSet <- list()
       parameterSet$projectName                                       <- projectName
       parameterSet$projectDescription                                <- projectDescription
@@ -2074,7 +2075,7 @@ shinyServer(
       parameterSet$mzDeviationInPPM_ms2PeakGroupDeisotoping          <- mzDeviationInPPM_ms2PeakGroupDeisotoping
       parameterSet$proportionOfMatchingPeaks_ms2PeakGroupDeisotoping <- proportionOfMatchingPeaks_ms2PeakGroupDeisotopingHere
       parameterSet$mzDeviationAbsolute_mapping                       <- mzDeviationAbsolute_mappingHere
-      parameterSet$minimumNumberOfMS2PeaksPerGroup                   <- minimumNumberOfMS2PeaksPerGroupHere
+      #parameterSet$minimumNumberOfMS2PeaksPerGroup                   <- minimumNumberOfMS2PeaksPerGroupHere
       parameterSet$neutralLossesPrecursorToFragments                 <- neutralLossesPrecursorToFragments
       parameterSet$neutralLossesFragmentsToFragments                 <- neutralLossesFragmentsToFragments
       
@@ -2114,22 +2115,34 @@ shinyServer(
       matrixCols <- resultObj$matrixCols
       matrixVals <- resultObj$matrixVals
       
+      matrixRows <- c(matrixRows, 1)
+      matrixCols <- c(matrixCols, 1)
+      matrixVals <- c(matrixVals, serializeParameterSet(parameterSet))
+      
+      ## TODO performance 25s
       ## convert matrix to dataframe
       numberOfRows    <- max(matrixRows)
       numberOfColumns <- max(matrixCols)
+      lines <- vector(mode = "character", length = numberOfRows)
+      for(rowIdx in seq_len(numberOfRows)){
+        indeces <- matrixRows == rowIdx
+        tokens  <- vector(mode = "character", length = numberOfColumns)
+        tokens[matrixCols[indeces]] <- matrixVals[indeces]
+        lines[[rowIdx]] <- paste(tokens, collapse = "\t")
+      }
       
-      fragmentMatrix <- matrix(data = rep(x = "", times = numberOfRows * numberOfColumns), nrow = numberOfRows, ncol = numberOfColumns)
-      fragmentMatrix[cbind(matrixRows, matrixCols)] <- matrixVals
-      
-      #dataFrame <- as.data.frame(as.matrix(sparseMatrix(i = matrixRows, j = matrixCols, x = matrixVals)))
-      dataFrame <- as.data.frame(fragmentMatrix, stringsAsFactors = FALSE)
-      
-      ## add import parameters
-      dataFrame[[1, 1]] <- serializeParameterSet(parameterSet)
+      # fragmentMatrix <- matrix(data = rep(x = "", times = numberOfRows * numberOfColumns), nrow = numberOfRows, ncol = numberOfColumns)
+      # fragmentMatrix[cbind(matrixRows, matrixCols)] <- matrixVals
+      # 
+      # #dataFrame <- as.data.frame(as.matrix(sparseMatrix(i = matrixRows, j = matrixCols, x = matrixVals)))
+      # dataFrame <- as.data.frame(fragmentMatrix, stringsAsFactors = FALSE)
+      # 
+      # ## add import parameters
+      # dataFrame[[1, 1]] <- serializeParameterSet(parameterSet)
       #################################################
       ## process project file
       withProgress(message = 'Processing matrix...', value = 0, {
-        dataList <<- readProjectData(dataFrame = dataFrame, progress = TRUE)
+        dataList <<- readProjectData(fileLines = lines, progress = TRUE)
       })
       print(paste("readProjectData do data finished", dataList$minimumMass))
       resetWorkspace()
@@ -3572,7 +3585,7 @@ shinyServer(
     #########################################################################################
     #########################################################################################
     ## properties
-    options(shiny.maxRequestSize=500*1024^2) ## 500 mb file size
+    options(shiny.maxRequestSize=1024*1024^2) ## 500 mb file size
     outputOptions(output, 'showGUI', suspendWhenHidden=FALSE)
     outputOptions(output, 'showSideBar', suspendWhenHidden=FALSE)
     outputOptions(output, 'showHCAplotPanel', suspendWhenHidden=FALSE)
@@ -3964,7 +3977,7 @@ shinyServer(
       ## built MS1 matrix
       ms1Matrix     <- rbind(
         dataList$dataFrameMS1Header,
-        dataList$dataFrameInfos[precursorSet, ]
+        dataList$metaboliteProfile[precursorSet, ]
       )
       ms1Matrix     <- as.matrix(ms1Matrix)
       
@@ -3990,10 +4003,11 @@ shinyServer(
       annoPresentAnnotations <- dataList$annoPresentAnnotationsList[-1]
       annoPresentColors      <- dataList$annoPresentColorsList[-1]
       
-      if(length(annoPresentAnnotations) > 0)
+      if(length(annoPresentAnnotations) > 0){
         annotationColors <- paste(annoPresentAnnotations, annoPresentColors, sep = "=", collapse = ", ")
-      else
+      } else {
         annotationColors <- ""
+      }
       annotationColors <- paste(dataList$annotationColorsName, "={", annotationColors, "}", sep = "")
       
       ## box

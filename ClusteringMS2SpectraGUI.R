@@ -21,6 +21,8 @@ library("Matrix")
 #install.packages("plotrix")
 library("plotrix")
 library("tools")
+#install.packages("stringi")
+library("stringr")
 
 #########################################################################################
 ## constants
@@ -450,14 +452,549 @@ readClusterDataFromProjectFile <- function(file, progress = FALSE){
   if(extension == "gz")
     file <- gzfile(file, "r")
   
-  dataFrame <- read.csv(file = file, header = FALSE, sep = "\t", stringsAsFactors = FALSE)
+  #dataFrame <- read.csv(file = file, header = FALSE, sep = "\t", stringsAsFactors = FALSE)
+  fileLines <- readLines(con = file)
   
   if(progress)  incProgress(amount = 0.1, detail = "Preprocessing") else print("Preprocessing")
   
-  dataList <- readProjectData(dataFrame, progress)
+  #dataList <- readProjectData(dataFrame, progress)
+  dataList <- readProjectData(fileLines, progress)
   return(dataList)
 }
-readProjectData <- function(dataFrame, progress = FALSE){
+readProjectData <- function(fileLines, progress = FALSE){
+  allowedTags <- c("ID")
+  allowedTagPrefixes <- c("AnnotationColors=")
+  
+  ##################################################################################################
+  ## parse data
+  numberOfRows <- length(fileLines)
+  numberOfMS1features <- as.integer(numberOfRows - 3)
+  
+  ## header
+  line1Tokens <- strsplit(x = fileLines[[1]], split = "\t")[[1]]
+  line2Tokens <- strsplit(x = fileLines[[2]], split = "\t")[[1]]
+  line3Tokens <- strsplit(x = fileLines[[3]], split = "\t")[[1]]
+  
+  ## metabolite profile vs fragmentMatrix
+  numberOfColumns <- length(line1Tokens)
+  fragmentMatrixStart <- min(which(line1Tokens[2:numberOfColumns] != "")) + 1
+  numberOfMetaboliteProfileColumns <- fragmentMatrixStart - 1
+  numberOfFragmentGroups <- numberOfColumns - numberOfMetaboliteProfileColumns
+  
+  ## extract infos from header
+  importParameters <- line1Tokens[[1]]
+  if(nchar(importParameters) == 0){
+    ## import parameterSet not there: backward compatibility - add if not there
+    importParameters <- "ImportParameters={projectName=MetFamily project; projectDescription=; toolVersion=MetFamily 1.0; minimumIntensityOfMaximalMS2peak=2000; minimumProportionOfMS2peaks=0.05; mzDeviationAbsolute_grouping=0.01; mzDeviationInPPM_grouping=10; doPrecursorDeisotoping=TRUE; mzDeviationAbsolute_precursorDeisotoping=0.001; mzDeviationInPPM_precursorDeisotoping=10; maximumRtDifference=0.02; doMs2PeakGroupDeisotoping=FALSE; mzDeviationAbsolute_ms2PeakGroupDeisotoping=0.01; mzDeviationInPPM_ms2PeakGroupDeisotoping=10; proportionOfMatchingPeaks_ms2PeakGroupDeisotoping=0.9; mzDeviationAbsolute_mapping=0.01; minimumNumberOfMS2PeaksPerGroup=1; neutralLossesPrecursorToFragments=TRUE; neutralLossesFragmentsToFragments=FALSE}"
+  }
+  
+  fragmentGroupsNumberOfFramgents <- as.integer(line1Tokens[fragmentMatrixStart:numberOfColumns])
+  line1Tokens <- NULL
+  
+  tagsSector <- line2Tokens[1:numberOfMetaboliteProfileColumns]
+  fragmentGroupsAverageIntensity <- as.numeric(line2Tokens[fragmentMatrixStart:numberOfColumns])
+  line2Tokens <- NULL
+  
+  metaboliteProfileColumnNames <- line3Tokens[1:numberOfMetaboliteProfileColumns]
+  fragmentGroupsAverageMass <- as.numeric(line3Tokens[fragmentMatrixStart:numberOfColumns])
+  line3Tokens <- NULL
+  
+  #########################################################################
+  ## extract metabolite profile and fragment matrix
+  metaboliteProfile <- as.data.frame(matrix(nrow = numberOfMS1features, ncol = numberOfMetaboliteProfileColumns))
+  colnames(metaboliteProfile) <- metaboliteProfileColumnNames
+  
+  listMatrixRows <- list()
+  listMatrixCols <- list()
+  listMatrixVals <- list()
+  for(rowIdx in seq_len(numberOfMS1features)){
+    lineIdx <- rowIdx + 3
+    tokens <- str_split(string = fileLines[[lineIdx]], pattern = "\t")[[1]]
+    
+    ## metabolite profile
+    metaboliteProfile[rowIdx, ] <- tokens[1:numberOfMetaboliteProfileColumns]
+    
+    ## fragment matrix
+    tokens <- tokens[fragmentMatrixStart:numberOfColumns]
+    nonEmpty <- tokens != ""
+    indeces <- which(nonEmpty)
+    numberOfEntries <- length(indeces)
+    listMatrixRows[[rowIdx]] <- rep(x = rowIdx, times = numberOfEntries)
+    listMatrixCols[[rowIdx]] <- indeces
+    listMatrixVals[[rowIdx]] <- tokens[nonEmpty]
+  }
+  matrixRows <- as.integer(unlist(listMatrixRows))
+  matrixCols <- as.integer(unlist(listMatrixCols))
+  matrixVals <- as.numeric(unlist(listMatrixVals))
+  listMatrixRows <- NULL
+  listMatrixCols <- NULL
+  listMatrixVals <- NULL
+  
+  ## header
+  dataFrameHeader <- cbind(
+    data.frame(rbind(
+      c(importParameters, rep(x = "", times = numberOfMetaboliteProfileColumns - 1)),
+      tagsSector,
+      metaboliteProfileColumnNames
+    ), stringsAsFactors = FALSE),
+    data.frame(rbind(
+      fragmentGroupsNumberOfFramgents,
+      fragmentGroupsAverageIntensity,
+      fragmentGroupsAverageMass
+    ), stringsAsFactors = FALSE)
+  )
+  headerLabels <- c("HeaderForFragmentCounts", "HeaderForGroupsAndFragmentIntensities", "Header")
+  rownames(dataFrameHeader) <- headerLabels
+  headerColumnNames <- c(metaboliteProfileColumnNames, fragmentGroupsAverageMass)
+  colnames(dataFrameHeader) <- headerColumnNames
+  
+  ## import parameterSet
+  importParameterSet <- deserializeParameterSet(importParameters)
+  
+  ## insert annotation column if not there
+  annotationColorsName <- "AnnotationColors"
+  annotationColorsMapInitValue <- paste(annotationColorsName, "={}", sep = "")
+  annotationColumnName <- "Annotation"
+  if(!any(metaboliteProfileColumnNames == annotationColumnName, na.rm = TRUE)){
+    ## backward compatibility - insert if not there
+    target <- 2
+    
+    if(target == 0 | target == numberOfMetaboliteProfileColumns)
+      stop("Cannot insert column!")
+    
+    metaboliteProfile <- cbind(
+      metaboliteProfile[,1:target,drop=F], 
+      as.data.frame(x = rep(x = "", times = numberOfMS1features), stringsAsFactors = FALSE), 
+      metaboliteProfile[, (target+1):numberOfMetaboliteProfileColumns, drop=FALSE]
+    )
+    dataFrameHeader <- cbind(
+      dataFrameHeader[,1:target,drop=F], 
+      as.data.frame(x = rep(x = "", times = numberOfMS1features), stringsAsFactors = FALSE), 
+      dataFrameHeader[, (target+1):numberOfColumns, drop=FALSE]
+    )
+    numberOfMetaboliteProfileColumns <- numberOfMetaboliteProfileColumns + 1
+    metaboliteProfileColumnNames <- c(metaboliteProfileColumnNames[1:target], annotationColumnName, metaboliteProfileColumnNames[(target+1):numberOfMetaboliteProfileColumns])
+    colnames(metaboliteProfile) <- metaboliteProfileColumnNames
+    headerColumnNames <- c(metaboliteProfileColumnNames, fragmentGroupsAverageMass)
+    colnames(dataFrameHeader) <- headerColumnNames
+    
+    dataFrameHeader[2, target + 1] <- annotationColorsMapInitValue
+    dataFrameHeader[3, target + 1] <- annotationColumnName
+  }
+  
+  annotationColumnIndex <- which(metaboliteProfileColumnNames == annotationColumnName)
+  annotationColorsValue <- dataFrameHeader[2, annotationColumnIndex]
+  
+  dataFrameMS1Header <- dataFrameHeader[, 1:numberOfMetaboliteProfileColumns]
+  
+  ##################################################################################################
+  ## MS1 feature IDs
+  
+  ## mz/rt is aligned by '.'
+  mzs <- metaboliteProfile[, "m/z"]
+  rts <- metaboliteProfile[, "RT"]
+  for(i in 1:numberOfMS1features)
+    if(length(grep(x = mzs[[i]], pattern = ".*\\..*")) == 0)
+      mzs[[i]] <- paste(mzs[[i]], ".0", sep = "")
+  for(i in 1:numberOfMS1features)
+    if(length(grep(x = rts[[i]], pattern = ".*\\..*")) == 0)
+      rts[[i]] <- paste(rts[[i]], ".0", sep = "")
+  
+  tmpMatrixMz <- nchar(matrix(unlist(strsplit(x = mzs, split = "\\.")), nrow = 2))
+  maxMz1 <- max(tmpMatrixMz[1, ])
+  maxMz2 <- max(tmpMatrixMz[2, ])
+  minMz1 <- min(tmpMatrixMz[1, ])
+  minMz2 <- min(tmpMatrixMz[2, ])
+  tmpMatrixRt <- nchar(matrix(unlist(strsplit(x = rts, split = "\\.")), nrow = 2))
+  maxRt1 <- max(tmpMatrixRt[1, ])
+  maxRt2 <- max(tmpMatrixRt[2, ])
+  minRt1 <- min(tmpMatrixRt[1, ])
+  minRt2 <- min(tmpMatrixRt[2, ])
+  
+  mzLabels <- vector(mode = "character", length = numberOfMS1features)
+  for(i in 1:numberOfMS1features)
+    mzLabels[[i]] <- paste(
+      paste(rep(x = " ", times = maxMz1 - tmpMatrixMz[1, i]), collapse = ""),
+      mzs[[i]],
+      paste(rep(x = "0",  times = maxMz2 - tmpMatrixMz[2, i]), collapse = ""),
+      sep = ""
+    )
+  rtLabels <- vector(mode = "character", length = numberOfMS1features)
+  for(i in 1:numberOfMS1features)
+    rtLabels[[i]] <- paste(
+      paste(rep(x = " ", times = maxRt1 - tmpMatrixRt[1, i]), collapse = ""),
+      rts[[i]],
+      paste(rep(x = "0",  times = maxRt2 - tmpMatrixRt[2, i]), collapse = ""),
+      sep = ""
+    )
+  
+  precursorLabels <- paste(mzLabels, rtLabels, sep = " / ")
+  
+  ## remove duplicated MS1 features
+  dupplicated <- which(duplicated(precursorLabels))
+  numberOfDupplicated <- length(dupplicated)
+  if(numberOfDupplicated > 0){
+    precursorLabels <- precursorLabels[-dupplicated]
+    metaboliteProfile <- metaboliteProfile[-dupplicated, ]
+    numberOfMS1features <- numberOfMS1features - numberOfDupplicated
+    for(dupplicatedRowIdx in dupplicated){
+      indeces <- which(matrixRows == dupplicatedRowIdx)
+      matrixRows <- matrixRows[-indeces]
+      matrixCols <- matrixCols[-indeces]
+      matrixVals <- matrixVals[-indeces]
+      indeces <- which(matrixRows > dupplicatedRowIdx)
+      matrixRows[indeces] <- matrixRows[indeces] - 1
+    }
+  }
+  rownames(metaboliteProfile) <- precursorLabels
+  
+  #############################################################################################
+  ## process features
+  if(progress)  incProgress(amount = 0.1, detail = "Features") else print("Features")
+  
+  ## get features
+  featureIndeces <- list()
+  featureCount <- vector(mode = "numeric", length = numberOfMS1features)
+  #fragmentMassPresent <- rep(x = FALSE, times = length(fragmentGroupsAverageMass))
+  for(i in 1:numberOfMS1features){
+    # if(numberOfMS1features >= 10 & ((i %% (as.integer(numberOfMS1features/10))) == 0))
+    #   if(progress)  incProgress(amount = 0.3 / 10, detail = paste("Features ", i, " / ", numberOfMS1features, sep = ""))
+    ## data
+    indecesHere <- which(matrixRows == i)
+    featureIndecesHere <- matrixCols[indecesHere]
+    numberOfFeatures <- length(featureIndecesHere)
+    
+    featureIndeces[[i]] <- featureIndecesHere
+    featureCount[[i]] <- numberOfFeatures
+    #fragmentMassPresent[featureIndecesHere] <- TRUE
+  }
+  
+  if(progress)  incProgress(amount = 0.1, detail = "Feature postprocessing") else print("Feature postprocessing")
+  ## featureMatrix and annotation
+  featureMatrix <- sparseMatrix(i = matrixRows, j = matrixCols, x = matrixVals)
+  matrixRows <- NULL
+  matrixCols <- NULL
+  matrixVals <- NULL
+  
+  #fragmentGroupsAverageMass <- fragmentGroupsAverageMass[1:ncol(featureMatrix)]
+  #fragmentGroupsAverageMass <- fragmentGroupsAverageMass[fragmentMassPresent]
+  rownames(featureMatrix) <- precursorLabels
+  colnames(featureMatrix) <- fragmentGroupsAverageMass
+  
+  ## featureIndexMatrix
+  featureIndexMatrix <- matrix(nrow = numberOfMS1features, ncol = max(sapply(X = featureIndeces, FUN = length)))
+  rownames(featureIndexMatrix) <- precursorLabels
+  for(i in 1:numberOfMS1features)
+    featureIndexMatrix[i, 1:length(featureIndeces[[i]])] <- featureIndeces[[i]]
+  
+  # ## remove columns without data
+  # fragmentThere <- apply(X = featureMatrix, MARGIN = 2, FUN = function(x){any(x != 0)})
+  # minimumMass <- min(fragmentGroupsAverageMass[fragmentThere])
+  # maximumMass <- max(fragmentGroupsAverageMass[fragmentThere])
+  minimumMass <- min(fragmentGroupsAverageMass)
+  maximumMass <- max(fragmentGroupsAverageMass)
+  
+  ## ms2 plot data
+  resultObj <- getMS2plotData(featureMatrix = featureMatrix, fragmentMasses = fragmentGroupsAverageMass)
+  ms2PlotDataNumberOfFragments <- resultObj$numberOfFragments
+  ms2PlotDataAverageAbundance  <- resultObj$averageAbundance
+  ms2PlotDataFragmentMasses    <- resultObj$masses
+  maxNumberOfFragments <- max(resultObj$numberOfFragments)
+  ms2PlotDataColorMapFragmentData  <- makecmap(
+    x = c(0, maxNumberOfFragments), n = 100, 
+    colFn = colorRampPalette(c('grey', 'black'))
+  )
+  
+  ##################################################################################################
+  ## process sample measurements
+  
+  ## sample columns
+  sampleColumns <- tagsSector != ""
+  for(allowedTag in allowedTags)
+    sampleColumns[grep(x = tagsSector, pattern = paste("^", allowedTag, "$", sep = ""))] <- FALSE
+  for(allowedTagPrefix in allowedTagPrefixes)
+    sampleColumns[grep(x = tagsSector, pattern = paste("^", allowedTagPrefix, sep = ""))] <- FALSE
+  sampleColumns <- which(sampleColumns)
+  sampleColumnsStartEnd <- c(min(sampleColumns), max(sampleColumns))
+  
+  groups <- unique(tagsSector[sampleColumns])
+  numberOfGroups <- length(groups)
+  groupsStartEnd <- list()
+  for(groupIdx in seq_len(numberOfGroups))
+    groupsStartEnd[[groupIdx]] <- c(min(which(tagsSector == groups[[groupIdx]])), max(which(tagsSector == groups[[groupIdx]])))
+  groupsStartEndMatrix <- t(matrix(data = unlist(groupsStartEnd), nrow = 2))
+  rownames(groupsStartEndMatrix) <- groups
+  colnames(groupsStartEndMatrix) <- c("Start", "End")
+  
+  ####################
+  ## MS1 measurement data: mean and LFC
+  if(progress)  incProgress(amount = 0.1, detail = "Coloring") else print("Coloring")
+  if(progress)  incProgress(amount = 0, detail = "Coloring init") else print("Coloring init")
+  
+  dataFrameMeasurements <- data.frame(matrix(nrow = numberOfMS1features, ncol = 0))
+  rownames(dataFrameMeasurements) <- precursorLabels
+  
+  ## column name functions
+  if(progress)  incProgress(amount = 0, detail = "Coloring naming functions") else print("Coloring naming functions")
+  dataColumnsNameFunctionFromIndex <- function(groupIdx){
+    paste(groups[[groupIdx]], "_", metaboliteProfileColumnNames[groupsStartEndMatrix[groupIdx, 1]:groupsStartEndMatrix[groupIdx, 2]], sep = "")
+  }
+  dataColumnsNameFunctionFromName <- function(group){
+    dataColumnsNameFunctionFromIndex(match(x = group, table = groups))
+  }
+  dataColumnsNameFunctionFromNames <- function(groups){
+    unlist(lapply(X = groups, FUN = dataColumnsNameFunctionFromName))
+  }
+  groupNameFunctionFromDataColumnName <- function(dataColumnName){
+    groupIdx <- which(unlist(lapply(X = groups, FUN = function(x){
+      dataColumnNames <- dataColumnsNameFunctionFromName(x)
+      any(dataColumnNames == dataColumnName)
+    })))
+    groups[[groupIdx]]
+  }
+  for(groupIdx in seq_len(numberOfGroups)){
+    dataColumnNames <- dataColumnsNameFunctionFromIndex(groupIdx)
+    dataFrameMeasurements[, dataColumnNames] <- data.matrix(metaboliteProfile[, groupsStartEndMatrix[[groupIdx, 1]]:groupsStartEndMatrix[[groupIdx, 2]], drop=FALSE])
+  }
+  dataMeanColumnNameFunctionFromIndex  <- function(groupIdx){
+    return(dataMeanColumnNameFunctionFromName(groups[[groupIdx]]))
+  }
+  dataMeanColumnNameFunctionFromName  <- function(group){
+    return(paste(group, "_mean", sep = ""))
+  }
+  
+  lfcColumnNameFunctionFromIndex <- function(groupIdxOne, groupIdxTwo){
+    lfcColumnNameFunctionFromName(groups[[groupIdxOne]], groups[[groupIdxTwo]])
+  }
+  lfcColumnNameFunctionFromName <- function(groupOne, groupTwo){
+    return(paste("LFC", groupOne, "vs", groupTwo, sep = "_"))
+  }
+  
+  groupNameFromGroupIndex <- function(groupIdx){
+    return(groups[[groupIdx]])
+  }
+  groupIdxFromGroupName <- function(group){
+    return(match(x = group, table = groups))
+  }
+  
+  if(progress)  incProgress(amount = 0, detail = "Coloring gather data") else print("Coloring gather data")
+  ## mean data columns
+  dataMeanColumnNames <- list()
+  for(groupIdx in seq_len(numberOfGroups)){
+    dataColumnName <- dataMeanColumnNameFunctionFromIndex(groupIdx)
+    dataMeanColumnNames[[groupIdx]] <- dataColumnName
+    if(class(unlist(metaboliteProfile[, groupsStartEndMatrix[[groupIdx, 1]]:groupsStartEndMatrix[[groupIdx, 2]]])) == "character")
+      for(colIdx in groupsStartEndMatrix[[groupIdx, 1]]:groupsStartEndMatrix[[groupIdx, 2]])
+        metaboliteProfile[, colIdx] <- as.numeric(metaboliteProfile[, colIdx])
+    
+    dataFrameMeasurements[, dataColumnName] <- apply(X = data.matrix(metaboliteProfile[, groupsStartEndMatrix[[groupIdx, 1]]:groupsStartEndMatrix[[groupIdx, 2]]]), MARGIN = 1, FUN = mean)
+    dataFrameMeasurements[is.na(dataFrameMeasurements[, dataColumnName]), dataColumnName] <- 0
+  }
+  dataMeanColumnNames <- unlist(dataMeanColumnNames)
+  
+  ## all replicates mean
+  dataFrameMeasurements[, "meanAll"] <- apply(
+    X = data.matrix(metaboliteProfile[, 
+                                      unlist(apply(X = groupsStartEndMatrix, MARGIN = 1, FUN = function(x) {seq(from = x[[1]], to = x[[2]])})),
+                                      drop=FALSE]), 
+    MARGIN = 1, FUN = mean
+  )
+  
+  meanAllMax <- max(dataFrameMeasurements[, "meanAll"])
+  dataFrameMeasurements[, "meanAll"] <- dataFrameMeasurements[, "meanAll"] / meanAllMax
+  
+  ## log fold change between groups
+  lfcColumnNames <- list()
+  for(groupIdx1 in seq_len(numberOfGroups))
+    for(groupIdx2 in seq_len(numberOfGroups)){
+      lfcColumnName <- lfcColumnNameFunctionFromIndex(groupIdx1, groupIdx2)
+      lfcColumnNames[[length(lfcColumnNames) + 1]] <- lfcColumnName
+      dataFrameMeasurements[, lfcColumnName] <- log(
+        x = dataFrameMeasurements[, dataMeanColumnNameFunctionFromIndex(groupIdx1)] / dataFrameMeasurements[, dataMeanColumnNameFunctionFromIndex(groupIdx2)], 
+        base = 2
+      )
+      
+      ## tackle zero values
+      dataFrameMeasurements[is.na(dataFrameMeasurements[, lfcColumnName]), lfcColumnName] <- 0
+      dataFrameMeasurements[is.infinite(dataFrameMeasurements[, lfcColumnName]), lfcColumnName] <- 0
+    }
+  lfcColumnNames <- unlist(lfcColumnNames)
+  
+  #########################################################################################
+  ## MS1 measurement data to colors
+  if(progress)  incProgress(amount = 0, detail = "Coloring matrix") else print("Coloring matrix")
+  matrixDataFrame <- data.matrix(dataFrameMeasurements)
+  matrixDataFrame[, dataMeanColumnNames] <- log10(matrixDataFrame[, dataMeanColumnNames])
+  matrixDataFrame[is.infinite(matrixDataFrame)] <- 0
+  #matrixDataFrame[matrixDataFrame < 0] <- 0
+  
+  ## min / max
+  logAbsMax <- max(matrixDataFrame[, dataMeanColumnNames])
+  logFoldChangeMinMax <- c(min(matrixDataFrame[, lfcColumnNames]), max(matrixDataFrame[, lfcColumnNames]))
+  logFoldChangeMax <- max(abs(logFoldChangeMinMax))
+  if(logFoldChangeMax < 1)
+    logFoldChangeMax <- 1
+  
+  ## maps
+  colorMapAbsoluteData  <- makecmap(
+    x = c(0, logAbsMax), n = 100, 
+    #colFn = colorRampPalette(c('white', 'black'))
+    colFn = colorRampPalette(rainbow(18)[10:1])
+  )
+  colorMapLogFoldChange <- makecmap(
+    x = c(-logFoldChangeMax, logFoldChangeMax), n = 100, 
+    colFn = colorRampPalette(c('blue', 'white', 'red'))
+  )
+  
+  columnGroupLabels <- sapply(X = groups, FUN = function(x){ rep(x = x, times = length(dataColumnsNameFunctionFromName(x))) })
+  columnGroupOrgLabels <- metaboliteProfileColumnNames[min(groupsStartEndMatrix):max(groupsStartEndMatrix)]
+  
+  ## translate and box colors
+  if(progress)  incProgress(amount = 0, detail = "Coloring box") else print("Coloring box")
+  colorDataFrame <- dataFrameMeasurements
+  colorDataFrame[, dataMeanColumnNames] <- cmap(x = matrixDataFrame[, dataMeanColumnNames], map = colorMapAbsoluteData)
+  colorDataFrame[, lfcColumnNames]      <- cmap(x = matrixDataFrame[, lfcColumnNames     ], map = colorMapLogFoldChange)
+  colorMatrixDataFrame <- as.matrix(colorDataFrame)
+  
+  #########################################################################################
+  ## precursor annotation fields
+  if(progress)  incProgress(amount = 0.1, detail = "Feature annotations") else print("Feature annotations")
+  annotationValueIgnore <- "Ignore"
+  annotationColorIgnore <- "red"
+  
+  ## present annotations
+  annotations    <- vector(mode='list', length=numberOfMS1features)
+  #annotations[1:numberOfMS1features] <- dataFrame[, annotationColumnName]
+  annoVals <- metaboliteProfile[, annotationColumnName]
+  for(i in 1:numberOfMS1features){
+    #print(paste(i, annoVals[[i]], nchar(annoVals[[i]]), class(annoVals[[i]])))
+    if(nchar(annoVals[[i]]) > 0){
+      annotations[[i]] <- as.list(unlist(strsplit(x = annoVals[[i]], split = ", ")))
+      #print(paste("a1", i, annotations[[i]], length(annotations[[i]]), class(annotations[[i]])))
+    }
+    else{
+      annotations[[i]] <- list()
+      #print(paste("a2", i, annotations[[i]], length(annotations[[i]]), class(annotations[[i]])))
+    }
+  }
+  
+  annoArrayOfLists    <- vector(mode='list', length=numberOfMS1features)
+  annoArrayIsArtifact <- vector(mode='logical', length=numberOfMS1features)
+  for(i in 1:numberOfMS1features){
+    ignoreCheck <- annotations[[i]] == annotationValueIgnore
+    ignoreThere <- any(ignoreCheck)
+    
+    if(ignoreThere){
+      idx <- which(ignoreCheck)
+      annotations[[i]] <- annotations[[i]][-idx]
+    }
+    annoArrayOfLists[[i]]    <- annotations[[i]]
+    #print(paste("b", i, annoArrayOfLists[[i]], length(annoArrayOfLists[[i]]), class(annoArrayOfLists[[i]])))
+    
+    annoArrayIsArtifact[[i]] <- ignoreThere
+  }
+  
+  ## present annos with colors
+  annotationColorsMapValue <- substr(
+    x = annotationColorsValue, 
+    start = nchar(paste(annotationColorsName, "={", sep = "")) + 1, 
+    stop = nchar(annotationColorsValue) - nchar("}")
+  )
+  
+  if(nchar(annotationColorsMapValue) > 0){
+    annotationColorsMapValuePairs <- unlist(strsplit(x = annotationColorsMapValue, split = ", "))
+    annotationColorsMapValues <- unlist(strsplit(x = annotationColorsMapValuePairs, split = "="))
+    annotationColorsMapKeys   <- annotationColorsMapValues[seq(from = 1, to = length(annotationColorsMapValues), by = 2)]
+    annotationColorsMapValues <- annotationColorsMapValues[seq(from = 2, to = length(annotationColorsMapValues), by = 2)]
+  } else {
+    annotationColorsMapKeys <- NULL
+    annotationColorsMapValues <- NULL
+  }
+  
+  annoPresentAnnotationsList <- list()
+  annoPresentColorsList <- list()
+  annoPresentAnnotationsList[[1]] <- annotationValueIgnore
+  annoPresentColorsList[[1]] <- annotationColorIgnore
+  if(length(annotationColorsMapKeys) > 0)
+    for(i in 1:length(annotationColorsMapKeys)){
+      annoPresentAnnotationsList[[1 + i]] <- annotationColorsMapKeys[[i]]
+      annoPresentColorsList     [[1 + i]] <- annotationColorsMapValues[[i]]
+    }
+  
+  ##################################################################################################
+  ## box
+  if(progress)  incProgress(amount = 0.1, detail = "Boxing") else print("Boxing")
+  dataList <- list()
+  ## data
+  dataList$dataFrameHeader <- dataFrameHeader
+  dataList$dataFrameMS1Header <- dataFrameMS1Header
+  dataList$dataFrameInfos <- metaboliteProfile
+  dataList$importParameterSet <- importParameterSet
+  dataList$numberOfPrecursors <- numberOfMS1features
+  dataList$groups <- groups
+  dataList$columnGroupLabels <- columnGroupLabels
+  dataList$columnGroupOrgLabels <- columnGroupOrgLabels
+  ## data: fragments
+  dataList$fragmentMasses <- fragmentGroupsAverageMass
+  dataList$fragmentFrequency <- fragmentGroupsNumberOfFramgents
+  dataList$fragmentAbundance <- fragmentGroupsAverageIntensity
+  dataList$minimumMass <- minimumMass
+  dataList$maximumMass <- maximumMass
+  dataList$precursorLabels <- precursorLabels
+  ## data: abundancies
+  dataList$dataFrameMeasurements <- dataFrameMeasurements
+  dataList$meanAllMax <- meanAllMax
+  dataList$logFoldChangeMax <- logFoldChangeMax
+  dataList$logAbsMax <- logAbsMax
+  dataList$colorMatrixDataFrame <- colorMatrixDataFrame
+  dataList$colorMapAbsoluteData <- colorMapAbsoluteData
+  dataList$colorMapLogFoldChange <- colorMapLogFoldChange
+  ## data: column name functions
+  dataList$dataColumnsNameFunctionFromName <- dataColumnsNameFunctionFromName
+  dataList$dataColumnsNameFunctionFromIndex <- dataColumnsNameFunctionFromIndex
+  dataList$dataColumnsNameFunctionFromNames <- dataColumnsNameFunctionFromNames
+  dataList$groupNameFunctionFromDataColumnName <- groupNameFunctionFromDataColumnName
+  dataList$dataMeanColumnNameFunctionFromName <- dataMeanColumnNameFunctionFromName
+  dataList$dataMeanColumnNameFunctionFromIndex <- dataMeanColumnNameFunctionFromIndex
+  dataList$lfcColumnNameFunctionFromName <- lfcColumnNameFunctionFromName
+  dataList$lfcColumnNameFunctionFromIndex <- lfcColumnNameFunctionFromIndex
+  dataList$groupNameFromGroupIndex <- groupNameFromGroupIndex
+  dataList$groupIdxFromGroupName <- groupIdxFromGroupName
+  ## features
+  dataList$featureMatrix <- featureMatrix
+  dataList$featureIndeces <- featureIndeces
+  dataList$featureCount <- featureCount
+  dataList$featureIndexMatrix <- featureIndexMatrix
+  ## ms2 plot data
+  dataList$numberOfFragments <- ms2PlotDataNumberOfFragments
+  dataList$averageAbundance  <- ms2PlotDataAverageAbundance
+  dataList$masses            <- ms2PlotDataFragmentMasses
+  dataList$colorMapFragmentData <- ms2PlotDataColorMapFragmentData
+  ## annotations
+  dataList$annotationColumnName <- annotationColumnName
+  dataList$annotationColorsName <- annotationColorsName
+  dataList$annotationColumnIndex <- annotationColumnIndex
+  dataList$annotationValueIgnore <- annotationValueIgnore
+  dataList$annotationColorIgnore <- annotationColorIgnore
+  dataList$annoArrayOfLists <- annoArrayOfLists
+  dataList$annoArrayIsArtifact <- annoArrayIsArtifact
+  dataList$annoPresentAnnotationsList <- annoPresentAnnotationsList
+  dataList$annoPresentColorsList <- annoPresentColorsList
+  
+  if(progress)  setProgress(1) else print("Ready")
+  
+  ## 950 932 688
+  ## 634 336 248
+  ## 321 972 296
+  ##   9 090 088
+  ##  11 753 432
+  ##  13 272 240
+  #print(sort( sapply(ls(),function(x){object.size(get(x))})))
+  #memory.profile()
+  
+  return(dataList)
+}
+readProjectDataOld <- function(dataFrame, progress = FALSE){
   #########################################################################################
   ## read and parse
   #columnNames <- unlist(as.matrix(dataFrame[3, ]))
@@ -914,7 +1451,7 @@ readProjectData <- function(dataFrame, progress = FALSE){
   dataList$annoPresentAnnotationsList <- annoPresentAnnotationsList
   dataList$annoPresentColorsList <- annoPresentColorsList
   
-  resultObj <- getMS2plotData(dataList = dataList)
+  resultObj <- getMS2plotData(featureMatrix, fragmentMasses)
   maxNumberOfFragments <- max(resultObj$numberOfFragments)
   colorMapFragmentData  <- makecmap(
     x = c(0, maxNumberOfFragments), n = 100, 
@@ -1957,7 +2494,6 @@ getMS2spectrumInfoForCluster <- function(dataList, clusterDataList, treeLabel){
   selectedPositive <- clusterDataList$innerNodeFeaturesCountsMatrix[clusterIndex, featuresUnion]
   coverageSelected <- selectedPositive / numberOfClusterMembers
   #fragmentsColor <- rep(x = "black", times = length(fragmentsY))
-  #fragmentsColor <- cmap(x = coverageSelected, map = dataList$colorMapPropabilities)
   fragmentsColor <- vector(length = length(fragmentsX))
   fragmentsColor[coverageSelected >= minimumProportionOfLeafs] <- "black"
   fragmentsColor[coverageSelected < minimumProportionOfLeafs] <- "grey"
@@ -2109,7 +2645,7 @@ getMS2spectrumOfPrecursor <- function(dataList, precursorIndex){
   
   return(resultObj)
 }
-getMS2plotData <- function(dataList){
+getMS2plotData <- function(featureMatrix, fragmentMasses){
   # numberOfFragments <- vector(mode = "numeric", length = ncol(dataList$featureMatrix))
   # sumOfAbundances   <- vector(mode = "numeric", length = ncol(dataList$featureMatrix))
   # for(colIdx in 1:ncol(dataList$featureMatrix)){
@@ -2121,7 +2657,7 @@ getMS2plotData <- function(dataList){
   # apply(X = dataList$featureMatrix, MARGIN = 2, FUN = function(x){sum(x != 0)})
   # apply(X = dataList$featureMatrix, MARGIN = 2, FUN = function(x){sum(x)})
   
-  fragmentInfos <- apply(X = dataList$featureMatrix, MARGIN = 2, FUN = function(x){
+  fragmentInfos <- apply(X = featureMatrix, MARGIN = 2, FUN = function(x){
     c(sum(x != 0), sum(x))
   })
   numberOfFragments <- fragmentInfos[1, ]
@@ -2129,7 +2665,7 @@ getMS2plotData <- function(dataList){
   
   averageAbundance <- sumOfAbundances / numberOfFragments
   averageAbundance[numberOfFragments == 0] <- 0
-  masses <- dataList$fragmentMasses
+  masses <- fragmentMasses
   
   presentFragments <- numberOfFragments > 0
   
@@ -2738,6 +3274,8 @@ calcPlotHeatmapLegend <- function(dataList){
   graphics::text(x = -0.2, y = maxY + 0.09, labels = "log2(MS\u00B9 fold change)", pos = 4)
 }
 createTickLabels <- function(maximumNumberOfLabels, max, labelPrefix){
+  if(max < 1)
+    max <- 1
   maxInteger <- as.integer(max)
   numbers <- 0:maxInteger
   

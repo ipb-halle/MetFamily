@@ -1,5 +1,6 @@
 
 library("xcms")
+library("Matrix")
 
 ####################################################################################
 ## aligned spectra
@@ -704,6 +705,16 @@ convertToProjectFile <- function(filePeakMatrix, fileSpectra, parameterSet, prog
   
   rm(returnObj)
   
+  ## remove redundant MS1 features
+  precursorLabels <- paste(dataFrame$"Average Mz", dataFrame$"Average Rt(min)", sep = " / ")
+  dupplicated <- which(duplicated(precursorLabels))
+  numberOfDupplicated <- length(dupplicated)
+  if(numberOfDupplicated > 0){
+    precursorLabels <- precursorLabels[-dupplicated]
+    dataFrame <- dataFrame[-dupplicated, ]
+  }
+  numberOfPrecursors <- numberOfPrecursors - numberOfDupplicated
+  
   ####################################################################################
   ## parse MS/MS spectra
   
@@ -823,21 +834,20 @@ convertToProjectFile <- function(filePeakMatrix, fileSpectra, parameterSet, prog
   numberOfPrecursors <- length(precursorMzAll)
   
   ########################################
-  ## filter by the minimum number of fragment abundance
-  #numberOfMS2PeaksPerGroupAll <- apply(X = matrixAll, MARGIN = 2, FUN = function(x){ sum(x > 0) })
-  numberOfMS2PeaksPerGroupAll <- vector(mode = "numeric", length = numberOfMS2PeakGroups)
-  for(ms2Idx in 1:numberOfMS2PeakGroups)
-    numberOfMS2PeaksPerGroupAll[[ms2Idx]] <- sum(matrixAll[, ms2Idx] > 0)
-  orderFragmentMzAll <- which(numberOfMS2PeaksPerGroupAll >= parameterSet$minimumNumberOfMS2PeaksPerGroup)
-  fragmentMzAll <- fragmentMasses[orderFragmentMzAll]
-  matrixAll <- matrixAll[, orderFragmentMzAll]
-  numberOfMS2PeakGroupsAll <- ncol(matrixAll)
+  ## filter empty fragment groups
+  numberOfFragments <- length(fragmentMasses)
+  fragmentGroupNonEmpty <- vector(mode = "logical", length = numberOfFragments)
+  for(colIdx in 1:numberOfFragments)
+    fragmentGroupNonEmpty[[colIdx]] <- sum(matrixAll[, colIdx] != 0) > 0
+  matrixAll <- matrixAll[, fragmentGroupNonEmpty]
+  fragmentMasses <- fragmentMasses[fragmentGroupNonEmpty]
+  numberOfFragments <- length(fragmentMasses)
   
   ########################################
   ## filter small fragment masses
   minimumFragmentMass <- 5
-  tmp <- abs(fragmentMzAll) < minimumFragmentMass
-  fragmentMzAll <- fragmentMzAll[!tmp]
+  tmp <- abs(fragmentMasses) < minimumFragmentMass
+  fragmentMasses <- fragmentMasses[!tmp]
   matrixAll     <- matrixAll[, !tmp]
   numberOfMS2PeakGroupsAll <- ncol(matrixAll)
   
@@ -861,14 +871,14 @@ convertToProjectFile <- function(filePeakMatrix, fileSpectra, parameterSet, prog
   
   ########################################
   ## first fragments, then neutral losses
-  colIdx <- min(which(fragmentMzAll > 0))
-  numberOfColumns <- length(fragmentMzAll)
+  colIdx <- min(which(fragmentMasses > 0))
+  numberOfColumns <- length(fragmentMasses)
   
   #matrixAll <- cbind(matrixAll[, colIdx:length(fragmentMzAll)], matrixAll[, 1:(colIdx - 1)])
   matrixCols[matrixCols < colIdx] <- matrixCols[matrixCols < colIdx] + numberOfColumns
   matrixCols <- matrixCols - (colIdx - 1)
   
-  fragmentMzAll <- unlist(c(fragmentMzAll[colIdx:numberOfColumns], fragmentMzAll[1:(colIdx - 1)]))
+  fragmentMasses <- unlist(c(fragmentMasses[colIdx:numberOfColumns], fragmentMasses[1:(colIdx - 1)]))
   
   ## row ordering
   numberOfAnnotationColumns <- ncol(dataFrame)
@@ -884,7 +894,11 @@ convertToProjectFile <- function(filePeakMatrix, fileSpectra, parameterSet, prog
   #print("Boxing...")
   
   ## additional rows stuff
-  numberOfFragments <- length(fragmentMzAll)
+  matrixRows <- as.integer(matrixRows)
+  matrixCols <- as.integer(matrixCols)
+  
+  ## TODO performance 30s
+  numberOfFragments <- length(fragmentMasses)
   meanIntensity <- vector(mode = "numeric", length = numberOfFragments)
   fragmentCount <- vector(mode = "numeric", length = numberOfFragments)
   for(colIdx in 1:numberOfFragments){
@@ -899,7 +913,6 @@ convertToProjectFile <- function(filePeakMatrix, fileSpectra, parameterSet, prog
   numberOfPrimaryAnnotationColumns <- 3
   columnOffset <- numberOfPrimaryAnnotationColumns + numberOfAnnotationColumns
   matrixCols <- matrixCols + columnOffset
-  
   
   ######################################
   ## additional columns
@@ -931,10 +944,15 @@ convertToProjectFile <- function(filePeakMatrix, fileSpectra, parameterSet, prog
   }
   
   ## sort rows
-  newMatrixRows <- vector(mode = "numeric", length = length(matrixRows))
-  for(i in 1:length(matrixRows))
-    newMatrixRows[[i]] <- which(rowOrder == matrixRows[[i]])
-  matrixRows <- newMatrixRows
+  rowOrderReverse <- vector(mode = "numeric", length = numberOfRows)
+  for(i in 1:numberOfRows)
+    rowOrderReverse[[i]] <- which(rowOrder == i)
+  matrixRows <- rowOrderReverse[matrixRows]
+  
+  # newMatrixRows <- vector(mode = "numeric", length = length(matrixRows))
+  # for(i in 1:length(matrixRows))
+  #   newMatrixRows[[i]] <- which(rowOrder == matrixRows[[i]])
+  # matrixRows <- newMatrixRows
   
   ######################################
   ## additional rows
@@ -942,7 +960,7 @@ convertToProjectFile <- function(filePeakMatrix, fileSpectra, parameterSet, prog
   
   ##################
   ## additional row: head
-  headRow <- c("m/z", "RT", "Annotation", names(dataFrame)[1:numberOfAnnotationColumns], fragmentMzAll)
+  headRow <- c("m/z", "RT", "Annotation", names(dataFrame)[1:numberOfAnnotationColumns], fragmentMasses)
   #matrixAll <- rbind(headRow, matrixAll)
   matrixRows <- matrixRows + 1
   
