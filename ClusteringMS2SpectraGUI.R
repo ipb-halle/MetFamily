@@ -454,10 +454,8 @@ readClusterDataFromProjectFile <- function(file, progress = FALSE){
   
   #dataFrame <- read.csv(file = file, header = FALSE, sep = "\t", stringsAsFactors = FALSE)
   fileLines <- readLines(con = file)
+  close(file)
   
-  if(progress)  incProgress(amount = 0.1, detail = "Preprocessing") else print("Preprocessing")
-  
-  #dataList <- readProjectData(dataFrame, progress)
   dataList <- readProjectData(fileLines, progress)
   return(dataList)
 }
@@ -467,6 +465,8 @@ readProjectData <- function(fileLines, progress = FALSE){
   
   ##################################################################################################
   ## parse data
+  if(progress)  incProgress(amount = 0.1, detail = "Preprocessing") else print("Preprocessing")
+  
   numberOfRows <- length(fileLines)
   numberOfMS1features <- as.integer(numberOfRows - 3)
   
@@ -507,7 +507,18 @@ readProjectData <- function(fileLines, progress = FALSE){
   listMatrixRows <- list()
   listMatrixCols <- list()
   listMatrixVals <- list()
+  
+  lastOut <- proc.time()["user.self"]
+  lastRow <- 1
   for(rowIdx in seq_len(numberOfMS1features)){
+    time <- proc.time()["user.self"]
+    if(time - lastOut > 1){
+      lastOut <- time
+      rowProgress <- (rowIdx - lastRow) / numberOfMS1features
+      lastRow <- rowIdx
+      if(progress)  incProgress(amount = rowProgress*0.2,     detail = paste("Preprocessing ", rowIdx, " / ", numberOfMS1features, sep = "")) else print(paste("Preprocessing ", rowIdx, " / ", numberOfMS1features, sep = ""))
+    }
+    
     lineIdx <- rowIdx + 3
     tokens <- str_split(string = fileLines[[lineIdx]], pattern = "\t")[[1]]
     
@@ -614,7 +625,7 @@ readProjectData <- function(fileLines, progress = FALSE){
   mzLabels <- vector(mode = "character", length = numberOfMS1features)
   for(i in 1:numberOfMS1features)
     mzLabels[[i]] <- paste(
-      paste(rep(x = " ", times = maxMz1 - tmpMatrixMz[1, i]), collapse = ""),
+      paste(rep(x = "  ", times = maxMz1 - tmpMatrixMz[1, i]), collapse = ""),
       mzs[[i]],
       paste(rep(x = "0",  times = maxMz2 - tmpMatrixMz[2, i]), collapse = ""),
       sep = ""
@@ -622,7 +633,7 @@ readProjectData <- function(fileLines, progress = FALSE){
   rtLabels <- vector(mode = "character", length = numberOfMS1features)
   for(i in 1:numberOfMS1features)
     rtLabels[[i]] <- paste(
-      paste(rep(x = " ", times = maxRt1 - tmpMatrixRt[1, i]), collapse = ""),
+      paste(rep(x = "  ", times = maxRt1 - tmpMatrixRt[1, i]), collapse = ""),
       rts[[i]],
       paste(rep(x = "0",  times = maxRt2 - tmpMatrixRt[2, i]), collapse = ""),
       sep = ""
@@ -3506,6 +3517,16 @@ calcPlotPCAloadings <- function(pcaObj, dataList, filter, pcaDimensionOne, pcaDi
   pointsSearch <- vector(mode = "logical", length = numberOfPrecursors)
   pointsSearch[selectionSearchPcaLoadingSet] <- TRUE
   
+  annotatedPoints <- pointColorsAnno != "black"
+
+  poisX <- c(poisX[!annotatedPoints], poisX[annotatedPoints])
+  poisY <- c(poisY[!annotatedPoints], poisY[annotatedPoints])
+  pointSizesAnno <- c(pointSizesAnno[!annotatedPoints], pointSizesAnno[annotatedPoints])
+  pointColorsAnno <- c(pointColorsAnno[!annotatedPoints], pointColorsAnno[annotatedPoints])
+  pointsAnalysis <- c(pointsAnalysis[!annotatedPoints], pointsAnalysis[annotatedPoints])
+  pointsFragment <- c(pointsFragment[!annotatedPoints], pointsFragment[annotatedPoints])
+  pointsSearch <- c(pointsSearch[!annotatedPoints], pointsSearch[annotatedPoints])
+  
   resultObjPoints <- generatePoints(
     poisX = poisX, poisY = poisY, 
     pointSizesAnno = pointSizesAnno, pointColorsAnno = pointColorsAnno, 
@@ -3522,6 +3543,7 @@ calcPlotPCAloadings <- function(pcaObj, dataList, filter, pcaDimensionOne, pcaDi
   #points(x = poisXpoints, y = poisYpoints, col = pointColors, pch=19, cex=pointSizes)
   if(showLoadingsAbundance){
     precursorMeansNorm <- dataList$dataFrameMeasurements[filter, "meanAll"]
+    precursorMeansNorm <- c(precursorMeansNorm[!annotatedPoints], precursorMeansNorm[annotatedPoints])
     precursorMeansNorm <- precursorMeansNorm[mappingToData]
     pointSizes <- pointSizes * 2 * precursorMeansNorm
   }

@@ -32,6 +32,7 @@ shinyServer(
     ## MetFamily properties
     toolName    <- "MetFamily"
     toolVersion <- "1.0"
+    metFamilyBuilt <- "1.0.1"
     
     ## data import
     proportionOfMatchingPeaks_ms2PeakGroupDeisotoping <- 0.9
@@ -2934,7 +2935,12 @@ shinyServer(
       } else {
         ## point selected
         fragmentIndex <- which(dataList$fragmentMasses == fragmentsX[[minimumIndex]])
-        numberOfPrecursors <- sum(dataList$featureMatrix[clusterDataList$filter, fragmentIndex] != 0)
+        
+        if(state$plotHcaShown)
+          numberOfPrecursors <- sum(dataList$featureMatrix[filterHca$filter, fragmentIndex] != 0)
+        if(state$plotPcaShown)
+          numberOfPrecursors <- sum(dataList$featureMatrix[filterPca$filter, fragmentIndex] != 0)
+        
         output$information <- renderText({
           print(paste("update output$information"))
           paste(
@@ -3504,7 +3510,12 @@ shinyServer(
     output$rInfo <- renderText({
       print(paste("init rInfo"))
       #paste(R.Version()$version.string, "\nwd: ", getwd(), sep = "")
-      R.Version()$version.string
+      paste(
+        R.Version()$version.string, 
+        "\nMetFamily build: ", metFamilyBuilt, "-", system(command = "hostname", intern = TRUE),
+        sep = ""
+      )
+      #R.Version()$version.string
     })
     
     #########################################################################################

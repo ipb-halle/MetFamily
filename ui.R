@@ -900,7 +900,7 @@ shinyUI(
         p("Submitted to ...")
       ),## well panel
       wellPanel(
-        h4("R session info"),
+        h4("Session info"),
         verbatimTextOutput(outputId = "rInfo")
       )## well panel
     )## tab
