@@ -454,9 +454,11 @@ readClusterDataFromProjectFile <- function(file, progress = FALSE){
   
   #dataFrame <- read.csv(file = file, header = FALSE, sep = "\t", stringsAsFactors = FALSE)
   fileLines <- readLines(con = file)
-  close(file)
+  #close(file)
   
   dataList <- readProjectData(fileLines, progress)
+  fileLines <- NULL
+  
   return(dataList)
 }
 readProjectData <- function(fileLines, progress = FALSE){
@@ -681,6 +683,21 @@ readProjectData <- function(fileLines, progress = FALSE){
   }
   
   if(progress)  incProgress(amount = 0.1, detail = "Feature postprocessing") else print("Feature postprocessing")
+  
+  ## ms2 plot data
+  # resultObj <- getMS2plotData(matrixRows, matrixCols, matrixVals, fragmentMasses = fragmentGroupsAverageMass)
+  # ms2PlotDataNumberOfFragments <- resultObj$numberOfFragments
+  # ms2PlotDataAverageAbundance  <- resultObj$averageAbundance
+  # ms2PlotDataFragmentMasses    <- resultObj$masses
+  ms2PlotDataNumberOfFragments <- fragmentGroupsNumberOfFramgents
+  ms2PlotDataAverageAbundance  <- fragmentGroupsAverageIntensity
+  ms2PlotDataFragmentMasses    <- fragmentGroupsAverageMass
+  maxNumberOfFragments <- max(ms2PlotDataNumberOfFragments)
+  ms2PlotDataColorMapFragmentData  <- makecmap(
+    x = c(0, maxNumberOfFragments), n = 100, 
+    colFn = colorRampPalette(c('grey', 'black'))
+  )
+  
   ## featureMatrix and annotation
   featureMatrix <- sparseMatrix(i = matrixRows, j = matrixCols, x = matrixVals)
   matrixRows <- NULL
@@ -704,17 +721,6 @@ readProjectData <- function(fileLines, progress = FALSE){
   # maximumMass <- max(fragmentGroupsAverageMass[fragmentThere])
   minimumMass <- min(fragmentGroupsAverageMass)
   maximumMass <- max(fragmentGroupsAverageMass)
-  
-  ## ms2 plot data
-  resultObj <- getMS2plotData(featureMatrix = featureMatrix, fragmentMasses = fragmentGroupsAverageMass)
-  ms2PlotDataNumberOfFragments <- resultObj$numberOfFragments
-  ms2PlotDataAverageAbundance  <- resultObj$averageAbundance
-  ms2PlotDataFragmentMasses    <- resultObj$masses
-  maxNumberOfFragments <- max(resultObj$numberOfFragments)
-  ms2PlotDataColorMapFragmentData  <- makecmap(
-    x = c(0, maxNumberOfFragments), n = 100, 
-    colFn = colorRampPalette(c('grey', 'black'))
-  )
   
   ##################################################################################################
   ## process sample measurements
@@ -804,15 +810,15 @@ readProjectData <- function(fileLines, progress = FALSE){
   dataMeanColumnNames <- unlist(dataMeanColumnNames)
   
   ## all replicates mean
-  dataFrameMeasurements[, "meanAll"] <- apply(
+  dataFrameMeasurements[, "meanAllNormed"] <- apply(
     X = data.matrix(metaboliteProfile[, 
                                       unlist(apply(X = groupsStartEndMatrix, MARGIN = 1, FUN = function(x) {seq(from = x[[1]], to = x[[2]])})),
                                       drop=FALSE]), 
     MARGIN = 1, FUN = mean
   )
   
-  meanAllMax <- max(dataFrameMeasurements[, "meanAll"])
-  dataFrameMeasurements[, "meanAll"] <- dataFrameMeasurements[, "meanAll"] / meanAllMax
+  meanAllMax <- max(dataFrameMeasurements[, "meanAllNormed"])
+  dataFrameMeasurements[, "meanAllNormed"] <- dataFrameMeasurements[, "meanAllNormed"] / meanAllMax
   
   ## log fold change between groups
   lfcColumnNames <- list()
@@ -1209,15 +1215,15 @@ readProjectDataOld <- function(dataFrame, progress = FALSE){
   dataMeanColumnNames <- unlist(dataMeanColumnNames)
   
   ## all replicates mean
-  dataFrameMeasurements[, "meanAll"] <- apply(
+  dataFrameMeasurements[, "meanAllNormed"] <- apply(
     X = data.matrix(dataFrame[, 
                               unlist(apply(X = groupsStartEndMatrix, MARGIN = 1, FUN = function(x) {seq(from = x[[1]], to = x[[2]])})),
                               drop=FALSE]), 
     MARGIN = 1, FUN = mean
   )
   
-  meanAllMax <- max(dataFrameMeasurements[, "meanAll"])
-  dataFrameMeasurements[, "meanAll"] <- dataFrameMeasurements[, "meanAll"] / meanAllMax
+  meanAllMax <- max(dataFrameMeasurements[, "meanAllNormed"])
+  dataFrameMeasurements[, "meanAllNormed"] <- dataFrameMeasurements[, "meanAllNormed"] / meanAllMax
   
   #print(dataFrameMeasurements[, "logMeanAll"])
   
@@ -2656,7 +2662,7 @@ getMS2spectrumOfPrecursor <- function(dataList, precursorIndex){
   
   return(resultObj)
 }
-getMS2plotData <- function(featureMatrix, fragmentMasses){
+getMS2plotData <- function(matrixRows, matrixCols, matrixVals, fragmentMasses){
   # numberOfFragments <- vector(mode = "numeric", length = ncol(dataList$featureMatrix))
   # sumOfAbundances   <- vector(mode = "numeric", length = ncol(dataList$featureMatrix))
   # for(colIdx in 1:ncol(dataList$featureMatrix)){
@@ -2668,26 +2674,46 @@ getMS2plotData <- function(featureMatrix, fragmentMasses){
   # apply(X = dataList$featureMatrix, MARGIN = 2, FUN = function(x){sum(x != 0)})
   # apply(X = dataList$featureMatrix, MARGIN = 2, FUN = function(x){sum(x)})
   
-  fragmentInfos <- apply(X = featureMatrix, MARGIN = 2, FUN = function(x){
-    c(sum(x != 0), sum(x))
-  })
-  numberOfFragments <- fragmentInfos[1, ]
-  sumOfAbundances   <- fragmentInfos[2, ]
+  numberOfFragments <- length(fragmentMasses)
+  meanIntensity <- vector(mode = "numeric", length = numberOfFragments)
+  fragmentCount <- vector(mode = "numeric", length = numberOfFragments)
+  for(colIdx in 1:numberOfFragments){
+    intensities <- matrixVals[matrixCols == colIdx]
+    fragmentCount[[colIdx]] <- length(intensities)
+    meanIntensity[[colIdx]] <- mean(x = intensities)
+  }
   
-  averageAbundance <- sumOfAbundances / numberOfFragments
-  averageAbundance[numberOfFragments == 0] <- 0
-  masses <- fragmentMasses
+  presentFragments <- fragmentCount > 0
   
-  presentFragments <- numberOfFragments > 0
-  
-  numberOfFragments <- numberOfFragments[presentFragments]
-  averageAbundance  <- averageAbundance[presentFragments]
-  masses            <- masses[presentFragments]
+  # fragmentCount  <- fragmentCount[presentFragments]
+  # meanIntensity  <- meanIntensity[presentFragments]
+  # fragmentMasses <- fragmentMasses[presentFragments]
   
   resultObj <- list()
-  resultObj$numberOfFragments <- numberOfFragments
-  resultObj$averageAbundance  <- averageAbundance
-  resultObj$masses            <- masses
+  resultObj$numberOfFragments <- fragmentCount
+  resultObj$averageAbundance  <- meanIntensity
+  resultObj$masses            <- fragmentMasses
+  
+  # fragmentInfos <- apply(X = featureMatrix, MARGIN = 2, FUN = function(x){
+  #   c(sum(x != 0), sum(x))
+  # })
+  # numberOfFragments <- fragmentInfos[1, ]
+  # sumOfAbundances   <- fragmentInfos[2, ]
+  # 
+  # averageAbundance <- sumOfAbundances / numberOfFragments
+  # averageAbundance[numberOfFragments == 0] <- 0
+  # masses <- fragmentMasses
+  # 
+  # presentFragments <- numberOfFragments > 0
+  # 
+  # numberOfFragments <- numberOfFragments[presentFragments]
+  # averageAbundance  <- averageAbundance[presentFragments]
+  # masses            <- masses[presentFragments]
+  # 
+  # resultObj <- list()
+  # resultObj$numberOfFragments <- numberOfFragments
+  # resultObj$averageAbundance  <- averageAbundance
+  # resultObj$masses            <- masses
   
   return(resultObj)
 }
@@ -3542,7 +3568,7 @@ calcPlotPCAloadings <- function(pcaObj, dataList, filter, pcaDimensionOne, pcaDi
   ## points
   #points(x = poisXpoints, y = poisYpoints, col = pointColors, pch=19, cex=pointSizes)
   if(showLoadingsAbundance){
-    precursorMeansNorm <- dataList$dataFrameMeasurements[filter, "meanAll"]
+    precursorMeansNorm <- dataList$dataFrameMeasurements[filter, "meanAllNormed"]
     precursorMeansNorm <- c(precursorMeansNorm[!annotatedPoints], precursorMeansNorm[annotatedPoints])
     precursorMeansNorm <- precursorMeansNorm[mappingToData]
     pointSizes <- pointSizes * 2 * precursorMeansNorm

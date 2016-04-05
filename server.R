@@ -32,7 +32,7 @@ shinyServer(
     ## MetFamily properties
     toolName    <- "MetFamily"
     toolVersion <- "1.0"
-    metFamilyBuilt <- "1.0.1"
+    metFamilyBuilt <- "1.0.3"
     
     ## data import
     proportionOfMatchingPeaks_ms2PeakGroupDeisotoping <- 0.9
@@ -1729,8 +1729,6 @@ shinyServer(
         shinyjs::disable("importMs1Ms2Data")
         shinyjs::disable("loadProjectData")
         #state$runRightColumnWidth <<- 8
-        
-        print(getwd())
         
         initialGuiUpdatePerformed <<- TRUE
       }
@@ -3494,6 +3492,15 @@ shinyServer(
       obsIgnoreValueChanged$suspend()
       obsShowHCAplotPanel$suspend()
       obsShowPCAplotPanel$suspend()
+      
+      ###################################################
+      ## end server on session end
+      #system('sudo -kS /sbin/stop shiny-server',input="")
+      #out <- system(command = "/sbin/stop shiny-server", intern = TRUE)
+      
+      #out <- system(command = "/bin/kill 1", intern=TRUE)
+      #writeLines(text = out, con = "/tmp/tmp003.txt")
+      system(command = "/bin/kill 1")
     })
     
     #########################################################################################
