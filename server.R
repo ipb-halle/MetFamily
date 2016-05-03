@@ -3993,7 +3993,7 @@ shinyServer(
       ## built MS1 matrix
       ms1Matrix     <- rbind(
         dataList$dataFrameMS1Header,
-        dataList$metaboliteProfile[precursorSet, ]
+        dataList$dataFrameInfos[precursorSet, ]
       )
       ms1Matrix     <- as.matrix(ms1Matrix)
       
