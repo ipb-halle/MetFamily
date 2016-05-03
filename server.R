@@ -2287,7 +2287,7 @@ shinyServer(
       #################################################
       ## MS1 or MS2?
       searchMode <- input$searchMS1orMS2
-      if(searchMode == 'MS\u00B9 feature m/z'){
+      if(searchMode == 'MS1 feature m/z'){
         #################################################
         ## get inputs
         filter_ms1_masses <- input$searchMS1mass
@@ -4533,7 +4533,7 @@ shinyServer(
       ###################
       ## search
       searchMode <- paramsListsearchMS1orMS2
-      if(searchMode == 'MS\u00B9 feature m/z'){
+      if(searchMode == 'MS1 feature m/z'){
         #################################################
         ## get inputs
         filter_ms1_masses <- paramsListsearchMS1mass
