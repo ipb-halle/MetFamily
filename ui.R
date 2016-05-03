@@ -601,10 +601,10 @@ shinyUI(
                 wellPanel(
                   h4("Search mode"),
                   bsTooltip(id = "searchMS1orMS2", title = "Please choose the criterion for selecting MS\u00B9 features", placement = "bottom", trigger = "hover"),
-                  radioButtons(inputId = "searchMS1orMS2", label = NULL, choices = c("MS\u00B9 feature m/z", "Fragment m/z")),
+                  radioButtons(inputId = "searchMS1orMS2", label = NULL, choices = c("MS1 feature m/z", "Fragment m/z")),
                   hr(),
                   conditionalPanel(
-                    condition = "input.searchMS1orMS2 == 'MS\u00B9 feature m/z'",
+                    condition = "input.searchMS1orMS2 == 'MS1 feature m/z'",
                     fluidRow(
                       column(width = 6,
                              bsTooltip(id = "searchMS1mass", title = "The MS\u00B9 feature m/z should be similar to at least one of the given values (separated by \",\")", placement = "bottom", trigger = "hover"),

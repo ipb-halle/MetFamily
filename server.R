@@ -3492,15 +3492,6 @@ shinyServer(
       obsIgnoreValueChanged$suspend()
       obsShowHCAplotPanel$suspend()
       obsShowPCAplotPanel$suspend()
-      
-      ###################################################
-      ## end server on session end
-      #system('sudo -kS /sbin/stop shiny-server',input="")
-      #out <- system(command = "/sbin/stop shiny-server", intern = TRUE)
-      
-      #out <- system(command = "/bin/kill 1", intern=TRUE)
-      #writeLines(text = out, con = "/tmp/tmp003.txt")
-      system(command = "/bin/kill 1")
     })
     
     #########################################################################################
