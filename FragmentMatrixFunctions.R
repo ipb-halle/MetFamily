@@ -878,7 +878,7 @@ convertToProjectFile <- function(filePeakMatrix, fileSpectra, parameterSet, prog
   matrixCols[matrixCols < colIdx] <- matrixCols[matrixCols < colIdx] + numberOfColumns
   matrixCols <- matrixCols - (colIdx - 1)
   
-  fragmentMasses <- unlist(c(fragmentMasses[colIdx:numberOfColumns], fragmentMasses[1:(colIdx - 1)]))
+  fragmentMasses <- unlist(c(fragmentMasses[colIdx:numberOfColumns], fragmentMasses[seq_len(colIdx - 1)]))
   
   ## row ordering
   numberOfAnnotationColumns <- ncol(dataFrame)
