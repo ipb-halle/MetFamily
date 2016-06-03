@@ -846,6 +846,7 @@ readProjectData <- function(fileLines, progress = FALSE){
   #matrixDataFrame[matrixDataFrame < 0] <- 0
   
   ## min / max
+  logAbsMin <- min(matrixDataFrame[, dataMeanColumnNames])
   logAbsMax <- max(matrixDataFrame[, dataMeanColumnNames])
   logFoldChangeMinMax <- c(min(matrixDataFrame[, lfcColumnNames]), max(matrixDataFrame[, lfcColumnNames]))
   logFoldChangeMax <- max(abs(logFoldChangeMinMax))
@@ -854,7 +855,7 @@ readProjectData <- function(fileLines, progress = FALSE){
   
   ## maps
   colorMapAbsoluteData  <- makecmap(
-    x = c(0, logAbsMax), n = 100, 
+    x = c(logAbsMin, logAbsMax), n = 100, 
     #colFn = colorRampPalette(c('white', 'black'))
     colFn = colorRampPalette(rainbow(18)[10:1])
   )
