@@ -3289,7 +3289,7 @@ calcPlotHeatmapLegend <- function(dataList){
     y0  = c(minY, absMaxY, minY   , minY   ),
     y1  = c(minY, absMaxY, absMaxY, absMaxY)
   )
-  graphics::text(x = -0.2, y = absMaxY + 0.065, labels = "log10(MS\u00B9 abundance)", pos = 4)
+  graphics::text(x = -0.2, y = absMaxY + 0.065, labels = "MS\u00B9 abundance", pos = 4)
   
   ## lfc legend
   rasterImage(image = legend_imageLFC, xleft = 0, ybottom = lfcMinY, xright = 1, ytop = maxY)

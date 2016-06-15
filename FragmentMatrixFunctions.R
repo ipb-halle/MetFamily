@@ -28,7 +28,7 @@ parsePeakAbundanceMatrix <- function(filePeakMatrix, doPrecursorDeisotoping, mzD
   ## read file
   if(progress)  incProgress(amount = 0.1, detail = paste("Parsing MS¹ file content...", sep = "")) else print(paste("Parsing MS¹ file content...", sep = ""))
   
-  dataFrameAll <- read.table(filePeakMatrix, header=FALSE, sep = "\t", as.is=TRUE, quote = "")
+  dataFrameAll <- read.table(filePeakMatrix, header=FALSE, sep = "\t", as.is=TRUE, quote = "", comment.char = "")
   dataFrameHeader <- dataFrameAll[1:4, ]
   dataFrame <- dataFrameAll[5:nrow(dataFrameAll), ]
   colnames(dataFrame) <- dataFrameHeader[4, ]
