@@ -2322,7 +2322,9 @@ calculatePCA <- function(dataList, filterObj, scaling, logTransform){
            pca <- pca(object = dataFrame2, method = "svd", nPcs = numberOfComponents, scale = "none", center = FALSE)
            returnObj$scores   <- pca@scores
            returnObj$loadings <- pca@loadings
-           returnObj$variance <- pca@sDev
+           #returnObj$variance <- pca@sDev
+           returnObj$R2 <- pca@R2
+           returnObj$Q2 <- Q2(object = pca, fold=10)
          },
          stop(paste("Unknown PCA library (", pcaLibrary, ")!", sep = ""))
   )
@@ -3452,7 +3454,7 @@ calcPlotMS2 <- function(dataList, fragmentsX = NULL, fragmentsY = NULL, fragment
   }
 }
 calcPlotPCAscores <- function(pcaObj, dataList, filterObj, pcaDimensionOne, pcaDimensionTwo, showScoresLabels, xInterval = NULL, yInterval = NULL){
-  palette <- colorPalette()
+  palette <- colorPaletteScores()
   colorsForReplicates <- palette[unlist(lapply(X = filterObj$groups, FUN = function(x){ 
     groupIdx <- dataList$groupIdxFromGroupName(x)
     rep(x = groupIdx, times = length(dataList$dataColumnsNameFunctionFromName(x)))
@@ -3461,11 +3463,17 @@ calcPlotPCAscores <- function(pcaObj, dataList, filterObj, pcaDimensionOne, pcaD
   dataDimOne <- pcaObj$scores[, pcaDimensionOne]
   dataDimTwo <- pcaObj$scores[, pcaDimensionTwo]
   
-  varianceOne <- format(x = pcaObj$variance[[pcaDimensionOne]], digits = 3)
-  varianceTwo <- format(x = pcaObj$variance[[pcaDimensionTwo]], digits = 3)
+  #varianceOne <- format(x = pcaObj$variance[[pcaDimensionOne]], digits = 3)
+  #varianceTwo <- format(x = pcaObj$variance[[pcaDimensionTwo]], digits = 3)
+  r2One <- format(x = pcaObj$R2[[pcaDimensionOne]], digits = 3)
+  r2Two <- format(x = pcaObj$R2[[pcaDimensionTwo]], digits = 3)
+  q2One <- format(x = pcaObj$Q2[[pcaDimensionOne]], digits = 3)
+  q2Two <- format(x = pcaObj$Q2[[pcaDimensionTwo]], digits = 3)
   
-  xAxisLabel  <- paste("t_", pcaDimensionOne, " (", varianceOne, "%)", sep = "")
-  yAxisLabel  <- paste("t_", pcaDimensionTwo, " (", varianceTwo, "%)", sep = "")
+  #xAxisLabel  <- paste("t_", pcaDimensionOne, " (", varianceOne, "%)", sep = "")
+  #yAxisLabel  <- paste("t_", pcaDimensionTwo, " (", varianceTwo, "%)", sep = "")
+  xAxisLabel  <- paste("t_", pcaDimensionOne, " (R² = ", r2One, "; Q² = ", q2One, ")", sep = "")
+  yAxisLabel  <- paste("t_", pcaDimensionTwo, " (R² = ", r2Two, "; Q² = ", q2Two, ")", sep = "")
   
   xMin <- min(dataDimOne)
   xMax <- max(dataDimOne)
@@ -3503,11 +3511,17 @@ calcPlotPCAscores <- function(pcaObj, dataList, filterObj, pcaDimensionOne, pcaD
   }
 }
 calcPlotPCAloadings <- function(pcaObj, dataList, filter, pcaDimensionOne, pcaDimensionTwo, selectionFragmentPcaLoadingSet = NULL, selectionAnalysisPcaLoadingSet = NULL, selectionSearchPcaLoadingSet = NULL, xInterval = NULL, yInterval = NULL, showLoadingsLabels = FALSE, showLoadingsAbundance = FALSE){
-  varianceOne <- format(x = pcaObj$variance[[pcaDimensionOne]], digits = 3)
-  varianceTwo <- format(x = pcaObj$variance[[pcaDimensionTwo]], digits = 3)
+  #varianceOne <- format(x = pcaObj$variance[[pcaDimensionOne]], digits = 3)
+  #varianceTwo <- format(x = pcaObj$variance[[pcaDimensionTwo]], digits = 3)
+  r2One <- format(x = pcaObj$R2[[pcaDimensionOne]], digits = 3)
+  r2Two <- format(x = pcaObj$R2[[pcaDimensionTwo]], digits = 3)
+  q2One <- format(x = pcaObj$Q2[[pcaDimensionOne]], digits = 3)
+  q2Two <- format(x = pcaObj$Q2[[pcaDimensionTwo]], digits = 3)
   
-  xAxisLabel  <- paste("p_", pcaDimensionOne, " (", varianceOne, "%)", sep = "")
-  yAxisLabel  <- paste("p_", pcaDimensionTwo, " (", varianceTwo, "%)", sep = "")
+  #xAxisLabel  <- paste("p_", pcaDimensionOne, " (", varianceOne, "%)", sep = "")
+  #yAxisLabel  <- paste("p_", pcaDimensionTwo, " (", varianceTwo, "%)", sep = "")
+  xAxisLabel  <- paste("p_", pcaDimensionOne, " (R² = ", r2One, "; Q² = ", q2One, ")", sep = "")
+  yAxisLabel  <- paste("p_", pcaDimensionTwo, " (R² = ", r2Two, "; Q² = ", q2Two, ")", sep = "")
   
   dataDimOne <- pcaObj$loadings[, pcaDimensionOne]
   dataDimTwo <- pcaObj$loadings[, pcaDimensionTwo]
@@ -3731,6 +3745,16 @@ colorPalette <- function(){
     "seagreen3",
     "skyblue",
     "steelblue"
+  )
+  return(palette)
+}
+colorPaletteScores <- function(){
+  palette <- colorPalette()
+  palette <- c(
+    palette[ 8: 1],
+    palette[16: 9],
+    palette[24:17],
+    palette[32:25]
   )
   return(palette)
 }

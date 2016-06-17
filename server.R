@@ -2641,7 +2641,7 @@ shinyServer(
       
       scoresGroups <<- list(
         groups = filterPca$groups,
-        colors = colorPalette()[unlist(lapply(X = filterPca$groups, FUN = dataList$groupIdxFromGroupName))]
+        colors = colorPaletteScores()[unlist(lapply(X = filterPca$groups, FUN = dataList$groupIdxFromGroupName))]
       )
       state$scoresGroupsLegendHeight <<- scoresGroupsLegendEntryHeight * (length(scoresGroups$groups) + 1)
       drawScoresGroupsLegend(consoleInfo = "init output$plotScoresGroupsLegend")
