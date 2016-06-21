@@ -2301,7 +2301,7 @@ calculatePCA <- function(dataList, filterObj, scaling, logTransform){
   ## TODO pcaMethods confidence intervals analog to MetaboAnalyst
   numberOfComponents <- 5
   returnObj <- list()
-  pcaLibrary <- c("stats", "FactoMineR", "pcaMethods")[[2]]
+  pcaLibrary <- c("stats", "FactoMineR", "pcaMethods")[[3]]
   switch(pcaLibrary,
          "stats"={
            ## "stats" package
@@ -3472,8 +3472,8 @@ calcPlotPCAscores <- function(pcaObj, dataList, filterObj, pcaDimensionOne, pcaD
   
   #xAxisLabel  <- paste("t_", pcaDimensionOne, " (", varianceOne, "%)", sep = "")
   #yAxisLabel  <- paste("t_", pcaDimensionTwo, " (", varianceTwo, "%)", sep = "")
-  xAxisLabel  <- paste("t_", pcaDimensionOne, " (R² = ", r2One, "; Q² = ", q2One, ")", sep = "")
-  yAxisLabel  <- paste("t_", pcaDimensionTwo, " (R² = ", r2Two, "; Q² = ", q2Two, ")", sep = "")
+  xAxisLabel  <- paste("t_", pcaDimensionOne, " (R^2 = ", r2One, "; Q^2 = ", q2One, ")", sep = "")
+  yAxisLabel  <- paste("t_", pcaDimensionTwo, " (R^2 = ", r2Two, "; Q^2 = ", q2Two, ")", sep = "")
   
   xMin <- min(dataDimOne)
   xMax <- max(dataDimOne)
@@ -3520,8 +3520,8 @@ calcPlotPCAloadings <- function(pcaObj, dataList, filter, pcaDimensionOne, pcaDi
   
   #xAxisLabel  <- paste("p_", pcaDimensionOne, " (", varianceOne, "%)", sep = "")
   #yAxisLabel  <- paste("p_", pcaDimensionTwo, " (", varianceTwo, "%)", sep = "")
-  xAxisLabel  <- paste("p_", pcaDimensionOne, " (R² = ", r2One, "; Q² = ", q2One, ")", sep = "")
-  yAxisLabel  <- paste("p_", pcaDimensionTwo, " (R² = ", r2Two, "; Q² = ", q2Two, ")", sep = "")
+  xAxisLabel  <- paste("p_", pcaDimensionOne, " (R^2 = ", r2One, "; Q^2 = ", q2One, ")", sep = "")
+  yAxisLabel  <- paste("p_", pcaDimensionTwo, " (R^2 = ", r2Two, "; Q^2 = ", q2Two, ")", sep = "")
   
   dataDimOne <- pcaObj$loadings[, pcaDimensionOne]
   dataDimTwo <- pcaObj$loadings[, pcaDimensionTwo]
