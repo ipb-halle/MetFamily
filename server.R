@@ -4306,6 +4306,36 @@ shinyServer(
       },
       contentType = "application/zip"
     )
+    output$downloadDocShowcaseProtocol <- downloadHandler(
+      filename = function() {
+        return("MetFamily_Showcase_protocol.pdf")
+      },
+      content = function(file) {
+        ## copy data for download
+        file.copy(paste(getwd(), "/files/MetFamily_Showcase_protocol.pdf", sep = ""), file)
+      },
+      contentType = "application/pdf"
+    )
+    output$downloadDocUserGuide <- downloadHandler(
+      filename = function() {
+        return("MetFamily_user_guide.pdf")
+      },
+      content = function(file) {
+        ## copy data for download
+        file.copy(paste(getwd(), "/files/MetFamily_user_guide.pdf", sep = ""), file)
+      },
+      contentType = "application/pdf"
+    )
+    output$downloadDocInputSpecification <- downloadHandler(
+      filename = function() {
+        return("MetFamily_Input_Specification.pdf")
+      },
+      content = function(file) {
+        ## copy data for download
+        file.copy(paste(getwd(), "/files/MetFamily_Input_Specification.pdf", sep = ""), file)
+      },
+      contentType = "application/pdf"
+    )
     
     ## TODO
     #http://127.0.0.1:25805/library/utils/html/zip.html

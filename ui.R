@@ -237,6 +237,14 @@ shinyUI(
                     )
                   ),
                   br(),
+                  fluidRow(
+                    column(width = 12,
+                           h4("Download showcase protocol"),
+                           bsTooltip(id = "downloadDocShowcaseProtocol", title = "Download the protocol which is the basis of the results of the showcase in the MetFamily publication", placement = "bottom", trigger = "hover"),
+                           downloadButton('downloadDocShowcaseProtocol', 'Download showcase protocol')
+                    )
+                  ),
+                  br(),
                   h4("Load full data set"),
                   bsTooltip(id = "loadExampleData", title = "Press to load the example data set", placement = "bottom", trigger = "hover"),
                   actionButton(inputId = "loadExampleData", label = "Load example data", class="btn-success")
@@ -885,22 +893,49 @@ shinyUI(
           column(width = 3,
             HTML("<a href='http://www.ipb-halle.de/en/', target='_blank'><img src='logo_ipb_en.png' /></a>")
           )##column
-        ),## row
-        h4("Reference"),
-        h5(HTML("<b>Discovering regulated metabolite families in comprehensive metabolomics studies</b>")),
-        br(),
-        p(HTML("Hendrik Treutler<sup>1*</sup>, Steffen Neumann<sup>1</sup>, Gerd Balcke<sup>2</sup>")), 
-        p(HTML("<sup>1</sup>Leibniz Institute for Plant Biochemistry, Dept. of SEB, Weinberg 3, 06120 Halle, Germany")),
-        p(HTML("<sup>2</sup>Leibniz Institute for Plant Biochemistry, Dept. of SZB, Weinberg 3, 06120 Halle, Germany")),
-        p(HTML("<sup>*</sup>Corresponding author: Hendrik Treutler <a href='mailto:hendrik.treutler@ipb-halle.de?subject=MetFamily%20request'>hendrik.treutler@ipb-halle.de</a>")),
-        br(),
-        h5(HTML("<b>Abstract</b>")),
-        p(HTML("Understanding metabolism is fundamental and the identification and quantification of thousands of metabolites by mass spectrometry in modern metabolomics is a prerequisite for elucidating this area. However, the identification of metabolites is a major bottleneck in traditional approaches hampering advances. Here, we present a novel approach for the untargeted discovery of metabolite families offering a bird's eye view on metabolic regulation in comparative metabolomics.")),
-        br(),
-        p("Submitted to ...")
+        )## row
       ),## well panel
       wellPanel(
-        h4("Session info"),
+        h4(HTML("<b>Published in <a href='http://pubs.acs.org/doi/abs/10.1021/acs.analchem.6b01569', target='_blank'>Analytical Chemistry (ACS Publications)</a>:</b>")),
+        br(),
+        h5(HTML("<b>Discovering Regulated Metabolite Families in Untargeted Metabolomics Studies</b>")),
+        p(HTML("Hendrik Treutler<sup>1</sup>, Hiroshi Tsugawa<sup>2</sup>, Andrea Porzel<sup>3</sup>, Karin Gorzolka<sup>1</sup>, Alain Tissier<sup>4</sup>, Steffen Neumann<sup>1</sup>, and Gerd Ulrich Balcke<sup>4*</sup>")), 
+        p(HTML(paste(
+          "<FONT SIZE=-1>",
+          "<sup>1</sup>Leibniz Institute of Plant Biochemistry, Department of Stress and Developmental Biology, Weinberg 3, D-06120 Halle/Saale, Germany", "<br>",
+          "<sup>2</sup>RIKEN Center for Sustainable Resource Science, Yokohama, Kanagawa 230-0045, Japan", "<br>",
+          "<sup>3</sup>Leibniz Institute of Plant Biochemistry, Department of Bioorganic Chemistry, Weinberg 3, D-06120 Halle/Saale, Germany", "<br>",
+          "<sup>4</sup>Leibniz Institute of Plant Biochemistry, Department of Cell and Metabolic Biology, Weinberg 3, D-06120 Halle/Saale, Germany", "<br>",
+          "<sup>*</sup>Corresponding author: Gerd Ulrich Balcke <a href='mailto:Gerd.Balcke@ipb-halle.de?subject=MetFamily%20request'>Gerd.Balcke@ipb-halle.de</a>
+          </FONT>", sep=""
+        ))),
+        br(),
+        h5(HTML("<b>Abstract</b>")),
+        p(HTML("The identification of metabolites by mass spectrometry constitutes a major bottleneck which considerably limits the throughput of metabolomics studies in biomedical or plant research. Here, we present a novel approach to analyze metabolomics data from untargeted, data-independent LC-MS/MS measurements. By integrated analysis of MS\u00B9 abundances and MS/MS spectra, the identification of regulated metabolite families is achieved. This approach offers a global view on metabolic regulation in comparative metabolomics. We implemented our approach in the web application “MetFamily”, which is freely available at http://msbi.ipb-halle.de/MetFamily/. MetFamily provides a dynamic link between the patterns based on MS\u00B9-signal intensity and the corresponding structural similarity at the MS/MS level. Structurally related metabolites are annotated as metabolite families based on a hierarchical cluster analysis of measured MS/MS spectra. Joint examination with principal component analysis of MS\u00B9 patterns, where this annotation is preserved in the loadings, facilitates the interpretation of comparative metabolomics data at the level of metabolite families. As a proof of concept, we identified two trichome-specific metabolite families from wild-type tomato Solanum habrochaites LA1777 in a fully unsupervised manner and validated our findings based on earlier publications and with NMR.")),
+        br(),
+        h5(HTML("<b>Cite</b>")),
+        p(HTML(paste(
+          "Hendrik Treutler, Hiroshi Tsugawa, Andrea Porzel, Karin Gorzolka, Alain Tissier, Steffen Neumann, and Gerd Ulrich U. Balcke.<br>",
+          "Discovering Regulated Metabolite Families in Untargeted Metabolomics Studies.<br>",
+          "Analytical chemistry, 88(16):8082-8090, August 2016.<br>",
+          "<a href='https://dx.doi.org/10.1021/acs.analchem.6b01569', target='_blank'>doi:10.1021/acs.analchem.6b01569</a>", 
+          sep = "")))
+      ),## well panel
+      wellPanel(
+        h4(HTML("<b>Documentation</b>")),
+        p(HTML("Please find a user guide for the usage of the MetFamily web application below. ")),
+        bsTooltip(id = "downloadDocUserGuide", title = "Download the user guide for the MetFamily web application", placement = "bottom", trigger = "hover"),
+        downloadButton('downloadDocUserGuide', 'Download user guide'),
+        p(HTML("We provide a specification of the input file format. In the MetFamily publication we demonstrated the usage of MetFamily with UPLC-(-)ESI-SWATH-MS/MS data preprocessed with <a href='http://prime.psc.riken.jp/Metabolomics_Software/MS-DIAL/', target='_blank'>MS-DIAL</a>. In the input specification, however, we demonstrate the generation of these files with GC-EI-MS data processed with <a href='https://bioconductor.org/packages/release/bioc/html/xcms.html', target='_blank'>xcms</a> and <a href='https://bioconductor.org/packages/release/bioc/html/CAMERA.html', target='_blank'>CAMERA</a> We also analyzed idMSMS spectra and LC-MS/MS spectra from DDA in MetFamily.")),
+        bsTooltip(id = "downloadDocInputSpecification", title = "Download the input specification of the MetFamily web application", placement = "bottom", trigger = "hover"),
+        downloadButton('downloadDocInputSpecification', 'Download input specification')
+      ),## well panel
+      wellPanel(
+        h4(HTML("<b>Feedback</b>")),
+        p(HTML("The MetFamily web application is designed to support researchers in the interpretation of comparative metabolomics studies at the level of metabolite families. Please help to improve this tool by comments, bug reports, and feature requests. You can contact Dr. Gerd Balcke via <a href='mailto:Gerd.Balcke@ipb-halle.de?subject=MetFamily'>EMail</a> and <a href='https://github.com/Treutler/MetFamily/issues/new', target='_blank'>issues</a> on GitHub."))
+      ),## well panel
+      wellPanel(
+        h4(HTML("<b>Session info</b>")),
         verbatimTextOutput(outputId = "rInfo")
       )## well panel
     )## tab
