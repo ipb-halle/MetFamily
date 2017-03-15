@@ -7,6 +7,8 @@ library("squash")
 
 #install.packages("FactoMineR")
 library("FactoMineR")
+#install.packages("mixOmics")
+library("mixOmics")
 #require(devtools)
 #install_github('rCharts', 'ramnathv')
 #library("rCharts")
@@ -14,7 +16,7 @@ library("FactoMineR")
 #biocLite("pcaMethods")
 library("pcaMethods")
 #install.packages("cba")
-#library("cba")
+library("cba")
 #install.packages("matrixStats")
 library("matrixStats")
 library("Matrix")
@@ -63,7 +65,7 @@ analyzeTreeFromRoot <- function(dataList, cluster, filter){
   #innerNodeFeaturesUnionCounterHere <<- vector(mode = "logical", length = numberOfInnerNodes)
   innerNodePositionHere <<- vector(mode = "numeric", length = numberOfInnerNodes)
   leafHeightsHere <<- vector(mode = "numeric", length = numberOfPrecursorsFiltered)
-  innerNodeMembersPrecursorsHere[1:numberOfPrecursorsFiltered] <<- NA
+  innerNodeMembersPrecursorsHere[seq_len(numberOfPrecursorsFiltered)] <<- NA
   
   analyzeTree(dataList, cluster, filter, rootIndex)
   
@@ -465,6 +467,10 @@ readProjectData <- function(fileLines, progress = FALSE){
   allowedTags <- c("ID")
   allowedTagPrefixes <- c("AnnotationColors=")
   
+  #fileTmp <- "/home/htreutle/Downloads/tmp/ProjectFile_02.tsv"
+  #writeLines(text = fileLines, con = fileTmp)
+  #fileLines <- readLines(con = fileTmp)
+  
   ##################################################################################################
   ## parse data
   if(progress)  incProgress(amount = 0.1, detail = "Preprocessing") else print("Preprocessing")
@@ -493,11 +499,11 @@ readProjectData <- function(fileLines, progress = FALSE){
   fragmentGroupsNumberOfFramgents <- as.integer(line1Tokens[fragmentMatrixStart:numberOfColumns])
   line1Tokens <- NULL
   
-  tagsSector <- line2Tokens[1:numberOfMetaboliteProfileColumns]
+  tagsSector <- line2Tokens[seq_len(numberOfMetaboliteProfileColumns)]
   fragmentGroupsAverageIntensity <- as.numeric(line2Tokens[fragmentMatrixStart:numberOfColumns])
   line2Tokens <- NULL
   
-  metaboliteProfileColumnNames <- line3Tokens[1:numberOfMetaboliteProfileColumns]
+  metaboliteProfileColumnNames <- line3Tokens[seq_len(numberOfMetaboliteProfileColumns)]
   fragmentGroupsAverageMass <- as.numeric(line3Tokens[fragmentMatrixStart:numberOfColumns])
   line3Tokens <- NULL
   
@@ -525,7 +531,7 @@ readProjectData <- function(fileLines, progress = FALSE){
     tokens <- str_split(string = fileLines[[lineIdx]], pattern = "\t")[[1]]
     
     ## metabolite profile
-    metaboliteProfile[rowIdx, ] <- tokens[1:numberOfMetaboliteProfileColumns]
+    metaboliteProfile[rowIdx, ] <- tokens[seq_len(numberOfMetaboliteProfileColumns)]
     
     ## fragment matrix
     tokens <- tokens[fragmentMatrixStart:numberOfColumns]
@@ -576,17 +582,17 @@ readProjectData <- function(fileLines, progress = FALSE){
       stop("Cannot insert column!")
     
     metaboliteProfile <- cbind(
-      metaboliteProfile[,1:target,drop=F], 
+      metaboliteProfile[,seq_len(target),drop=F], 
       as.data.frame(x = rep(x = "", times = numberOfMS1features), stringsAsFactors = FALSE), 
       metaboliteProfile[, (target+1):numberOfMetaboliteProfileColumns, drop=FALSE]
     )
     dataFrameHeader <- cbind(
-      dataFrameHeader[,1:target,drop=F], 
+      dataFrameHeader[,seq_len(target),drop=F], 
       as.data.frame(x = rep(x = "", times = numberOfMS1features), stringsAsFactors = FALSE), 
       dataFrameHeader[, (target+1):numberOfColumns, drop=FALSE]
     )
     numberOfMetaboliteProfileColumns <- numberOfMetaboliteProfileColumns + 1
-    metaboliteProfileColumnNames <- c(metaboliteProfileColumnNames[1:target], annotationColumnName, metaboliteProfileColumnNames[(target+1):numberOfMetaboliteProfileColumns])
+    metaboliteProfileColumnNames <- c(metaboliteProfileColumnNames[seq_len(target)], annotationColumnName, metaboliteProfileColumnNames[(target+1):numberOfMetaboliteProfileColumns])
     colnames(metaboliteProfile) <- metaboliteProfileColumnNames
     headerColumnNames <- c(metaboliteProfileColumnNames, fragmentGroupsAverageMass)
     colnames(dataFrameHeader) <- headerColumnNames
@@ -598,7 +604,7 @@ readProjectData <- function(fileLines, progress = FALSE){
   annotationColumnIndex <- which(metaboliteProfileColumnNames == annotationColumnName)
   annotationColorsValue <- dataFrameHeader[2, annotationColumnIndex]
   
-  dataFrameMS1Header <- dataFrameHeader[, 1:numberOfMetaboliteProfileColumns]
+  dataFrameMS1Header <- dataFrameHeader[, seq_len(numberOfMetaboliteProfileColumns)]
   
   ##################################################################################################
   ## MS1 feature IDs
@@ -606,10 +612,10 @@ readProjectData <- function(fileLines, progress = FALSE){
   ## mz/rt is aligned by '.'
   mzs <- metaboliteProfile[, "m/z"]
   rts <- metaboliteProfile[, "RT"]
-  for(i in 1:numberOfMS1features)
+  for(i in seq_len(numberOfMS1features))
     if(length(grep(x = mzs[[i]], pattern = ".*\\..*")) == 0)
       mzs[[i]] <- paste(mzs[[i]], ".0", sep = "")
-  for(i in 1:numberOfMS1features)
+  for(i in seq_len(numberOfMS1features))
     if(length(grep(x = rts[[i]], pattern = ".*\\..*")) == 0)
       rts[[i]] <- paste(rts[[i]], ".0", sep = "")
   
@@ -625,7 +631,7 @@ readProjectData <- function(fileLines, progress = FALSE){
   minRt2 <- min(tmpMatrixRt[2, ])
   
   mzLabels <- vector(mode = "character", length = numberOfMS1features)
-  for(i in 1:numberOfMS1features)
+  for(i in seq_len(numberOfMS1features))
     mzLabels[[i]] <- paste(
       paste(rep(x = "  ", times = maxMz1 - tmpMatrixMz[1, i]), collapse = ""),
       mzs[[i]],
@@ -633,7 +639,7 @@ readProjectData <- function(fileLines, progress = FALSE){
       sep = ""
     )
   rtLabels <- vector(mode = "character", length = numberOfMS1features)
-  for(i in 1:numberOfMS1features)
+  for(i in seq_len(numberOfMS1features))
     rtLabels[[i]] <- paste(
       paste(rep(x = "  ", times = maxRt1 - tmpMatrixRt[1, i]), collapse = ""),
       rts[[i]],
@@ -669,7 +675,7 @@ readProjectData <- function(fileLines, progress = FALSE){
   featureIndeces <- list()
   featureCount <- vector(mode = "numeric", length = numberOfMS1features)
   #fragmentMassPresent <- rep(x = FALSE, times = length(fragmentGroupsAverageMass))
-  for(i in 1:numberOfMS1features){
+  for(i in seq_len(numberOfMS1features)){
     # if(numberOfMS1features >= 10 & ((i %% (as.integer(numberOfMS1features/10))) == 0))
     #   if(progress)  incProgress(amount = 0.3 / 10, detail = paste("Features ", i, " / ", numberOfMS1features, sep = ""))
     ## data
@@ -712,8 +718,8 @@ readProjectData <- function(fileLines, progress = FALSE){
   ## featureIndexMatrix
   featureIndexMatrix <- matrix(nrow = numberOfMS1features, ncol = max(sapply(X = featureIndeces, FUN = length)))
   rownames(featureIndexMatrix) <- precursorLabels
-  for(i in 1:numberOfMS1features)
-    featureIndexMatrix[i, 1:length(featureIndeces[[i]])] <- featureIndeces[[i]]
+  for(i in seq_len(numberOfMS1features))
+    featureIndexMatrix[i, seq_len(length(featureIndeces[[i]]))] <- featureIndeces[[i]]
   
   # ## remove columns without data
   # fragmentThere <- apply(X = featureMatrix, MARGIN = 2, FUN = function(x){any(x != 0)})
@@ -736,12 +742,15 @@ readProjectData <- function(fileLines, progress = FALSE){
   
   groups <- unique(tagsSector[sampleColumns])
   numberOfGroups <- length(groups)
-  groupsStartEnd <- list()
-  for(groupIdx in seq_len(numberOfGroups))
-    groupsStartEnd[[groupIdx]] <- c(min(which(tagsSector == groups[[groupIdx]])), max(which(tagsSector == groups[[groupIdx]])))
-  groupsStartEndMatrix <- t(matrix(data = unlist(groupsStartEnd), nrow = 2))
-  rownames(groupsStartEndMatrix) <- groups
-  colnames(groupsStartEndMatrix) <- c("Start", "End")
+  groupIndexToColumnIndeces <- function(groupIdx){
+    which(tagsSector == groups[[groupIdx]])
+  }
+  #groupsStartEnd <- list()
+  #for(groupIdx in seq_len(numberOfGroups))
+  #  groupsStartEnd[[groupIdx]] <- c(min(which(tagsSector == groups[[groupIdx]])), max(which(tagsSector == groups[[groupIdx]])))
+  #groupsStartEndMatrix <- t(matrix(data = unlist(groupsStartEnd), nrow = 2))
+  #rownames(groupsStartEndMatrix) <- groups
+  #colnames(groupsStartEndMatrix) <- c("Start", "End")
   
   ####################
   ## MS1 measurement data: mean and LFC
@@ -754,7 +763,7 @@ readProjectData <- function(fileLines, progress = FALSE){
   ## column name functions
   if(progress)  incProgress(amount = 0, detail = "Coloring naming functions") else print("Coloring naming functions")
   dataColumnsNameFunctionFromIndex <- function(groupIdx){
-    paste(groups[[groupIdx]], "_", metaboliteProfileColumnNames[groupsStartEndMatrix[groupIdx, 1]:groupsStartEndMatrix[groupIdx, 2]], sep = "")
+    paste(groups[[groupIdx]], "_", metaboliteProfileColumnNames[groupIndexToColumnIndeces(groupIdx)], sep = "")
   }
   dataColumnsNameFunctionFromName <- function(group){
     dataColumnsNameFunctionFromIndex(match(x = group, table = groups))
@@ -771,7 +780,7 @@ readProjectData <- function(fileLines, progress = FALSE){
   }
   for(groupIdx in seq_len(numberOfGroups)){
     dataColumnNames <- dataColumnsNameFunctionFromIndex(groupIdx)
-    dataFrameMeasurements[, dataColumnNames] <- data.matrix(metaboliteProfile[, groupsStartEndMatrix[[groupIdx, 1]]:groupsStartEndMatrix[[groupIdx, 2]], drop=FALSE])
+    dataFrameMeasurements[, dataColumnNames] <- data.matrix(metaboliteProfile[, groupIndexToColumnIndeces(groupIdx), drop=FALSE])
   }
   dataMeanColumnNameFunctionFromIndex  <- function(groupIdx){
     return(dataMeanColumnNameFunctionFromName(groups[[groupIdx]]))
@@ -800,11 +809,11 @@ readProjectData <- function(fileLines, progress = FALSE){
   for(groupIdx in seq_len(numberOfGroups)){
     dataColumnName <- dataMeanColumnNameFunctionFromIndex(groupIdx)
     dataMeanColumnNames[[groupIdx]] <- dataColumnName
-    if(class(unlist(metaboliteProfile[, groupsStartEndMatrix[[groupIdx, 1]]:groupsStartEndMatrix[[groupIdx, 2]]])) == "character")
-      for(colIdx in groupsStartEndMatrix[[groupIdx, 1]]:groupsStartEndMatrix[[groupIdx, 2]])
+    if(class(unlist(metaboliteProfile[, groupIndexToColumnIndeces(groupIdx)])) == "character")
+      for(colIdx in groupIndexToColumnIndeces(groupIdx))
         metaboliteProfile[, colIdx] <- as.numeric(metaboliteProfile[, colIdx])
     
-    dataFrameMeasurements[, dataColumnName] <- apply(X = data.matrix(metaboliteProfile[, groupsStartEndMatrix[[groupIdx, 1]]:groupsStartEndMatrix[[groupIdx, 2]]]), MARGIN = 1, FUN = mean)
+    dataFrameMeasurements[, dataColumnName] <- apply(X = data.matrix(metaboliteProfile[, groupIndexToColumnIndeces(groupIdx)]), MARGIN = 1, FUN = mean)
     dataFrameMeasurements[is.na(dataFrameMeasurements[, dataColumnName]), dataColumnName] <- 0
   }
   dataMeanColumnNames <- unlist(dataMeanColumnNames)
@@ -812,7 +821,7 @@ readProjectData <- function(fileLines, progress = FALSE){
   ## all replicates mean
   dataFrameMeasurements[, "meanAllNormed"] <- apply(
     X = data.matrix(metaboliteProfile[, 
-                                      unlist(apply(X = groupsStartEndMatrix, MARGIN = 1, FUN = function(x) {seq(from = x[[1]], to = x[[2]])})),
+                                      unlist(lapply(X = seq_len(numberOfGroups), FUN = function(x) {groupIndexToColumnIndeces(x)})),
                                       drop=FALSE]), 
     MARGIN = 1, FUN = mean
   )
@@ -855,7 +864,7 @@ readProjectData <- function(fileLines, progress = FALSE){
   
   ## maps
   colorMapAbsoluteData  <- makecmap(
-    x = c(logAbsMin, logAbsMax), n = 100, 
+    x = c(min(0, logAbsMin), logAbsMax), n = 100, 
     #colFn = colorRampPalette(c('white', 'black'))
     colFn = colorRampPalette(rainbow(18)[10:1])
   )
@@ -865,7 +874,7 @@ readProjectData <- function(fileLines, progress = FALSE){
   )
   
   columnGroupLabels <- sapply(X = groups, FUN = function(x){ rep(x = x, times = length(dataColumnsNameFunctionFromName(x))) })
-  columnGroupOrgLabels <- metaboliteProfileColumnNames[min(groupsStartEndMatrix):max(groupsStartEndMatrix)]
+  columnGroupOrgLabels <- metaboliteProfileColumnNames[min(unlist(lapply(X = seq_len(numberOfGroups), FUN = function(x){groupIndexToColumnIndeces(x)}))):max(unlist(lapply(X = seq_len(numberOfGroups), FUN = function(x){groupIndexToColumnIndeces(x)})))]
   
   ## translate and box colors
   if(progress)  incProgress(amount = 0, detail = "Coloring box") else print("Coloring box")
@@ -884,7 +893,7 @@ readProjectData <- function(fileLines, progress = FALSE){
   annotations    <- vector(mode='list', length=numberOfMS1features)
   #annotations[1:numberOfMS1features] <- dataFrame[, annotationColumnName]
   annoVals <- metaboliteProfile[, annotationColumnName]
-  for(i in 1:numberOfMS1features){
+  for(i in seq_len(numberOfMS1features)){
     #print(paste(i, annoVals[[i]], nchar(annoVals[[i]]), class(annoVals[[i]])))
     if(nchar(annoVals[[i]]) > 0){
       annotations[[i]] <- as.list(unlist(strsplit(x = annoVals[[i]], split = ", ")))
@@ -898,7 +907,7 @@ readProjectData <- function(fileLines, progress = FALSE){
   
   annoArrayOfLists    <- vector(mode='list', length=numberOfMS1features)
   annoArrayIsArtifact <- vector(mode='logical', length=numberOfMS1features)
-  for(i in 1:numberOfMS1features){
+  for(i in seq_len(numberOfMS1features)){
     ignoreCheck <- annotations[[i]] == annotationValueIgnore
     ignoreThere <- any(ignoreCheck)
     
@@ -934,7 +943,7 @@ readProjectData <- function(fileLines, progress = FALSE){
   annoPresentAnnotationsList[[1]] <- annotationValueIgnore
   annoPresentColorsList[[1]] <- annotationColorIgnore
   if(length(annotationColorsMapKeys) > 0)
-    for(i in 1:length(annotationColorsMapKeys)){
+    for(i in seq_len(length(annotationColorsMapKeys))){
       annoPresentAnnotationsList[[1 + i]] <- annotationColorsMapKeys[[i]]
       annoPresentColorsList     [[1 + i]] <- annotationColorsMapValues[[i]]
     }
@@ -1036,11 +1045,11 @@ readProjectDataOld <- function(dataFrame, progress = FALSE){
     if(target == 0 | target == ncol(dataFrame))
       stop("Cannot insert column!")
     
-    dataFrame <- cbind(dataFrame[,1:target,drop=F], as.data.frame(x = rep(x = "", times = nrow(dataFrame)), stringsAsFactors = FALSE), dataFrame[,(target+1):ncol(dataFrame),drop=F])
+    dataFrame <- cbind(dataFrame[,seq_len(target),drop=F], as.data.frame(x = rep(x = "", times = nrow(dataFrame)), stringsAsFactors = FALSE), dataFrame[,(target+1):ncol(dataFrame),drop=F])
     dataFrame[2, target + 1] <- annotationColorsMapInitValue
     dataFrame[3, target + 1] <- annotationColumnName
     
-    columnNames <- c(columnNames[1:target], annotationColumnName, columnNames[(target+1):length(columnNames)])
+    columnNames <- c(columnNames[seq_len(target)], annotationColumnName, columnNames[(target+1):length(columnNames)])
   }
   colnames(dataFrame) <- columnNames
   annotationColumnIndex <- which(columnNames == annotationColumnName)
@@ -1048,7 +1057,7 @@ readProjectDataOld <- function(dataFrame, progress = FALSE){
   ## find columns
   #endOfAnnotation <- tail(x = which(is.na(suppressWarnings(as.numeric(columnNames)))), n = 1)[[1]]
   endOfAnnotation <- max(which(dataFrame[1, ] == ""))
-  tagsSector <- dataFrame[2, 1:endOfAnnotation]
+  tagsSector <- dataFrame[2, seq_len(endOfAnnotation)]
   measurementColumns <- c(14, endOfAnnotation)
   numberOfMeasurementColumns <- measurementColumns[[2]] - measurementColumns[[1]] + 1
   fragmentColumns <- c(endOfAnnotation + 1, ncol(dataFrame))
@@ -1061,8 +1070,8 @@ readProjectDataOld <- function(dataFrame, progress = FALSE){
   
   ## divide
   dataFrameHeader <- dataFrame[1:3, ]
-  dataFrameMS1Header <- dataFrame[1:3, 1:endOfAnnotation]
-  dataFrameInfos <- dataFrame[4:nrow(dataFrame), 1:endOfAnnotation]
+  dataFrameMS1Header <- dataFrame[1:3, seq_len(endOfAnnotation)]
+  dataFrameInfos <- dataFrame[4:nrow(dataFrame), seq_len(endOfAnnotation)]
   dataFrame <- dataFrame[4:nrow(dataFrame), ]
   
   ## mz/rt is aligned by .
@@ -1071,10 +1080,10 @@ readProjectDataOld <- function(dataFrame, progress = FALSE){
   numberOfPrecursors <- nrow(dataFrame)
   mzs <- dataFrame[, "m/z"]
   rts <- dataFrame[, "RT"]
-  for(i in 1:numberOfPrecursors)
+  for(i in seq_len(numberOfPrecursors))
     if(length(grep(x = mzs[[i]], pattern = ".*\\..*")) == 0)
       mzs[[i]] <- paste(mzs[[i]], ".0", sep = "")
-  for(i in 1:numberOfPrecursors)
+  for(i in seq_len(numberOfPrecursors))
     if(length(grep(x = rts[[i]], pattern = ".*\\..*")) == 0)
       rts[[i]] <- paste(rts[[i]], ".0", sep = "")
   
@@ -1090,7 +1099,7 @@ readProjectDataOld <- function(dataFrame, progress = FALSE){
   minRt2 <- min(tmpMatrixRt[2, ])
   
   mzLabels <- vector(mode = "character", length = numberOfPrecursors)
-  for(i in 1:numberOfPrecursors)
+  for(i in seq_len(numberOfPrecursors))
     mzLabels[[i]] <- paste(
       paste(rep(x = "  ", times = maxMz1 - tmpMatrixMz[1, i]), collapse = ""),
       #substr(x = mzs[[i]], start = 1, stop = tmpMatrixMz[1, i] + 1 + minMz2),
@@ -1099,7 +1108,7 @@ readProjectDataOld <- function(dataFrame, progress = FALSE){
       sep = ""
     )
   rtLabels <- vector(mode = "character", length = numberOfPrecursors)
-  for(i in 1:numberOfPrecursors)
+  for(i in seq_len(numberOfPrecursors))
     rtLabels[[i]] <- paste(
       paste(rep(x = "  ", times = maxRt1 - tmpMatrixRt[1, i]), collapse = ""),
       #substr(x = rts[[i]], start = 1, stop = tmpMatrixRt[1, i] + 1 + minRt2),
@@ -1125,7 +1134,7 @@ readProjectDataOld <- function(dataFrame, progress = FALSE){
   rownames(dataFrame) <- precursorLabels
   #rownames(dataFrameOriginal) <- precursorLabelsWithHeader
   numberOfPrecursors <- nrow(dataFrame)
-  colnames(dataFrameInfos) <- columnNames[1:endOfAnnotation]
+  colnames(dataFrameInfos) <- columnNames[seq_len(endOfAnnotation)]
   rownames(dataFrameInfos) <- precursorLabels
   
   headerLabels <- c("HeaderForFragmentCounts", "HeaderForGroupsAndFragmentIntensities", "Header")
@@ -1133,7 +1142,7 @@ readProjectDataOld <- function(dataFrame, progress = FALSE){
   colnames(dataFrameHeader) <- columnNames
   
   rownames(dataFrameMS1Header) <- headerLabels
-  colnames(dataFrameMS1Header) <- columnNames[1:endOfAnnotation]
+  colnames(dataFrameMS1Header) <- columnNames[seq_len(endOfAnnotation)]
   
   ## MS1 measurement data columns
   #dataColumns <- which(!is.na(suppressWarnings(as.numeric(tagsSector))))
@@ -1141,7 +1150,7 @@ readProjectDataOld <- function(dataFrame, progress = FALSE){
   dataColumns <- dataColumns[-which(dataColumns == annotationColumnIndex)]
   groups <- unique(unlist(tagsSector[dataColumns]))
   groupsStartEnd <- list()
-  for(groupIdx in 1:length(groups))
+  for(groupIdx in seq_len(length(groups)))
     groupsStartEnd[[groupIdx]] <- c(min(which(tagsSector == groups[[groupIdx]])), max(which(tagsSector == groups[[groupIdx]])))
   groupsStartEndMatrix <- t(matrix(data = unlist(groupsStartEnd), nrow = 2))
   rownames(groupsStartEndMatrix) <- groups
@@ -1173,7 +1182,7 @@ readProjectDataOld <- function(dataFrame, progress = FALSE){
     })))
     groups[[groupIdx]]
   }
-  for(groupIdx in 1:length(groups)){
+  for(groupIdx in seq_len(length(groups))){
     dataColumnNames <- dataColumnsNameFunctionFromIndex(groupIdx)
     dataFrameMeasurements[, dataColumnNames] <- data.matrix(dataFrame[, groupsStartEndMatrix[[groupIdx, 1]]:groupsStartEndMatrix[[groupIdx, 2]], drop=FALSE])
   }
@@ -1201,7 +1210,7 @@ readProjectDataOld <- function(dataFrame, progress = FALSE){
   if(progress)  incProgress(amount = 0, detail = "Coloring gather data") else print("Coloring gather data")
   ## mean data columns
   dataMeanColumnNames <- list()
-  for(groupIdx in 1:length(groups)){
+  for(groupIdx in seq_len(length(groups))){
     dataColumnName <- dataMeanColumnNameFunctionFromIndex(groupIdx)
     dataMeanColumnNames[[groupIdx]] <- dataColumnName
     if(class(unlist(dataFrame[, groupsStartEndMatrix[[groupIdx, 1]]:groupsStartEndMatrix[[groupIdx, 2]]])) == "character")
@@ -1230,8 +1239,8 @@ readProjectDataOld <- function(dataFrame, progress = FALSE){
   
   ## log fold change between groups
   lfcColumnNames <- list()
-  for(groupIdx1 in 1:length(groups))
-    for(groupIdx2 in 1:length(groups)){
+  for(groupIdx1 in seq_len(length(groups)))
+    for(groupIdx2 in seq_len(length(groups))){
       lfcColumnName <- lfcColumnNameFunctionFromIndex(groupIdx1, groupIdx2)
       lfcColumnNames[[length(lfcColumnNames) + 1]] <- lfcColumnName
       dataFrameMeasurements[, lfcColumnName] <- log(
@@ -1296,7 +1305,7 @@ readProjectDataOld <- function(dataFrame, progress = FALSE){
   matrixVals <- vector(mode = "numeric")
   itemIndex <- 1
   fragmentMassPresent <- rep(x = FALSE, times = length(fragmentMasses))
-  for(i in 1:numberOfPrecursors){
+  for(i in seq_len(numberOfPrecursors)){
     if(numberOfPrecursors >= 10 & ((i %% (as.integer(numberOfPrecursors/10))) == 0))
       if(progress)  incProgress(amount = 0.3 / 10, detail = paste("Features ", i, " / ", numberOfPrecursors, sep = ""))
     ## data
@@ -1327,7 +1336,7 @@ readProjectDataOld <- function(dataFrame, progress = FALSE){
   ## featureMatrix and annotation
   featureMatrix <- sparseMatrix(i = matrixRows, j = matrixCols, x = matrixVals)
   
-  fragmentMasses <- fragmentMasses[1:ncol(featureMatrix)]
+  fragmentMasses <- fragmentMasses[seq_len(ncol(featureMatrix))]
   #fragmentMasses <- fragmentMasses[fragmentMassPresent]
   rownames(featureMatrix) <- precursorLabels
   colnames(featureMatrix) <- fragmentMasses
@@ -1335,8 +1344,8 @@ readProjectDataOld <- function(dataFrame, progress = FALSE){
   ## featureIndexMatrix
   featureIndexMatrix <- matrix(nrow = numberOfPrecursors, ncol = max(sapply(X = featureIndeces, FUN = length)))
   rownames(featureIndexMatrix) <- precursorLabels
-  for(i in 1:numberOfPrecursors)
-    featureIndexMatrix[i, 1:length(featureIndeces[[i]])] <- featureIndeces[[i]]
+  for(i in seq_len(numberOfPrecursors))
+    featureIndexMatrix[i, seq_len(length(featureIndeces[[i]]))] <- featureIndeces[[i]]
   
   ## remove columns without data
   fragmentThere <- apply(X = featureMatrix, MARGIN = 2, FUN = function(x){any(x != 0)})
@@ -1353,7 +1362,7 @@ readProjectDataOld <- function(dataFrame, progress = FALSE){
   annotations    <- vector(mode='list', length=numberOfPrecursors)
   #annotations[1:numberOfPrecursors] <- dataFrame[, annotationColumnName]
   annoVals <- dataFrame[, annotationColumnName]
-  for(i in 1:numberOfPrecursors){
+  for(i in seq_len(numberOfPrecursors)){
     #print(paste(i, annoVals[[i]], nchar(annoVals[[i]]), class(annoVals[[i]])))
     if(nchar(annoVals[[i]]) > 0){
       annotations[[i]] <- as.list(unlist(strsplit(x = annoVals[[i]], split = ", ")))
@@ -1367,7 +1376,7 @@ readProjectDataOld <- function(dataFrame, progress = FALSE){
   
   annoArrayOfLists    <- vector(mode='list', length=numberOfPrecursors)
   annoArrayIsArtifact <- vector(mode='logical', length=numberOfPrecursors)
-  for(i in 1:numberOfPrecursors){
+  for(i in seq_len(numberOfPrecursors)){
     ignoreCheck <- annotations[[i]] == annotationValueIgnore
     ignoreThere <- any(ignoreCheck)
     
@@ -1404,7 +1413,7 @@ readProjectDataOld <- function(dataFrame, progress = FALSE){
   annoPresentAnnotationsList[[1]] <- annotationValueIgnore
   annoPresentColorsList[[1]] <- annotationColorIgnore
   if(length(annotationColorsMapKeys) > 0)
-    for(i in 1:length(annotationColorsMapKeys)){
+    for(i in seq_len(length(annotationColorsMapKeys))){
       annoPresentAnnotationsList[[1 + i]] <- annotationColorsMapKeys[[i]]
       annoPresentColorsList     [[1 + i]] <- annotationColorsMapValues[[i]]
     }
@@ -1437,6 +1446,7 @@ readProjectDataOld <- function(dataFrame, progress = FALSE){
   dataList$meanAllMax <- meanAllMax
   dataList$logFoldChangeMax <- logFoldChangeMax
   dataList$logAbsMax <- logAbsMax
+  dataList$matrixDataFrame <- matrixDataFrame
   dataList$colorMatrixDataFrame <- colorMatrixDataFrame
   dataList$colorMapAbsoluteData <- colorMapAbsoluteData
   dataList$colorMapLogFoldChange <- colorMapLogFoldChange
@@ -1549,7 +1559,7 @@ deserializeParameterSetKeyValuePairs <- function(importParametersValuePairs){
   importParametersValuePairsList <- strsplit(x = importParametersValuePairs, split = "=")
   
   ## catch empty parameter values
-  for(i in 1:length(importParametersValuePairsList))
+  for(i in seq_len(length(importParametersValuePairsList)))
     if(length(importParametersValuePairsList[[i]]) == 1)
       importParametersValuePairsList[[i]][[2]] <- ""
   
@@ -1568,7 +1578,7 @@ deserializeParameterSetKeyValuePairs <- function(importParametersValuePairs){
 }
 castListEntries <- function(list){
   ## cast logical's and numeric's
-  for(idx in 1:length(list)){
+  for(idx in seq_len(length(list))){
     if(!is.na(as.logical(list[[idx]]))){
       ## logical
       list[[idx]] <- as.logical(list[[idx]])
@@ -1604,27 +1614,27 @@ filterData <- function(dataList, groups, filter_average, filter_lfc, filterList_
   ## filter_ms2_masses, filter_ms2_ppm
   if(!is.null(filterList_ms2_masses) & !is.null(filter_ms2_ppm) & length(filterList_ms2_masses) > 0){
     error <- abs(dataList$fragmentMasses) * filter_ms2_ppm / 1E6
-    filterAll <- rep(x = FALSE, times = dataList$numberOfPrecursors)
+    filterFragmentLists <- rep(x = FALSE, times = dataList$numberOfPrecursors)
     for(filter_ms2_masses in filterList_ms2_masses){
-      fragmentColumns <- vector(mode = "numeric")
-      
-      for(fragmentIndex in 1:length(filter_ms2_masses)){
+      filterTempFragmentList <- rep(x = TRUE, times = dataList$numberOfPrecursors)
+      for(fragmentIndex in seq_len(length(filter_ms2_masses))){
         distances <- abs(dataList$fragmentMasses - filter_ms2_masses[[fragmentIndex]])
-        if(any(distances <= error, na.rm = TRUE)){
-          minColumn <- which.min(distances)
-          fragmentColumns[[length(fragmentColumns) + 1]] <- minColumn
-        }
+        filterTempFragment <- rep(x = FALSE, times = dataList$numberOfPrecursors)
+        
+        ## set of fragment columns which are conjunct by or
+        columns <- which(distances <= error)
+        #columns <- which.min(distances <= error)
+        for(column in columns)
+          filterTempFragment <- filterTempFragment | dataList$featureMatrix[, column] != 0
+        
+        ## set of fragemnt masses which are conjunct by and
+        filterTempFragmentList <- filterTempFragmentList & filterTempFragment
       }
-      filterTemp <- rep(x = TRUE, times = dataList$numberOfPrecursors)
-      if(length(fragmentColumns) > 0){
-        for(columns in fragmentColumns)
-          filterTemp <- filterTemp & dataList$featureMatrix[, columns] != 0
-      } else {
-        filterTemp <- rep(x = FALSE, times = dataList$numberOfPrecursors)
-      }
-      filterAll <- filterAll | filterTemp
+      
+      ## set of mass lists which are conjunct by or
+      filterFragmentLists <- filterFragmentLists | filterTempFragmentList
     }
-    filter <- filter & filterAll
+    filter <- filter & filterFragmentLists
   }
   
   ## filter_ms1_masses, filter_ms1_ppm
@@ -1633,7 +1643,7 @@ filterData <- function(dataList, groups, filter_average, filter_lfc, filterList_
     error <- precursorMasses * filter_ms1_ppm / 1E6
     
     filterMS1masses <- rep(x = FALSE, times = dataList$numberOfPrecursors)
-    for(precursorMassIndex in 1:length(filter_ms1_masses)){
+    for(precursorMassIndex in seq_len(length(filter_ms1_masses))){
       distances <- abs(precursorMasses - filter_ms1_masses[[precursorMassIndex]])
       filterPart <- distances <= error
       filterPart[is.na(filterPart)] <- FALSE
@@ -1674,7 +1684,7 @@ calculateDistanceMatrix <- function(dataList, filter, distanceMeasure = "Jaccard
            featureIndeces <- dataList$featureIndeces[filter]
            
            distanceMatrix <- matrix(nrow = numberOfPrecursors, ncol = numberOfPrecursors)
-           for(i in 1:numberOfPrecursors){
+           for(i in seq_len(numberOfPrecursors)){
              time <- proc.time()["user.self"]
              if(time - lastOut > 1){
                lastOut <- time
@@ -1684,7 +1694,7 @@ calculateDistanceMatrix <- function(dataList, filter, distanceMeasure = "Jaccard
              }
              #if(numberOfPrecursors >= 10 & ((i %% (as.integer(numberOfPrecursors/10))) == 0))
              #  if(progress)  incProgress(amount = 1 / 10, detail = paste("Distances ", i, " / ", numberOfPrecursors, sep = ""))
-             for(j in 1:numberOfPrecursors){
+             for(j in seq_len(numberOfPrecursors)){
                if(i == j){
                  distanceMatrix[i, j] <- 0
                  next
@@ -1703,7 +1713,7 @@ calculateDistanceMatrix <- function(dataList, filter, distanceMeasure = "Jaccard
            featureMatrix <- dataList$featureMatrix[filter, ]
            
            distanceMatrix <- matrix(nrow = numberOfPrecursors, ncol = numberOfPrecursors)
-           for(i in 1:numberOfPrecursors){
+           for(i in seq_len(numberOfPrecursors)){
              time <- proc.time()["user.self"]
              if(time - lastOut > 1){
                lastOut <- time
@@ -1711,7 +1721,7 @@ calculateDistanceMatrix <- function(dataList, filter, distanceMeasure = "Jaccard
                lastPrecursor <- i
                if(progress)  incProgress(amount = precursorProgress,     detail = paste("Distance ", i, " / ", numberOfPrecursors, sep = "")) else print(paste("Distance ", i, " / ", numberOfPrecursors, sep = ""))
              }
-             for(j in 1:numberOfPrecursors){
+             for(j in seq_len(numberOfPrecursors)){
                if(i == j){
                  distanceMatrix[i, j] <- 0
                  next
@@ -1749,7 +1759,7 @@ calculateDistanceMatrix <- function(dataList, filter, distanceMeasure = "Jaccard
           "%ni%" = Negate("%in%")
           
            distanceMatrix <- matrix(nrow = numberOfPrecursors, ncol = numberOfPrecursors)
-           for(i in 1:numberOfPrecursors){
+           for(i in seq_len(numberOfPrecursors)){
              time <- proc.time()["user.self"]
              if(time - lastOut > 1){
                lastOut <- time
@@ -1815,7 +1825,7 @@ calculateDistanceMatrix <- function(dataList, filter, distanceMeasure = "Jaccard
           # intensityMapping <- Vectorize(FUN = intensityMapping, vectorize.args = "x")
            
            distanceMatrix <- matrix(nrow = numberOfPrecursors, ncol = numberOfPrecursors)
-           for(i in 1:numberOfPrecursors){
+           for(i in seq_len(numberOfPrecursors)){
              time <- proc.time()["user.self"]
              if(time - lastOut > 1){
                lastOut <- time
@@ -1823,7 +1833,7 @@ calculateDistanceMatrix <- function(dataList, filter, distanceMeasure = "Jaccard
                lastPrecursor <- i
                if(progress)  incProgress(amount = precursorProgress,     detail = paste("Distance ", i, " / ", numberOfPrecursors, sep = "")) else print(paste("Distance ", i, " / ", numberOfPrecursors, sep = ""))
              }
-             for(j in 1:numberOfPrecursors){
+             for(j in seq_len(numberOfPrecursors)){
                if(i == j){
                  distanceMatrix[i, j] <- 0
                  next
@@ -1887,7 +1897,7 @@ calculateDistanceMatrix <- function(dataList, filter, distanceMeasure = "Jaccard
            intensityMapping <- Vectorize(FUN = intensityMapping, vectorize.args = "x")
            
            distanceMatrix <- matrix(nrow = numberOfPrecursors, ncol = numberOfPrecursors)
-           for(i in 1:numberOfPrecursors){
+           for(i in seq_len(numberOfPrecursors)){
              time <- proc.time()["user.self"]
              if(time - lastOut > 1){
                lastOut <- time
@@ -1895,7 +1905,7 @@ calculateDistanceMatrix <- function(dataList, filter, distanceMeasure = "Jaccard
                lastPrecursor <- i
                if(progress)  incProgress(amount = precursorProgress,     detail = paste("Distance ", i, " / ", numberOfPrecursors, sep = "")) else print(paste("Distance ", i, " / ", numberOfPrecursors, sep = ""))
              }
-             for(j in 1:numberOfPrecursors){
+             for(j in seq_len(numberOfPrecursors)){
                if(i == j){
                  distanceMatrix[i, j] <- 0
                  next
@@ -1935,7 +1945,7 @@ calculateDistanceMatrix <- function(dataList, filter, distanceMeasure = "Jaccard
            featureMatrix <- as.matrix(dataList$featureMatrix[filter, ])
            
            similarityMatrix <- matrix(nrow = numberOfPrecursors, ncol = numberOfPrecursors)
-           for(i in 1:numberOfPrecursors){
+           for(i in seq_len(numberOfPrecursors)){
              time <- proc.time()["user.self"]
              if(time - lastOut > 1){
                lastOut <- time
@@ -1943,7 +1953,7 @@ calculateDistanceMatrix <- function(dataList, filter, distanceMeasure = "Jaccard
                lastPrecursor <- i
                if(progress)  incProgress(amount = precursorProgress,     detail = paste("Distance ", i, " / ", numberOfPrecursors, sep = "")) else print(paste("Distance ", i, " / ", numberOfPrecursors, sep = ""))
              }
-             for(j in 1:numberOfPrecursors){
+             for(j in seq_len(numberOfPrecursors)){
                if(i == j){
                  similarityMatrix[i, j] <- 0
                  next
@@ -1965,7 +1975,7 @@ calculateDistanceMatrix <- function(dataList, filter, distanceMeasure = "Jaccard
            fragmentFrequency <- dataList$fragmentFrequency
            
            distanceMatrix <- matrix(nrow = numberOfPrecursors, ncol = numberOfPrecursors)
-           for(i in 1:numberOfPrecursors){
+           for(i in seq_len(numberOfPrecursors)){
              time <- proc.time()["user.self"]
              if(time - lastOut > 1){
                lastOut <- time
@@ -1973,7 +1983,7 @@ calculateDistanceMatrix <- function(dataList, filter, distanceMeasure = "Jaccard
                lastPrecursor <- i
                if(progress)  incProgress(amount = precursorProgress,     detail = paste("Distance ", i, " / ", numberOfPrecursors, sep = "")) else print(paste("Distance ", i, " / ", numberOfPrecursors, sep = ""))
              }
-             for(j in 1:numberOfPrecursors){
+             for(j in seq_len(numberOfPrecursors)){
                if(i == j){
                  distanceMatrix[i, j] <- 0
                  next
@@ -2002,7 +2012,7 @@ calculateDistanceMatrix <- function(dataList, filter, distanceMeasure = "Jaccard
            fragmentFrequency <- dataList$fragmentFrequency
            
            similarityMatrix <- matrix(nrow = numberOfPrecursors, ncol = numberOfPrecursors)
-           for(i in 1:numberOfPrecursors){
+           for(i in seq_len(numberOfPrecursors)){
              time <- proc.time()["user.self"]
              if(time - lastOut > 1){
                lastOut <- time
@@ -2010,7 +2020,7 @@ calculateDistanceMatrix <- function(dataList, filter, distanceMeasure = "Jaccard
                lastPrecursor <- i
                if(progress)  incProgress(amount = precursorProgress,     detail = paste("Distance ", i, " / ", numberOfPrecursors, sep = "")) else print(paste("Distance ", i, " / ", numberOfPrecursors, sep = ""))
              }
-             for(j in 1:numberOfPrecursors){
+             for(j in seq_len(numberOfPrecursors)){
                if(i == j){
                  similarityMatrix[i, j] <- 0
                  next
@@ -2055,7 +2065,7 @@ calculateDistanceMatrix <- function(dataList, filter, distanceMeasure = "Jaccard
            
            ## Rasmussen 2008
            distanceMatrix <- matrix(nrow = numberOfPrecursors, ncol = numberOfPrecursors)
-           for(i in 1:numberOfPrecursors){
+           for(i in seq_len(numberOfPrecursors)){
              time <- proc.time()["user.self"]
              if(time - lastOut > 1){
                lastOut <- time
@@ -2063,7 +2073,7 @@ calculateDistanceMatrix <- function(dataList, filter, distanceMeasure = "Jaccard
                lastPrecursor <- i
                if(progress)  incProgress(amount = precursorProgress,     detail = paste("Distance ", i, " / ", numberOfPrecursors, sep = "")) else print(paste("Distance ", i, " / ", numberOfPrecursors, sep = ""))
              }
-             for(j in 1:numberOfPrecursors){
+             for(j in seq_len(numberOfPrecursors)){
                if(i == j){
                  distanceMatrix[i, j] <- 0
                  next
@@ -2087,7 +2097,7 @@ calculateDistanceMatrix <- function(dataList, filter, distanceMeasure = "Jaccard
            
            ## Gaquerel 2015: standard normalized dot product (NDP) / cosine correlation
            similarityMatrix <- matrix(nrow = numberOfPrecursors, ncol = numberOfPrecursors)
-           for(i in 1:numberOfPrecursors){
+           for(i in seq_len(numberOfPrecursors)){
              time <- proc.time()["user.self"]
              if(time - lastOut > 1){
                lastOut <- time
@@ -2095,7 +2105,7 @@ calculateDistanceMatrix <- function(dataList, filter, distanceMeasure = "Jaccard
                lastPrecursor <- i
                if(progress)  incProgress(amount = precursorProgress,     detail = paste("Distance ", i, " / ", numberOfPrecursors, sep = "")) else print(paste("Distance ", i, " / ", numberOfPrecursors, sep = ""))
              }
-             for(j in 1:numberOfPrecursors){
+             for(j in seq_len(numberOfPrecursors)){
                if(i == j){
                  similarityMatrix[i, j] <- 0
                  next
@@ -2171,7 +2181,7 @@ calculateCluster <- function(dataList, filter, distanceMatrix, method, progress 
   leafHeights <- rep(x = 0, times = length(leafHeights))
   
   ## compute x- and y-coordinates and point-labels
-  poiCoordinatesX <- unlist(c(innerNodePosition, match(x = 1:numberOfPrecursorsFiltered, table = cluster$order)))
+  poiCoordinatesX <- unlist(c(innerNodePosition, match(x = seq_len(numberOfPrecursorsFiltered), table = cluster$order)))
   poiCoordinatesY <- unlist(c(cluster$height, leafHeights))
   
   precursorFeatureCount <- dataList$featureCount[filter]
@@ -2194,7 +2204,7 @@ calculateCluster <- function(dataList, filter, distanceMatrix, method, progress 
   #  #vector(mode = "character", length = length(filter))
   #))
   poiIntersectionSmooth <- c(innerNodeFeaturesPresent, precursorFeatureCount)
-  poiLabels <- unlist(c(1:numberOfInnerNodes, -(1:numberOfPrecursorsFiltered)))
+  poiLabels <- unlist(c(seq_len(numberOfInnerNodes), -(seq_len(numberOfPrecursorsFiltered))))
   
   ##########################################
   ## box
@@ -2232,12 +2242,12 @@ calculateCluster <- function(dataList, filter, distanceMatrix, method, progress 
   ## calculate ms2 spectra
   if(progress)  incProgress(amount = 0.1, detail = "Calculate spectrum information for leaves")
   ms2spectrumInfoForLeaves <<- list()
-  for(leafIdx in 1:numberOfPrecursorsFiltered)
-    ms2spectrumInfoForLeaves[[leafIdx]] <- getMS2spectrumInfoForPrecursor(dataList, clusterDataList, treeLabel = -leafIdx)
+  for(leafIdx in seq_len(numberOfPrecursorsFiltered))
+    ms2spectrumInfoForLeaves[[leafIdx]] <- getMS2spectrumInfoForPrecursorLeaf(dataList, clusterDataList, treeLabel = -leafIdx)
   
   if(progress)  incProgress(amount = 0.1, detail = "Calculate consensus spectra for clusters")
   ms2spectrumInfoForClusters <<- list()
-  for(clusterIdx in 1:numberOfInnerNodes)
+  for(clusterIdx in seq_len(numberOfInnerNodes))
     ms2spectrumInfoForClusters[[clusterIdx]] <- getMS2spectrumInfoForCluster(dataList, clusterDataList, treeLabel = clusterIdx)
   
   ## calculate cluster discriminativity
@@ -2298,36 +2308,85 @@ calculatePCA <- function(dataList, filterObj, scaling, logTransform){
   
   dataFrame2[is.na(dataFrame2)] <- dataFrame[is.na(dataFrame2)]
   
-  ## TODO pcaMethods confidence intervals analog to MetaboAnalyst
+  ## TODO pcaMethods confidence intervals analog to MetaboAnalyst: pcaMethods:::simpleEllipse
   numberOfComponents <- 5
   returnObj <- list()
-  pcaLibrary <- c("stats", "FactoMineR", "pcaMethods")[[3]]
+  pcaLibrary <- c(
+    "stats",           # 1
+    "FactoMineR",      # 2
+    "pcaMethods",      # 3
+    "mixOmics_pca",    # 4
+    "mixOmics_plsda",  # 5
+    "mixOmics_splsda"  # 6
+  )[[5]]
   switch(pcaLibrary,
          "stats"={
-           ## "stats" package
-           pca <- prcomp(x = dataFrame2, retx = TRUE, center = FALSE, scale. = FALSE)
+           ## pca from "stats" package
+           pca <- stats::prcomp(x = dataFrame2, retx = TRUE, center = FALSE, scale. = FALSE)
            returnObj$scores   <- pca$x
            returnObj$loadings <- pca$rotation
            returnObj$variance <- pca$sdev
          },
          "FactoMineR"={
-           ## "FactoMineR" package
-           pca = PCA(X = dataFrame2, graph = FALSE, scale.unit = FALSE, ncp = numberOfComponents)
+           ## pca from "FactoMineR" package
+           pca = FactoMineR::PCA(X = dataFrame2, graph = FALSE, scale.unit = FALSE, ncp = numberOfComponents)
            returnObj$scores   <- pca$ind$coord
            returnObj$loadings <- pca$var$coord
            returnObj$variance <- pca$eig$"percentage of variance"
          },
          "pcaMethods"={
-           ## "pcaMethods" package
-           pca <- pca(object = dataFrame2, method = "svd", nPcs = numberOfComponents, scale = "none", center = FALSE)
+           ## pca from "pcaMethods" package
+           #pca <- pca(object = dataFrame2, method = "robustPca", nPcs = 2, scale = "none", center = FALSE, cv = "q2")
+           pca <- pcaMethods::pca(object = dataFrame2, method = "svd", nPcs = numberOfComponents, scale = "none", center = FALSE)
            returnObj$scores   <- pca@scores
            returnObj$loadings <- pca@loadings
-           #returnObj$variance <- pca@sDev
+           returnObj$variance <- pca@sDev
+           
            returnObj$R2 <- pca@R2
-           returnObj$Q2 <- Q2(object = pca, fold=10)
+           #returnObj$Q2 <- Q2(object = pca, fold=2)
+           returnObj$Q2 <- tryCatch(
+             {
+               Q2(object = pca, fold=2)
+             },
+             error=function(cond) {
+               rep(x = "N/A", times = numberOfComponents)
+             }
+           )
+         },
+         "mixOmics_pca"={
+           ## pca from "mixOmics" package
+           pca = mixOmics::pca(X = dataFrame2, ncomp = numberOfComponents, center = FALSE, scale = FALSE)
+           returnObj$scores   <- pca$variates[[1]]
+           returnObj$loadings <- pca$loadings[[1]]
+           returnObj$variance <- pca$explained_variance
+           #returnObj$R2 <- 
+           #returnObj$Q2 <- 
+         },
+         "mixOmics_plsda"={
+           ## plsda "mixOmics" package
+           groupLabels  <- unlist(lapply(X = rownames(dataFrame), FUN = dataList$groupNameFunctionFromDataColumnName))
+           pca = mixOmics::plsda(X = dataFrame2, Y = groupLabels, ncomp = numberOfComponents, scale = FALSE)
+           returnObj$scores   <- pca$variates[[1]]
+           returnObj$loadings <- pca$loadings[[1]]
+           returnObj$variance <- pca$explained_variance
+           
+           #perf <- perf(pca, validation = "Mfold", folds = 2, progressBar = FALSE)
+           #perf <- perf(pca, validation = "loo", progressBar = FALSE)
+           #returnObj$R2 <- perf$R2
+           #returnObj$Q2 <- perf$Q2
+         },
+         "mixOmics_splsda"={
+           ## splsda from "mixOmics" package TODO
+           groupLabels  <- unlist(lapply(X = rownames(dataFrame), FUN = dataList$groupNameFunctionFromDataColumnName))
+           pca = mixOmics::splsda(X = dataFrame2, Y = groupLabels, ncomp = numberOfComponents, scale = FALSE)
+           returnObj$scores   <- pca$variates[[1]]
+           returnObj$loadings <- pca$loadings[[1]]
+           returnObj$variance <- pca$explained_variance
          },
          stop(paste("Unknown PCA library (", pcaLibrary, ")!", sep = ""))
   )
+  
+  #str(returnObj)
   
   ## valid data
   #$ scores  : num [1:19, 1:5] -355 807 808 -2720 748 ...
@@ -2379,13 +2438,15 @@ getMetFragLink <- function(dataList, precursorIndex){
   fragmentsY[fragmentsY > 1] <- 1
   
   precursorMass  <- as.numeric(dataList$dataFrameInfos$"m/z"[[precursorIndex]])
+  adduct <- "Unknown"
   if("Adduct ion name" %in% colnames(dataList$dataFrameInfos))
     adduct <- dataList$dataFrameInfos$"Adduct ion name"[[precursorIndex]]
-  else
+  if("Adduct.ion.name" %in% colnames(dataList$dataFrameInfos))
     adduct <- dataList$dataFrameInfos$"Adduct.ion.name"[[precursorIndex]]
   neutralMassCorrection <- NA
   ionMode <- NA
   #generateLink <- TRUE
+  
   switch(adduct,
          "[M-H]-"={
            neutralMassCorrection <- 1.008
@@ -2440,7 +2501,7 @@ getMS2spectrum <- function(dataList, clusterDataList, treeLabel){
   if(treeLabel < 0){
     ###############################################
     ## leaf
-    #return(getMS2spectrumInfoForPrecursor(dataList, clusterDataList, treeLabel))
+    #return(getMS2spectrumInfoForPrecursorLeaf(dataList, clusterDataList, treeLabel))
     return(clusterDataList$ms2spectrumInfoForLeaves[[-treeLabel]])
   } else {
     ###############################################
@@ -2449,12 +2510,16 @@ getMS2spectrum <- function(dataList, clusterDataList, treeLabel){
     return(clusterDataList$ms2spectrumInfoForClusters[[treeLabel]])
   }
 }
-getMS2spectrumInfoForPrecursor <- function(dataList, clusterDataList, treeLabel){
+getMS2spectrumInfoForPrecursorLeaf <- function(dataList, clusterDataList, treeLabel){
   if(treeLabel >= 0)
     return(NULL)
   ###############################################
   ## leaf
   precursorIndex <- clusterDataList$filter[[-treeLabel]]
+  return(getMS2spectrumInfoForPrecursor(dataList, precursorIndex))
+}
+getMS2spectrumInfoForPrecursor <- function(dataList, precursorIndex){
+  
   precursorSet <- precursorIndex
   numberOfPrecursors <- length(precursorSet)
   
@@ -2468,9 +2533,26 @@ getMS2spectrumInfoForPrecursor <- function(dataList, clusterDataList, treeLabel)
   ## fragment discriminativity
   fragmentDiscriminativity <- rep(x = 0, times = length(features))
   
+  
   ## info and MetFrag link
-  infoText <- paste("The MS/MS spectrum of MS\u00B9 feature '", trimws(gsub(x = clusterDataList$cluster$labels[[-treeLabel]], pattern = " +", replacement = " ")), "' comprises ", length(fragmentsX), " fragments.", sep = "")
+  featureID <- trimws(gsub(x = dataList$precursorLabels[[precursorIndex]], pattern = " +", replacement = " "))
+  #featureID <- trimws(gsub(x = clusterDataList$cluster$labels[[-treeLabel]], pattern = " +", replacement = " "))
+  featureFamilies <- dataList$annoArrayOfLists[[precursorIndex]]
+  featureFamilies <- ifelse(
+    test = length(featureFamilies) == 0, 
+    yes = "None", 
+    no = paste(unlist(featureFamilies), collapse = ", ")
+  )
+  featureName <- dataList$dataFrameInfos[[precursorIndex, "Metabolite name"]]
+  
+  infoText <- paste(
+    "The MS/MS spectrum of MS\u00B9 feature '", 
+    featureID, "'", 
+    " comprises ", length(fragmentsX), " fragments. Families: ", featureFamilies, ". Name: ", featureName,
+    sep = ""
+  )
   landingPageUrlForLink <- getMetFragLink(dataList, precursorIndex)
+  
   
   ## order data
   order <- order(fragmentsX)
@@ -2648,23 +2730,6 @@ getPrecursorSetFromTreeSelection <- function(clusterDataList, clusterLabel){
   }
   return(precursorSet)
 }
-getMS2spectrumOfPrecursor <- function(dataList, precursorIndex){
-  featureIndeces <- dataList$featureIndeces[[precursorIndex]]
-  featureMasses  <- dataList$fragmentMasses[featureIndeces]
-  featureValues  <- dataList$featureMatrix [precursorIndex, featureIndeces]
-  featureValues[featureValues > 1] <- 1
-  featureColor   <- rep(x = "black", times = length(featureMasses))
-  
-  infoText <- paste("The MS/MS spectrum of MS\u00B9 feature '", trimws(gsub(x = dataList$precursorLabels[[precursorIndex]], pattern = " +", replacement = " ")), "' comprises ", length(featureMasses), " fragments.", sep = "")
-  
-  resultObj <- list()
-  resultObj$fragmentMasses <- featureMasses
-  resultObj$fragmentAbundances <- featureValues
-  resultObj$fragmentColor <- featureColor
-  resultObj$infoText <- infoText
-  
-  return(resultObj)
-}
 getMS2plotData <- function(matrixRows, matrixCols, matrixVals, fragmentMasses){
   # numberOfFragments <- vector(mode = "numeric", length = ncol(dataList$featureMatrix))
   # sumOfAbundances   <- vector(mode = "numeric", length = ncol(dataList$featureMatrix))
@@ -2680,7 +2745,7 @@ getMS2plotData <- function(matrixRows, matrixCols, matrixVals, fragmentMasses){
   numberOfFragments <- length(fragmentMasses)
   meanIntensity <- vector(mode = "numeric", length = numberOfFragments)
   fragmentCount <- vector(mode = "numeric", length = numberOfFragments)
-  for(colIdx in 1:numberOfFragments){
+  for(colIdx in seq_len(numberOfFragments)){
     intensities <- matrixVals[matrixCols == colIdx]
     fragmentCount[[colIdx]] <- length(intensities)
     meanIntensity[[colIdx]] <- mean(x = intensities)
@@ -2720,7 +2785,7 @@ getMS2plotData <- function(matrixRows, matrixCols, matrixVals, fragmentMasses){
   
   return(resultObj)
 }
-plotFragments <- function(dataList, xInterval = NULL){
+plotFragments <- function(dataList, xInterval = NULL, yInterval = NULL, relative = FALSE){
   if(is.null(xInterval)){
     xMin <- min(dataList$masses)
     xMax <- max(dataList$masses)
@@ -2740,22 +2805,27 @@ plotFragments <- function(dataList, xInterval = NULL){
   numberOfFragments <- dataList$numberOfFragments[selection]
   masses            <- dataList$masses[selection]
   
+  #colors <- rep(x = "black", times = length(dataList$masses))
+  colors <- cmap(x = numberOfFragments, map = dataList$colorMapFragmentData)
+  
+  if(relative)
+    numberOfFragments <- numberOfFragments / dataList$numberOfPrecursors
+  
   yMin <- 0
   if(sum(selection) == 0)
     yMax <- 1
   else
     yMax <- max(numberOfFragments)
-  yInterval <- c(yMin, yMax)
+  if(is.null(yInterval))
+    yInterval <- c(yMin, yMax)
   
-  #colors <- rep(x = "black", times = length(dataList$masses))
-  colors <- cmap(x = numberOfFragments, map = dataList$colorMapFragmentData)
   
   #########################################################################################################
   ## plot
-  par(mar=c(5,3,2,0), mgp = c(2, 1, 0))  ## c(bottom, left, top, right)
+  par(mar=c(5,3,2,3), mgp = c(2, 1, 0))  ## c(bottom, left, top, right)
   #plot(x = dataList$masses, y = dataList$numberOfFragments, xlab = "Fragment mass", ylab = "Precursors", xlim = xInterval, ylim = yInterval, main = "Fragment plot", col = colors, pch=19, cex=1., xaxt='n')
   #plot(x = masses, y = numberOfFragments, xlab = "", ylab = "Precursors", xlim = xInterval, ylim = yInterval, main = NULL, col = colors, pch=19, cex=1., xaxt='n')
-  plot(x = NULL, y = NULL, xlab = "m/z", ylab = "MS/MS spectrum count", xlim = xInterval, ylim = yInterval, main = NULL, col = colors, pch=19, cex=1., xaxt='n')
+  plot(x = NULL, y = NULL, xlab = "m/z", ylab = "Number of spectra", xlim = xInterval, ylim = yInterval, main = NULL, col = colors, pch=19, cex=1., xaxt='n')
   axis(side = 3)
   
   ## axis
@@ -2768,6 +2838,13 @@ plotFragments <- function(dataList, xInterval = NULL){
   points(x = masses[dataOrder], y = numberOfFragments[dataOrder], col = colors[dataOrder], type = "h", lwd=4)
   #points(x = masses[dataOrder], y = numberOfFragments[dataOrder], col = colors[dataOrder], pch=19, cex=1.)
   
+  ## 2nd y-axis TODO
+  numberOfFragmentsInPercent <- numberOfFragments / dataList$numberOfPrecursors * 100
+  par(new = TRUE)
+  plot(x = c(0, masses), y = c(0, numberOfFragmentsInPercent), xlim = xInterval, axes=FALSE, type="n", xlab = "", ylab = "")
+  axis(side = 4, line = NA, at = as.integer(pretty(c(0, numberOfFragmentsInPercent))))
+  mtext(side = 4, line = 2, text = "Number of spectra in %")
+  
   resultObj <- list()
   resultObj$poiFragmentX <- masses
   resultObj$poiFragmentY <- numberOfFragments
@@ -2776,7 +2853,7 @@ plotFragments <- function(dataList, xInterval = NULL){
 }
 #########################################################################################
 ## plotting
-colorLabels <- function(labels, clusterMembers, color, labelsToRemove = NULL){
+colorLabels <- function(labels, clusterMembers, color, labelsToRemove = NULL, newLabels = NULL){
   colLab <- function(n) {
     if(is.leaf(n)) {
       a <- attributes(n)
@@ -2796,30 +2873,65 @@ colorLabels <- function(labels, clusterMembers, color, labelsToRemove = NULL){
       if(!is.null(labelsToRemove))
         if(length(na.omit(match(x = nodeLabelHere, table = labelsToRemove))) > 0)
           attr(n, "label") <- "" # clear label
+      if(!is.null(newLabels))
+        attr(n, "label") <- newLabels[[nodeIndexHere]] # new label
     }
     return(n)
   }
   
   return(colLab)
 }
-calcPlotDendrogram <- function(dataList, filter, clusterDataList, annoPresentAnnotationsList, annoPresentColorsList, distanceMeasure, selectionFragmentTreeNodeSet = NULL, selectionAnalysisTreeNodeSet = NULL, selectionSearchTreeNodeSet = NULL, showClusterLabels, xInterval = NULL){
+calcPlotDendrogram <- function(dataList, filter, clusterDataList, annoPresentAnnotationsList, annoPresentColorsList, distanceMeasure, selectionFragmentTreeNodeSet = NULL, selectionAnalysisTreeNodeSet = NULL, selectionSearchTreeNodeSet = NULL, showClusterLabels, hcaPrecursorLabels, xInterval = NULL){
   if(is.null(xInterval))
     xInterval <- c(1, clusterDataList$numberOfPrecursorsFiltered)
+  
+  ####################
+  ## hcaPrecursorLabels
+  precursorLabels <- NULL
+  switch(as.character(hcaPrecursorLabels),
+         "m/z / RT"={
+           precursorLabels <- clusterDataList$cluster$labels
+         },
+         "Metabolite name"={
+           precursorLabels <- dataList$dataFrameInfos[filter, "Metabolite name"]
+           
+           maximumNumberOfCharacters <- 17
+           tooLong <- nchar(x = precursorLabels) > maximumNumberOfCharacters
+           precursorLabels[tooLong] <- paste(substring(text = precursorLabels[tooLong], first = 1, last = maximumNumberOfCharacters - 3), rep(x = "...", times = length(tooLong)), sep = "")
+         },
+         "Metabolite family"={
+           precursorLabels <- unlist(lapply(X = dataList$annoArrayOfLists[filter], FUN = function(x){
+             if(length(x) == 0)
+               return("Unknown")
+             else
+               return(x[[1]])
+           }))
+           
+           maximumNumberOfCharacters <- 17
+           tooLong <- nchar(x = precursorLabels) > maximumNumberOfCharacters
+           precursorLabels[tooLong] <- paste(substring(text = precursorLabels[tooLong], first = 1, last = maximumNumberOfCharacters - 3), rep(x = "...", times = length(tooLong)), sep = "")
+         }
+  )## end switch
+  
+  precursorLabelsWithIdx <- paste(precursorLabels, "_", seq_len(length(precursorLabels)), sep = "")
+  
+  ## remove labels left of the y-axis
+  rightMostInvisibleLabelIndex <- floor(xInterval[[1]] - (xInterval[[2]] - xInterval[[1]]) * 0.04)
+  if(rightMostInvisibleLabelIndex > 0){
+    #labelsToRemove <- precursorLabelsWithIdx[clusterDataList$cluster$order][1:rightMostInvisibleLabelIndex]
+    #length(na.omit(match(x = precursorLabelsWithIdx, table = labelsToRemove))) > 0
+    labelIndecesToRemove <- clusterDataList$cluster$order[seq_len(rightMostInvisibleLabelIndex)]
+    precursorLabelsWithIdx[labelIndecesToRemove] <- ""
+    precursorLabels[labelIndecesToRemove] <- ""
+  }
+  
+  clusterDataList$cluster$labels <- precursorLabelsWithIdx
   
   ####################
   ## cluster
   par(mar=c(7.25,4,2,0), mgp = c(3, 1, 0))  ## c(bottom, left, top, right)
   
   dend <- as.dendrogram(clusterDataList$cluster)
-  
-  ## remove labels left of the y-axis
-  rightMostInvisibleLabelIndex <- floor(xInterval[[1]] - (xInterval[[2]] - xInterval[[1]]) * 0.04)
-  if(rightMostInvisibleLabelIndex > 0){
-    labelsToRemove <- clusterDataList$cluster$labels[clusterDataList$cluster$order][1:rightMostInvisibleLabelIndex]
-    
-    colLab <- colorLabels(clusterDataList$cluster$labels, NULL, NULL, labelsToRemove)
-    dend <- dendrapply(dend, colLab)
-  }
   
   ## color labels for search sub-roots
   if(!is.null(selectionSearchTreeNodeSet)){
@@ -2828,7 +2940,7 @@ calcPlotDendrogram <- function(dataList, filter, clusterDataList, annoPresentAnn
       -selectionSearchTreeNodeSet[selectionSearchTreeNodeSet < 0]
     )
     
-    colLab <- colorLabels(clusterDataList$cluster$labels, clusterMembers, 'red')
+    colLab <- colorLabels(precursorLabelsWithIdx, clusterMembers, 'red')
     dend <- dendrapply(dend, colLab)
   }
   ## color labels for fragment sub-roots
@@ -2838,7 +2950,7 @@ calcPlotDendrogram <- function(dataList, filter, clusterDataList, annoPresentAnn
       -selectionFragmentTreeNodeSet[selectionFragmentTreeNodeSet < 0]
     )
     
-    colLab <- colorLabels(clusterDataList$cluster$labels, clusterMembers, 'green')
+    colLab <- colorLabels(precursorLabelsWithIdx, clusterMembers, 'green')
     dend <- dendrapply(dend, colLab)
   }
   ## color labels for analysis sub-root
@@ -2852,9 +2964,23 @@ calcPlotDendrogram <- function(dataList, filter, clusterDataList, annoPresentAnn
       }
     }
     
-    colLab <- colorLabels(clusterDataList$cluster$labels, clusterMembers, 'blue')
+    colLab <- colorLabels(precursorLabelsWithIdx, clusterMembers, 'blue')
     dend <- dendrapply(dend, colLab)
   }
+  
+  ### remove labels left of the y-axis
+  #rightMostInvisibleLabelIndex <- floor(xInterval[[1]] - (xInterval[[2]] - xInterval[[1]]) * 0.04)
+  #if(rightMostInvisibleLabelIndex > 0){
+  #  labelsToRemove <- precursorLabelsWithIdx[clusterDataList$cluster$order][1:rightMostInvisibleLabelIndex]
+  #  
+  #  colLab <- colorLabels(precursorLabelsWithIdx, NULL, NULL, labelsToRemove)
+  #  dend <- dendrapply(dend, colLab)
+  #}
+  
+  ## remove precursorLabel indeces
+  colLab <- colorLabels(precursorLabelsWithIdx, NULL, NULL, NULL, precursorLabels)
+  dend <- dendrapply(dend, colLab)
+  
   ## plot
   plot(x = dend, xlab = "", ylab = distanceMeasure, main = "Hierarchical cluster dendrogram", sub = "", xlim = xInterval)
   
@@ -2965,7 +3091,93 @@ calcPlotDendrogram <- function(dataList, filter, clusterDataList, annoPresentAnn
   
   return(resultList)
 }
-calcPlotHeatmap <- function(dataList, filterObj, clusterDataList, xInterval = NULL){
+calcPlotHeatmap <- function(dataList, filterObj, clusterDataList, selectedTreeNodeSet, frameColor, xInterval = NULL){
+  if(is.null(xInterval))
+    xInterval <- c(1, clusterDataList$numberOfPrecursorsFiltered)
+  
+  ####################
+  ## heatmap
+  groups <- rev(dataList$groups)
+  columnsOfInterest <- unlist(lapply(X = groups, FUN = function(x){
+    dataList$dataMeanColumnNameFunctionFromName(x)
+  }))
+  numberOfGroups <- length(columnsOfInterest)
+  labels <- groups
+  
+  par(mar=c(0,4,0,0), mgp = c(3, 1, 0))  ## c(bottom, left, top, right) ## c(title, axis, label)
+  
+  
+  if(!is.null(selectedTreeNodeSet)){
+    clusterMemberList <- lapply(X = selectedTreeNodeSet, FUN = function(x){
+      ifelse(test = x < 0, yes = -x, no = clusterDataList$innerNodeMembersTreeLeaves[x])[[1]]
+    })
+    positionsList <- lapply(X = clusterMemberList, FUN = function(x){
+      match(x = x, table = clusterDataList$cluster$order)
+    })
+    intervals <- lapply(X = clusterMemberList, FUN = function(x){
+      positions <- match(x = x, table = clusterDataList$cluster$order)
+      c(min(positions), max(positions))
+    })
+    intervalMatrix <- as.matrix(as.data.frame(intervals))
+    
+    #print("")
+    #print(selectedTreeNodeSet)
+    #print(clusterMemberList)
+    #print(positionsList)
+    #print(intervals)
+    #print(intervalMatrix)
+    #print("")
+  }
+  
+  if(numberOfGroups == 0){
+    print("### calcPlotHeatmap: no columnsOfInterest")
+    plot.new()
+    return()
+  }
+  
+  data_s_p <- t(as.matrix(as.data.frame(lapply(X = columnsOfInterest, FUN = function(x){
+    values <- dataList$dataFrameMeasurements[filterObj$filter, x][clusterDataList$cluster$order]
+    if(is.null(selectedTreeNodeSet))
+      return(values)
+    
+    unlist(apply(X = intervalMatrix, MARGIN = 2, FUN = function(x){
+      values[seq(from=x[[1]], to = x[[2]], by = 1)]
+    }))
+  }))))
+  
+  dist <- dist(data_s_p)
+  cluster <- hclust(d = dist, method = "ward.D")
+  
+  ## optimal leaf ordering
+  if(numberOfGroups > 2){
+    opt <- order.optimal(dist = dist, merge = cluster$merge)
+    cluster$merge <- opt$merge
+    cluster$order <- opt$order
+  }
+  
+  labels <- labels[cluster$order]
+  
+  colors <- lapply(X = columnsOfInterest[cluster$order], FUN = function(x){
+    dataList$colorMatrixDataFrame[filterObj$filter, x][clusterDataList$cluster$order]
+  })
+  
+  plot(x = c(1, clusterDataList$numberOfPrecursorsFiltered), y = c(0, numberOfGroups), type= "n", xlab = "", ylab = "", axes = FALSE, xlim = xInterval, ylim = c(0, numberOfGroups))
+  rect(
+    xleft   = rep(x = seq_len(clusterDataList$numberOfPrecursorsFiltered) - 0.5, times = numberOfGroups), 
+    xright  = rep(x = seq_len(clusterDataList$numberOfPrecursorsFiltered) + 0.5, times = numberOfGroups), 
+    ybottom = unlist(lapply(X = 0:(numberOfGroups - 1), FUN = function(x){rep(x = x, times = clusterDataList$numberOfPrecursorsFiltered)})),
+    ytop    = unlist(lapply(X = seq_len(numberOfGroups),       FUN = function(x){rep(x = x, times = clusterDataList$numberOfPrecursorsFiltered)})),
+    col     = unlist(colors),
+    border = NA
+  )
+  if(!is.null(selectedTreeNodeSet))
+    apply(X = intervalMatrix, MARGIN = 2, FUN = function(x){
+      rect(xleft = x[[1]] - 0.5, xright = x[[2]] + 0.5, ybottom = 0, ytop = numberOfGroups, border = frameColor, lwd = 2)
+    })
+  
+  axis(side = 2, at = seq(from = 0.5, by = 1, length.out = numberOfGroups), labels = labels, las = 2, tick = TRUE)
+}
+calcPlotHeatmapOld <- function(dataList, filterObj, clusterDataList, xInterval = NULL){
   if(is.null(xInterval))
     xInterval <- c(1, clusterDataList$numberOfPrecursorsFiltered)
   
@@ -2986,11 +3198,20 @@ calcPlotHeatmap <- function(dataList, filterObj, clusterDataList, xInterval = NU
     colorLFC <- dataList$colorMatrixDataFrame[filterObj$filter, columnsOfInterest[[3]]][clusterDataList$cluster$order]
     
     plot(x = c(1, clusterDataList$numberOfPrecursorsFiltered), y = c(0, 3), type= "n", xlab = "", ylab = "", axes = FALSE, xlim = xInterval, ylim = c(0, 3))
-    for(i in 1:clusterDataList$numberOfPrecursorsFiltered){
-      rect(xleft = i - 0.5, xright = i + 0.5, ybottom = 2, ytop = 3, col = colorLFC[[i]], border = NA)
-      rect(xleft = i - 0.5, xright = i + 0.5, ybottom = 1, ytop = 2, col = colorOne[[i]], border = NA)
-      rect(xleft = i - 0.5, xright = i + 0.5, ybottom = 0, ytop = 1, col = colorTwo[[i]], border = NA)
-    }
+    rect(
+      xleft   = rep(x = seq_len(clusterDataList$numberOfPrecursorsFiltered) - 0.5, times = 3), 
+      xright  = rep(x = seq_len(clusterDataList$numberOfPrecursorsFiltered) + 0.5, times = 3), 
+      ybottom = unlist(lapply(X = 0:2, FUN = function(x){rep(x = x, times = clusterDataList$numberOfPrecursorsFiltered)})),
+      ytop    = unlist(lapply(X = 1:3, FUN = function(x){rep(x = x, times = clusterDataList$numberOfPrecursorsFiltered)})),
+      col     = c(colorTwo, colorOne, colorLFC),
+      border = NA
+    )
+    
+    #for(i in seq_len(clusterDataList$numberOfPrecursorsFiltered)){
+    #  rect(xleft = i - 0.5, xright = i + 0.5, ybottom = 2, ytop = 3, col = colorLFC[[i]], border = NA)
+    #  rect(xleft = i - 0.5, xright = i + 0.5, ybottom = 1, ytop = 2, col = colorOne[[i]], border = NA)
+    #  rect(xleft = i - 0.5, xright = i + 0.5, ybottom = 0, ytop = 1, col = colorTwo[[i]], border = NA)
+    #}
     axis(side = 2, at = c(0.5, 1.5, 2.5), labels = c(filterObj$groups[[2]], filterObj$groups[[1]], "LFC"), las = 2, tick = TRUE)
   }
 }
@@ -3012,9 +3233,9 @@ reorderAnnotationsForLegend <- function(annoLabels, annoColors){
   }
   
   if(numberOfRealAnnotations > 0){
-    order <- order(annoLabels[1:numberOfRealAnnotations])
-    annoLabels[1:numberOfRealAnnotations] <- annoLabels[1:numberOfRealAnnotations][order]
-    annoColors[1:numberOfRealAnnotations] <- annoColors[1:numberOfRealAnnotations][order]
+    order <- order(annoLabels[seq_len(numberOfRealAnnotations)])
+    annoLabels[seq_len(numberOfRealAnnotations)] <- annoLabels[seq_len(numberOfRealAnnotations)][order]
+    annoColors[seq_len(numberOfRealAnnotations)] <- annoColors[seq_len(numberOfRealAnnotations)][order]
   }
   
   resultList <- list(
@@ -3023,6 +3244,11 @@ reorderAnnotationsForLegend <- function(annoLabels, annoColors){
   )
 }
 calcPlotAnnoLegend <- function(annoLabels, annoColors){
+  if(is.null(annoLabels)){
+    annoLabels <- vector(mode = "character")
+    annoColors <- vector(mode = "character")
+  }
+  
   ## get and reorder annotations
   resultObj <- reorderAnnotationsForLegend(annoLabels, annoColors)
   annoLabels <- resultObj$annoLabels
@@ -3074,22 +3300,22 @@ calcPlotLegendForImage <- function(annoLabels, annoColors, title, maximumNumberO
   xPositions <- c(-0.05, rep(x = xSpacing, times = length(annoLabels)))
   #yPositions <- seq(from = 1, to = 0, by = 1/(-length(xPositions)))
   yPositions <- seq(from = 1 - ySpacing, to = ySpacing, length.out = maximumNumberOfLines)
-  yPositions <- yPositions[1:numberOfLines]
+  yPositions <- yPositions[seq_len(numberOfLines)]
   
   symbolXPositions <- rep(x = xSpacing * 0.75, times = length(annoLabels))
   symbolYPositions <- yPositions[2:length(yPositions)]
-  symbolYPositions <- symbolYPositions[1:length(symbolXPositions)]
+  symbolYPositions <- symbolYPositions[seq_len(length(symbolXPositions))]
   
   if(numberOfLines > maximumNumberOfLines){
-    labels <- labels[1:(maximumNumberOfLines)]
-    annoColors <- annoColors[1:(maximumNumberOfLines - 1)]
-    xPositions <- xPositions[1:maximumNumberOfLines]
-    yPositions <- yPositions[1:maximumNumberOfLines]
+    labels <- labels[seq_len(maximumNumberOfLines)]
+    annoColors <- annoColors[seq_len((maximumNumberOfLines - 1))]
+    xPositions <- xPositions[seq_len(maximumNumberOfLines)]
+    yPositions <- yPositions[seq_len(maximumNumberOfLines)]
     
     labels[length(labels)] <- paste("...", (numberOfLines - maximumNumberOfLines + 1), " more", sep = "")
-    annoColors <- annoColors[1:(length(annoColors) - 1)]
-    symbolXPositions <- symbolXPositions[1:(length(symbolXPositions) - 1)]
-    symbolYPositions <- symbolYPositions[1:(length(symbolYPositions) - 1)]
+    annoColors <- annoColors[seq_len(length(annoColors) - 1)]
+    symbolXPositions <- symbolXPositions[seq_len(length(symbolXPositions) - 1)]
+    symbolYPositions <- symbolYPositions[seq_len(length(symbolYPositions) - 1)]
   }
   
   ##################################################################################################
@@ -3102,7 +3328,7 @@ plotLegendWithBalls <- function(labels, xPositions, yPositions, circleXPositions
   plot.window(xlim = c(0, 1), ylim = c(0, 1))
   
   ## circles
-  for(i in 1:length(annoColors))
+  for(i in seq_len(length(annoColors)))
     draw.circle(x = circleXPositions[[i]], y = circleYPositions[[i]], radius = radius, nv=50, border=annoColors[[i]], col = annoColors[[i]], lty=1, lwd=5)
   
   ## labels
@@ -3125,7 +3351,7 @@ calcPlotMS2Legend <- function(dataList){
   labels <- c("Fragment stick colors", stickLabels)
   xPositions <- c(-0.05, rep(x = xSpacing, times = length(stickLabels)))
   #yPositions <- seq(from = 1, to = 0, by = 1/(-length(xPositions)))
-  yPositions <- seq(from = 0.9, to = -0.1, by = -1/length(labels))[1:length(xPositions)]
+  yPositions <- seq(from = 0.9, to = -0.1, by = -1/length(labels))[seq_len(length(xPositions))]
   
   symbolXPositions <- rep(x = xSpacing * 0.75, times = length(stickLabels))
   symbolYPositions <- yPositions[2:length(yPositions)]
@@ -3162,7 +3388,7 @@ calcPlotDendrogramLegend <- function(){
   labels <- c("Selection marks", stickLabels)
   xPositions <- c(-0.05, rep(x = xSpacing, times = length(stickLabels)))
   #yPositions <- seq(from = 1, to = 0, by = 1/(-length(xPositions)))
-  yPositions <- seq(from = 0.9, to = -0.1, by = -1/length(labels))[1:length(xPositions)]
+  yPositions <- seq(from = 0.9, to = -0.1, by = -1/length(labels))[seq_len(length(xPositions))]
   
   symbolXPositions <- rep(x = xSpacing * 0.75, times = length(stickLabels))
   symbolYPositions <- yPositions[2:length(yPositions)]
@@ -3198,7 +3424,7 @@ calcPlotDiscriminativityLegend <- function(){
   labels <- c("Cluster-discriminating power", stickLabels)
   xPositions <- c(-0.05, rep(x = xSpacing, times = length(stickLabels)))
   #yPositions <- seq(from = 1, to = 0, by = 1/(-length(xPositions)))
-  yPositions <- seq(from = 0.9, to = -0.1, by = -1/length(labels))[1:length(xPositions)]
+  yPositions <- seq(from = 0.9, to = -0.1, by = -1/length(labels))[seq_len(length(xPositions))]
   
   symbolXPositions <- rep(x = xSpacing * 0.75, times = length(stickLabels))
   symbolYPositions <- yPositions[2:length(yPositions)]
@@ -3493,7 +3719,12 @@ calcPlotPCAscores <- function(pcaObj, dataList, filterObj, pcaDimensionOne, pcaD
     yInterval <- c(yMin, yMax)
   
   par(mar=c(3 + 0.35, 3, 2, 1), mgp = c(2, 1, 0))  ## c(bottom, left, top, right)
-  plot(x = dataDimOne, y = dataDimTwo, xlim = xInterval, ylim = yInterval, xlab = xAxisLabel, ylab = yAxisLabel, main = "Scores", col = colorsForReplicates, pch=19, cex=1.)
+  plot(
+    x = dataDimOne, y = dataDimTwo, 
+    xlim = xInterval, ylim = yInterval, 
+    xlab = xAxisLabel, ylab = yAxisLabel, main = "Scores", 
+    col = colorsForReplicates, pch=19, cex=1.
+  )
   
   ## axis
   xInt <- xMax - xMin
@@ -3510,7 +3741,7 @@ calcPlotPCAscores <- function(pcaObj, dataList, filterObj, pcaDimensionOne, pcaD
     graphics::text(x = dataDimOne, y = dataDimTwo, labels = labels, pos = 4)
   }
 }
-calcPlotPCAloadings <- function(pcaObj, dataList, filter, pcaDimensionOne, pcaDimensionTwo, selectionFragmentPcaLoadingSet = NULL, selectionAnalysisPcaLoadingSet = NULL, selectionSearchPcaLoadingSet = NULL, xInterval = NULL, yInterval = NULL, showLoadingsLabels = FALSE, showLoadingsAbundance = FALSE){
+calcPlotPCAloadings <- function(pcaObj, dataList, filter, pcaDimensionOne, pcaDimensionTwo, selectionFragmentPcaLoadingSet = NULL, selectionAnalysisPcaLoadingSet = NULL, selectionSearchPcaLoadingSet = NULL, xInterval = NULL, yInterval = NULL, loadingsLabels = "None", showLoadingsFeatures = "All", showLoadingsAbundance = FALSE){
   #varianceOne <- format(x = pcaObj$variance[[pcaDimensionOne]], digits = 3)
   #varianceTwo <- format(x = pcaObj$variance[[pcaDimensionTwo]], digits = 3)
   r2One <- format(x = pcaObj$R2[[pcaDimensionOne]], digits = 3)
@@ -3522,6 +3753,24 @@ calcPlotPCAloadings <- function(pcaObj, dataList, filter, pcaDimensionOne, pcaDi
   #yAxisLabel  <- paste("p_", pcaDimensionTwo, " (", varianceTwo, "%)", sep = "")
   xAxisLabel  <- paste("p_", pcaDimensionOne, " (R^2 = ", r2One, "; Q^2 = ", q2One, ")", sep = "")
   yAxisLabel  <- paste("p_", pcaDimensionTwo, " (R^2 = ", r2Two, "; Q^2 = ", q2Two, ")", sep = "")
+  
+  filter2 <- NULL
+  switch(showLoadingsFeatures,
+         "All"={## all features
+           filter2 <- seq_len(dataList$numberOfPrecursors)
+         },
+         "Only selected"={## selected features
+           filter2 <- union(union(selectionAnalysisPcaLoadingSet, selectionFragmentPcaLoadingSet), selectionSearchPcaLoadingSet)
+         },
+         "Only unselected"={## unselected features
+           filter2 <- setdiff(seq_len(dataList$numberOfPrecursors), union(union(selectionAnalysisPcaLoadingSet, selectionFragmentPcaLoadingSet), selectionSearchPcaLoadingSet))
+         },
+         {## unknown state
+           stop(paste("Unknown showLoadingsFeatures value", showLoadingsFeatures))
+         }
+  )## end switch
+  
+  filter <- intersect(filter, filter2)
   
   dataDimOne <- pcaObj$loadings[, pcaDimensionOne]
   dataDimTwo <- pcaObj$loadings[, pcaDimensionTwo]
@@ -3543,6 +3792,16 @@ calcPlotPCAloadings <- function(pcaObj, dataList, filter, pcaDimensionOne, pcaDi
   if(is.null(yInterval))
     yInterval <- c(yMin, yMax)
   
+  dataDimOne <- dataDimOne[filter2]
+  dataDimTwo <- dataDimTwo[filter2]
+  selectionFragmentPcaLoadingSet <- selectionFragmentPcaLoadingSet[filter2]
+  selectionAnalysisPcaLoadingSet <- selectionAnalysisPcaLoadingSet[filter2]
+  selectionSearchPcaLoadingSet   <- selectionSearchPcaLoadingSet  [filter2]
+  
+  # TODO 999
+  #filter3 <- intersect(filter, filter2)
+  #filter3 <- filter %in% filter2
+  
   numberOfPrecursors <- length(dataDimOne)
   poisX <- dataDimOne
   poisY <- dataDimTwo
@@ -3559,14 +3818,27 @@ calcPlotPCAloadings <- function(pcaObj, dataList, filter, pcaDimensionOne, pcaDi
   pointsSearch[selectionSearchPcaLoadingSet] <- TRUE
   
   annotatedPoints <- pointColorsAnno != "black"
-
-  poisX <- c(poisX[!annotatedPoints], poisX[annotatedPoints])
-  poisY <- c(poisY[!annotatedPoints], poisY[annotatedPoints])
-  pointSizesAnno <- c(pointSizesAnno[!annotatedPoints], pointSizesAnno[annotatedPoints])
-  pointColorsAnno <- c(pointColorsAnno[!annotatedPoints], pointColorsAnno[annotatedPoints])
-  pointsAnalysis <- c(pointsAnalysis[!annotatedPoints], pointsAnalysis[annotatedPoints])
-  pointsFragment <- c(pointsFragment[!annotatedPoints], pointsFragment[annotatedPoints])
-  pointsSearch <- c(pointsSearch[!annotatedPoints], pointsSearch[annotatedPoints])
+  selectedPoints  <- pointsAnalysis | pointsFragment | pointsSearch
+  lv1points <-   annotatedPoints  &   selectedPoints
+  lv2points <- (!annotatedPoints) &   selectedPoints
+  lv3points <-   annotatedPoints  & (!selectedPoints)
+  lv4points <- (!annotatedPoints) & (!selectedPoints)
+  
+  #poisX <- c(poisX[!annotatedPoints], poisX[annotatedPoints])
+  #poisY <- c(poisY[!annotatedPoints], poisY[annotatedPoints])
+  #pointSizesAnno <- c(pointSizesAnno[!annotatedPoints], pointSizesAnno[annotatedPoints])
+  #pointColorsAnno <- c(pointColorsAnno[!annotatedPoints], pointColorsAnno[annotatedPoints])
+  #pointsAnalysis <- c(pointsAnalysis[!annotatedPoints], pointsAnalysis[annotatedPoints])
+  #pointsFragment <- c(pointsFragment[!annotatedPoints], pointsFragment[annotatedPoints])
+  #pointsSearch <- c(pointsSearch[!annotatedPoints], pointsSearch[annotatedPoints])
+  
+  poisX           <- c(poisX          [lv4points], poisX          [lv3points], poisX          [lv2points], poisX          [lv1points])
+  poisY           <- c(poisY          [lv4points], poisY          [lv3points], poisY          [lv2points], poisY          [lv1points])
+  pointSizesAnno  <- c(pointSizesAnno [lv4points], pointSizesAnno [lv3points], pointSizesAnno [lv2points], pointSizesAnno [lv1points])
+  pointColorsAnno <- c(pointColorsAnno[lv4points], pointColorsAnno[lv3points], pointColorsAnno[lv2points], pointColorsAnno[lv1points])
+  pointsAnalysis  <- c(pointsAnalysis [lv4points], pointsAnalysis [lv3points], pointsAnalysis [lv2points], pointsAnalysis [lv1points])
+  pointsFragment  <- c(pointsFragment [lv4points], pointsFragment [lv3points], pointsFragment [lv2points], pointsFragment [lv1points])
+  pointsSearch    <- c(pointsSearch   [lv4points], pointsSearch   [lv3points], pointsSearch   [lv2points], pointsSearch   [lv1points])
   
   resultObjPoints <- generatePoints(
     poisX = poisX, poisY = poisY, 
@@ -3580,15 +3852,48 @@ calcPlotPCAloadings <- function(pcaObj, dataList, filter, pcaDimensionOne, pcaDi
   poisYpoints   <- resultObjPoints$poisYpoints
   mappingToData <- resultObjPoints$mappingToData
   
+  switch(loadingsLabels,
+         "None"={## no labels
+           labels <- NULL
+         },
+         "m/z / RT"={## mz/rt
+           labels <- dataList$precursorLabels[filter]
+           labels <- c(labels[lv4points], labels[lv3points], labels[lv2points], labels[lv1points])
+           #labels <- c(labels[!annotatedPoints], labels[annotatedPoints])
+         },
+         "Metabolite name"={## name
+           labels <- dataList$dataFrameInfos[filter, "Metabolite name"]
+           labels <- c(labels[lv4points], labels[lv3points], labels[lv2points], labels[lv1points])
+           #labels <- c(labels[!annotatedPoints], labels[annotatedPoints])
+         },
+         "Metabolite family"={## family
+           featureFamilies <- dataList$annoArrayOfLists[filter]
+           labels <- unlist(lapply(X = featureFamilies, FUN = function(x){
+             ifelse(
+               test = length(x) == 0, 
+               yes = "-", 
+               no = paste(unlist(x), collapse = ", ")
+             )
+           }))
+           labels <- c(labels[lv4points], labels[lv3points], labels[lv2points], labels[lv1points])
+         },
+         {## unknown state
+           stop(paste("Unknown loadingsLabels value", loadingsLabels))
+         }
+  )## end switch
+  
   ## points
   #points(x = poisXpoints, y = poisYpoints, col = pointColors, pch=19, cex=pointSizes)
   if(showLoadingsAbundance){
     precursorMeansNorm <- dataList$dataFrameMeasurements[filter, "meanAllNormed"]
-    precursorMeansNorm <- c(precursorMeansNorm[!annotatedPoints], precursorMeansNorm[annotatedPoints])
+    precursorMeansNorm <- c(precursorMeansNorm[lv4points], precursorMeansNorm[lv3points], precursorMeansNorm[lv2points], precursorMeansNorm[lv1points])
+    #precursorMeansNorm <- c(precursorMeansNorm[!annotatedPoints], precursorMeansNorm[annotatedPoints])
     precursorMeansNorm <- precursorMeansNorm[mappingToData]
     pointSizes <- pointSizes * 2 * precursorMeansNorm
   }
   
+  ############################################################################################
+  ## plot
   par(mar=c(3 + 0.35, 3, 2, 1), mgp = c(2, 1, 0))  ## c(bottom, left, top, right)
   #plot(x = dataDimOne, y = dataDimTwo, xlim = xInterval, ylim = yInterval, xlab = xAxisLabel, ylab = yAxisLabel, main = "Loadings", pch=19, cex=0.7, col = nodeColors)
   plot(x = NULL, y = NULL, xlim = xInterval, ylim = yInterval, xlab = xAxisLabel, ylab = yAxisLabel, main = "Loadings")
@@ -3604,10 +3909,8 @@ calcPlotPCAloadings <- function(pcaObj, dataList, filter, pcaDimensionOne, pcaDi
   segments(x0 = xl, x1 = xr, y0 = 0, y1 = 0, col = "black", lwd = 1)
   segments(x0 = 0, x1 = 0, y0 = yl, y1 = yr, col = "black", lwd = 1)
   
-  if(showLoadingsLabels){
-    labels <- dataList$precursorLabels[filter]
+  if(all(!is.null(labels), length(labels) > 0))
     graphics::text(  x = poisX - 0.0, y = poisY + 0.0, labels = labels, pos = 4)
-  }
   
   uniqueIndeces     <- which(!duplicated(resultObjAnno$setOfAnnotations))
   uniqueAnnotations <- resultObjAnno$setOfAnnotations[uniqueIndeces]
@@ -3625,7 +3928,7 @@ generatePoints <- function(poisX, poisY, pointSizesAnno, pointColorsAnno, points
   ## analysis
   pointSizesAnalysis  <- vector(mode = "numeric", length = numberOfPoisDrawn)
   pointColorsAnalysis <- vector(length = numberOfPoisDrawn)
-  pointSizesAnalysis[pointsAnalysis] <- clusterNodePointSize1
+  pointSizesAnalysis [pointsAnalysis] <- clusterNodePointSize1
   pointColorsAnalysis[pointsAnalysis] <- "blue"
   
   ## fragment
@@ -3664,7 +3967,7 @@ generatePoints <- function(poisX, poisY, pointSizesAnno, pointColorsAnno, points
   poisXpoints <- c(poisX[pointsSearch], poisX[pointsFragment], poisX[pointsAnalysis], poisX)
   poisYpoints <- c(poisY[pointsSearch], poisY[pointsFragment], poisY[pointsAnalysis], poisY)
   
-  mappingToData <- c(which(pointsSearch), which(pointsFragment), which(pointsAnalysis), 1:length(poisY))
+  mappingToData <- c(which(pointsSearch), which(pointsFragment), which(pointsAnalysis), seq_len(length(poisY)))
   
   resultObj <- list(
     mappingToData  = mappingToData,

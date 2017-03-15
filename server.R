@@ -11,6 +11,8 @@ library(shinyjs)
 #install.packages("DT")
 library(DT)
 library("Matrix")
+#install.packages("colourpicker")
+#library("colourpicker") ## TODO
 
 source("ClusteringMS2SpectraGUI.R")
 source("FragmentMatrixFunctions.R")
@@ -32,7 +34,7 @@ shinyServer(
     ## MetFamily properties
     toolName    <- "MetFamily"
     toolVersion <- "1.0"
-    metFamilyBuilt <- "1.0.3"
+    metFamilyBuilt <- "1.0.4"
     
     ## data import
     proportionOfMatchingPeaks_ms2PeakGroupDeisotoping <- 0.9
@@ -99,9 +101,12 @@ shinyServer(
       plotPcaShown = FALSE,
       precursorSetSelected = FALSE,
       selectedSelection = NULL,
+      showPlotControls = FALSE,
       showClusterLabels = TRUE,
+      hcaPrecursorLabels = TRUE,
       showScoresLabels = TRUE,
-      showLoadingsLabels = FALSE,
+      loadingsLabels = "None",
+      showLoadingsFeatures = "All",
       showLoadingsAbundance = FALSE,
       annotationLegendHeightHca = -1,
       annotationLegendHeightPca = -1,
@@ -120,10 +125,13 @@ shinyServer(
     ## buttons
     updateProjectDescriptionButtonValue <- 0
     applyGlobalMS2filtersButtonValue <- 0
+    clearGlobalMS2filtersButtonValue <- 0
     applySearchButtonValue <- 0
     clearSearchButtonValue <- 0
     applyHcaFiltersButtonValue <- 0
+    clearHcaFiltersButtonValue <- 0
     applyPcaFiltersButtonValue <- 0
+    clearPcaFiltersButtonValue <- 0
     drawHCAButtonValue <- 0
     drawPCAButtonValue <- 0
     downloadMatrixButtonValue <- 0
@@ -134,6 +142,7 @@ shinyServer(
     updateArtifactsFromCheckboxesButtonValue <- 0
     clearSelectionButtonValue <- 0
     importMs1Ms2DataButtonValue <- 0
+    importMs2DataButtonValue <- 0
     loadProjectDataButtonValue <- 0
     loadExampleDataButtonValue <- 0
     
@@ -562,7 +571,6 @@ shinyServer(
           paste("There are invalid or missing search values", sep = "")
         })
       if(state$filterSearchActive & !is.null(filterSearch)){
-        
         str1 <- ""
         str2 <- ""
         if(state$showHCAplotPanel & !is.null(listForTable_Search_HCA))
@@ -750,7 +758,7 @@ shinyServer(
         
         #################################################
         ## update plots
-        if(state$showHCAplotPanel)  drawDendrogramPlot( consoleInfo = "update search")
+        if(state$showHCAplotPanel)  drawDendrogramPlot( consoleInfo = "update search", withHeatmap = TRUE)
         if(state$showPCAplotPanel)  drawPcaPlots(       consoleInfo = "update search")
       }
     }
@@ -805,9 +813,9 @@ shinyServer(
       if(all(fileInputSelection == "Load project", !is.null(filePath), !is.null(state$importedOrLoadedFile_s_), fileName == state$importedOrLoadedFile_s_))
         output$fileInfo <- renderText({paste(fileName)})
       if(all(fileInputSelection == "Import data", is.null(fileMs1Path), is.null(fileMs2Path)))
-        output$fileInfo <- renderText({paste("Please select a metabolite profile, a MS/MS library, and press 'Import MS1 and MS/MS data'")})
+        output$fileInfo <- renderText({paste("Please select a metabolite profile and a MS/MS library and press 'Import MS1 and MS/MS data' or select a MS/MS library and press 'Import MS/MS data'")})
       if(all(fileInputSelection == "Import data", is.null(fileMs1Path), !is.null(fileMs2Path)))
-        output$fileInfo <- renderText({paste("Please select a metabolite profile and press 'Import MS1 and MS/MS data'")})
+        output$fileInfo <- renderText({paste("Please press 'Import MS/MS data' or select a metabolite profile and press 'Import MS1 and MS/MS data'")})
       if(all(fileInputSelection == "Import data", !is.null(fileMs1Path), is.null(fileMs2Path)))
         output$fileInfo <- renderText({paste("Please select a MS/MS library and press 'Import MS1 and MS/MS data'")})
       if(all(fileInputSelection == "Import data", !is.null(fileMs1Path), !is.null(fileMs2Path), any(is.null(state$importedOrLoadedFile_s_), c(fileMs1Name,fileMs2Name) != state$importedOrLoadedFile_s_)))
@@ -904,6 +912,7 @@ shinyServer(
         selectionAnalysisTreeNodeSet = selectionAnalysisTreeNodeSet,
         selectionSearchTreeNodeSet = selectionSearchTreeNodeSet,
         showClusterLabels = state$showClusterLabels, 
+        hcaPrecursorLabels = state$hcaPrecursorLabels, 
         xInterval = dendrogramPlotRange$xInterval
       )
       
@@ -914,7 +923,63 @@ shinyServer(
       state$annotationLegendHeightHca <<- annoLegendEntryHeight * (length(state$annotationsHca$setOfAnnotations) + 1)
     }
     drawHeatmapPlotImpl <- function(){
-      calcPlotHeatmap(dataList = dataList, filterObj = filterHca, clusterDataList = clusterDataList, xInterval = dendrogramPlotRange$xInterval)
+      #calcPlotHeatmap(dataList = dataList, filterObj = filterHca, clusterDataList = clusterDataList, xInterval = dendrogramPlotRange$xInterval)
+      
+      # TODO 999
+      
+      #selectionFragmentTreeNodeSet
+      #selectionAnalysisTreeNodeSet
+      #selectionSearchTreeNodeSet
+      
+      #changeSelectionCurrentSelection
+      
+      selectedTreeNodeSet <- NULL
+      frameColor <- NULL
+      
+      #if(FALSE){
+      selectedSelection <- state$selectedSelection
+      if(!is.null(selectedSelection)){
+        switch(selectedSelection,
+               #selectionAnalysisHcaName={
+               "Analysis_HCA"={
+                 selectedTreeNodeSet <- selectionAnalysisTreeNodeSet
+                 frameColor <- "blue"
+               },
+               ##selectionAnalysisPcaName={
+               #"Analysis_PCA"={
+               #  selectedPrecursorSet <- NULL
+               #},
+               #selectionFragmentHcaName={
+               "Fragment_HCA"={
+                 selectedTreeNodeSet <- selectionFragmentTreeNodeSet
+                 frameColor <- "green"
+               },
+               ##selectionFragmentPcaName={
+               #"Fragment_PCA"={
+               #  selectedPrecursorSet <- NULL
+               #},
+               #selectionSearchHcaName={
+               "Search_HCA"={
+                 selectedTreeNodeSet <- selectionSearchTreeNodeSet
+                 frameColor <- "red"
+               },
+               ##selectionSearchPcaName={
+               #"Search_PCA"={
+               #  selectedPrecursorSet <- NULL
+               #},
+               {## unknown state
+                 stop(paste("Unknown selectedSelection value", selectedSelection))
+               }
+        )## end switch
+      }
+      
+      calcPlotHeatmap(
+        dataList = dataList, 
+        filterObj = filterHca, 
+        clusterDataList = clusterDataList, 
+        selectedTreeNodeSet = selectedTreeNodeSet, frameColor = frameColor,
+        xInterval = dendrogramPlotRange$xInterval
+      )
     }
     drawPcaPlots <- function(consoleInfo = NULL){
       drawPcaScoresPlot(consoleInfo = consoleInfo)
@@ -922,7 +987,7 @@ shinyServer(
     }
     drawPcaScoresPlot <- function(consoleInfo = NULL){
       output$plotPcaScores <- renderPlot({
-        print(paste("### psc ###", consoleInfo))
+        print(paste("### psp ###", consoleInfo))
         drawPcaScoresPlotImpl()
       })
     }
@@ -941,7 +1006,7 @@ shinyServer(
     }
     drawPcaLoadingsPlot <- function(consoleInfo = NULL){
       output$plotPcaLoadings <- renderPlot({
-        print(paste("### psc ###", consoleInfo))
+        print(paste("### plp ###", consoleInfo))
         drawPcaLoadingsPlotImpl()
       })
     }
@@ -955,7 +1020,8 @@ shinyServer(
         selectionFragmentPcaLoadingSet = selectionFragmentPcaLoadingSet,
         selectionAnalysisPcaLoadingSet = selectionAnalysisPcaLoadingSet,
         selectionSearchPcaLoadingSet = selectionSearchPcaLoadingSet,
-        showLoadingsLabels = state$showLoadingsLabels, 
+        loadingsLabels = state$loadingsLabels, 
+        showLoadingsFeatures = state$showLoadingsFeatures, 
         showLoadingsAbundance = state$showLoadingsAbundance, 
         xInterval = pcaLoadingsPlotRange$xInterval, 
         yInterval = pcaLoadingsPlotRange$yInterval
@@ -1727,6 +1793,7 @@ shinyServer(
         ## initial gui update
         print(paste("update GUI initially", tabId))
         shinyjs::disable("importMs1Ms2Data")
+        shinyjs::disable("importMs2Data")
         shinyjs::disable("loadProjectData")
         #state$runRightColumnWidth <<- 8
         
@@ -1806,7 +1873,7 @@ shinyServer(
       
       #################################################
       ## update plots
-      if(state$showHCAplotPanel)  drawDendrogramPlot( consoleInfo = "clear selection")
+      if(state$showHCAplotPanel)  drawDendrogramPlot( consoleInfo = "clear selection", withHeatmap = TRUE)
       if(state$showPCAplotPanel)  drawPcaPlots(       consoleInfo = "clear selection")
     })
     obsFile <- observeEvent(input$matrixFile$datapath, {
@@ -1903,6 +1970,9 @@ shinyServer(
       updateFileInputInfo()
     })
     obsImportMs2DataFile <- observeEvent(input$ms2DataFile$datapath, {
+      setImportState()
+    })
+    setImportState <- function(){
       fileMs1Path <- input$ms1DataFile$datapath
       fileMs1Name <- input$ms1DataFile$name
       fileMs2Path <- input$ms2DataFile$datapath
@@ -1914,8 +1984,13 @@ shinyServer(
       else
         shinyjs::disable("importMs1Ms2Data")
       
+      if(!is.null(fileMs2Path))
+        shinyjs::enable("importMs2Data")
+      else
+        shinyjs::disable("importMs2Data")
+      
       updateFileInputInfo()
-    })
+    }
     obsImportMs1Ms2Data <- observeEvent(input$importMs1Ms2Data, {
       importMs1Ms2Data <- as.numeric(input$importMs1Ms2Data)
       
@@ -1927,10 +2002,34 @@ shinyServer(
         return()
       importMs1Ms2DataButtonValue <<- importMs1Ms2Data
       
+      importData(TRUE)
+    })
+    obsImportMs2Data <- observeEvent(input$importMs2Data, {
+      importMs2Data <- as.numeric(input$importMs2Data)
+      
+      print(paste("Observe importMs2Data", importMs2Data))
+      
+      #################################################
+      ## check if button was hit
+      if(importMs2Data == importMs2DataButtonValue)
+        return()
+      importMs2DataButtonValue <<- importMs2Data
+      
+      importData(FALSE)
+    })
+    importData <- function(importMS1andMS2data){
+      session$sendCustomMessage("disableButton", "importMs1Ms2Data")
+      session$sendCustomMessage("disableButton", "importMs2Data")
+      
       #################################################
       ## files
-      fileMs1Path <- input$ms1DataFile$datapath
-      fileMs1Name <- input$ms1DataFile$name
+      if(importMS1andMS2data){
+        fileMs1Path <- input$ms1DataFile$datapath
+        fileMs1Name <- input$ms1DataFile$name
+      } else {
+        fileMs1Path <- NULL
+        fileMs1Name <- NULL
+      }
       fileMs2Path <- input$ms2DataFile$datapath
       fileMs2Name <- input$ms2DataFile$name
       
@@ -2051,6 +2150,7 @@ shinyServer(
       # }
       
       if(error){
+        setImportState()
         output$fileInfo <- renderText({paste("There are invalid parameter values. Please check the parameters and press 'Import MS\u00B9 and MS/MS data' again.")})
         return()
       }
@@ -2080,13 +2180,16 @@ shinyServer(
       
       #################################################
       ## convert to project file
-      session$sendCustomMessage("disableButton", "importMs1Ms2Data")
       
       ## built matrix
       error <- NULL
       withProgress(message = 'Generating matrix...', value = 0, {
         resultObj <- tryCatch(
           {
+            #print(fileMs1Path)
+            #print(fileMs2Path)
+            #print(parameterSet)
+            
             convertToProjectFile(
               filePeakMatrix = fileMs1Path, 
               fileSpectra = fileMs2Path, 
@@ -2101,56 +2204,61 @@ shinyServer(
       
       if(!is.null(error)){
         output$fileInfo <- renderText({paste("There occurred an error while processing the input files. Please check the file format and content and try again.")})
-        session$sendCustomMessage("enableButton", "importMs1Ms2Data")
+        setImportState()
         return()
       }
       if(resultObj == "Number of spectra is zero"){
         output$fileInfo <- renderText({paste("There are no MS/MS spectra which fulfill the given criteria. Please refine parameter 'Spectrum intensity' and try 'Import MS\u00B9 and MS/MS data' again.")})
-        session$sendCustomMessage("enableButton", "importMs1Ms2Data")
+        setImportState()
         return()
       }
       
-      matrixRows <- resultObj$matrixRows
-      matrixCols <- resultObj$matrixCols
-      matrixVals <- resultObj$matrixVals
-      
-      matrixRows <- c(matrixRows, 1)
-      matrixCols <- c(matrixCols, 1)
-      matrixVals <- c(matrixVals, serializeParameterSet(parameterSet))
-      
-      ## TODO performance 25s
-      ## convert matrix to dataframe
-      numberOfRows    <- max(matrixRows)
-      numberOfColumns <- max(matrixCols)
-      lines <- vector(mode = "character", length = numberOfRows)
-      for(rowIdx in seq_len(numberOfRows)){
-        indeces <- matrixRows == rowIdx
-        tokens  <- vector(mode = "character", length = numberOfColumns)
-        tokens[matrixCols[indeces]] <- matrixVals[indeces]
-        lines[[rowIdx]] <- paste(tokens, collapse = "\t")
-      }
-      
-      # fragmentMatrix <- matrix(data = rep(x = "", times = numberOfRows * numberOfColumns), nrow = numberOfRows, ncol = numberOfColumns)
-      # fragmentMatrix[cbind(matrixRows, matrixCols)] <- matrixVals
-      # 
-      # #dataFrame <- as.data.frame(as.matrix(sparseMatrix(i = matrixRows, j = matrixCols, x = matrixVals)))
-      # dataFrame <- as.data.frame(fragmentMatrix, stringsAsFactors = FALSE)
-      # 
-      # ## add import parameters
-      # dataFrame[[1, 1]] <- serializeParameterSet(parameterSet)
-      #################################################
-      ## process project file
       withProgress(message = 'Processing matrix...', value = 0, {
+        matrixRows <- resultObj$matrixRows
+        matrixCols <- resultObj$matrixCols
+        matrixVals <- resultObj$matrixVals
+        
+        matrixRows <- c(matrixRows, 1)
+        matrixCols <- c(matrixCols, 1)
+        matrixVals <- c(matrixVals, serializeParameterSet(parameterSet))
+        
+        ## TODO performance 25s
+        ## convert matrix to dataframe
+        numberOfRows    <- max(matrixRows)
+        numberOfColumns <- max(matrixCols)
+        
+        lines <- vector(mode = "character", length = numberOfRows)
+        for(rowIdx in seq_len(numberOfRows)){
+          indeces <- matrixRows == rowIdx
+          tokens  <- vector(mode = "character", length = numberOfColumns)
+          tokens[matrixCols[indeces]] <- matrixVals[indeces]
+          lines[[rowIdx]] <- paste(tokens, collapse = "\t")
+        }
+        
+        # fragmentMatrix <- matrix(data = rep(x = "", times = numberOfRows * numberOfColumns), nrow = numberOfRows, ncol = numberOfColumns)
+        # fragmentMatrix[cbind(matrixRows, matrixCols)] <- matrixVals
+        # 
+        # #dataFrame <- as.data.frame(as.matrix(sparseMatrix(i = matrixRows, j = matrixCols, x = matrixVals)))
+        # dataFrame <- as.data.frame(fragmentMatrix, stringsAsFactors = FALSE)
+        # 
+        # ## add import parameters
+        # dataFrame[[1, 1]] <- serializeParameterSet(parameterSet)
+        #################################################
+        ## process project file
+        
         dataList <<- readProjectData(fileLines = lines, progress = TRUE)
       })
       print(paste("readProjectData do data finished", dataList$minimumMass))
       resetWorkspace()
       
-      state$importedOrLoadedFile_s_ <<- c(fileMs1Name, fileMs2Name)
+      if(importMS1andMS2data)
+        state$importedOrLoadedFile_s_ <<- c(fileMs1Name, fileMs2Name)
+      else
+        state$importedOrLoadedFile_s_ <<- c(fileMs2Name)
       updateFileInputInfo()
       
-      session$sendCustomMessage("enableButton", "importMs1Ms2Data")
-    })
+      setImportState()
+    }
     obsFileInputSelection <- observeEvent(input$fileInputSelection, {
       updateFileInputInfo()
     })
@@ -2220,10 +2328,18 @@ shinyServer(
       }
       
       ## restore gui state
-      updateCheckboxInput(session = session, inputId = "showClusterLabels", value = state$showClusterLabels)
-      updateCheckboxInput(session = session, inputId = "showScoresLabels", value = state$showScoresLabels)
-      updateCheckboxInput(session = session, inputId = "showLoadingsLabels", value = state$showLoadingsLabels)
+      updateCheckboxInput(session = session, inputId = "showPlotControls",     value = state$showPlotControls)
+      updateCheckboxInput(session = session, inputId = "showClusterLabels",     value = state$showClusterLabels)
+      updateRadioButtons( session = session, inputId = "hcaPrecursorLabels",    selected = state$hcaPrecursorLabels)
+      updateCheckboxInput(session = session, inputId = "showScoresLabels",      value = state$showScoresLabels)
+      updateRadioButtons( session = session, inputId = "loadingsLabels",        selected = state$loadingsLabels)
+      updateRadioButtons( session = session, inputId = "showLoadingsFeatures",  selected = state$showLoadingsFeatures)
       updateCheckboxInput(session = session, inputId = "showLoadingsAbundance", value = state$showLoadingsAbundance)
+    })
+    obsShowPlotControls <- observeEvent(input$showPlotControls, {
+      showPlotControls <- input$showPlotControls
+      print(paste("Observe showPlotControls", showPlotControls))
+      state$showPlotControls <<- showPlotControls
     })
     obsShowClusterLabels <- observeEvent(input$showClusterLabels, {
       showClusterLabels <- input$showClusterLabels
@@ -2231,17 +2347,29 @@ shinyServer(
       state$showClusterLabels <<- showClusterLabels
       drawDendrogramPlot(consoleInfo = "showClusterLabels")
     })
+    obsHcaPrecursorLabels <- observeEvent(input$hcaPrecursorLabels, {
+      hcaPrecursorLabels <- input$hcaPrecursorLabels
+      print(paste("Observe hcaPrecursorLabels", hcaPrecursorLabels))
+      state$hcaPrecursorLabels <<- hcaPrecursorLabels
+      drawDendrogramPlot(consoleInfo = "hcaPrecursorLabels")
+    })
     obsShowScoresLabels <- observeEvent(input$showScoresLabels, {
       showScoresLabels <- input$showScoresLabels
       print(paste("Observe showScoresLabels", showScoresLabels))
       state$showScoresLabels <<- showScoresLabels
       drawPcaScoresPlot(consoleInfo = "showScoresLabels")
     })
-    obsShowLoadingsLabels <- observeEvent(input$showLoadingsLabels, {
-      showLoadingsLabels <- input$showLoadingsLabels
-      print(paste("Observe showLoadingsLabels", showLoadingsLabels))
-      state$showLoadingsLabels <<- showLoadingsLabels
-      drawPcaLoadingsPlot(consoleInfo = "showLoadingsLabels")
+    obsLoadingsLabels <- observeEvent(input$loadingsLabels, {
+      loadingsLabels <- input$loadingsLabels
+      print(paste("Observe loadingsLabels", loadingsLabels))
+      state$loadingsLabels <<- loadingsLabels
+      drawPcaLoadingsPlot(consoleInfo = "loadingsLabels")
+    })
+    obsShowLoadingsFeatures <- observeEvent(input$showLoadingsFeatures, {
+      showLoadingsFeatures <- input$showLoadingsFeatures
+      print(paste("Observe showLoadingsFeatures", showLoadingsFeatures))
+      state$showLoadingsFeatures <<- showLoadingsFeatures
+      drawPcaLoadingsPlot(consoleInfo = "showLoadingsFeatures")
     })
     obsShowLoadingsAbundance <- observeEvent(input$showLoadingsAbundance, {
       showLoadingsAbundance <- input$showLoadingsAbundance
@@ -2262,7 +2390,7 @@ shinyServer(
       clearSearchButtonValue <<- clearSearch
       
       filterSearch <<- NULL
-      filterSearchActive <<- FALSE
+      state$filterSearchActive <<- FALSE
       state$searchfilterValid <<- TRUE
       
       selectionBySearchReset()
@@ -2270,7 +2398,7 @@ shinyServer(
       
       #################################################
       ## update plots
-      if(state$showHCAplotPanel)  drawDendrogramPlot( consoleInfo = "clear search")
+      if(state$showHCAplotPanel)  drawDendrogramPlot( consoleInfo = "clear search", withHeatmap = TRUE)
       if(state$showPCAplotPanel)  drawPcaPlots(       consoleInfo = "clear search")
     })
     obsApplySearch <- observeEvent(input$applySearch, {
@@ -2342,6 +2470,29 @@ shinyServer(
       filter_ms2_masses3  <- input$globalFilter_ms2_masses3
       filter_ms2_ppm      <- input$globalFilter_ms2_ppm
       
+      applyGlobalMS2filters(filter_ms2_masses1, filter_ms2_masses2, filter_ms2_masses3, filter_ms2_ppm)
+    })
+    obsClearGlobalMS2filters <- observeEvent(input$clearGlobalMS2filters, {
+      clearGlobalMS2filters <- as.numeric(input$clearGlobalMS2filters)
+      
+      print(paste("Observe clearGlobalMS2filters", clearGlobalMS2filters))
+      
+      #################################################
+      ## check if button was hit
+      if(clearGlobalMS2filters == clearGlobalMS2filtersButtonValue)
+        return()
+      clearGlobalMS2filtersButtonValue <<- clearGlobalMS2filters
+      
+      #################################################
+      ## get inputs
+      filter_ms2_masses1  <- ""
+      filter_ms2_masses2  <- ""
+      filter_ms2_masses3  <- ""
+      filter_ms2_ppm      <- 20
+      
+      applyGlobalMS2filters(filter_ms2_masses1, filter_ms2_masses2, filter_ms2_masses3, filter_ms2_ppm)
+    })
+    applyGlobalMS2filters <- function(filter_ms2_masses1, filter_ms2_masses2, filter_ms2_masses3, filter_ms2_ppm){
       groupSet        <- dataList$groups
       filter_average  <- NULL
       filter_lfc      <- NULL
@@ -2361,7 +2512,7 @@ shinyServer(
         state$globalMS2filterValid <<- TRUE
       }
       updateGlobalMS2filterInformation()
-    })
+    }
     obsApplyHcaFilters <- observeEvent(input$applyHcaFilters, {
       applyHcaFilters <- as.numeric(input$applyHcaFilters)
       
@@ -2375,20 +2526,41 @@ shinyServer(
       
       #################################################
       ## get inputs
-      #filter_ms2_masses1  <- input$globalFilter_ms2_masses1
-      #filter_ms2_masses2  <- input$globalFilter_ms2_masses2
-      #filter_ms2_masses3  <- input$globalFilter_ms2_masses3
-      #filter_ms2_ppm      <- input$globalFilter_ms2_ppm
-      filter_ms2_masses1  <- filterGlobal$filter_ms2_masses1Original   
-      filter_ms2_masses2  <- filterGlobal$filter_ms2_masses2Original   
-      filter_ms2_masses3  <- filterGlobal$filter_ms2_masses3Original   
-      filter_ms2_ppm      <- filterGlobal$filter_ms2_ppmOriginal
-      
       groupOne        <- input$hcaFilterGroupOne
       groupTwo        <- input$hcaFilterGroupTwo
       filter_average  <- input$hcaFilter_average
       filter_lfc      <- input$hcaFilter_lfc
       includeIgnoredPrecursors  <- input$hcaFilterIncludeIgnoredPrecursors
+      
+      applyHcaFilters(groupOne, groupTwo, filter_average, filter_lfc, includeIgnoredPrecursors)
+    })
+    obsClearHcaFilters <- observeEvent(input$clearHcaFilters, {
+      clearHcaFilters <- as.numeric(input$clearHcaFilters)
+      
+      print(paste("Observe clearHcaFilters", clearHcaFilters))
+      
+      #################################################
+      ## check if button was hit
+      if(clearHcaFilters == clearHcaFiltersButtonValue)
+        return()
+      clearHcaFiltersButtonValue <<- clearHcaFilters
+      
+      #################################################
+      ## get inputs
+      groupOne        <- input$hcaFilterGroupOne
+      groupTwo        <- input$hcaFilterGroupTwo
+      filter_average  <- ""
+      filter_lfc      <- ""
+      includeIgnoredPrecursors  <- TRUE
+      
+      applyHcaFilters(groupOne, groupTwo, filter_average, filter_lfc, includeIgnoredPrecursors)
+    })
+    applyHcaFilters <- function(groupOne, groupTwo, filter_average, filter_lfc, includeIgnoredPrecursors){
+      filter_ms2_masses1  <- filterGlobal$filter_ms2_masses1Original   
+      filter_ms2_masses2  <- filterGlobal$filter_ms2_masses2Original   
+      filter_ms2_masses3  <- filterGlobal$filter_ms2_masses3Original   
+      filter_ms2_ppm      <- filterGlobal$filter_ms2_ppmOriginal
+      
       filter_ms1_masses <- NULL
       filter_ms1_ppm  <- NULL
       groupSet        <- c(groupOne, groupTwo)
@@ -2413,7 +2585,7 @@ shinyServer(
       
       numberOfPrecursorsFiltered <- filterHca$numberOfPrecursorsFiltered
       checkHcaFilterValidity(numberOfPrecursorsFiltered)
-    })
+    }
     obsApplyPcaFilters <- observeEvent(input$applyPcaFilters, {
       applyPcaFilters <- as.numeric(input$applyPcaFilters)
       
@@ -2427,24 +2599,47 @@ shinyServer(
       
       #################################################
       ## get inputs
-      #filter_ms2_masses1  <- input$globalFilter_ms2_masses1
-      #filter_ms2_masses2  <- input$globalFilter_ms2_masses2
-      #filter_ms2_masses3  <- input$globalFilter_ms2_masses3
-      #filter_ms2_ppm      <- input$globalFilter_ms2_ppm
+      groupSet        <- input$pcaGroups
+      filter_average  <- input$pcaFilter_average
+      filter_lfc      <- input$pcaFilter_lfc
+      includeIgnoredPrecursors  <- input$pcaFilterIncludeIgnoredPrecursors
+      
+      if(length(groupSet) != 2)
+        filter_lfc <- NULL
+      
+      applyPcaFilters(groupSet, filter_average, filter_lfc, includeIgnoredPrecursors)
+    })
+    obsClearPcaFilters <- observeEvent(input$clearPcaFilters, {
+      clearPcaFilters <- as.numeric(input$clearPcaFilters)
+      
+      print(paste("Observe clearPcaFilters", clearPcaFilters))
+      
+      #################################################
+      ## check if button was hit
+      if(clearPcaFilters == clearPcaFiltersButtonValue)
+        return()
+      clearPcaFiltersButtonValue <<- clearPcaFilters
+      
+      #################################################
+      ## get inputs
+      groupSet        <- dataList$groups
+      filter_average  <- ""
+      filter_lfc      <- ""
+      includeIgnoredPrecursors  <- TRUE
+      
+      if(length(groupSet) != 2)
+        filter_lfc <- NULL
+      
+      applyPcaFilters(groupSet, filter_average, filter_lfc, includeIgnoredPrecursors)
+    })
+    applyPcaFilters <- function(groupSet, filter_average, filter_lfc, includeIgnoredPrecursors){
       filter_ms2_masses1  <- filterGlobal$filter_ms2_masses1Original   
       filter_ms2_masses2  <- filterGlobal$filter_ms2_masses2Original   
       filter_ms2_masses3  <- filterGlobal$filter_ms2_masses3Original   
       filter_ms2_ppm      <- filterGlobal$filter_ms2_ppmOriginal
       
-      groupSet        <- input$pcaGroups
-      filter_average  <- input$pcaFilter_average
-      filter_lfc      <- input$pcaFilter_lfc
-      includeIgnoredPrecursors  <- input$pcaFilterIncludeIgnoredPrecursors
       filter_ms1_masses <- NULL
       filter_ms1_ppm  <- NULL
-      
-      if(length(groupSet) != 2)
-        filter_lfc <- NULL
       
       #################################################
       ## do filtering and update
@@ -2464,7 +2659,7 @@ shinyServer(
       
       numberOfPrecursorsFiltered <- filterPca$numberOfPrecursorsFiltered
       checkPcaFilterValidity(numberOfPrecursorsFiltered)
-    })
+    }
     observeGroupSet <- observeEvent(input$pcaGroups, {
       print(paste("observe groups change", paste(input$pcaGroups, collapse = "-"), length(input$pcaGroups), length(input$pcaGroups) == 2))
       shinyjs::toggleState("pcaFilter_lfc", length(input$pcaGroups) == 2)
@@ -2695,6 +2890,14 @@ shinyServer(
         }
       } else {
         minimumLabel <- clusterDataList$poiLabels[[minimumIndex]]
+        resultObj <- getMS2spectrum(dataList = dataList, clusterDataList = clusterDataList, treeLabel = minimumLabel)
+        
+        #################################################
+        ## output as message
+        output$information <- renderText({
+          print(paste("update output$information", resultObj$infoText))
+          paste(resultObj$infoText, sep = "")
+        })
         
         if(all(!is.null(selectionAnalysisTreeNodeSet), minimumLabel == selectionAnalysisTreeNodeSet)){
           ## reverse MS2 to clicked stuff
@@ -2702,25 +2905,13 @@ shinyServer(
           fragmentsYhovered <<- NULL
           fragmentsColorHovered <<- NULL
           fragmentsDiscriminativityHovered <<- NULL
-          #output$information <- renderText({
-          #  print(paste("update output$information", resultObj$infoText))
-          #  paste("", sep = "")
-          #})
         } else {
           #################################################
           ## fetch ms2 spectrum
-          resultObj <- getMS2spectrum(dataList = dataList, clusterDataList = clusterDataList, treeLabel = minimumLabel)
           fragmentsXhovered <<- resultObj$fragmentMasses
           fragmentsYhovered <<- resultObj$fragmentAbundances
           fragmentsColorHovered <<- resultObj$fragmentColor
           fragmentsDiscriminativityHovered <<- resultObj$fragmentDiscriminativity
-          
-          #################################################
-          ## output as message
-          output$information <- renderText({
-            print(paste("update output$information", resultObj$infoText))
-            paste(resultObj$infoText, sep = "")
-          })
         }
       }
       
@@ -2813,7 +3004,7 @@ shinyServer(
       ## plots
       
       ## cluster dendrogram
-      drawDendrogramPlot(consoleInfo = "dendrogram click output$plotDendrogram")
+      drawDendrogramPlot(consoleInfo = "dendrogram click output$plotDendrogram", withHeatmap = TRUE)
       
       ## MS2 plot
       resetMS2PlotRange()
@@ -2997,7 +3188,7 @@ shinyServer(
       
       ## HCA
       if(state$showHCAplotPanel)
-        drawDendrogramPlot(consoleInfo = "MS2 click output$plotDendrogram")
+        drawDendrogramPlot(consoleInfo = "MS2 click output$plotDendrogram", withHeatmap = TRUE)
       ## PCA
       if(state$showPCAplotPanel)
         drawPcaLoadingsPlot(consoleInfo = "MS2 click output$plotPcaLoadings")
@@ -3156,7 +3347,7 @@ shinyServer(
         ## loadng selection
         precursorIndex <- filterPca$filter[[minimumIndex]]
         ## fetch ms2 spectrum
-        resultObj <- getMS2spectrumOfPrecursor(dataList = dataList, precursorIndex = precursorIndex)
+        resultObj <- getMS2spectrumInfoForPrecursor(dataList = dataList, precursorIndex = precursorIndex)
         
         ## keep fragment selection
         selectionFragmentSelectedFragmentIndexNew <- NULL
@@ -3191,7 +3382,7 @@ shinyServer(
       
       if(state$showHCAplotPanel)
         ## update dendrogram plot
-        drawDendrogramPlot(consoleInfo = "PCA loadings click output$plotDendrogram")
+        drawDendrogramPlot(consoleInfo = "PCA loadings click output$plotDendrogram", withHeatmap = TRUE)
     })
     obsPCAloadingsHover <- observeEvent(input$plotPcaLoadings_hover, {
       hoverX <- input$plotPcaLoadings_hover$x
@@ -3222,7 +3413,7 @@ shinyServer(
         #################################################
         ## fetch ms2 spectrum
         precursorIndex <- filterPca$filter[[minimumIndex]]
-        resultObj <- getMS2spectrumOfPrecursor(dataList = dataList, precursorIndex = precursorIndex)
+        resultObj <- getMS2spectrumInfoForPrecursor(dataList = dataList, precursorIndex = precursorIndex)
         if(all(!is.null(selectionAnalysisPcaLoadingSet), minimumIndex == selectionAnalysisPcaLoadingSet)){
           ## reverse MS2 to clicked stuff
           fragmentsXhovered <<- NULL
@@ -3442,20 +3633,27 @@ shinyServer(
       obsImportMs1DataFile$suspend()
       obsImportMs2DataFile$suspend()
       obsImportMs1Ms2Data$suspend()
+      obsImportMs2Data$suspend()
       obsApplyImportParameterFile$suspend()
       obsFileInputSelection$suspend()
       obsShowSideBar$suspend()
+      obsShowPlotControls$suspend()
       obsShowClusterLabels$suspend()
+      obsHcaPrecursorLabels$suspend()
       obsShowScoresLabels$suspend()
       #observePcaLoadingsProperties$suspend()
-      obsShowLoadingsLabels$suspend()
+      obsLoadingsLabels$suspend()
+      obsShowLoadingsFeatures$suspend()
       obsShowLoadingsAbundance$suspend()
       ## filter
       obsClearSearch$suspend()
       obsApplySearch$suspend()
       obsApplyGlobalMS2filters$suspend()
+      obsClearGlobalMS2filters$suspend()
       obsApplyHcaFilters$suspend()
+      obsClearHcaFilters$suspend()
       obsApplyPcaFilters$suspend()
+      obsClearPcaFilters$suspend()
       observeGroupSet$suspend()
       ## draw
       obsDrawHCA$suspend()
@@ -3492,6 +3690,15 @@ shinyServer(
       obsIgnoreValueChanged$suspend()
       obsShowHCAplotPanel$suspend()
       obsShowPCAplotPanel$suspend()
+      
+      # ###################################################
+      # ## end server on session end
+      # #system('sudo -kS /sbin/stop shiny-server',input="")
+      # #out <- system(command = "/sbin/stop shiny-server", intern = TRUE)
+      # 
+      # #out <- system(command = "/bin/kill 1", intern=TRUE)
+      # #writeLines(text = out, con = "/tmp/tmp003.txt")
+      # system(command = "/bin/kill 1")
     })
     
     #########################################################################################
@@ -3648,41 +3855,113 @@ shinyServer(
            )##row
          ),##conditional
          ##############################################################################################
-         ## HCA plots
+         ##############################################################################################
+         ## plots
+         
+         ##############################################################################################
+         ## plots controls
+         conditionalPanel(## dendrogram properties
+           condition = '(output.analysisType == "HCA" && output.showHCAplotPanel) || (output.analysisType == "PCA" && output.showPCAplotPanel)',
+           wellPanel(
+             fluidRow(
+               column(width = 6,
+                      div(style="float:left",
+                          h4("Plot controls")
+                      )
+               ),##column
+               column(width = 6,
+                      div(style="float:right",
+                          bsTooltip(id = "showPlotControls", title = "Display control panels for the plots below", placement = "bottom", trigger = "hover"),
+                          checkboxInput(inputId = "showPlotControls", label = "Show plot controls", value = input$showPlotControls)
+                      )
+               )##column
+             ),##row
+             fluidRow(
+               ################################################
+               ## HCA plot controls
+               conditionalPanel(## dendrogram properties
+                 condition = 'output.analysisType == "HCA" && output.showHCAplotPanel && input.showPlotControls',
+                 column(width = 6,
+                        h5("HCA dendrogram"),
+                        bsTooltip(id = "showClusterLabels", title = "Display the labels of cluster nodes and MS\u00B9 feature nodes representing the number of characteristic fragments", placement = "bottom", trigger = "hover"),
+                        checkboxInput(inputId = "showClusterLabels", label = "Show node labels", value = input$showClusterLabels)
+                 ),
+                 column(width = 6,
+                        h5("Precursor label"),
+                        tags$div(
+                          title="Please select the information you would like to display in the labels below the precursors",
+                          radioButtons(inputId = "hcaPrecursorLabels", label = NULL, choices = c("m/z / RT", "Metabolite name", "Metabolite family"), selected = input$hcaPrecursorLabels)
+                        )
+                 )
+               ),## conditional
+               ################################################
+               ## PCA plot controls
+               conditionalPanel(## scores / loadings properties
+                 condition = 'output.analysisType == "PCA" && output.showPCAplotPanel && input.showPlotControls',
+                 column(width = 3,
+                        h5("PCA scores"),
+                        bsTooltip(id = "showScoresLabels", title = "Display scores labels", placement = "bottom", trigger = "hover"),
+                        checkboxInput(inputId = "showScoresLabels", label = "Show labels", value = input$showScoresLabels)
+                 ),
+                 column(width = 3,
+                        h5("PCA loadings labels"),
+                        tags$div(
+                          title="Please select the information you would like to display in the precursor labels of the loadings",
+                          radioButtons(inputId = "loadingsLabels", label = NULL, choices = c("None", "m/z / RT", "Metabolite name", "Metabolite family"), selected = input$loadingsLabels)
+                        )
+                 ),
+                 column(width = 3,
+                        h5("PCA loadings shown"),
+                        tags$div(
+                          title="Please select the MS\u00B9 features you would like to display in the loadings plot",
+                          radioButtons(inputId = "showLoadingsFeatures", label = NULL, choices = c("All", "Only selected", "Only unselected"), selected = input$showLoadingsFeatures)
+                        )     
+                 ),
+                 column(width = 3,
+                        h5("PCA loadings size"),
+                        bsTooltip(id = "showLoadingsAbundance", title = "Use abundance in MS\u00B9 to scale the size of loadings nodes", placement = "bottom", trigger = "hover"),
+                        checkboxInput(inputId = "showLoadingsAbundance", label = "Scale by abundance", value = input$showLoadingsAbundance)     
+                 )
+               )## conditional
+             )## row
+           )
+         ),
          fluidRow(
            column(width = 12-state$legendColumnWidth,
+             ##############################################################################################
+             ## HCA plots
              conditionalPanel(
                condition = 'output.analysisType == "HCA" && output.showHCAplotPanel',
                fluidRow(
-                  plotOutput(height = 500, 
-                             outputId = "plotDendrogram", 
-                             #hover    = "plotDendrogram_hover", 
-                             hover    = hoverOpts(
-                               id = "plotDendrogram_hover",
-                               delay = 50, 
-                               delayType = "debounce"
-                             ),
-                             click    = "plotDendrogram_click",
-                             dblclick = "plotDendrogram_dblclick",
-                             #brush    = "plotDendrogram_brush"
-                             brush    = brushOpts(
-                               id = "plotDendrogram_brush",
-                               resetOnNew = TRUE,
-                               direction = "x",
-                               delay = 00,
-                               delayType = "debounce"
-                             )
-                  ),
-                  plotOutput(height = 75, 
-                             outputId = "plotHeatmap",
-                             #hover    = "plotHeatmap_hover", 
-                             hover    = hoverOpts(
-                               id = "plotHeatmap_hover",
-                               delay = 50, 
-                               delayType = "debounce"
-                             )
-                             #click = "plotHeatmap_click"
-                  )
+                 plotOutput(height = 500, 
+                            outputId = "plotDendrogram", 
+                            #hover    = "plotDendrogram_hover", 
+                            hover    = hoverOpts(
+                              id = "plotDendrogram_hover",
+                              delay = 50, 
+                              delayType = "debounce"
+                            ),
+                            click    = "plotDendrogram_click",
+                            dblclick = "plotDendrogram_dblclick",
+                            #brush    = "plotDendrogram_brush"
+                            brush    = brushOpts(
+                              id = "plotDendrogram_brush",
+                              resetOnNew = TRUE,
+                              direction = "x",
+                              delay = 00,
+                              delayType = "debounce"
+                            )
+                 ),
+                 plotOutput(height = 75, 
+                            outputId = "plotHeatmap",
+                            #hover    = "plotHeatmap_hover", 
+                            hover    = hoverOpts(
+                              id = "plotHeatmap_hover",
+                              delay = 50, 
+                              delayType = "debounce"
+                            )
+                            #click = "plotHeatmap_click"
+                 )
                )## row
              ),## conditional
              ##############################################################################################
@@ -3734,25 +4013,8 @@ shinyServer(
                  )## column
                )## row
              )## conditional
-           ),##column
+           ),##column for plot controls and plots
            column(width = state$legendColumnWidth,
-              conditionalPanel(## scores / loadings properties
-                condition = 'output.analysisType == "PCA" && output.showPCAplotPanel',
-                h5("PCA scores"),
-                bsTooltip(id = "showScoresLabels", title = "Display scores labels", placement = "bottom", trigger = "hover"),
-                checkboxInput(inputId = "showScoresLabels", label = "Show labels", value = TRUE),
-                h5("PCA loadings"),
-                bsTooltip(id = "showLoadingsLabels", title = "Display loadings labels", placement = "bottom", trigger = "hover"),
-                checkboxInput(inputId = "showLoadingsLabels", label = "Show labels", value = FALSE),
-                bsTooltip(id = "showLoadingsAbundance", title = "Use abundance in MS\u00B9 to scale the size of loadings nodes", placement = "bottom", trigger = "hover"),
-                checkboxInput(inputId = "showLoadingsAbundance", label = "Show abundance", value = FALSE)
-              ),
-              conditionalPanel(## dendrogram properties
-                condition = 'output.analysisType == "HCA" && output.showHCAplotPanel',
-                h5("HCA dendrogram"),
-                bsTooltip(id = "showClusterLabels", title = "Display the labels of cluster nodes and MS\u00B9 feature nodes representing the number of characteristic fragments", placement = "bottom", trigger = "hover"),
-                checkboxInput(inputId = "showClusterLabels", label = "Show labels", value = TRUE)
-              ),
               conditionalPanel(
                 condition = 'output.analysisType == "HCA" && output.showHCAplotPanel',
                 splitLayout(
@@ -3952,7 +4214,109 @@ shinyServer(
       return(fileName)
     }
     createExportMatrix <- function(precursorSet){
+      ################################################################################
+      ## fragment matrix
+      fragmentMatrix      <- dataList$featureMatrix[precursorSet, ]
+      dgTMatrix <- as(fragmentMatrix, "dgTMatrix")
+      matrixRows <- dgTMatrix@i + 1
+      matrixCols <- dgTMatrix@j + 1
+      matrixVals <- dgTMatrix@x
       
+      numberOfColumns <- ncol(fragmentMatrix)
+      numberOfRows <- nrow(fragmentMatrix)
+      chunkSize <- 1000
+      numberOfChunks <- ceiling(numberOfColumns / chunkSize)
+      
+      fragmentCounts      <- vector(mode = "integer", length = numberOfColumns)
+      fragmentIntensities <- vector(mode = "numeric", length = numberOfColumns)
+      fragmentMasses      <- dataList$fragmentMasses
+      linesMatrix <- matrix(nrow = numberOfRows, ncol = numberOfChunks)
+      
+      for(chunkIdx in seq_len(numberOfChunks)){
+        colStart <- 1 + (chunkIdx - 1) * chunkSize
+        colEnd <- colStart + chunkSize - 1
+        if(chunkIdx == numberOfChunks)
+          colEnd <- numberOfColumns
+        
+        numberOfColumnsHere <- colEnd - colStart + 1
+        numberOfRowsHere <- max(matrixRows)
+        indeces <- matrixCols >= colStart & matrixCols <= colEnd
+        
+        fragmentMatrixPart <- matrix(data = rep(x = "", times = numberOfRowsHere * numberOfColumnsHere), nrow = numberOfRowsHere, ncol = numberOfColumnsHere)
+        fragmentMatrixPart[cbind(matrixRows[indeces], matrixCols[indeces] - colStart + 1)] <- matrixVals[indeces]
+        
+        fragmentCountsPart      <- apply(X = fragmentMatrixPart, MARGIN = 2, FUN = function(x){ sum(x != "") })
+        fragmentIntensitiesPart <- apply(X = fragmentMatrixPart, MARGIN = 2, FUN = function(x){ sum(as.numeric(x), na.rm = TRUE) }) / fragmentCountsPart
+        
+        linesPart <- apply(X = fragmentMatrixPart, MARGIN = 1, FUN = function(x){paste(x, collapse = "\t")})
+        
+        fragmentCounts[colStart:colEnd] <- fragmentCountsPart
+        fragmentIntensities[colStart:colEnd] <- fragmentIntensitiesPart
+        linesMatrix[, chunkIdx] <- linesPart
+      }
+      
+      ## assemble
+      linesFragmentMatrixWithHeader <- c(
+        paste(fragmentCounts, collapse = "\t"),
+        paste(fragmentIntensities, collapse = "\t"),
+        paste(fragmentMasses, collapse = "\t"),
+        apply(X = linesMatrix, MARGIN = 1, FUN = function(x){paste(x, collapse = "\t")})
+      )
+      
+      ################################################################################
+      ## MS1 matrix
+      ms1Matrix     <- rbind(
+        dataList$dataFrameMS1Header,
+        dataList$dataFrameInfos[precursorSet, ]
+      )
+      ms1Matrix     <- as.matrix(ms1Matrix)
+      
+      ###########################################################
+      ## export annotations
+      
+      ## process annotations
+      annotations <- dataList$annoArrayOfLists
+      for(i in 1:length(annotations))
+        if(dataList$annoArrayIsArtifact[[i]])
+          annotations[[i]] <- c(annotations[[i]], dataList$annotationValueIgnore)
+      
+      annotationStrings <- vector(mode = "character", length = length(annotations))
+      for(i in 1:length(annotations)){
+        if(length(annotations[[i]]) > 0)
+          annotationStrings[[i]] <- paste(annotations[[i]], sep = ", ")
+        else
+          annotationStrings[[i]] <- ""
+      }
+      annotationStrings <- annotationStrings[precursorSet]
+      
+      ## process annotaiotn-color-map
+      annoPresentAnnotations <- dataList$annoPresentAnnotationsList[-1]
+      annoPresentColors      <- dataList$annoPresentColorsList[-1]
+      
+      if(length(annoPresentAnnotations) > 0){
+        annotationColors <- paste(annoPresentAnnotations, annoPresentColors, sep = "=", collapse = ", ")
+      } else {
+        annotationColors <- ""
+      }
+      annotationColors <- paste(dataList$annotationColorsName, "={", annotationColors, "}", sep = "")
+      
+      ## box
+      annotationColumn <- c("", annotationColors, dataList$annotationColumnName, annotationStrings)
+      
+      ms1Matrix[, dataList$annotationColumnIndex] <- annotationColumn
+      
+      ################################################################################
+      ## assemble
+      #dataFrame <- cbind(
+      #  ms1Matrix,
+      #  ms2Matrix
+      #)
+      linesMS1MatrixWithHeader <- apply(X = ms1Matrix, MARGIN = 1, FUN = function(x){paste(x, collapse = "\t")})
+      lines <- paste(linesMS1MatrixWithHeader, linesFragmentMatrixWithHeader, sep = "\t")
+      
+      return(lines)
+    }
+    createExportMatrixOld <- function(precursorSet){
       numberOfRows    <- length(precursorSet)
       numberOfColumns <- ncol(dataList$featureMatrix)
       
@@ -4028,6 +4392,7 @@ shinyServer(
       
       ## box
       annotationColumn <- c("", annotationColors, dataList$annotationColumnName, annotationStrings)
+      
       ms1Matrix[, dataList$annotationColumnIndex] <- annotationColumn
       
       ###########################################################
@@ -4040,9 +4405,13 @@ shinyServer(
       return(dataFrame)
     }
     writeTable <- function(precursorSet, file){
-      dataFrame <- createExportMatrix(precursorSet)
+      #dataFrame <- createExportMatrix(precursorSet)
+      #gz1 <- gzfile(description = file, open = "w")
+      #write.table(x = dataFrame, file = gz1, sep = "\t", row.names = FALSE, col.names = FALSE, quote = FALSE)
+      #close(gz1)
+      lines <- createExportMatrix(precursorSet)
       gz1 <- gzfile(description = file, open = "w")
-      write.table(x = dataFrame, file = gz1, sep = "\t", row.names = FALSE, col.names = FALSE, quote = FALSE)
+      writeLines(text = lines, con = gz1)
       close(gz1)
     }
     ## individual downloads
@@ -4184,7 +4553,10 @@ shinyServer(
           heights = c(0.6, 1.4, 0.6, 0.6, 0.5, 1.5)
         )
         
+        #cex <- par("cex")
+        #par(cex = 0.42)
         drawDendrogramPlotImpl()
+        #par(cex = cex)
         drawHeatmapPlotImpl()
         drawMS2PlotImpl()
         
@@ -4256,6 +4628,7 @@ shinyServer(
         drawMS2PlotImpl()
         
         calcPlotScoresGroupsLegendForImage(scoresGroups$groups, scoresGroups$colors, 5)
+        #calcPlotScoresGroupsLegendForImage(c("Glandular trichomes", "Trichome-free leaves"), scoresGroups$colors, 5)
         drawDendrogramLegendImpl()
         drawMS2LegendImpl()
         drawFragmentDiscriminativityLegendImpl()
@@ -4372,9 +4745,12 @@ shinyServer(
         pcaDimensionTwo                   = input$pcaDimensionTwo,
         #input$drawPCAplots
         ## plot properties
+        showPlotControls                  = input$showPlotControls,
         showClusterLabels                 = input$showClusterLabels,
+        hcaPrecursorLabels                = input$hcaPrecursorLabels,
         showScoresLabels                  = input$showScoresLabels,
-        showLoadingsLabels                = input$showLoadingsLabels,
+        loadingsLabels                    = input$loadingsLabels,
+        showLoadingsFeatures              = input$showLoadingsFeatures,
         showLoadingsAbundance             = input$showLoadingsAbundance,
         #showLoadingsLabels                = "Show labels"    %in% input$pcaLoadingsProperties,
         #showLoadingsAbundance             = "Show abundance" %in% input$pcaLoadingsProperties,
@@ -4454,10 +4830,13 @@ shinyServer(
       updateSelectInput(       session = session, inputId = "pcaDimensionTwo",                   selected = paramsList$pcaDimensionTwo)
       #input$drawPCAplots
       ## plot properties
+      updateCheckboxInput(     session = session, inputId = "showPlotControls",                 value = as.logical(paramsList$showPlotControls))
       updateCheckboxInput(     session = session, inputId = "showClusterLabels",                 value = as.logical(paramsList$showClusterLabels))
+      updateRadioButtons(      session = session, inputId = "hcaPrecursorLabels",                selected = paramsList$hcaPrecursorLabels)
       updateCheckboxInput(     session = session, inputId = "showScoresLabels",                  value = as.logical(paramsList$showScoresLabels))
       #updateCheckboxGroupInput(session = session, inputId = "pcaLoadingsProperties",             selected = c(ifelse(as.logical(paramsList$showLoadingsLabels), "Show labels", NULL), ifelse(as.logical(paramsList$showLoadingsAbundance), "Show abundance", NULL)))
-      updateCheckboxInput(     session = session, inputId = "showLoadingsLabels",                value = as.logical(paramsList$showLoadingsLabels))
+      updateRadioButtons(     session = session, inputId = "loadingsLabels",                    selected = paramsList$loadingsLabels)
+      updateRadioButtons(     session = session, inputId = "showLoadingsFeatures",              selected = paramsList$showLoadingsFeatures)
       updateCheckboxInput(     session = session, inputId = "showLoadingsAbundance",             value = as.logical(paramsList$showLoadingsAbundance))
       ## search
       updateRadioButtons(      session = session, inputId = "searchMS1orMS2",                    selected = paramsList$searchMS1orMS2)
