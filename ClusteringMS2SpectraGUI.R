@@ -467,10 +467,6 @@ readProjectData <- function(fileLines, progress = FALSE){
   allowedTags <- c("ID")
   allowedTagPrefixes <- c("AnnotationColors=")
   
-  #fileTmp <- "/home/htreutle/Downloads/tmp/ProjectFile_02.tsv"
-  #writeLines(text = fileLines, con = fileTmp)
-  #fileLines <- readLines(con = fileTmp)
-  
   ##################################################################################################
   ## parse data
   if(progress)  incProgress(amount = 0.1, detail = "Preprocessing") else print("Preprocessing")
@@ -3797,10 +3793,6 @@ calcPlotPCAloadings <- function(pcaObj, dataList, filter, pcaDimensionOne, pcaDi
   selectionFragmentPcaLoadingSet <- selectionFragmentPcaLoadingSet[filter2]
   selectionAnalysisPcaLoadingSet <- selectionAnalysisPcaLoadingSet[filter2]
   selectionSearchPcaLoadingSet   <- selectionSearchPcaLoadingSet  [filter2]
-  
-  # TODO 999
-  #filter3 <- intersect(filter, filter2)
-  #filter3 <- filter %in% filter2
   
   numberOfPrecursors <- length(dataDimOne)
   poisX <- dataDimOne
