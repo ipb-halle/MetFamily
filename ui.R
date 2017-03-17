@@ -478,24 +478,31 @@ shinyUI(
                 conditionalPanel(
                   condition = "output.pcaFilterValid",
                   wellPanel(
+                    bsTooltip(id = "ms1AnalysisMethod", title = "Please choose the method for the analysis of MS\u00B9 abundances", placement = "bottom", trigger = "hover"),
+                    selectInput(multiple = FALSE, inputId = "ms1AnalysisMethod", label = "Method", selected = "PCA", choices = c(
+                      "PCA (Principal Component Analysis)", 
+                      "sPCA (Sparse Principal Component Analysis)",
+                      "PLS-DA (Partial Least Squares Discriminant Analysis)", 
+                      "sPLS-DA (Sparse Partial Least Squares Discriminant Analysis)"
+                    ), selectize = FALSE),
                     ##############################################################################################
                     ## PCA properties
                     fluidRow(
                       column(width = 6,
                              div(style="float:left",
-                                 h4("PCA properties")
+                                 h4("Method properties")
                              )
                       ),##column
                       column(width = 6,
                              div(style="float:right",
-                                 bsTooltip(id = "showPCAadvancedOptions", title = "Display further PCA settings", placement = "bottom", trigger = "hover"),
+                                 bsTooltip(id = "showPCAadvancedOptions", title = "Display further settings for the selected method", placement = "bottom", trigger = "hover"),
                                  checkboxInput(inputId = "showPCAadvancedOptions", label = "Show advanced options", value = FALSE)
                              )
                       )##column
                     ),##row
                     conditionalPanel(
                       condition = "input.showPCAadvancedOptions",
-                      bsTooltip(id = "pcaScaling", title = "Adjust the scaling of MS\u00B9 abundances for PCA", placement = "bottom", trigger = "hover"),
+                      bsTooltip(id = "pcaScaling", title = "Adjust the scaling of MS\u00B9 abundances for the selected method", placement = "bottom", trigger = "hover"),
                       selectInput(multiple = FALSE, inputId = "pcaScaling", label = "Scaling", selected = "Pareto", choices = c(
                         "None", 
                         "Mean center", 
@@ -503,30 +510,30 @@ shinyUI(
                         "Pareto"
                         #"Vector normalization", 
                       ), selectize = FALSE),
-                      bsTooltip(id = "pcaLogTransform", title = "MS\u00B9 abundances for PCA will be log<sub>2</sub> transformed", placement = "bottom", trigger = "hover"),
+                      bsTooltip(id = "pcaLogTransform", title = "MS\u00B9 abundances for the selected method will be log<sub>2</sub> transformed", placement = "bottom", trigger = "hover"),
                       checkboxInput(inputId = "pcaLogTransform", label = "Log2 transform", value = FALSE),
                       fluidRow(
                         column(
                           width = 6,
-                          tags$div(title="Please select the first principal component",
-                            selectInput(inputId = "pcaDimensionOne", label = "PC 1", choices = c("1", "2", "3", "4", "5"), selected = "1", selectize = FALSE)
+                          tags$div(title="Please select the first component",
+                            selectInput(inputId = "pcaDimensionOne", label = "Component 1", choices = c("1", "2", "3", "4", "5"), selected = "1", selectize = FALSE)
                           )
                         ),
                         column(
                           width = 6,
-                          tags$div(title="Please select the second principal component",
-                            selectInput(inputId = "pcaDimensionTwo", label = "PC 2", choices = c("1", "2", "3", "4", "5"), selected = "2", selectize = FALSE)
+                          tags$div(title="Please select the second component",
+                            selectInput(inputId = "pcaDimensionTwo", label = "Component 2", choices = c("1", "2", "3", "4", "5"), selected = "2", selectize = FALSE)
                           )
                         )
                       )
                     ),
                     fluidRow(
                       column(width = 6,
-                             bsTooltip(id = "drawPCAplots", title = "Display the PCA scores and loadings plot given the set of filtered MS\u00B9 features and PCA settings", placement = "bottom", trigger = "hover"),
-                             actionButton(inputId = "drawPCAplots", label = "Draw principal components", class="btn-success", width = "100%")
+                             bsTooltip(id = "drawPCAplots", title = "Display the scores and the loadings plot given the set of filtered MS\u00B9 features and settings of the selected method", placement = "bottom", trigger = "hover"),
+                             actionButton(inputId = "drawPCAplots", label = "Perform analysis", class="btn-success", width = "100%")
                       ),##column
                       column(width = 6
-                             
+                             ## nothing
                       )##column
                     )##row
                   )##well

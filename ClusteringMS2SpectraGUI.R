@@ -2267,7 +2267,7 @@ calculateCluster <- function(dataList, filter, distanceMatrix, method, progress 
   
   return(clusterDataList)
 }
-calculatePCA <- function(dataList, filterObj, scaling, logTransform){
+calculatePCA <- function(dataList, filterObj, ms1AnalysisMethod, scaling, logTransform){
   dataFrame <- dataList$dataFrameMeasurements[filterObj$filter, dataList$dataColumnsNameFunctionFromNames(filterObj$groups)]
   dataFrame <- t(dataFrame)
   
@@ -2305,19 +2305,33 @@ calculatePCA <- function(dataList, filterObj, scaling, logTransform){
   dataFrame2[is.na(dataFrame2)] <- dataFrame[is.na(dataFrame2)]
   
   ## TODO pcaMethods confidence intervals analog to MetaboAnalyst: pcaMethods:::simpleEllipse
-  numberOfComponents <- 5
+  numberOfComponents <- min(5, nrow(dataFrame2))
   returnObj <- list()
-  pcaLibrary <- c(
-    "stats",           # 1
-    "FactoMineR",      # 2
-    "pcaMethods",      # 3
-    "mixOmics_pca",    # 4
-    "mixOmics_plsda",  # 5
-    "mixOmics_splsda"  # 6
-  )[[5]]
-  switch(pcaLibrary,
+  #ms1AnalysisMethod <- c(
+  #  "stats",           # 1
+  #  "FactoMineR",      # 2
+  #  "pcaMethods",      # 3
+  #  "mixOmics_pca",    # 4
+  #  "mixOmics_spca",   # 5
+  #  "mixOmics_plsda",  # 6
+  #  "mixOmics_splsda"  # 7
+  #)[[5]]
+  
+  if(ms1AnalysisMethod == "PCA (Principal Component Analysis)")
+    ms1AnalysisMethod <- "mixOmics_pca"
+  if(ms1AnalysisMethod == "sPCA (Sparse Principal Component Analysis)")
+    ms1AnalysisMethod <- "mixOmics_spca"
+  #if(ms1AnalysisMethod == "PCA (Principal Component Analysis)")
+  #  ms1AnalysisMethod <- "pcaMethods"
+  if(ms1AnalysisMethod == "PLS-DA (Partial Least Squares Discriminant Analysis)")
+    ms1AnalysisMethod <- "mixOmics_plsda"
+  if(ms1AnalysisMethod == "sPLS-DA (Sparse Partial Least Squares Discriminant Analysis)")
+    ms1AnalysisMethod <- "mixOmics_splsda"
+  
+  switch(ms1AnalysisMethod,
          "stats"={
            ## pca from "stats" package
+           print("Analysis: stats")
            pca <- stats::prcomp(x = dataFrame2, retx = TRUE, center = FALSE, scale. = FALSE)
            returnObj$scores   <- pca$x
            returnObj$loadings <- pca$rotation
@@ -2325,6 +2339,7 @@ calculatePCA <- function(dataList, filterObj, scaling, logTransform){
          },
          "FactoMineR"={
            ## pca from "FactoMineR" package
+           print("Analysis: FactoMineR")
            pca = FactoMineR::PCA(X = dataFrame2, graph = FALSE, scale.unit = FALSE, ncp = numberOfComponents)
            returnObj$scores   <- pca$ind$coord
            returnObj$loadings <- pca$var$coord
@@ -2332,6 +2347,7 @@ calculatePCA <- function(dataList, filterObj, scaling, logTransform){
          },
          "pcaMethods"={
            ## pca from "pcaMethods" package
+           print("Analysis: pcaMethods")
            #pca <- pca(object = dataFrame2, method = "robustPca", nPcs = 2, scale = "none", center = FALSE, cv = "q2")
            pca <- pcaMethods::pca(object = dataFrame2, method = "svd", nPcs = numberOfComponents, scale = "none", center = FALSE)
            returnObj$scores   <- pca@scores
@@ -2351,7 +2367,18 @@ calculatePCA <- function(dataList, filterObj, scaling, logTransform){
          },
          "mixOmics_pca"={
            ## pca from "mixOmics" package
+           print("Analysis: mixOmics_pca")
            pca = mixOmics::pca(X = dataFrame2, ncomp = numberOfComponents, center = FALSE, scale = FALSE)
+           returnObj$scores   <- pca$variates[[1]]
+           returnObj$loadings <- pca$loadings[[1]]
+           returnObj$variance <- pca$explained_variance
+           #returnObj$R2 <- 
+           #returnObj$Q2 <- 
+         },
+         "mixOmics_spca"={
+           ## pca from "mixOmics" package
+           print("Analysis: mixOmics_pca")
+           pca = mixOmics::spca(X = dataFrame2, ncomp = numberOfComponents, center = FALSE, scale = FALSE)
            returnObj$scores   <- pca$variates[[1]]
            returnObj$loadings <- pca$loadings[[1]]
            returnObj$variance <- pca$explained_variance
@@ -2360,6 +2387,7 @@ calculatePCA <- function(dataList, filterObj, scaling, logTransform){
          },
          "mixOmics_plsda"={
            ## plsda "mixOmics" package
+           print("Analysis: mixOmics_plsda")
            groupLabels  <- unlist(lapply(X = rownames(dataFrame), FUN = dataList$groupNameFunctionFromDataColumnName))
            pca = mixOmics::plsda(X = dataFrame2, Y = groupLabels, ncomp = numberOfComponents, scale = FALSE)
            returnObj$scores   <- pca$variates[[1]]
@@ -2373,6 +2401,7 @@ calculatePCA <- function(dataList, filterObj, scaling, logTransform){
          },
          "mixOmics_splsda"={
            ## splsda from "mixOmics" package TODO
+           print("Analysis: mixOmics_splsda")
            groupLabels  <- unlist(lapply(X = rownames(dataFrame), FUN = dataList$groupNameFunctionFromDataColumnName))
            pca = mixOmics::splsda(X = dataFrame2, Y = groupLabels, ncomp = numberOfComponents, scale = FALSE)
            returnObj$scores   <- pca$variates[[1]]

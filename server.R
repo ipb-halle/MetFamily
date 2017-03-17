@@ -2771,6 +2771,7 @@ shinyServer(
         return()
       drawPCAButtonValue <<- drawPlots
       
+      ms1AnalysisMethod <- input$ms1AnalysisMethod
       pcaScaling      <- input$pcaScaling
       pcaLogTransform <- input$pcaLogTransform
       pcaDimensionOne <<- as.numeric(input$pcaDimensionOne)
@@ -2778,7 +2779,7 @@ shinyServer(
       
       #################################################
       ## calc PCA
-      pca <- calculatePCA(dataList = dataList, filterObj = filterPca, scaling = pcaScaling, logTransform = pcaLogTransform)
+      pca <- calculatePCA(dataList = dataList, filterObj = filterPca, ms1AnalysisMethod = ms1AnalysisMethod, scaling = pcaScaling, logTransform = pcaLogTransform)
       
       pcaDataList <<- list()
       pcaDataList$pcaObj <<- pca
