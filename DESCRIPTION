@@ -1,0 +1,42 @@
+Package: MetFamily
+Type: Package
+Title: MetFamily: Discovering Regulated Metabolite Families in Untargeted Metabolomics Studies
+Version: 0.99.1
+Date: 2016-07-24
+Author: c( person("Hendrik", "Treutler, role = c("aut", "cre"), email = "hendrik.treutler@ipb-halle.de") )
+Depends:
+    R (>= 3.2.2),
+    htmltools,
+    shiny,
+    shinyBS,
+    shinyjs,
+    DT,
+    Matrix,
+    mzR,
+    squash,
+    FactoMineR,
+    mixOmics,
+    pcaMethods,
+    cba,
+    matrixStats,
+    plotrix,
+    tools,
+    stringr,
+    xcms
+Suggests:
+    knitr,
+    testthat
+VignetteBuilder: knitr
+Maintainer: Martin Nettling<martin.nettling@informatik.uni-halle.de>
+Description: DiffLogo is an easy-to-use tool to visualize motif differences.
+License: GPL (>= 2)
+URL: https://github.com/mgledi/DiffLogo/
+BugReports: https://github.com/mgledi/DiffLogo/issues
+biocViews: Software, SequenceMatching, MultipleComparison, MotifAnnotation,
+    Visualization
+Collate:
+    'ui.R'
+    'server.R'
+    'ClusteringMS2SpectraGUI.R'
+    'FragmentMatrixFunctions.R'
+RoxygenNote: 5.0.1
