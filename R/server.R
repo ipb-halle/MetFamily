@@ -14,8 +14,8 @@ library("Matrix")
 #install.packages("colourpicker")
 #library("colourpicker") ## TODO
 
-source("ClusteringMS2SpectraGUI.R")
-source("FragmentMatrixFunctions.R")
+#source("ClusteringMS2SpectraGUI.R")
+#source("FragmentMatrixFunctions.R")
 
 #########################################################################################
 #########################################################################################
@@ -4643,7 +4643,9 @@ shinyServer(
       },
       content = function(file) {
         ## copy data for download
-        file.copy(paste(getwd(), "/files/Metabolite_profile_showcase.txt", sep = ""), file)
+        file2  <- system.file("data/showcase/Metabolite_profile_showcase.txt", package = "MetFamily", lib.loc=.libPaths())
+        file.copy(file2, file)
+        #file.copy(paste(getwd(), "/files/Metabolite_profile_showcase.txt", sep = ""), file)
       },
       contentType = "application/zip"
     )
@@ -4653,7 +4655,9 @@ shinyServer(
       },
       content = function(file) {
         ## copy data for download
-        file.copy(paste(getwd(), "/files/MSMS_library_showcase.msp", sep = ""), file)
+        file2  <- system.file("data/showcase/MSMS_library_showcase.msp", package = "MetFamily", lib.loc=.libPaths())
+        file.copy(file2, file)
+        #file.copy(paste(getwd(), "/files/MSMS_library_showcase.msp", sep = ""), file)
       },
       contentType = "application/zip"
     )
@@ -4663,7 +4667,9 @@ shinyServer(
       },
       content = function(file) {
         ## copy data for download
-        file.copy(paste(getwd(), "/files/Fragment_matrix_showcase.csv", sep = ""), file)
+        file2  <- system.file("data/showcase/Fragment_matrix_showcase.csv", package = "MetFamily", lib.loc=.libPaths())
+        file.copy(file2, file)
+        #file.copy(paste(getwd(), "/files/Fragment_matrix_showcase.csv", sep = ""), file)
       },
       contentType = "application/zip"
     )
@@ -4673,7 +4679,9 @@ shinyServer(
       },
       content = function(file) {
         ## copy data for download
-        file.copy(paste(getwd(), "/files/MetFamily_Showcase_protocol.pdf", sep = ""), file)
+        file2  <- system.file("data/showcase/MetFamily_Showcase_protocol.pdf", package = "MetFamily", lib.loc=.libPaths())
+        file.copy(file2, file)
+        #file.copy(paste(getwd(), "/files/MetFamily_Showcase_protocol.pdf", sep = ""), file)
       },
       contentType = "application/pdf"
     )
@@ -4683,7 +4691,9 @@ shinyServer(
       },
       content = function(file) {
         ## copy data for download
-        file.copy(paste(getwd(), "/files/MetFamily_user_guide.pdf", sep = ""), file)
+        file2  <- system.file("data/doc/MetFamily_user_guide.pdf", package = "MetFamily", lib.loc=.libPaths())
+        file.copy(file2, file)
+        #file.copy(paste(getwd(), "/files/MetFamily_user_guide.pdf", sep = ""), file)
       },
       contentType = "application/pdf"
     )
@@ -4693,7 +4703,9 @@ shinyServer(
       },
       content = function(file) {
         ## copy data for download
-        file.copy(paste(getwd(), "/files/MetFamily_Input_Specification.pdf", sep = ""), file)
+        file2  <- system.file("data/doc/MetFamily_Input_Specification.pdf", package = "MetFamily", lib.loc=.libPaths())
+        file.copy(file2, file)
+        #file.copy(paste(getwd(), "/files/MetFamily_Input_Specification.pdf", sep = ""), file)
       },
       contentType = "application/pdf"
     )
