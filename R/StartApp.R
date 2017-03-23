@@ -7,5 +7,5 @@
 ##' @examples
 ##' startMetFamily()
 startMetFamily <- function(){
-  shiny::runApp(appDir = "R", launch.browser = TRUE)
+  shiny::runApp(appDir = "app", launch.browser = TRUE)
 }

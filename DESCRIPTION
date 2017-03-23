@@ -33,8 +33,6 @@ Description: DiffLogo is an easy-to-use tool for the discovery of regulated meta
 License: GPL (>= 2)
 biocViews: Software, Visualization
 Collate:
-    'ui.R'
-    'server.R'
     'ClusteringMS2SpectraGUI.R'
     'FragmentMatrixFunctions.R'
     'StartApp.R'

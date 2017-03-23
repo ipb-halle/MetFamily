@@ -357,7 +357,7 @@ shinyServer(
       fragmentPlotRange$xIntervalSize <<- max - min
       
       output$fragmentPlot <- renderPlot({
-        print(paste("### MS2 ### all"))
+        print(paste("### MS2 ### all init"))
         plotFragments(dataList = dataList, xInterval = fragmentPlotRange$xInterval)
       #}, bg = "transparent")
       })
@@ -925,48 +925,24 @@ shinyServer(
     drawHeatmapPlotImpl <- function(){
       #calcPlotHeatmap(dataList = dataList, filterObj = filterHca, clusterDataList = clusterDataList, xInterval = dendrogramPlotRange$xInterval)
       
-      # TODO 999
-      
-      #selectionFragmentTreeNodeSet
-      #selectionAnalysisTreeNodeSet
-      #selectionSearchTreeNodeSet
-      
-      #changeSelectionCurrentSelection
-      
       selectedTreeNodeSet <- NULL
       frameColor <- NULL
       
-      #if(FALSE){
       selectedSelection <- state$selectedSelection
       if(!is.null(selectedSelection)){
         switch(selectedSelection,
-               #selectionAnalysisHcaName={
                "Analysis_HCA"={
                  selectedTreeNodeSet <- selectionAnalysisTreeNodeSet
                  frameColor <- "blue"
                },
-               ##selectionAnalysisPcaName={
-               #"Analysis_PCA"={
-               #  selectedPrecursorSet <- NULL
-               #},
-               #selectionFragmentHcaName={
                "Fragment_HCA"={
                  selectedTreeNodeSet <- selectionFragmentTreeNodeSet
                  frameColor <- "green"
                },
-               ##selectionFragmentPcaName={
-               #"Fragment_PCA"={
-               #  selectedPrecursorSet <- NULL
-               #},
-               #selectionSearchHcaName={
                "Search_HCA"={
                  selectedTreeNodeSet <- selectionSearchTreeNodeSet
                  frameColor <- "red"
                },
-               ##selectionSearchPcaName={
-               #"Search_PCA"={
-               #  selectedPrecursorSet <- NULL
-               #},
                {## unknown state
                  stop(paste("Unknown selectedSelection value", selectedSelection))
                }
@@ -1899,9 +1875,7 @@ shinyServer(
       #################################################
       ## files
       filePath <- input$matrixFile$datapath
-      fileName <- input$matrixFile$name
-      
-      loadProjectFile(filePath = filePath, fileName = fileName, buttonId = "loadProjectData")
+      loadProjectFile(filePath = filePath, buttonId = "loadProjectData")
     })
     obsLoadExampleData <- observeEvent(input$loadExampleData, {
       loadExampleData <- as.numeric(input$loadExampleData)
@@ -1916,14 +1890,11 @@ shinyServer(
       
       #################################################
       ## files
-      ## TODO relative paths or as R package
-      #filePath <- paste(shinyAppFolder, "files/Fragment_matrix_showcase.csv", sep = "")
-      filePath <- paste(getwd(), "/files/Project_file_showcase_annotated.csv.gz", sep = "")
-      fileName <- "Fragment_matrix_showcase.csv"
-      
-      loadProjectFile(filePath = filePath, fileName = fileName, buttonId = "loadExampleData")
+      filePath <- getFile("Project_file_showcase_annotated.csv.gz")
+      loadProjectFile(filePath = filePath, buttonId = "loadExampleData")
     })
-    loadProjectFile <- function(filePath, fileName, buttonId){
+    loadProjectFile <- function(filePath, buttonId){
+      fileName <- basename(filePath)
       #########################################################################################
       ## read data
       session$sendCustomMessage("disableButton", buttonId)
@@ -3489,8 +3460,7 @@ shinyServer(
     ## fragment plot
     obsFragmentPlotdblClick <- observeEvent(input$fragmentPlot_dblclick, {
       brush <- input$fragmentPlot_brush
-      
-      print(paste("observe fragmentPlot dblclick", brush))
+      print(paste("observe fragmentPlot dblclick", paste(brush, collapse = "; ")))
       
       if (!is.null(brush)) {
         ## set range
@@ -4643,9 +4613,7 @@ shinyServer(
       },
       content = function(file) {
         ## copy data for download
-        file2  <- system.file("data/showcase/Metabolite_profile_showcase.txt", package = "MetFamily", lib.loc=.libPaths())
-        file.copy(file2, file)
-        #file.copy(paste(getwd(), "/files/Metabolite_profile_showcase.txt", sep = ""), file)
+        file.copy(getFile("Metabolite_profile_showcase.txt"), file)
       },
       contentType = "application/zip"
     )
@@ -4655,9 +4623,7 @@ shinyServer(
       },
       content = function(file) {
         ## copy data for download
-        file2  <- system.file("data/showcase/MSMS_library_showcase.msp", package = "MetFamily", lib.loc=.libPaths())
-        file.copy(file2, file)
-        #file.copy(paste(getwd(), "/files/MSMS_library_showcase.msp", sep = ""), file)
+        file.copy(getFile("MSMS_library_showcase.msp"), file)
       },
       contentType = "application/zip"
     )
@@ -4667,9 +4633,7 @@ shinyServer(
       },
       content = function(file) {
         ## copy data for download
-        file2  <- system.file("data/showcase/Fragment_matrix_showcase.csv", package = "MetFamily", lib.loc=.libPaths())
-        file.copy(file2, file)
-        #file.copy(paste(getwd(), "/files/Fragment_matrix_showcase.csv", sep = ""), file)
+        file.copy(getFile("Fragment_matrix_showcase.csv"), file)
       },
       contentType = "application/zip"
     )
@@ -4679,9 +4643,7 @@ shinyServer(
       },
       content = function(file) {
         ## copy data for download
-        file2  <- system.file("data/showcase/MetFamily_Showcase_protocol.pdf", package = "MetFamily", lib.loc=.libPaths())
-        file.copy(file2, file)
-        #file.copy(paste(getwd(), "/files/MetFamily_Showcase_protocol.pdf", sep = ""), file)
+        file.copy(getFile("MetFamily_Showcase_protocol.pdf"), file)
       },
       contentType = "application/pdf"
     )
@@ -4691,9 +4653,7 @@ shinyServer(
       },
       content = function(file) {
         ## copy data for download
-        file2  <- system.file("data/doc/MetFamily_user_guide.pdf", package = "MetFamily", lib.loc=.libPaths())
-        file.copy(file2, file)
-        #file.copy(paste(getwd(), "/files/MetFamily_user_guide.pdf", sep = ""), file)
+        file.copy(getFile("MetFamily_user_guide.pdf"), file)
       },
       contentType = "application/pdf"
     )
@@ -4703,12 +4663,27 @@ shinyServer(
       },
       content = function(file) {
         ## copy data for download
-        file2  <- system.file("data/doc/MetFamily_Input_Specification.pdf", package = "MetFamily", lib.loc=.libPaths())
-        file.copy(file2, file)
-        #file.copy(paste(getwd(), "/files/MetFamily_Input_Specification.pdf", sep = ""), file)
+        file.copy(getFile("MetFamily_Input_Specification.pdf"), file)
       },
       contentType = "application/pdf"
     )
+    getFile <- function(file){
+      isPackage <- "MetFamily" %in% rownames(installed.packages())
+      switch(file, 
+             "MetFamily_Input_Specification.pdf"={              file <- ifelse(test = isPackage, yes = system.file("data/showcase/MetFamily_Input_Specification.pdf",     package = "MetFamily", lib.loc=.libPaths()), no = paste(getwd(), "/files/MetFamily_Input_Specification.pdf",              sep = ""))},
+             "MetFamily_user_guide.pdf"={                       file <- ifelse(test = isPackage, yes = system.file("data/showcase/MetFamily_user_guide.pdf",              package = "MetFamily", lib.loc=.libPaths()), no = paste(getwd(), "/files/MetFamily_user_guide.pdf",                       sep = ""))},
+             "Fragment_matrix_showcase.csv"={                   file <- ifelse(test = isPackage, yes = system.file("doc/Fragment_matrix_showcase.csv",                    package = "MetFamily", lib.loc=.libPaths()), no = paste(getwd(), "/files/Fragment_matrix_showcase.csv",                   sep = ""))},
+             "Metabolite_profile_showcase.txt"={                file <- ifelse(test = isPackage, yes = system.file("doc/Metabolite_profile_showcase.txt",                 package = "MetFamily", lib.loc=.libPaths()), no = paste(getwd(), "/files/Metabolite_profile_showcase.txt",                sep = ""))},
+             "MetFamily_Showcase_protocol.pdf"={                file <- ifelse(test = isPackage, yes = system.file("doc/MetFamily_Showcase_protocol.pdf",                 package = "MetFamily", lib.loc=.libPaths()), no = paste(getwd(), "/files/MetFamily_Showcase_protocol.pdf",                sep = ""))},
+             "MSMS_library_showcase.msp"={                      file <- ifelse(test = isPackage, yes = system.file("doc/MSMS_library_showcase.msp",                       package = "MetFamily", lib.loc=.libPaths()), no = paste(getwd(), "/files/MSMS_library_showcase.msp",                      sep = ""))},
+             "Project_file_showcase_annotated.csv.gz"={         file <- ifelse(test = isPackage, yes = system.file("doc/Project_file_showcase_annotated.csv.gz",          package = "MetFamily", lib.loc=.libPaths()), no = paste(getwd(), "/files/Project_file_showcase_annotated.csv.gz",         sep = ""))},
+             "Project_file_showcase_annotated_reduced.csv.gz"={ file <- ifelse(test = isPackage, yes = system.file("doc/Project_file_showcase_annotated_reduced.csv.gz",  package = "MetFamily", lib.loc=.libPaths()), no = paste(getwd(), "/files/Project_file_showcase_annotated_reduced.csv.gz", sep = ""))},
+             "Project_file_showcase_reduced.csv.gz"={           file <- ifelse(test = isPackage, yes = system.file("doc/Project_file_showcase_reduced.csv.gz",            package = "MetFamily", lib.loc=.libPaths()), no = paste(getwd(), "/files/Project_file_showcase_reduced.csv.gz",           sep = ""))},
+             {## unknown state
+               stop(paste("Unknown file", file))
+             }
+      )
+    }
     
     ## TODO
     #http://127.0.0.1:25805/library/utils/html/zip.html
