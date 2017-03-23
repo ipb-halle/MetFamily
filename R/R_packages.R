@@ -11,6 +11,8 @@ library("shinyjs")
 library("DT")
 #install.packages("colourpicker")
 #library("colourpicker") ## TODO
+#install.packages("shinyBS")
+library("shinyBS")
 
 ##############################################################################################################
 ## mass spectrometry

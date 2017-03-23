@@ -2,12 +2,32 @@
 #########################################################################################
 #########################################################################################
 ## libraries and functions
-#source("R_packages.R")
-#source("FragmentMatrixFunctions.R")
-#source("DataProcessing.R")
-#source("TreeAlgorithms.R")
-#source("Analysis.R")
-#source("Plots.R")
+sourceTheCode <- function(){
+  sourceFiles <- c(
+    "R_packages.R",
+    "FragmentMatrixFunctions.R",
+    "DataProcessing.R",
+    "TreeAlgorithms.R",
+    "Analysis.R",
+    "Plots.R"
+  )
+  
+  print("Testing whether files must be sourced")
+  isPackage <- "MetFamily" %in% rownames(installed.packages())
+  
+  if(TRUE){
+    isPackage <- FALSE
+    sourceFiles <- paste("/home/htreutle/Code/Java/MetFam/R", sourceFiles, sep = "/")
+  }
+  
+  if(!isPackage){
+    print(paste("Sourcing", length(sourceFiles), "files"))
+    for(sourceFile in sourceFiles)
+      source(sourceFile)
+  }
+}
+
+sourceTheCode()
 
 #########################################################################################
 #########################################################################################
@@ -1894,24 +1914,43 @@ shinyServer(
       ## read data
       session$sendCustomMessage("disableButton", buttonId)
       
-      error <- NULL
+      error <<- NULL
       withProgress(message = 'Reading file...', value = 0, {
         dataList <<- tryCatch(
           {
             readClusterDataFromProjectFile(file = filePath, progress = TRUE)
           }, 
           error = function(e) {
-            error <- e
+            print(e)
+            error <<- e
           }
         )
       })
       
       if(!is.null(error)){
-        output$fileInfo <- renderText({paste("There occurred an error while processing the project file. Please check the file format and content and try again.")})
+        print(paste("readClusterDataFromProjectFile resulted in error:", error))
+        msg <- paste("An error occurred while reading the input files. Please check the file format and content and try again. The error was", error)
+        output$fileInfo <- renderText({msg})
         session$sendCustomMessage("enableButton", buttonId)
+        #shinyBS::addPopover(session = session, id = "fileInputSelection", title = "Error", content = "huhu")
+        
+        output$errorPopupDialog <- renderUI({
+          bsModal(id = "modalErrorPopupDialog", title = "An error occurred", trigger = "", size = "large",
+                  HTML(
+                    paste(
+                      "An error occurred while reading the input files.",
+                      "Please check the file format and content and try again.",
+                      "The error was:",
+                      "<br>", 
+                      error
+                    )
+                  )
+          )
+        })
+        toggleModal(session = session, modalId = "modalErrorPopupDialog", toggle = "open")
+        
         return()
       }
-      
       print(paste("readClusterDataFromProjectFile finished", dataList$minimumMass))
       
       resetWorkspace()

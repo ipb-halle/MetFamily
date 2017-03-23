@@ -299,7 +299,8 @@ shinyUI(
                 h4("Input status"),
                 bsTooltip(id = "fileInfo", title = "The current input status", placement = "bottom", trigger = "hover"),
                 verbatimTextOutput(outputId = "fileInfo")
-              )## well panel
+              ),## well panel
+              uiOutput("errorPopupDialog")
             ),## tab panel
             ##############################################################################################
             ##############################################################################################
