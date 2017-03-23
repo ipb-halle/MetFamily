@@ -3714,6 +3714,17 @@ shinyServer(
       )
       #R.Version()$version.string
     })
+    output$ipbImage <- renderImage({
+      #file <- normalizePath(file.path("./www", "logo_ipb_en.png"))
+      file <- getFile("logo_ipb_en.png")
+      
+      print("##########")
+      print(file)
+      
+      list(src = file,
+           alt = "IPB"
+      )
+    }, deleteFile = FALSE)
     
     #########################################################################################
     #########################################################################################
@@ -4703,7 +4714,9 @@ shinyServer(
     )
     getFile <- function(file){
       isPackage <- "MetFamily" %in% rownames(installed.packages())
+      
       switch(file, 
+             "logo_ipb_en.png"={                                file <- ifelse(test = isPackage, yes = system.file("www/logo_ipb_en.png",                                 package = "MetFamily", lib.loc=.libPaths()), no = paste(getwd(), "/www/logo_ipb_en.png",                                  sep = ""))},
              "MetFamily_Input_Specification.pdf"={              file <- ifelse(test = isPackage, yes = system.file("data/showcase/MetFamily_Input_Specification.pdf",     package = "MetFamily", lib.loc=.libPaths()), no = paste(getwd(), "/files/MetFamily_Input_Specification.pdf",              sep = ""))},
              "MetFamily_user_guide.pdf"={                       file <- ifelse(test = isPackage, yes = system.file("data/showcase/MetFamily_user_guide.pdf",              package = "MetFamily", lib.loc=.libPaths()), no = paste(getwd(), "/files/MetFamily_user_guide.pdf",                       sep = ""))},
              "Fragment_matrix_showcase.csv"={                   file <- ifelse(test = isPackage, yes = system.file("doc/Fragment_matrix_showcase.csv",                    package = "MetFamily", lib.loc=.libPaths()), no = paste(getwd(), "/files/Fragment_matrix_showcase.csv",                   sep = ""))},

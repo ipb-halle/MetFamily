@@ -997,7 +997,9 @@ shinyUI(
                  )
           ),##column
           column(width = 3,
-                 HTML("<a href='http://www.ipb-halle.de/en/', target='_blank'><img src='logo_ipb_en.png' /></a>")
+                 tags$a(imageOutput(outputId = "ipbImage", width = "100%", height = "100%"), href='http://www.ipb-halle.de/en/', target='_blank')
+                 #imageOutput(outputId = "ipbImage", width = "100%", height = "100%")
+                 #HTML("<a href='http://www.ipb-halle.de/en/', target='_blank'><img src='logo_ipb_en.png' /></a>")
           )##column
         )## row
       ),## well panel
