@@ -1,27 +1,22 @@
 
 #########################################################################################
 #########################################################################################
-## libraries
-#install.packages("shiny")
-library(shiny)
-#devtools::install_github("rstudio/htmltools")
-library(htmltools)
-#install.packages("shinyjs")
-library(shinyjs)
-#install.packages("DT")
-library(DT)
-library("Matrix")
-#install.packages("colourpicker")
-#library("colourpicker") ## TODO
-
-#source("ClusteringMS2SpectraGUI.R")
+## libraries and functions
+#source("R_packages.R")
 #source("FragmentMatrixFunctions.R")
+#source("DataProcessing.R")
+#source("TreeAlgorithms.R")
+#source("Analysis.R")
+#source("Plots.R")
 
 #########################################################################################
 #########################################################################################
 ## global variables
-#shinyAppFolder <- "/vol/R/shiny/srv/shiny-server/MetFam/"
+# none
 
+#########################################################################################
+#########################################################################################
+## server-side logic of the Shiny app
 shinyServer(
   func = function(input, output, session) {
     #########################################################################################
