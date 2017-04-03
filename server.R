@@ -3210,12 +3210,13 @@ shinyServer(
         plotWidth = plotWidth, plotHeight = plotHeight, plotRangeX = pcaLoadingsPlotRange$xIntervalSize, plotRangeY = pcaLoadingsPlotRange$yIntervalSize
       )
       if(is.null(minimumIndex)){
-        fragmentsXhovered <<- resultObj$fragmentMasses
-        fragmentsYhovered <<- resultObj$fragmentAbundances
-        #output$information <- renderText({
-        #  print(paste("update output$information PCA Loadings hover ", precursorIndex, sep = ""))
-        #  paste("", sep = "")
-        #})
+        ## no loading hovered
+        fragmentsXhovered <<- NULL
+        fragmentsYhovered <<- NULL
+        output$information <- renderText({
+          print(paste("update output$information PCA Loadings hover ", minimumIndex, sep = ""))
+          paste("", sep = "")
+        })
       } else {
         print(paste("Observe PCA Loadings hover", hoverX, hoverY, minimumIndex))
         
