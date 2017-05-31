@@ -451,6 +451,8 @@ readClusterDataFromProjectFile <- function(file, progress = FALSE){
   extension <- file_ext(file)
   if(extension == "gz")
     file <- gzfile(file, "r")
+  else
+    file <- file(file, "r")
   
   #dataFrame <- read.csv(file = file, header = FALSE, sep = "\t", stringsAsFactors = FALSE)
   fileLines <- readLines(con = file)
