@@ -166,7 +166,7 @@ shinyUI(
                           )##column
                         ),##row
                         bsTooltip(id = "maximumRtDifference", title = "A MS\u00B9 feature is considered an isotopic peak if the absolute of the retention time difference to the (putative) monoisotopic peak is smaller or equal than this value (in minutes)", placement = "bottom", trigger = "hover"),
-                        textInput(inputId = "maximumRtDifference", label = "Retention time difference", value = 0.02)
+                        textInput(inputId = "maximumRtDifference", label = "Retention time difference", value = 0.05)
                       ),##conditional
                       h5("Fragment deisotoping"),
                       bsTooltip(id = "doMs2PeakGroupDeisotoping", title = "If checked, the set of MS/MS features is deisotoped", placement = "bottom", trigger = "hover"),
