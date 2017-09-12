@@ -2414,20 +2414,21 @@ getMetFragLink <- function(dataList, precursorIndex){
   fragmentsPositive <- fragmentsX > 0
   fragmentsPositiveX <- fragmentsX[fragmentsPositive]
   fragmentsPositiveY <- fragmentsY[fragmentsPositive]
-  fragmentStrings <- paste(fragmentsPositiveX, fragmentsPositiveY, sep = "_", collapse = ";")
+  fragmentStrings <- paste(fragmentsPositiveX, fragmentsPositiveY, sep = " ", collapse = "; ")
+  #fragmentStrings <- paste(fragmentsPositiveX, fragmentsPositiveY, sep = "_", collapse = ";")
   
   ## http://msbi.ipb-halle.de/MetFragBeta/LandingPage.jspx?limit=1000&ionmode=-1&database=pubchem&mzppm=7&mzabs=0.005&mass=448.468&formula=C16H20N2O9S2&mzabs=0.05&peaks=130.0655 288214.8119 ; 207.0589 422771.0127 ; 208.0622  87002.3217 ; 210.1334   2674.1707 ; 351.1016  27580.9393 ; 369.1115 739357.5045 ; 370.1148 143864.9611 ; 385.1094   5971.8328 ; 391.0937 337133.4536 ; 392.1025  40126.6888 ; 407.0678   3095.0322 ; 449.0690  37952.2515 
-  #landingPageUrl <- paste(sep = "",
-  #                        "http://msbi.ipb-halle.de/MetFragBeta/LandingPage.jspx?",
-  #                        "mass=", neutralMass, "&",
-  #                        "formula=", "", "&",
-  #                        "ionmode=", ionMode, "&",
-  #                        #"limit=", "1000", "&",
-  #                        "database=", "pubchem", "&",
-  #                        #"mzppm=", "7", "&"
-  #                        #"mzabs=", "0.005", "&",
-  #                        "peaks=", fragmentStrings
-  #)
+  landingPageUrl <- paste(sep = "",
+                          "http://msbi.ipb-halle.de/MetFrag/LandingPage.jspx?",
+                          "mass=", neutralMass, "&",
+                          "formula=", "", "&",
+                          "ionmode=", ionMode, "&",
+                          #"limit=", "1000", "&",
+                          "database=", "pubchem", "&",
+                          #"mzppm=", "7", "&"
+                          #"mzabs=", "0.005", "&",
+                          "peaks=", fragmentStrings
+  )
   
   ## https://msbi.ipb-halle.de/MetFragBeta/landing.xhtml?FragmentPeakMatchAbsoluteMassDeviation=0.01&FragmentPeakMatchRelativeMassDeviation=10&DatabaseSearchRelativeMassDeviation=10&PeakList=110_100;210_100&IonizedPrecursorMass=200.101&MetFragDatabaseType=PubChem
   #FragmentPeakMatchAbsoluteMassDeviation
@@ -2438,13 +2439,13 @@ getMetFragLink <- function(dataList, precursorIndex){
   #NeutralPrecursorMolecularFormula
   #PrecursorIonMode
   #IonizedPrecursorMass
-  landingPageUrl <- paste(sep = "",
-                          "https://msbi.ipb-halle.de/MetFragBeta/landing.xhtml", "?",
-                          "NeutralPrecursorMass", "=", neutralMass, "&",
-                          "PrecursorIonMode", "=", ionMode, "&",
-                          "MetFragDatabaseType", "=", "PubChem", "&",
-                          "PeakList", "=", fragmentStrings
-  )
+  #landingPageUrl <- paste(sep = "",
+  #                        "https://msbi.ipb-halle.de/MetFragBeta/landing.xhtml", "?",
+  #                        "NeutralPrecursorMass", "=", neutralMass, "&",
+  #                        "PrecursorIonMode", "=", ionMode, "&",
+  #                        "MetFragDatabaseType", "=", "PubChem", "&",
+  #                        "PeakList", "=", fragmentStrings
+  #)
   
   if(!is.na(neutralMass)){
     #writeClipboard(landingPageUrl, format = 1)
