@@ -281,11 +281,13 @@ parseMSP <- function(fileSpectra, minimumIntensityOfMaximalMS2peak, minimumPropo
       adduct      <- trimws(substring(text = line, first = nchar("ADDUCTIONNAME:") + 1))
     } else if(grepl(pattern = "^Num Peaks:", x = line)[[1]]){
       peakNumber  <- trimws(substring(text = line, first = nchar("Num Peaks:") + 1))
-    } else {
+    } else if(grepl(pattern = "^\\d+(\\.\\d+)?\t\\d+$", x = line)){
       ## MS2 peaks: "178.88669\t230"
       tokens <- strsplit(x = trimws(line), split = "[ \t]")[[1]]
       ms2Peaks_mz[[length(ms2Peaks_mz) + 1]]  <- as.numeric(tokens[[1]])
       ms2Peaks_int[[length(ms2Peaks_int) + 1]] <- as.numeric(tokens[[2]])
+    } else {
+      ## everything else...
     }
   }
   numberOfSpectra <- length(spectraList)
