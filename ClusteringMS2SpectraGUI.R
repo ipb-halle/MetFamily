@@ -6,7 +6,7 @@ library("mzR")
 library("squash")
 
 #install.packages("FactoMineR")
-library("FactoMineR")
+#library("FactoMineR")
 #require(devtools)
 #install_github('rCharts', 'ramnathv')
 #library("rCharts")
