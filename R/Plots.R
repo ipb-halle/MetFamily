@@ -48,7 +48,38 @@ colorLabels <- function(labels, clusterMembers, color, labelsToRemove = NULL, ne
   
   return(colLab)
 }
+
 calcPlotDendrogram <- function(dataList, filter, clusterDataList, annoPresentAnnotationsList, annoPresentColorsList, distanceMeasure, selectionFragmentTreeNodeSet = NULL, selectionAnalysisTreeNodeSet = NULL, selectionSearchTreeNodeSet = NULL, showClusterLabels, hcaPrecursorLabels, xInterval = NULL){
+  if(FALSE){
+    dataList_ <<- dataList
+    filter__ <<- filter
+    clusterDataList_ <<- clusterDataList
+    annoPresentAnnotationsList_ <<- annoPresentAnnotationsList
+    annoPresentColorsList_ <<- annoPresentColorsList
+    distanceMeasure_ <<- distanceMeasure
+    selectionFragmentTreeNodeSet_ <<- selectionFragmentTreeNodeSet
+    selectionAnalysisTreeNodeSet_ <<- selectionAnalysisTreeNodeSet
+    selectionSearchTreeNodeSet_ <<- selectionSearchTreeNodeSet
+    showClusterLabels_ <<- showClusterLabels
+    hcaPrecursorLabels_ <<- hcaPrecursorLabels
+    xInterval_ <<- xInterval
+  }
+  if(FALSE){
+    dataList <<- dataList_
+    filter <<- filter__
+    clusterDataList <<- clusterDataList_
+    annoPresentAnnotationsList <<- annoPresentAnnotationsList_
+    annoPresentColorsList <<- annoPresentColorsList_
+    distanceMeasure <<- distanceMeasure_
+    selectionFragmentTreeNodeSet <<- selectionFragmentTreeNodeSet_
+    selectionAnalysisTreeNodeSet <<- selectionAnalysisTreeNodeSet_
+    selectionSearchTreeNodeSet <<- selectionSearchTreeNodeSet_
+    showClusterLabels <<- showClusterLabels_
+    hcaPrecursorLabels <<- hcaPrecursorLabels_
+    xInterval <<- xInterval_
+  }
+  
+  
   if(is.null(xInterval))
     xInterval <- c(1, clusterDataList$numberOfPrecursorsFiltered)
   
@@ -64,7 +95,7 @@ calcPlotDendrogram <- function(dataList, filter, clusterDataList, annoPresentAnn
            
            maximumNumberOfCharacters <- 17
            tooLong <- nchar(x = precursorLabels) > maximumNumberOfCharacters
-           precursorLabels[tooLong] <- paste(substring(text = precursorLabels[tooLong], first = 1, last = maximumNumberOfCharacters - 3), rep(x = "...", times = length(tooLong)), sep = "")
+           precursorLabels[tooLong] <- paste(substring(text = precursorLabels[tooLong], first = 1, last = maximumNumberOfCharacters - 3), rep(x = "...", times = sum(tooLong)), sep = "")
          },
          "Metabolite family"={
            precursorLabels <- unlist(lapply(X = dataList$annoArrayOfLists[filter], FUN = function(x){
@@ -76,7 +107,7 @@ calcPlotDendrogram <- function(dataList, filter, clusterDataList, annoPresentAnn
            
            maximumNumberOfCharacters <- 17
            tooLong <- nchar(x = precursorLabels) > maximumNumberOfCharacters
-           precursorLabels[tooLong] <- paste(substring(text = precursorLabels[tooLong], first = 1, last = maximumNumberOfCharacters - 3), rep(x = "...", times = length(tooLong)), sep = "")
+           precursorLabels[tooLong] <- paste(substring(text = precursorLabels[tooLong], first = 1, last = maximumNumberOfCharacters - 3), rep(x = "...", times = sum(tooLong)), sep = "")
          },
          {## unknown state
            stop(paste("Unknown hcaPrecursorLabels value", hcaPrecursorLabels))
@@ -261,23 +292,393 @@ calcPlotDendrogram <- function(dataList, filter, clusterDataList, annoPresentAnn
   
   return(resultList)
 }
-calcPlotHeatmap <- function(dataList, filterObj, clusterDataList, selectedTreeNodeSet, frameColor, xInterval = NULL){
-  if(is.null(xInterval))
-    xInterval <- c(1, clusterDataList$numberOfPrecursorsFiltered)
+calcPlotDendrogram_plotly <- function(
+  dataList, filterObj, clusterDataList, 
+  #annoPresentAnnotationsList, annoPresentColorsList, 
+  distanceMeasure, 
+  showClusterLabels, hcaPrecursorLabels, 
+  selectionFragmentTreeNodeSet = NULL, selectionAnalysisTreeNodeSet = NULL, selectionSearchTreeNodeSet = NULL, 
+  selectedSelection, heatmapContent, heatmapOrdering, heatmapProportion
+){
+  
+  if(FALSE){
+    dataList_ <<- dataList
+    filterObj_1 <<- filterObj
+    clusterDataList_ <<- clusterDataList
+    #annoPresentAnnotationsList_ <<- annoPresentAnnotationsList
+    #annoPresentColorsList_ <<- annoPresentColorsList
+    distanceMeasure_ <<- distanceMeasure
+    showClusterLabels_ <<- showClusterLabels
+    hcaPrecursorLabels_ <<- hcaPrecursorLabels
+    selectionFragmentTreeNodeSet_ <<- selectionFragmentTreeNodeSet
+    selectionAnalysisTreeNodeSet_ <<- selectionAnalysisTreeNodeSet
+    selectionSearchTreeNodeSet_ <<- selectionSearchTreeNodeSet
+    selectedSelection_ <<- selectedSelection
+    heatmapContent_ <<- heatmapContent
+    heatmapOrdering_ <<- heatmapOrdering
+    heatmapProportion_ <<- heatmapProportion
+    #xInterval_ <<- xInterval
+    #stop()
+  }
+  if(FALSE){
+    dataList <- dataList_
+    filterObj <- filterObj_1
+    clusterDataList <- clusterDataList_
+    #annoPresentAnnotationsList <- annoPresentAnnotationsList_
+    #annoPresentColorsList <- annoPresentColorsList_
+    distanceMeasure <- distanceMeasure_
+    showClusterLabels <- showClusterLabels_
+    hcaPrecursorLabels <- hcaPrecursorLabels_
+    selectionFragmentTreeNodeSet <- selectionFragmentTreeNodeSet_
+    selectionAnalysisTreeNodeSet <- selectionAnalysisTreeNodeSet_
+    selectionSearchTreeNodeSet <- selectionSearchTreeNodeSet_
+    selectedSelection <- selectedSelection_
+    heatmapContent <- heatmapContent_
+    heatmapOrdering <- heatmapOrdering_
+    heatmapProportion <- heatmapProportion_
+    #xInterval <- xInterval_
+  }
+  
+  #stop("hihi")
+  
+  
+  #if(is.null(xInterval))
+  #  xInterval <- c(1, clusterDataList$numberOfPrecursorsFiltered)
+  
+  ####################
+  ## hcaPrecursorLabels
+  precursorLabels <- NULL
+  switch(as.character(hcaPrecursorLabels),
+         "m/z / RT"={
+           precursorLabels <- clusterDataList$cluster$labels
+         },
+         "Metabolite name"={
+           precursorLabels <- dataList$dataFrameInfos[filterObj$filter, "Metabolite name"]
+           
+           maximumNumberOfCharacters <- 17
+           tooLong <- nchar(x = precursorLabels) > maximumNumberOfCharacters
+           precursorLabels[tooLong] <- paste(substring(text = precursorLabels[tooLong], first = 1, last = maximumNumberOfCharacters - 3), rep(x = "...", times = sum(tooLong)), sep = "")
+         },
+         "Metabolite family"={
+           precursorLabels <- unlist(lapply(X = dataList$annoArrayOfLists[filterObj$filter], FUN = function(x){
+             if(length(x) == 0)
+               return("Unknown")
+             else
+               return(x[[1]])
+           }))
+           
+           maximumNumberOfCharacters <- 17
+           tooLong <- nchar(x = precursorLabels) > maximumNumberOfCharacters
+           precursorLabels[tooLong] <- paste(substring(text = precursorLabels[tooLong], first = 1, last = maximumNumberOfCharacters - 3), rep(x = "...", times = sum(tooLong)), sep = "")
+         },
+         {## unknown state
+           stop(paste("Unknown hcaPrecursorLabels value", hcaPrecursorLabels))
+         }
+  )## end switch
+  
+  if(FALSE){
+  precursorLabelsWithIdx <- paste(precursorLabels, "_", seq_len(length(precursorLabels)), sep = "")
+  
+  ## remove labels left of the y-axis
+  rightMostInvisibleLabelIndex <- 0#floor(xInterval[[1]] - (xInterval[[2]] - xInterval[[1]]) * 0.04)
+  if(rightMostInvisibleLabelIndex > 0){
+    #labelsToRemove <- precursorLabelsWithIdx[clusterDataList$cluster$order][1:rightMostInvisibleLabelIndex]
+    #length(na.omit(match(x = precursorLabelsWithIdx, table = labelsToRemove))) > 0
+    labelIndecesToRemove <- clusterDataList$cluster$order[seq_len(rightMostInvisibleLabelIndex)]
+    precursorLabelsWithIdx[labelIndecesToRemove] <- ""
+    precursorLabels[labelIndecesToRemove] <- ""
+  }
+  
+  clusterDataList$cluster$labels <- precursorLabelsWithIdx
+  }
+  ## poi labels
+  poiLabels <- as.character(clusterDataList$poiIntersectionSmooth[clusterDataList$drawPoi])
+  poiHovers <- vector(mode = "character", length = length(poiLabels))
+  
+  poiLabelsHere <- clusterDataList$poiLabels[clusterDataList$drawPoi]
+  
+  for(poiIdx in seq_along(poiLabels)){
+    nodeLabel <- poiLabelsHere[[poiIdx]]
+    resultObj <- getMS2spectrum(dataList = dataList, clusterDataList = clusterDataList, treeLabel = nodeLabel)
+    
+    if(nodeLabel < 0){ ## leaf
+      featureFamilies <- dataList$annoArrayOfLists[[resultObj$precursorSet]]
+      featureFamilies <- ifelse(
+        test = length(featureFamilies) == 0, 
+        yes = "None", 
+        no = paste(unlist(featureFamilies), collapse = ", ")
+      )
+      
+      poiHovers[[poiIdx]] <- paste(
+        "Precursor: ",           dataList$precursorLabels[[resultObj$precursorSet]],           "<br>", 
+        "Number of fragments: ", length(resultObj$fragmentMasses),                             "<br>", 
+        "Name: ",                dataList$dataFrameInfos[[resultObj$precursorSet, "Metabolite name"]], "<br>", 
+        "Metabolite families: ", featureFamilies,
+        sep = "")
+    } else { ## cluster
+      
+      featureFamilies <- Reduce(intersect, dataList$annoArrayOfLists[resultObj$precursorSet])
+      featureFamilies <- ifelse(
+        test = length(featureFamilies) == 0, 
+        yes = "None", 
+        no = paste(unlist(featureFamilies), collapse = ", ")
+      )
+      
+      poiHovers[[poiIdx]] <- paste(
+        "Cluster discriminating power: ", resultObj$clusterDiscriminativity,      "<br>", 
+        "Precursors in cluster: ",        resultObj$numberOfPrecursors,           "<br>", 
+        "Frequent fragments: ",           length(resultObj$fragmentMasses),       "<br>", 
+        "Characteristic fragments: ",     sum(resultObj$fragmentColor == "black"),"<br>",
+        "Common metabolite families: ",   featureFamilies,
+        sep = "")
+    }
+    
+    ## cluster
+    #$fragmentMasses
+    #$fragmentAbundances
+    #$fragmentColor
+    #$fragmentDiscriminativity
+    #$clusterDiscriminativity
+    #$infoText
+    #$precursorSet
+    #$numberOfPrecursors
+    
+    ## leaf
+    #$fragmentMasses
+    #$fragmentAbundances
+    #$fragmentColor
+    #$fragmentDiscriminativity
+    #$infoText
+    #$landingPageUrl
+    #$precursorSet
+    #$numberOfPrecursors
+  }
+  
+  
+  ####################
+  ## cluster
+  
+  if(FALSE){
+  par(mar=c(7.25,4,2,0), mgp = c(3, 1, 0))  ## c(bottom, left, top, right)
+  
+  dend <- as.dendrogram(clusterDataList$cluster)
+  }
+  
+  leafLabelColors <- rep(x = "black", times = length(precursorLabels))
+  
+  ## color labels for search sub-roots
+  if(!is.null(selectionSearchTreeNodeSet)){
+    clusterMembers <- c(
+      unlist(clusterDataList$innerNodeMembersTreeLeaves[selectionSearchTreeNodeSet[selectionSearchTreeNodeSet > 0]]), 
+      -selectionSearchTreeNodeSet[selectionSearchTreeNodeSet < 0]
+    )
+    leafLabelColors[clusterMembers] <- 'red'
+  }
+  ## color labels for fragment sub-roots
+  if(!is.null(selectionFragmentTreeNodeSet)){
+    clusterMembers <- c(
+      unlist(clusterDataList$innerNodeMembersTreeLeaves[selectionFragmentTreeNodeSet[selectionFragmentTreeNodeSet > 0]]), 
+      -selectionFragmentTreeNodeSet[selectionFragmentTreeNodeSet < 0]
+    )
+    leafLabelColors[clusterMembers] <- 'green'
+  }
+  ## color labels for analysis sub-root
+  if(!is.null(selectionAnalysisTreeNodeSet)){
+    clusterMembers <- NULL
+    for(selectionAnalysisTreeNode in selectionAnalysisTreeNodeSet){
+      if(selectionAnalysisTreeNode > 0){
+        clusterMembers <- c(clusterMembers, clusterDataList$innerNodeMembersTreeLeaves[[selectionAnalysisTreeNode]])
+      } else {
+        clusterMembers <- c(clusterMembers, -selectionAnalysisTreeNode)
+      }
+    }
+    leafLabelColors[clusterMembers] <- 'blue'
+  }
+  
+  ### remove labels left of the y-axis
+  #rightMostInvisibleLabelIndex <- floor(xInterval[[1]] - (xInterval[[2]] - xInterval[[1]]) * 0.04)
+  #if(rightMostInvisibleLabelIndex > 0){
+  #  labelsToRemove <- precursorLabelsWithIdx[clusterDataList$cluster$order][1:rightMostInvisibleLabelIndex]
+  #  
+  #  colLab <- colorLabels(precursorLabelsWithIdx, NULL, NULL, labelsToRemove)
+  #  dend <- dendrapply(dend, colLab)
+  #}
+  
+  ## remove precursorLabel indeces
+  #colLab <- colorLabels(precursorLabelsWithIdx, NULL, NULL, NULL, precursorLabels)
+  #dend <- dendrapply(dend, colLab)
+  
+  ## color tree for annotations
+  resultObjTree <- analyzeTreeFromRootForAnnotations(dataList, cluster = clusterDataList$cluster, filterObj$filter)
+  innerNodeFeaturesAnnotations <- resultObjTree$innerNodeFeaturesAnnotations
+  
+  rootIndex <- length(clusterDataList$cluster$height)
+  setOfColorSets <- setOfAnnotationSetsToSetOfColorSets(dataList, innerNodeFeaturesAnnotations)
+  innerNodeMembersTreeClusters <- clusterDataList$innerNodeMembersTreeClusters
+  innerNodeMembersTreeLeaves <- clusterDataList$innerNodeMembersTreeLeaves
+  
+  poisX <- clusterDataList$poiCoordinatesX
+  poisY <- clusterDataList$poiCoordinatesY
+  numberOfPois <- clusterDataList$numberOfPois
+  numberOfPoisDrawn <- sum(clusterDataList$drawPoi)
+  
+  poisX <- poisX[clusterDataList$drawPoi]
+  poisY <- poisY[clusterDataList$drawPoi]
+  
+  a2r_counter <<- 0
+  numberOfInnerNodes <- as.integer(numberOfPois / 2)
+  resultObjAnno <- getPrecursorColors(dataList = dataList, precursorSet = filterObj$filter)
+  leafColors <- resultObjAnno$setOfColors
+  
+  innerNodeColors      <<- vector(length = numberOfInnerNodes)
+  innerNodeAnnotations <<- vector(length = numberOfInnerNodes)
+  segmentListAnno <- colorSubTreeForAnnotations(cluster = clusterDataList$cluster, index = rootIndex, innerNodeAnnotations = innerNodeFeaturesAnnotations, setOfColorSets = setOfColorSets, parentIndex = NULL, parentAnnotation = "Unknown", parentColor = "black")
+  
+  ## coloring of nodes by annotation
+  numberOfPoisDrawn <- sum(clusterDataList$drawPoi)
+  pointSizesAnno  <- rep(x = clusterNodePointSize0, times = numberOfPoisDrawn)
+  pointColorsAnno <- unlist(c(innerNodeColors, leafColors)[clusterDataList$drawPoi])
+  
+  ############################
+  ## dendrogram selections
+  pointsAnalysis <- vector(mode = "logical", length = numberOfPois)
+  if(!is.null(selectionAnalysisTreeNodeSet)){
+    indeces <- NULL
+    for(selectionAnalysisTreeNode in selectionAnalysisTreeNodeSet){
+      if(selectionAnalysisTreeNode < 0) indeces <- c(indeces, numberOfInnerNodes + abs(selectionAnalysisTreeNode))  ## leaf
+      else                              indeces <- c(indeces, unlist(c(innerNodeMembersTreeClusters[[selectionAnalysisTreeNode]], numberOfInnerNodes + innerNodeMembersTreeLeaves[[selectionAnalysisTreeNode]])))  ## inner node
+    }
+    pointsAnalysis[indeces] <- TRUE
+  }
+  pointsAnalysis <- pointsAnalysis[clusterDataList$drawPoi]
+  
+  pointsFragment <- vector(mode = "logical", length = numberOfPois)
+  if(!is.null(selectionFragmentTreeNodeSet)){
+    for(selectionFragmentTreeNode in selectionFragmentTreeNodeSet){
+      if(selectionFragmentTreeNode < 0) idx <- numberOfInnerNodes + abs(selectionFragmentTreeNode)  ## leaf
+      else                              idx <- unlist(c(innerNodeMembersTreeClusters[[selectionFragmentTreeNode]], numberOfInnerNodes + innerNodeMembersTreeLeaves[[selectionFragmentTreeNode]]))  ## inner node
+      pointsFragment[idx] <- TRUE
+    }
+  }
+  pointsFragment <- pointsFragment[clusterDataList$drawPoi]
+  
+  pointsSearch <- vector(mode = "logical", length = numberOfPois)
+  if(!is.null(selectionSearchTreeNodeSet)){
+    for(selectionSearchTreeNode in selectionSearchTreeNodeSet){
+      if(selectionSearchTreeNode < 0) idx <- numberOfInnerNodes + abs(selectionSearchTreeNode)  ## leaf
+      else                              idx <- unlist(c(innerNodeMembersTreeClusters[[selectionSearchTreeNode]], numberOfInnerNodes + innerNodeMembersTreeLeaves[[selectionSearchTreeNode]]))  ## inner node
+      pointsSearch[idx] <- TRUE
+    }
+  }
+  pointsSearch <- pointsSearch[clusterDataList$drawPoi]
+  
+  ## cluster discriminativity
+  clusterDiscriminativity <- clusterDataList$clusterDiscriminativity[clusterDataList$drawPoi]
+  
+  ## calc points
+  resultObjPoints <- generatePoints(
+    poisX = poisX, poisY = poisY, 
+    pointSizesAnno = pointSizesAnno, pointColorsAnno = pointColorsAnno, 
+    pointsAnalysis = pointsAnalysis, pointsFragment = pointsFragment, pointsSearch = pointsSearch,
+    pointSizeModifier = clusterDiscriminativity
+  )
+  pointSizes  <- resultObjPoints$pointSizes
+  pointColors <- resultObjPoints$pointColors
+  poisXpoints <- resultObjPoints$poisXpoints
+  poisYpoints <- resultObjPoints$poisYpoints
   
   ####################
   ## heatmap
-  groups <- rev(dataList$groups)
-  columnsOfInterest <- unlist(lapply(X = groups, FUN = function(x){
-    dataList$dataMeanColumnNameFunctionFromName(x)
-  }))
+  
+  ## heatmap data
+  groups <- dataList$groups
+  switch(heatmapContent,
+         "Log-fold-change"={## log-fold-change
+           columnsOfInterest <- c(
+             dataList$dataMeanColumnNameFunctionFromName(filterObj$groups[[1]]), 
+             dataList$dataMeanColumnNameFunctionFromName(filterObj$groups[[2]]), 
+             dataList$lfcColumnNameFunctionFromName(filterObj$groups[[1]], filterObj$groups[[2]])
+           )
+           columnsOfInterestAbs <- columnsOfInterest[1:2]
+           columnsOfInterestLFC <- columnsOfInterest[3]
+           labels = c(filterObj$groups[[1]], filterObj$groups[[2]], "LFC")
+           labelsAbs <- labels[1:2]
+           labelsLFC <- labels[3]
+         },
+         "Abundance by group"={## groups
+           columnsOfInterest <- unlist(lapply(X = groups, FUN = function(x){
+             dataList$dataMeanColumnNameFunctionFromName(x)
+           }))
+           columnsOfInterest <- rev(columnsOfInterest) ## plot is bottom to top
+           columnsOfInterestAbs <- columnsOfInterest
+           columnsOfInterestLFC <- NULL
+           labels <- groups
+           labelsAbs <- labels[1:2]
+           labelsLFC <- NULL
+         },
+         "Abundance by sample"={## samples
+           columnsOfInterest <- dataList$dataColumnsNameFunctionFromGroupNames(groups = groups, sampleNamesToExclude = dataList$excludedSamples(dataList$groupSampleDataFrame))
+           columnsOfInterest <- dataList$orderColumnNames(groupSampleDataFrame = dataList$groupSampleDataFrame, columnNames = columnsOfInterest)
+           columnsOfInterest <- rev(columnsOfInterest) ## plot is bottom to top
+           columnsOfInterestAbs <- columnsOfInterest
+           columnsOfInterestLFC <- NULL
+           labels <- columnsOfInterest
+           labelsAbs <- labels[1:2]
+           labelsLFC <- NULL
+         },
+         {## unknown state
+           stop(paste("Unknown heatmapContent value", heatmapContent))
+         }
+  )## end switch
   numberOfGroups <- length(columnsOfInterest)
-  labels <- groups
   
-  par(mar=c(0,4,0,0), mgp = c(3, 1, 0))  ## c(bottom, left, top, right) ## c(title, axis, label)
+  ## heatmap ordering
+  switch(heatmapOrdering,
+         "Specified order"={## no clustering
+           doCalculateCluster <- FALSE
+         },
+         "MS1 clustering"={## do clustering
+           if(heatmapContent == "Log-fold-change"){
+             doCalculateCluster <- FALSE
+           } else {
+             doCalculateCluster <- TRUE
+           }
+         },
+         {## unknown state
+           stop(paste("Unknown heatmapOrdering value", heatmapOrdering))
+         }
+  )## end switch
   
-  
-  if(!is.null(selectedTreeNodeSet)){
+  ## selections and selection colors
+  #selectedTreeNodeSet <- NULL
+  #frameColor <- NULL
+  if(!is.null(selectedSelection)){
+    analysisSelection <- {
+      selectedTreeNodeSet <- selectionAnalysisTreeNodeSet
+      frameColor <- "blue"
+    }
+    fragmentSelection <- {
+      selectedTreeNodeSet <- selectionFragmentTreeNodeSet
+      frameColor <- "green"
+    }
+    searchSelection <- {
+      selectedTreeNodeSet <- selectionSearchTreeNodeSet
+      frameColor <- "red"
+    }
+    switch(selectedSelection,
+           "Analysis_HCA" = analysisSelection,
+           "Analysis_PCA" = analysisSelection,
+           "Fragment_HCA" = fragmentSelection,
+           "Fragment_PCA" = fragmentSelection,
+           "Search_HCA"   = searchSelection,
+           "Search_PCA"   = searchSelection,
+           {## unknown state
+             stop(paste("Unknown selectedSelection value", selectedSelection))
+           }
+    )## end switch
+  }
+  ## in case of tree selections compute leaf intervals
+  #if(!is.null(selectedTreeNodeSet)){
     clusterMemberList <- lapply(X = selectedTreeNodeSet, FUN = function(x){
       ifelse(test = x < 0, yes = -x, no = clusterDataList$innerNodeMembersTreeLeaves[x])[[1]]
     })
@@ -290,53 +691,585 @@ calcPlotHeatmap <- function(dataList, filterObj, clusterDataList, selectedTreeNo
     })
     intervalMatrix <- as.matrix(as.data.frame(intervals))
     
-    #print("")
-    #print(selectedTreeNodeSet)
-    #print(clusterMemberList)
-    #print(positionsList)
-    #print(intervals)
-    #print(intervalMatrix)
-    #print("")
+    ## merge adjacent intervals TODO
+    #intervalMatrix <- matrix(data=unlist(intervals), nrow=2,ncol=length(intervals))
+    #if(ncol(intervalMatrix) > 1){
+    #  intervalMatrix <- intervalMatrix[, order(intervalMatrix[1, ])]
+    #  
+    #  sapply(X = seq_len(ncol(intervalMatrix) - 1), FUN = function(x){
+    #    intervalMatrix[2, x] + 1 == intervalMatrix[1, x+1]
+    #  })
+    #}
+    
+  #}
+  
+  ## MS1 clustering and colors
+  if(doCalculateCluster){
+    data_s_p <- t(as.matrix(as.data.frame(lapply(X = columnsOfInterest, FUN = function(x){
+      values <- dataList$dataFrameMeasurements[filterObj$filter, x][clusterDataList$cluster$order]
+      if(is.null(selectedTreeNodeSet))
+        return(values)
+      
+      unlist(apply(X = intervalMatrix, MARGIN = 2, FUN = function(x){
+        values[seq(from=x[[1]], to = x[[2]], by = 1)]
+      }))
+    }))))
+    
+    dist <- dist(data_s_p)
+    cluster <- hclust(d = dist, method = "ward.D")
+    
+    ## optimal leaf ordering
+    if(numberOfGroups > 2){
+      opt <- order.optimal(dist = dist, merge = cluster$merge)
+      cluster$merge <- opt$merge
+      cluster$order <- opt$order
+    }
+    
+    labels <- labels[cluster$order]
+    columnsOfInterest <- columnsOfInterest[cluster$order]
+    
+    colors <- lapply(X = columnsOfInterest[cluster$order], FUN = function(x){
+      dataList$colorMatrixDataFrame[filterObj$filter, x][clusterDataList$cluster$order]
+    })
+    values <- lapply(X = columnsOfInterest[cluster$order], FUN = function(x){
+      dataList$dataFrameMeasurements[filterObj$filter, x][clusterDataList$cluster$order]
+    })
+    valuesAbs <- values
+    valuesLFC <- NULL
+  } else {
+    #colors <- lapply(X = columnsOfInterest, FUN = function(x){
+    #  dataList$colorMatrixDataFrame[filterObj$filter, x][clusterDataList$cluster$order]
+    #})
+    colors <- sapply(columnsOfInterest,FUN = function(x){
+      dataList$colorMatrixDataFrame[filterObj$filter, x][clusterDataList$cluster$order]
+    },simplify = FALSE,USE.NAMES = TRUE)
+    values <- lapply(X = columnsOfInterest, FUN = function(x){
+      dataList$dataFrameMeasurements[filterObj$filter, x][clusterDataList$cluster$order]
+    })
+    valuesAbs <- lapply(X = columnsOfInterestAbs, FUN = function(x){
+      dataList$dataFrameMeasurements[filterObj$filter, x][clusterDataList$cluster$order]
+    })
+    valuesLFC <- lapply(X = columnsOfInterestLFC, FUN = function(x){
+      dataList$dataFrameMeasurements[filterObj$filter, x][clusterDataList$cluster$order]
+    })
   }
   
+  ## assemble heatmap values and colors
+  numberOfGroupsAbs <- length(valuesAbs)
+  numberOfGroupsLFC <- length(valuesLFC)
+  
+  matrixAbs <- t(matrix(data = unlist(valuesAbs), nrow = clusterDataList$numberOfPrecursorsFiltered, ncol = numberOfGroupsAbs))
+  matrixAbsLog <- unlist(log10(matrixAbs))
+  matrixAbsLog[is.infinite(matrixAbsLog)] <- 0
+  
+  #paletteAbs <- colorRampPalette(rainbow(18)[10:1])
+  paletteAbs <- rainbow(18)[10:1]
+  paletteLFC <- c('blue', 'white', 'red')
+  
+  if(numberOfGroupsLFC > 0){
+    matrixLFC <- t(matrix(data = unlist(valuesLFC), nrow = clusterDataList$numberOfPrecursorsFiltered, ncol = numberOfGroupsLFC))
+    matrixLFC[is.infinite(matrixLFC)] <- 0
+  } else {
+    matrixLFC <- matrix(nrow = 0, ncol = clusterDataList$numberOfPrecursorsFiltered)
+  }
+  
+  if(FALSE){
+  quantiles <- c(-dataList$logFoldChangeMax, 0, dataList$logFoldChangeMax, dataList$logFoldChangeMax*1.01, 10^(seq(from=dataList$logAbsMax/10, to=dataList$logAbsMax, length.out=9)))
+  quantiles <- approx(x = quantiles, n = 10000)$y
+  colors    <- c('blue', 'white', 'red', rainbow(18)[10:1])
+  #colors    <- c('blue', 'white', 'red', rainbow(50)[17:8])
+  colors    <- colorRampPalette(colors)(10000)
+  
+  matrixAbsTmp <- matrixAbs
+  matrixAbsTmp[matrixAbsTmp<=dataList$logFoldChangeMax] <- dataList$logFoldChangeMax*1.01
+  valueMatrix <- rbind(matrixLFC, matrixAbsTmp)
+  valueMatrix <- matrix(data = #quantiles[
+    cut(as.vector(valueMatrix), breaks = quantiles, right = TRUE, labels = FALSE)
+    #]
+  , nrow=numberOfGroups, ncol=clusterDataList$numberOfPrecursorsFiltered)
+  #valueMatrix <- valueMatrix[rev(seq_len(nrow(valueMatrix))), ]
+  
+  m <- rbind(matrixLFC, matrixAbsTmp)
+  m <- valueMatrix
+  colors2    <- c('blue', 'white', 'red', rainbow(18)[10:1])
+  vals <- unlist(m)
+  o <- order(vals, decreasing = FALSE)
+  cols <- scales::col_numeric(palette = colors2, domain = c(-dataList$logFoldChangeMax,10^dataList$logAbsMax))(vals)
+  colz <- setNames(object = data.frame(vals[o], cols[o]), nm = NULL)
+  
+  
+  colors    <- c('blue', 'white', 'red', rainbow(18)[10:1])
+  
+  minLFCnew <- 3/13*dataList$logAbsMax
+  matrixLFCTmp <- (matrixLFC - dataList$logFoldChangeMax) / (2 * dataList$logFoldChangeMax)  * minLFCnew
+  valueMatrix <- rbind(matrixLFCTmp, matrixAbsLog)
+  #valueMatrix <- valueMatrix + minLFCnew
+  }
+  
+  #################################
+  ## dendrogram elements
+  #subDivide <- function(items){
+  #  ## add NA at every fourth position
+  #  chunks <- split(items, cut(seq_along(items), ceiling(length(items) / 3), labels = FALSE))
+  #  chunks <- lapply(X = chunks, FUN = function(x){
+  #    c(x, NA)
+  #  })
+  #  unlist(chunks)
+  #}
+  
+  #a2r_counter <<- 0
+  #segmentListDend <- drawDendrogram(cluster = clusterDataList$cluster, index = rootIndex)
+  #segmentListDend$x0 <- subDivide(segmentListDend$x0)
+  #segmentListDend$x1 <- subDivide(segmentListDend$x1)
+  #segmentListDend$y0 <- subDivide(segmentListDend$y0)
+  #segmentListDend$y1 <- subDivide(segmentListDend$y1)
+  
+  a2r_counter <<- 0
+  segmentListAnno <- colorSubTreeForAnnotations2(cluster = clusterDataList$cluster, index = rootIndex, dataList = dataList, filter = filterObj$filter)
+  
+  #segmentListAnno$x0 <- subDivide(segmentListAnno$x0)
+  #segmentListAnno$x1 <- subDivide(segmentListAnno$x1)
+  #segmentListAnno$y0 <- subDivide(segmentListAnno$y0)
+  #segmentListAnno$y1 <- subDivide(segmentListAnno$y1)
+  
+  presentColors <- unique(segmentListAnno$col)
+  #if("black" %in% presentColors)
+  #  presentColors <- presentColors[-which(presentColors == "black")]
+  
+  ## list of lists
+  annoByAnno <- sapply(X = presentColors, simplify = FALSE, FUN = function(color){
+    indeces <- which(segmentListAnno$col == color)
+    indeces <- unlist(sapply(X = indeces, simplify = FALSE, FUN = function(index){
+      ((index - 1) * 3 + 1) : ((index - 1) * 3 + 3)
+    }))
+    list(
+      x0=segmentListAnno$x0[indeces], 
+      x1=segmentListAnno$x1[indeces], 
+      y0=segmentListAnno$y0[indeces], 
+      y1=segmentListAnno$y1[indeces]
+    )
+  })
+  
+  ##################################################################################
+  ## plot
+  curveNumberToCurveName <- data.frame(matrix(nrow = 0, ncol = 2))
+  colnames(curveNumberToCurveName) <- c("curveNumber", "name")
+  curveNumber <- -1 ## first curveNumber is 0
+  
+  ## create plot
+  ## https://stackoverflow.com/questions/45861236/segments-prevent-the-display-of-tooltips-of-markers-in-r-plotly
+  
+  hoverlabel <- list(
+    bgcolor = "grey",
+    bordercolor = "black"
+  )
+  
+  #p <- plot_ly(type = 'scatter', mode = 'lines')
+  p <- plot_ly(source = "dendLabelsHeatmap")
+  ## heatmap
+  if(FALSE && numberOfGroupsLFC > 0){
+    p <- add_heatmap(p, x = xCoordinates, y = labelsLFC, 
+                     z = matrixLFC, name = 'heatmap_lfc', #type = 'heatmap', mode = NULL, 
+                     #colors = palette(50),
+                     colors = paletteLFC, zauto = FALSE, zmin = -dataList$logFoldChangeMax, zmax = dataList$logFoldChangeMax,
+                     xaxis="x", yaxis="y4", showlegend = FALSE, showscale=FALSE
+                     
+    )
+    curveNumberToCurveName[nrow(curveNumberToCurveName)+1, ] <- c(curveNumber <- curveNumber+1, "heatmap_lfc")
+  }
+  
+  matrixForHeatmap <- rbind(
+    matrixAbsLog,
+    matrix(data=rep(x = 0, times = numberOfGroupsLFC * clusterDataList$numberOfPrecursorsFiltered), nrow=numberOfGroupsLFC, ncol=clusterDataList$numberOfPrecursorsFiltered)
+  )
+  p <- add_heatmap(p, x = xCoordinates, y = labels, 
+                   z = matrixForHeatmap, name = 'heatmap_abs', #type = 'heatmap', mode = NULL, 
+                   #colors = palette(50),
+                   colors = paletteAbs, zauto = FALSE, zmin = 0, zmax = dataList$logAbsMax,
+                   xaxis="x", yaxis="y3", showlegend = FALSE, showscale=FALSE
+  )
+  curveNumberToCurveName[nrow(curveNumberToCurveName)+1, ] <- c(curveNumber <- curveNumber+1, "heatmap_abs")
+  if(FALSE){
+    p <- add_heatmap(p, x = xCoordinates, y = labelsAbs, 
+                     z = matrixAbs, name = 'abs', #type = 'heatmap', mode = NULL, 
+                     #colors = palette(50),
+                     colors = paletteAbs, zauto = FALSE, zmin = 0, zmax = 10^dataList$logAbsMax,
+                     xaxis="x", yaxis="y3", showlegend = FALSE, showscale=FALSE
+    )
+    
+    #p <- add_heatmap(p, x = xCoordinates, y = labels, 
+    #                 z = valueMatrix, name = 'abs', #type = 'heatmap', mode = NULL, 
+    #                 #colors = palette(50),
+    #                 colors = colors, 
+    #                 zauto = FALSE, zmin = 1, zmax = 10000,
+    #                 #zauto = FALSE, zmin = -dataList$logFoldChangeMax, zmax = 10^dataList$logAbsMax,
+    #                 xaxis="x", yaxis="y3", showlegend = FALSE#, showscale=FALSE
+    #)
+    p <- add_heatmap(p, x = xCoordinates, y = labels, 
+                     z = m, name = 'abs', #type = 'heatmap', mode = NULL, 
+                     #colors = palette(50),
+                     color=colors,
+                     #colorscale = colz, 
+                     #zauto = FALSE, zmin = 1, zmax = 10000,
+                     #zauto = FALSE, zmin = -dataList$logFoldChangeMax, zmax = 10^dataList$logAbsMax,
+                     xaxis="x", yaxis="y3", showlegend = FALSE#, showscale=FALSE
+    )
+    #p <- add_heatmap(p, data=data.frame(x=xCoordinates, y=rep("bla",times=ncol(valueMatrix)),z=valueMatrix[1,],col=colors[valueMatrix[1,]], stringsAsFactors = F), x = ~x, y = ~y, 
+    #                 z = ~z, name = 'abs', #type = 'heatmap', mode = NULL, 
+    #                 #colors = palette(50),
+    #                 colors = ~col, #zauto = FALSE, zmin = -dataList$logFoldChangeMax, zmax = 10^dataList$logAbsMax,
+    #                 xaxis="x", yaxis="y3", showlegend = FALSE#, showscale=FALSE
+    #)
+    
+    add_heatmap(p, x = xCoordinates, y = labels, 
+                z = valueMatrix, name = 'abs', #type = 'heatmap', mode = NULL, 
+                #colors = palette(50),
+                colors = colors, #zauto = FALSE, zmin = -minLFCnew, zmax = 10^dataList$logAbsMax,
+                xaxis="x", yaxis="y3", showlegend = FALSE#, showscale=FALSE
+    )
+  }
+  
+  
+  ## draw dendrogram
+  #print(paste("1", length(xDend), length(yDend), min(xDend, na.rm = TRUE), max(xDend, na.rm = TRUE)))
+  #p <- add_trace(p, x = ~xDend, y = ~yDend, name = 'dend', mode = 'lines', 
+  #               hoverinfo="none", line = list(color = "black")
+  #)
+  ## color dendrogram
+  for(colorIdx in seq_along(annoByAnno)){
+    curveName <- paste('dendAnno', presentColors[[colorIdx]], colorIdx, sep = "_")
+    p <- add_segments(p, x = annoByAnno[[colorIdx]]$x0, y = annoByAnno[[colorIdx]]$y0, xend = annoByAnno[[colorIdx]]$x1, yend = annoByAnno[[colorIdx]]$y1,
+                      name = curveName, 
+                      mode = 'lines',
+                      #mode = 'lines+markers',
+                      #hoverinfo="skip", #"none", 
+                      hoverinfo="text", hovertext=rep(x = "error", times = length(annoByAnno[[colorIdx]]$x0)), 
+                      #hoverinfo="text", hovertext=seq_along(annoByAnno[[colorIdx]]$x0), 
+                      #hoverinfo="text", hovertext=tooltip2, 
+                      line = list(
+                        color = presentColors[[colorIdx]]#,
+                        
+                        ## TODO for selections
+                        #dash = "dash", ## ("solid", "dot", "dash", "longdash", "dashdot", or "longdashdot")
+                        
+                        #layer="below traces"
+                        #hovermode = FALSE,
+                        #layer="below"
+                      ),
+                      #captureevents = FALSE,
+                      hoveron="fills",
+                      xaxis="x", yaxis="y", showlegend = FALSE
+    )
+    curveNumberToCurveName[nrow(curveNumberToCurveName)+1, ] <- c(curveNumber <- curveNumber+1, curveName)
+  }
+  ## node labels
+  if(FALSE){
+  #print(paste("3", length(poisX), length(poisY), length(poiLabels), min(poisX), max(poisX)))
+  xOffset <- 0.3#(xInterval[[2]] - xInterval[[1]] + 1) / 50
+  yOffset <- max(clusterDataList$cluster$height) / 30
+  p <- add_text(p, x = poisX + xOffset, y = poisY + yOffset, name = 'node labels', mode = 'text', 
+                 hoverinfo="none", text=poiLabels, textposition="top right",#"middle center",#"middle right" #
+                 xaxis="x", yaxis="y"
+  )
+  curveNumberToCurveName[nrow(curveNumberToCurveName)+1, ] <- c(curveNumber <- curveNumber+1, 'node labels')
+  }
+  
+  ## nodes
+  poiLabelsPoints <- c(rep(x = "", times = length(poisXpoints) - length(poiLabels)), poiHovers)
+  #print(paste("4", length(poisXpoints), length(poisYpoints), length(pointColors), length(pointSizes), min(poisXpoints), max(poisXpoints)))
+  p <- add_markers(p, x = poisXpoints, y = poisYpoints, name = 'nodes', #mode = 'markers', 
+                 marker=list(
+                   size = pointSizes*7., 
+                   #sizeref = 1.,
+                   color = pointColors,
+                   opacity=1#,
+                   #layer="above traces"
+                   #layer="above"
+                 ),
+                 hoverinfo="text", hovertext=poiLabelsPoints, hoveron="points+fills", #, hoverlabel = list(bordercolor="blue")
+                 hoverlabel = hoverlabel,
+                 xaxis="x", yaxis="y", showlegend = FALSE
+  )
+  curveNumberToCurveName[nrow(curveNumberToCurveName)+1, ] <- c(curveNumber <- curveNumber+1, 'nodes')
+  
+  ## leaf labels
+  if(FALSE){
+  ## TODO repair
+  xCoordinates <- seq_len(clusterDataList$numberOfPrecursorsFiltered)
+  uniqueLeafLabelColors <- unique(leafLabelColors)
+  leafLabelsList <- sapply(X = uniqueLeafLabelColors, FUN = function(x){
+    which(leafLabelColors == x)
+  })
+  for(idx in seq_along(leafLabelsList)){
+    leafLabelIndeces <- leafLabelsList[[idx]]
+    leafLabelsName <- paste('leaf_labels', uniqueLeafLabelColors[[idx]], idx, sep = "_")
+    p <- add_annotations(p, x = xCoordinates[leafLabelIndeces], y = 0, name = leafLabelsName, text = precursorLabels[leafLabelIndeces],
+                    showarrow = FALSE, textangle = 270, font = list(color = uniqueLeafLabelColors[[idx]]),#bgcolor = uniqueLeafLabelColors[[idx]], 
+                    xref = "x", yref = "y2"
+    )
+    curveNumberToCurveName[nrow(curveNumberToCurveName)+1, ] <- c(curveNumber <- curveNumber+1, leafLabelsName)
+  }
+  }
+  
+  ## plot config
+  ## h 2.1 / l 3.4 / d 11
+  ## 25 .. 25 .. 11 .. 11
+  ## 1  ..  3 .. 10 ..  n
+  labelsToDendrogramProportion <- 0.25
+  dendrogramLabelsProportion <- 1 - heatmapProportion
+  labelsProportion <- dendrogramLabelsProportion * labelsToDendrogramProportion
+  dendrogramProportion <- dendrogramLabelsProportion * (1-labelsToDendrogramProportion)
+  
+  if(numberOfGroupsLFC > 0){
+    heatmapProportionLFC <- heatmapProportion * numberOfGroupsLFC / numberOfGroups
+    heatmapProportionAbs <- heatmapProportion - heatmapProportionLFC
+  } else {
+    heatmapProportionLFC <- 0
+    heatmapProportionAbs <- heatmapProportion
+  }
+  
+  p <- config(p, displayModeBar = FALSE)
+  p <- plotly::layout(p=p,                        # all of layout's properties: /r/reference/#layout
+              #showlegend = FALSE,
+              #hovermode = F,#"closest",
+              title = "Hierarchical cluster dendrogram",
+              xaxis = list(
+                visible = FALSE
+                #scaleanchor = "TODO",
+                #domain = xInterval
+              ),
+              yaxis = list(
+                title = distanceMeasure,
+                showgrid = FALSE,
+                zeroline=FALSE,
+                type = "linear",
+                domain = c(heatmapProportion + labelsProportion, 1),
+                rangemode="nonnegative"
+              ),
+              yaxis2 = list(
+                #title = "TODO",
+                #fixedrange = TRUE,
+                showgrid = FALSE,
+                zeroline=FALSE,
+                type = "category",
+                domain = c(heatmapProportion, heatmapProportion + labelsProportion)
+              ),
+              yaxis3 = list(
+                title = "TODO",
+                #fixedrange = TRUE,
+                showgrid = FALSE,
+                zeroline=FALSE,
+                type = "category",
+                domain = c(0, heatmapProportion)
+              ),
+              #yaxis4 = list(
+              #  title = "TODO2",
+              #  #fixedrange = TRUE,
+              #  showgrid = FALSE,
+              #  zeroline=FALSE,
+              #  type = "category",
+              #  domain = c(heatmapProportionAbs, heatmapProportion)
+              #),
+              ## heatmap selections
+              #if(!is.null(selectedTreeNodeSet))
+              #  apply(X = intervalMatrix, MARGIN = 2, FUN = function(x){
+              #    rect(xleft = x[[1]] - 0.5, xright = x[[2]] + 0.5, ybottom = 0, ytop = numberOfGroups, border = frameColor, lwd = 2)
+              #  })
+              shapes = #list(
+                c(
+                ## LFC rects?
+                {if(numberOfGroupsLFC > 0){
+                  colorsHere <- colors[[columnsOfInterestLFC]]
+                  lapply(X = seq_along(colorsHere), FUN = function(x){
+                    list(type = "rect",
+                         fillcolor = colorsHere[[x]], line = list(color="none", width=0), opacity = 1.,
+                         x0 = x-0.5, x1 = x+0.5, xref = "x",
+                         y0 = -0.5 + numberOfGroupsAbs, y1 = 0.5 + numberOfGroupsAbs, yref = "y3"
+                    )
+                  })
+                  } else NULL
+                },
+                ## selections in the heatmap
+                unname(apply(X = intervalMatrix, MARGIN = 2, FUN = function(x){
+                  if(length(x) == 0)
+                    return(list())
+                  else
+                    list(type = "rect",
+                         fillcolor = "none", line = list(color=frameColor, width=2), opacity = 1.,
+                         x0 = x[[1]]-0.5, x1 = x[[2]]+0.5, xref = "x",
+                         y0 = -0.5, y1 = numberOfGroups - 0.5, yref = "y3"
+                    )
+                }))
+                )
+                #list(type = "rect",
+                #     fillcolor = "none", line = list(color=frameColor, width=2), opacity = 1.,
+                #     x0 = 3, x1 = 5, xref = "x",
+                #     y0 = -0.5, y1 = numberOfGroupsAbs - 0.5, yref = "y2"
+                #)
+              #)
+              #,
+              #annotations = list(
+              #  x = xCoordinates,
+              #  y = m$mpg,
+              #  text = rownames(m),
+              #  xref = "x",
+              #  yref = "y",
+              #  showarrow = TRUE,
+              #  arrowhead = 7,
+              #  ax = 20,
+              #  ay = -40
+              #)
+  )
+  
+  resultObj <- list()
+  resultObj$curveNumberToCurveName <- curveNumberToCurveName
+  resultObj$plotlyPlot             <- p
+  resultObj$columnsOfInterest      <- columnsOfInterest
+  
+  return(resultObj)
+  
+  ## https://plot.ly/r/plotlyproxy/
+  ## https://plot.ly/r/get-requests/
+  ## https://cran.r-project.org/web/packages/plotly/plotly.pdf
+  ## https://plot.ly/r/shinyapp-linked-click/
+  ## https://plot.ly/r/reference/#Layout_and_layout_style_objects
+  ## https://plot.ly/r/reference/#layout
+  ## https://plot.ly/r/shinyapp-plotly-events/
+  
+  
+  ## p.bars.text = p.bars %>%
+  ## plotly::layout(annotations = list(x = 30, y = 0,  text = "Expected", textangle=270, showarrow=F, xanchor="center"))
+  
+  ## for PCA:
+  ## zeroline = TRUE
+  
+}
+calcPlotHeatmap <- function(dataList, filterObj, clusterDataList, selectedTreeNodeSet, frameColor, heatmapContent, heatmapOrdering, xInterval = NULL){
+  ## TODO implement fragment selection and search selection (clustering, emphasize in plot)
+  
+  if(is.null(xInterval))
+    xInterval <- c(1, clusterDataList$numberOfPrecursorsFiltered)
+  
+  ####################
+  ## heatmap
+  groups <- dataList$groups
+  switch(heatmapContent,
+         "Log-fold-change"={## log-fold-change
+           columnsOfInterest <- c(
+             dataList$dataMeanColumnNameFunctionFromName(filterObj$groups[[1]]), 
+             dataList$dataMeanColumnNameFunctionFromName(filterObj$groups[[2]]), 
+             dataList$lfcColumnNameFunctionFromName(filterObj$groups[[1]], filterObj$groups[[2]])
+           )
+           labels = c(filterObj$groups[[1]], filterObj$groups[[2]], "LFC")
+         },
+         "Abundance by group"={## groups
+           columnsOfInterest <- unlist(lapply(X = groups, FUN = function(x){
+             dataList$dataMeanColumnNameFunctionFromName(x)
+           }))
+           #columnsOfInterest <- rev(columnsOfInterest) ## plot is bottom to top
+           labels <- groups
+         },
+         "Abundance by sample"={## samples
+           columnsOfInterest <- dataList$dataColumnsNameFunctionFromGroupNames(groups = groups, sampleNamesToExclude = dataList$excludedSamples(dataList$groupSampleDataFrame))
+           columnsOfInterest <- dataList$orderColumnNames(groupSampleDataFrame = dataList$groupSampleDataFrame, columnNames = columnsOfInterest)
+           columnsOfInterest <- rev(columnsOfInterest) ## plot is bottom to top
+           labels <- columnsOfInterest
+         },
+         {## unknown state
+           stop(paste("Unknown heatmapContent value", heatmapContent))
+         }
+  )## end switch
+  numberOfGroups <- length(columnsOfInterest)
+  
+  ## heatmap ordering
+  switch(heatmapOrdering,
+         "Specified order"={## no clustering
+           doCalculateCluster <- FALSE
+         },
+         "MS1 clustering"={## do clustering
+           if(heatmapContent == "Log-fold-change"){
+             doCalculateCluster <- FALSE
+           } else {
+             doCalculateCluster <- TRUE
+           }
+         },
+         {## unknown state
+           stop(paste("Unknown heatmapOrdering value", heatmapOrdering))
+         }
+  )## end switch
+  
+  ## in case of tree selections compute leaf intervals
+  if(!is.null(selectedTreeNodeSet)){
+    clusterMemberList <- lapply(X = selectedTreeNodeSet, FUN = function(x){
+      ifelse(test = x < 0, yes = -x, no = clusterDataList$innerNodeMembersTreeLeaves[x])[[1]]
+    })
+    positionsList <- lapply(X = clusterMemberList, FUN = function(x){
+      match(x = x, table = clusterDataList$cluster$order)
+    })
+    intervals <- lapply(X = clusterMemberList, FUN = function(x){
+      positions <- match(x = x, table = clusterDataList$cluster$order)
+      c(min(positions), max(positions))
+    })
+    intervalMatrix <- as.matrix(as.data.frame(intervals))
+  }
+  
+  ## MS1 clustering and colors
+  if(doCalculateCluster){
+    data_s_p <- t(as.matrix(as.data.frame(lapply(X = columnsOfInterest, FUN = function(x){
+      values <- dataList$dataFrameMeasurements[filterObj$filter, x][clusterDataList$cluster$order]
+      if(is.null(selectedTreeNodeSet))
+        return(values)
+      
+      unlist(apply(X = intervalMatrix, MARGIN = 2, FUN = function(x){
+        values[seq(from=x[[1]], to = x[[2]], by = 1)]
+      }))
+    }))))
+    
+    dist <- dist(data_s_p)
+    cluster <- hclust(d = dist, method = "ward.D")
+    
+    ## optimal leaf ordering
+    if(numberOfGroups > 2){
+      opt <- order.optimal(dist = dist, merge = cluster$merge)
+      cluster$merge <- opt$merge
+      cluster$order <- opt$order
+    }
+    
+    labels <- labels[cluster$order]
+    columnsOfInterest <- columnsOfInterest[cluster$order]
+    
+    colors <- lapply(X = columnsOfInterest[cluster$order], FUN = function(x){
+      dataList$colorMatrixDataFrame[filterObj$filter, x][clusterDataList$cluster$order]
+    })
+    values <- lapply(X = columnsOfInterest[cluster$order], FUN = function(x){
+      dataList$dataFrameMeasurements[filterObj$filter, x][clusterDataList$cluster$order]
+    })
+  } else {
+    colors <- lapply(X = columnsOfInterest, FUN = function(x){
+      dataList$colorMatrixDataFrame[filterObj$filter, x][clusterDataList$cluster$order]
+    })
+    values <- lapply(X = columnsOfInterest, FUN = function(x){
+      dataList$dataFrameMeasurements[filterObj$filter, x][clusterDataList$cluster$order]
+    })
+  }
+  
+  ## plot
+  par(mar=c(0,4,0,0), mgp = c(3, 1, 0))  ## c(bottom, left, top, right) ## c(title, axis, label)
+  
   if(numberOfGroups == 0){
+    ## nothing there
     print("### calcPlotHeatmap: no columnsOfInterest")
     plot.new()
     return()
   }
   
-  data_s_p <- t(as.matrix(as.data.frame(lapply(X = columnsOfInterest, FUN = function(x){
-    values <- dataList$dataFrameMeasurements[filterObj$filter, x][clusterDataList$cluster$order]
-    if(is.null(selectedTreeNodeSet))
-      return(values)
-    
-    unlist(apply(X = intervalMatrix, MARGIN = 2, FUN = function(x){
-      values[seq(from=x[[1]], to = x[[2]], by = 1)]
-    }))
-  }))))
-  
-  dist <- dist(data_s_p)
-  cluster <- hclust(d = dist, method = "ward.D")
-  
-  ## optimal leaf ordering
-  if(numberOfGroups > 2){
-    opt <- order.optimal(dist = dist, merge = cluster$merge)
-    cluster$merge <- opt$merge
-    cluster$order <- opt$order
-  }
-  
-  labels <- labels[cluster$order]
-  
-  colors <- lapply(X = columnsOfInterest[cluster$order], FUN = function(x){
-    dataList$colorMatrixDataFrame[filterObj$filter, x][clusterDataList$cluster$order]
-  })
-  
+  if(TRUE){
   plot(x = c(1, clusterDataList$numberOfPrecursorsFiltered), y = c(0, numberOfGroups), type= "n", xlab = "", ylab = "", axes = FALSE, xlim = xInterval, ylim = c(0, numberOfGroups))
   rect(
     xleft   = rep(x = seq_len(clusterDataList$numberOfPrecursorsFiltered) - 0.5, times = numberOfGroups), 
     xright  = rep(x = seq_len(clusterDataList$numberOfPrecursorsFiltered) + 0.5, times = numberOfGroups), 
-    ybottom = unlist(lapply(X = 0:(numberOfGroups - 1), FUN = function(x){rep(x = x, times = clusterDataList$numberOfPrecursorsFiltered)})),
-    ytop    = unlist(lapply(X = seq_len(numberOfGroups),       FUN = function(x){rep(x = x, times = clusterDataList$numberOfPrecursorsFiltered)})),
+    ybottom = unlist(lapply(X = 0:(numberOfGroups - 1),  FUN = function(x){rep(x = x, times = clusterDataList$numberOfPrecursorsFiltered)})),
+    ytop    = unlist(lapply(X = seq_len(numberOfGroups), FUN = function(x){rep(x = x, times = clusterDataList$numberOfPrecursorsFiltered)})),
     col     = unlist(colors),
     border = NA
   )
@@ -346,6 +1279,78 @@ calcPlotHeatmap <- function(dataList, filterObj, clusterDataList, selectedTreeNo
     })
   
   axis(side = 2, at = seq(from = 0.5, by = 1, length.out = numberOfGroups), labels = labels, las = 2, tick = TRUE)
+  }
+  
+  if(FALSE){
+    plot_ly(
+      x = NULL, y = labels,
+      z = t(matrix(data = unlist(colors), nrow = clusterDataList$numberOfPrecursorsFiltered, ncol = numberOfGroups)), 
+      type = "heatmap"
+    )
+    
+    m <- t(matrix(data = rgb(t(col2rgb(unlist(colors))), maxColorValue=255), nrow = numberOfPrecursorsFiltered, ncol = numberOfGroups))
+    m <- matrix(data = c(1:6), nrow = 2, ncol = 3)
+    
+    
+    palette <- colorRampPalette(rainbow(18)[10:1])
+    vals <- unique(scales::rescale(c(m)))
+  }
+  
+  if(FALSE){
+  
+  m <- log10(t(matrix(data = unlist(values), nrow = clusterDataList$numberOfPrecursorsFiltered, ncol = numberOfGroups)))
+  m[is.infinite(m)] <- 0
+  
+  min <- min(m, na.rm = TRUE)
+  max <- max(m, na.rm = TRUE)
+  
+  vals <- unlist(m)
+  o <- order(vals, decreasing = FALSE)
+  cols <- scales::col_numeric(palette = rainbow(18)[10:1], domain = c(min,max))(vals)
+  colz <- setNames(object = data.frame(vals[o], cols[o]), nm = NULL)
+  
+  plot <- plot_ly(
+    x = NULL, y = labels,
+    z = m, colorscale = colz,# colors = colorRamp(colors = c("red", "green")),#palette,
+    type = "heatmap"
+  ) %>%
+    plotly::layout(                        # all of layout's properties: /r/reference/#layout
+      xaxis = list(
+        visible = FALSE,
+        showgrid = FALSE#,
+        #scaleanchor = "TODO",
+        #scaleratio = 1
+        #domain = xInterval
+      ),
+      yaxis = list(
+        fixedrange = TRUE,
+        showgrid = FALSE,
+        type = "category"#,
+        #tickmode = "auto", #"array"
+        #tickvals = 1:numberOfGroups,
+        #nticks = numberOfGroups,
+        #ticktext = TODO
+        #ticklen = -1
+        #zeroline = TRUE ## for pca
+      )
+      #title = "Unemployment", # layout's title: /r/reference/#layout-title
+      #xaxis = list(           # layout's xaxis is a named list. List of valid keys: /r/reference/#layout-xaxis
+      #  title = "Time",      # xaxis's title: /r/reference/#layout-xaxis-title
+      #  showgrid = F),       # xaxis's showgrid: /r/reference/#layout-xaxis-showgrid
+      #yaxis = list(           # layout's yaxis is a named list. List of valid keys: /r/reference/#layout-yaxis
+      #  title = "uidx")     # yaxis's title: /r/reference/#layout-yaxis-title
+    )
+  
+  ## https://plot.ly/r/plotlyproxy/
+  ## https://plot.ly/r/get-requests/
+  ## https://cran.r-project.org/web/packages/plotly/plotly.pdf
+  ## https://plot.ly/r/shinyapp-linked-click/
+  ## https://plot.ly/r/reference/#Layout_and_layout_style_objects
+  ## https://plot.ly/r/reference/#layout
+  ## https://plot.ly/r/shinyapp-plotly-events/
+  return(list(plot=plot, columnsOfInterest=columnsOfInterest))
+  }
+  return(columnsOfInterest)
 }
 calcPlotHeatmapOld <- function(dataList, filterObj, clusterDataList, xInterval = NULL){
   if(is.null(xInterval))
@@ -386,6 +1391,16 @@ calcPlotHeatmapOld <- function(dataList, filterObj, clusterDataList, xInterval =
   }
 }
 reorderAnnotationsForLegend <- function(annoLabels, annoColors){
+  if(FALSE){
+    annoLabels_ <<- annoLabels
+    annoColors_ <<- annoColors
+  }
+  if(FALSE){
+    annoLabels <<- annoLabels_
+    annoColors <<- annoColors_
+  }
+  
+  
   ignoreThere  <- any(annoLabels == "Ignore")
   unknownThere <- any(annoLabels == "Unknown")
   numberOfRealAnnotations <- length(annoLabels)
@@ -742,6 +1757,35 @@ createTickLabels <- function(maximumNumberOfLabels, max, labelPrefix){
   return(returnObj)
 }
 calcPlotMS2 <- function(dataList, fragmentsX = NULL, fragmentsY = NULL, fragmentsColor = NULL, fragmentsDiscriminativity = NULL, fragmentsX_02 = NULL, fragmentsY_02 = NULL, fragmentsColor_02 = NULL, fragmentsDiscriminativity_02 = NULL, xInterval = NULL, selectedFragmentIndex = NULL){
+  
+  if(FALSE){
+    dataList_ <<- dataList
+    fragmentsX_ <<- fragmentsX
+    fragmentsY_ <<- fragmentsY
+    fragmentsColor_ <<- fragmentsColor
+    fragmentsDiscriminativity_ <<- fragmentsDiscriminativity
+    fragmentsX_02_ <<- fragmentsX_02
+    fragmentsY_02_ <<- fragmentsY_02
+    fragmentsColor_02_ <<- fragmentsColor_02
+    fragmentsDiscriminativity_02_ <<- fragmentsDiscriminativity_02
+    xInterval_ <<- xInterval
+    selectedFragmentIndex_ <<- selectedFragmentIndex
+  }
+  if(FALSE){
+    dataList <<- dataList_
+    fragmentsX <<- fragmentsX_
+    fragmentsY <<- fragmentsY_
+    fragmentsColor <<- fragmentsColor_
+    fragmentsDiscriminativity <<- fragmentsDiscriminativity_
+    fragmentsX_02 <<- fragmentsX_02_
+    fragmentsY_02 <<- fragmentsY_02_
+    fragmentsColor_02 <<- fragmentsColor_02_
+    fragmentsDiscriminativity_02 <<- fragmentsDiscriminativity_02_
+    xInterval <<- xInterval_
+    selectedFragmentIndex <<- selectedFragmentIndex_
+  }
+  
+  
   ####################
   ## fragment spectrum
   if(is.null(xInterval))
@@ -829,7 +1873,8 @@ calcPlotMS2 <- function(dataList, fragmentsX = NULL, fragmentsY = NULL, fragment
         pointColors[[selectedFragmentIndex]] <- "green"
         #pointColorsSmall[[selectedFragmentIndex]] <- "green"
       }
-      pointSizeMultiplier <- c(fragmentsDiscriminativity, fragmentsDiscriminativity_02) * ms2StickPointSizeMaximumMultiplier
+      #pointSizeMultiplier <- c(fragmentsDiscriminativity, fragmentsDiscriminativity_02) * ms2StickPointSizeMaximumMultiplier
+      pointSizeMultiplier <- fragmentsDiscriminativity * ms2StickPointSizeMaximumMultiplier
       pointSizes      <- pointSizes      + pointSizeMultiplier
       pointSizesSmall <- pointSizesSmall + pointSizeMultiplier
       
@@ -851,10 +1896,20 @@ calcPlotMS2 <- function(dataList, fragmentsX = NULL, fragmentsY = NULL, fragment
 }
 calcPlotPCAscores <- function(pcaObj, dataList, filterObj, pcaDimensionOne, pcaDimensionTwo, showScoresLabels, xInterval = NULL, yInterval = NULL){
   palette <- colorPaletteScores()
-  colorsForReplicates <- palette[unlist(lapply(X = filterObj$groups, FUN = function(x){ 
-    groupIdx <- dataList$groupIdxFromGroupName(x)
-    rep(x = groupIdx, times = length(dataList$dataColumnsNameFunctionFromName(x)))
-  }))]
+  
+  if(filterObj$filterBySamples){
+    colorsForReplicates <- palette[unlist(lapply(X = filterObj$groups, FUN = function(x){ 
+      groupIdx <- dataList$groupIdxFromGroupName(x)
+      samples <- dataList$dataColumnsNameFunctionFromGroupName(x, sampleNamesToExclude = dataList$excludedSamples(dataList$groupSampleDataFrame))
+      samples <- intersect(samples, filterObj$sampleSet)
+      rep(x = groupIdx, times = length(samples))
+    }))]
+  } else {
+    colorsForReplicates <- palette[unlist(lapply(X = filterObj$groups, FUN = function(x){ 
+      groupIdx <- dataList$groupIdxFromGroupName(x)
+      rep(x = groupIdx, times = length(dataList$dataColumnsNameFunctionFromGroupName(x, sampleNamesToExclude = dataList$excludedSamples(dataList$groupSampleDataFrame))))
+    }))]
+  }
   
   dataDimOne <- pcaObj$scores[, pcaDimensionOne]
   dataDimTwo <- pcaObj$scores[, pcaDimensionTwo]
@@ -907,11 +1962,61 @@ calcPlotPCAscores <- function(pcaObj, dataList, filterObj, pcaDimensionOne, pcaD
   segments(x0 = 0, x1 = 0, y0 = yl, y1 = yr, col = "black", lwd = 1)
   
   if(showScoresLabels){
-    labels <- dataList$dataColumnsNameFunctionFromNames(filterObj$groups)
+    
+    if(filterObj$filterBySamples){
+      labels <- dataList$dataColumnsNameFunctionFromGroupNames(filterObj$groups, sampleNamesToExclude = dataList$excludedSamples(dataList$groupSampleDataFrame))
+      labels <- intersect(labels, filterObj$sampleSet)
+    } else {
+      labels <- dataList$dataColumnsNameFunctionFromGroupNames(filterObj$groups, sampleNamesToExclude = dataList$excludedSamples(dataList$groupSampleDataFrame))
+    }
     graphics::text(x = dataDimOne, y = dataDimTwo, labels = labels, pos = 4)
   }
 }
-calcPlotPCAloadings <- function(pcaObj, dataList, filter, pcaDimensionOne, pcaDimensionTwo, selectionFragmentPcaLoadingSet = NULL, selectionAnalysisPcaLoadingSet = NULL, selectionSearchPcaLoadingSet = NULL, xInterval = NULL, yInterval = NULL, loadingsLabels = "None", showLoadingsFeatures = "All", showLoadingsAbundance = FALSE){
+calcPlotPCAloadings <- function(
+  pcaObj, dataList, filter, 
+  pcaDimensionOne, pcaDimensionTwo, 
+  selectionFragmentPcaLoadingSet = NULL, selectionAnalysisPcaLoadingSet = NULL, selectionSearchPcaLoadingSet = NULL, 
+  xInterval = NULL, yInterval = NULL, 
+  loadingsLabels = "None", showLoadingsAbundance = FALSE,
+  showLoadingsFeaturesAnnotated = TRUE, showLoadingsFeaturesUnannotated = TRUE, showLoadingsFeaturesSelected = TRUE, showLoadingsFeaturesUnselected = TRUE
+){
+  if(FALSE){
+    pcaObj_ <<- pcaObj
+    dataList_ <<- dataList
+    filter__ <<- filter
+    pcaDimensionOne_ <<- pcaDimensionOne
+    pcaDimensionTwo_ <<- pcaDimensionTwo
+    selectionFragmentPcaLoadingSet_ <<- selectionFragmentPcaLoadingSet
+    selectionAnalysisPcaLoadingSet_ <<- selectionAnalysisPcaLoadingSet
+    selectionSearchPcaLoadingSet_ <<- selectionSearchPcaLoadingSet
+    xInterval_ <<- xInterval
+    yInterval_ <<- yInterval
+    loadingsLabels_ <<- loadingsLabels
+    showLoadingsAbundance_ <<- showLoadingsAbundance
+    showLoadingsFeaturesAnnotated_ <<- showLoadingsFeaturesAnnotated
+    showLoadingsFeaturesUnannotated_ <<- showLoadingsFeaturesUnannotated
+    showLoadingsFeaturesSelected_ <<- showLoadingsFeaturesSelected
+    showLoadingsFeaturesUnselected_ <<- showLoadingsFeaturesUnselected
+  }
+  if(FALSE){
+    pcaObj <- pcaObj_
+    dataList <- dataList_
+    filter <- filter__
+    pcaDimensionOne <- pcaDimensionOne_
+    pcaDimensionTwo <- pcaDimensionTwo_
+    selectionFragmentPcaLoadingSet <- selectionFragmentPcaLoadingSet_
+    selectionAnalysisPcaLoadingSet <- selectionAnalysisPcaLoadingSet_
+    selectionSearchPcaLoadingSet <- selectionSearchPcaLoadingSet_
+    xInterval <- xInterval_
+    yInterval <- yInterval_
+    loadingsLabels <- loadingsLabels_
+    showLoadingsAbundance <- showLoadingsAbundance_
+    showLoadingsFeaturesAnnotated <- showLoadingsFeaturesAnnotated_
+    showLoadingsFeaturesUnannotated <- showLoadingsFeaturesUnannotated_
+    showLoadingsFeaturesSelected <- showLoadingsFeaturesSelected_
+    showLoadingsFeaturesUnselected <- showLoadingsFeaturesUnselected_
+  }
+  
   #varianceOne <- format(x = pcaObj$variance[[pcaDimensionOne]], digits = 3)
   #varianceTwo <- format(x = pcaObj$variance[[pcaDimensionTwo]], digits = 3)
   r2One <- format(x = pcaObj$R2[[pcaDimensionOne]], digits = 3)
@@ -924,23 +2029,32 @@ calcPlotPCAloadings <- function(pcaObj, dataList, filter, pcaDimensionOne, pcaDi
   xAxisLabel  <- paste("p_", pcaDimensionOne, " (R^2 = ", r2One, "; Q^2 = ", q2One, ")", sep = "")
   yAxisLabel  <- paste("p_", pcaDimensionTwo, " (R^2 = ", r2Two, "; Q^2 = ", q2Two, ")", sep = "")
   
-  filter2 <- NULL
-  switch(showLoadingsFeatures,
-         "All"={## all features
-           filter2 <- seq_len(dataList$numberOfPrecursors)
-         },
-         "Only selected"={## selected features
-           filter2 <- union(union(selectionAnalysisPcaLoadingSet, selectionFragmentPcaLoadingSet), selectionSearchPcaLoadingSet)
-         },
-         "Only unselected"={## unselected features
-           filter2 <- setdiff(seq_len(dataList$numberOfPrecursors), union(union(selectionAnalysisPcaLoadingSet, selectionFragmentPcaLoadingSet), selectionSearchPcaLoadingSet))
-         },
-         {## unknown state
-           stop(paste("Unknown showLoadingsFeatures value", showLoadingsFeatures))
-         }
-  )## end switch
+  resultObjAnno <- getPrecursorColors(dataList, filter)
   
-  filter <- intersect(filter, filter2)
+  ## shown loadings features
+  allFeatures <- seq_len(dataList$numberOfPrecursors)
+  annotatedFeatures <- which(resultObjAnno$setOfColors != "black")
+  selectedLoadingsFeatures <- union(union(selectionAnalysisPcaLoadingSet, selectionFragmentPcaLoadingSet), selectionSearchPcaLoadingSet)
+  filter2 <- NULL
+  if(showLoadingsFeaturesAnnotated)
+    ## annotated features
+    filter2 <- c(filter2, annotatedFeatures)
+  if(showLoadingsFeaturesUnannotated)
+    ## unannotated features
+    filter2 <- c(filter2, setdiff(allFeatures, annotatedFeatures))
+  if(showLoadingsFeaturesSelected)
+    ## selected features
+    filter2 <- c(filter2, selectedLoadingsFeatures)
+  if(showLoadingsFeaturesUnselected)
+    ## unselected features
+    filter2 <- c(filter2, setdiff(allFeatures, selectedLoadingsFeatures))
+  
+  filter <- intersect(filter, unique(filter2))
+  
+  resultObjAnno <- getPrecursorColors(dataList, filter)
+  #resultObjAnno$setOfAnnotations <- resultObjAnno$setOfAnnotations[filter]
+  #resultObjAnno$setOfColors      <- resultObjAnno$setOfColors[filter]
+  
   
   dataDimOne <- pcaObj$loadings[, pcaDimensionOne]
   dataDimTwo <- pcaObj$loadings[, pcaDimensionTwo]
@@ -962,26 +2076,25 @@ calcPlotPCAloadings <- function(pcaObj, dataList, filter, pcaDimensionOne, pcaDi
   if(is.null(yInterval))
     yInterval <- c(yMin, yMax)
   
-  dataDimOne <- dataDimOne[filter2]
-  dataDimTwo <- dataDimTwo[filter2]
-  selectionFragmentPcaLoadingSet <- selectionFragmentPcaLoadingSet[filter2]
-  selectionAnalysisPcaLoadingSet <- selectionAnalysisPcaLoadingSet[filter2]
-  selectionSearchPcaLoadingSet   <- selectionSearchPcaLoadingSet  [filter2]
+  dataDimOne <- dataDimOne[filter]
+  dataDimTwo <- dataDimTwo[filter]
+  selectionFragmentPcaLoadingSet <- intersect(selectionFragmentPcaLoadingSet, filter)
+  selectionAnalysisPcaLoadingSet <- intersect(selectionAnalysisPcaLoadingSet, filter)
+  selectionSearchPcaLoadingSet   <- intersect(selectionSearchPcaLoadingSet  , filter)
   
   numberOfPrecursors <- length(dataDimOne)
   poisX <- dataDimOne
   poisY <- dataDimTwo
   
   pointSizesAnno  <- rep(x = clusterNodePointSize0, times = numberOfPrecursors)
-  resultObjAnno <- getPrecursorColors(dataList, filter)
   pointColorsAnno <- resultObjAnno$setOfColors
   
   pointsAnalysis <- vector(mode = "logical", length = numberOfPrecursors)
-  pointsAnalysis[selectionAnalysisPcaLoadingSet] <- TRUE
+  pointsAnalysis[match(x = selectionAnalysisPcaLoadingSet, table = filter)] <- TRUE
   pointsFragment <- vector(mode = "logical", length = numberOfPrecursors)
-  pointsFragment[selectionFragmentPcaLoadingSet] <- TRUE
+  pointsFragment[match(x = selectionFragmentPcaLoadingSet, table = filter)] <- TRUE
   pointsSearch <- vector(mode = "logical", length = numberOfPrecursors)
-  pointsSearch[selectionSearchPcaLoadingSet] <- TRUE
+  pointsSearch[match(x = selectionSearchPcaLoadingSet, table = filter)] <- TRUE
   
   annotatedPoints <- pointColorsAnno != "black"
   selectedPoints  <- pointsAnalysis | pointsFragment | pointsSearch
@@ -1090,6 +2203,7 @@ calcPlotPCAloadings <- function(pcaObj, dataList, filter, pcaDimensionOne, pcaDi
 }
 generatePoints <- function(poisX, poisY, pointSizesAnno, pointColorsAnno, pointsAnalysis, pointsFragment, pointsSearch, pointSizeModifier){
   numberOfPoisDrawn <- length(poisX)
+  #pointIndeces <- seq_len(numberOfPoisDrawn)
   
   ## analysis
   pointSizesAnalysis  <- vector(mode = "numeric", length = numberOfPoisDrawn)
@@ -1128,10 +2242,11 @@ generatePoints <- function(poisX, poisY, pointSizesAnno, pointColorsAnno, points
     #pointSizesAnno     <- pointSizesAnno     * (1 + pointSizeModifier * dendrogramClusterPointSizeMaximumMultiplier)
   }
   
-  pointSizes  <- c(pointSizesSearch[pointsSearch], pointSizesFragment[pointsFragment], pointSizesAnalysis[pointsAnalysis], pointSizesAnno)
-  pointColors <- c(pointColorsSearch[pointsSearch], pointColorsFragment[pointsFragment], pointColorsAnalysis[pointsAnalysis], pointColorsAnno)
-  poisXpoints <- c(poisX[pointsSearch], poisX[pointsFragment], poisX[pointsAnalysis], poisX)
-  poisYpoints <- c(poisY[pointsSearch], poisY[pointsFragment], poisY[pointsAnalysis], poisY)
+  pointSizes        <- c(pointSizesSearch[pointsSearch], pointSizesFragment[pointsFragment], pointSizesAnalysis[pointsAnalysis], pointSizesAnno)
+  pointColors       <- c(pointColorsSearch[pointsSearch], pointColorsFragment[pointsFragment], pointColorsAnalysis[pointsAnalysis], pointColorsAnno)
+  poisXpoints       <- c(poisX[pointsSearch], poisX[pointsFragment], poisX[pointsAnalysis], poisX)
+  poisYpoints       <- c(poisY[pointsSearch], poisY[pointsFragment], poisY[pointsAnalysis], poisY)
+  #pointIndecesPoints<- c(pointIndeces[pointsSearch], pointIndeces[pointsFragment], pointIndeces[pointsAnalysis], pointIndeces)
   
   mappingToData <- c(which(pointsSearch), which(pointsFragment), which(pointsAnalysis), seq_len(length(poisY)))
   
@@ -1292,4 +2407,129 @@ plotFragments <- function(dataList, xInterval = NULL, yInterval = NULL, relative
   resultObj$poiFragmentY <- numberOfFragments
   
   return(resultObj)
+}
+calcPlotSpectrumVsClass_small_old <- function(dataX_spec, dataY_spec, dataX_class, dataY_class, xInterval){
+  yInterval <- c(-1, 1)
+  
+  colors_spec <- rep(x = "grey", times = length(dataX_spec))
+  colors_spec[dataX_spec %in% dataX_class] <- "black"
+  
+  colors_class <- rep(x = "black", times = length(dataY_spec))
+  
+  dataY_class <- -dataY_class
+  
+  par(mar=c(0,0,0,0))  ## c(bottom, left, top, right)
+  plot(NA, ylab = "", xlab = "", xlim = xInterval, ylim = yInterval, xaxt='n', yaxt='n')
+  
+  segments(x0 = xInterval[[1]], x1 = xInterval[[2]], y0 = 0, y1 = 0, col = "black", lwd = 1)
+  
+  points(x = dataX_spec,  y = dataY_spec,  col = colors_spec,  type = "h", lwd=4)
+  points(x = dataX_class, y = dataY_class, col = "black", type = "h", lwd=4)
+  
+}
+calcPlotSpectrumVsClass_small <- function(masses_spec, intensity_spec, colors_spec, masses_class, frequency_class, colors_class, xInterval){
+  yInterval <- c(-1, 1)
+  
+  intensity_spec[intensity_spec > 1] <- 1
+  frequency_class <- -frequency_class
+  
+  ## plot
+  par(mar=c(0,0,0,0))  ## c(bottom, left, top, right)
+  plot(NA, ylab = "", xlab = "", xlim = xInterval, ylim = yInterval, xaxt='n', yaxt='n')
+  
+  ## x-axis line
+  xIntervalSize <- xInterval[[2]] - xInterval[[1]]
+  xl <- xInterval[[1]] - xIntervalSize
+  xr <- xInterval[[2]] + xIntervalSize
+  segments(x0 = xl, x1 = xr, y0 = 0, y1 = 0, col = "black", lwd = 1)
+  
+  ## sticks
+  points(x = masses_spec,  y = intensity_spec,  col = colors_spec,  type = "h", lwd=4)
+  points(x = masses_class, y = frequency_class, col = colors_class, type = "h", lwd=4)
+}
+calcPlotSpectrumVsClass_big <- function(masses_spec, intensity_spec, colors_spec, masses_class, frequency_class, colors_class, xInterval){
+  if(FALSE){
+    masses_spec_ <<- masses_spec
+    intensity_spec_ <<- intensity_spec
+    colors_spec_ <<- colors_spec
+    masses_class_ <<- masses_class
+    frequency_class_ <<- frequency_class
+    colors_class_ <<- colors_class
+    xInterval_ <<- xInterval
+  }
+  if(FALSE){
+    masses_spec <- masses_spec_
+    intensity_spec <- intensity_spec_
+    colors_spec <- colors_spec_
+    masses_class <- masses_class_
+    frequency_class <- frequency_class_
+    colors_class <- colors_class_
+    xInterval <- xInterval_
+  }
+  
+  
+  yInterval <- c(-1, 1)
+  
+  ## abundances greater one
+  intensity_spec[intensity_spec > 1] <- 1
+  frequency_class <- -frequency_class
+  
+  
+  yTickPositions <- c(-1, -0.75, -0.5, -0.25, 0, 0.25, 0.5, 0.75, 1)
+  yTickLabels <- c(1, "", 0.5, "", 0, "", 0.5, "", 1)
+  
+  pointSizes <- rep(x = ms2StickPointSizeInitial, times = length(masses_spec))
+  pointSizesSmall <- rep(x = ms2StickPointSizeInitialSmall, times = length(masses_spec))
+  pointColors <- rep(x = "black", times = length(masses_spec))
+  pointColorsSmall <- rep(x = "gray", times = length(masses_spec))
+  
+  #pointSizeMultiplier <- c(fragmentsDiscriminativity, fragmentsDiscriminativity_02) * ms2StickPointSizeMaximumMultiplier
+  #pointSizeMultiplier <- ms2StickPointSizeMaximumMultiplier
+  #pointSizes      <- pointSizes      + pointSizeMultiplier
+  #pointSizesSmall <- pointSizesSmall + pointSizeMultiplier
+  
+  these <- which(colors_spec == "black")
+  if(length(these) == 0)
+    these <- length(masses_spec)+1
+  
+  ## plot
+  par(mar=c(6,4,3,0), mgp = c(3, 1, 0))  ## c(bottom, left, top, right)
+  plot(NA, ylab = "Frequency / Intensity", xlab = "m/z", xlim = xInterval, ylim = yInterval, xaxt='n', yaxt='n')
+  axis(side = 2, at = yTickPositions, labels = yTickLabels)
+  axis(side = 3)
+  title("Spectrum versus Metabolite family plot", line = 2)
+  #mtext(side = 3, "m/z", line = 2)
+  
+  ## x-axis line
+  xIntervalSize <- xInterval[[2]] - xInterval[[1]]
+  xl <- xInterval[[1]] - xIntervalSize
+  xr <- xInterval[[2]] + xIntervalSize
+  segments(x0 = xl, x1 = xr, y0 = 0, y1 = 0, col = "black", lwd = 1)
+  
+  ## axis with the individual fragment m/z's (ticks, labels)
+  axis(side = 1, at = masses_spec, labels = FALSE, las = 2)
+  axis(side = 1, at = masses_spec[-these], labels = format(x = masses_spec[-these], digits = 0, nsmall = 4), las = 2, tick = FALSE, col.axis = "grey")
+  if(length(these) == 1){
+    if(these != length(masses_spec)+1)
+      axis(side = 1, at = masses_spec[ these], labels = format(x = masses_spec[ these], digits = 0, nsmall = 4), las = 2, tick = FALSE, col.axis = "black")
+  } else {
+    axis(side = 1, at = masses_spec[ these], labels = format(x = masses_spec[ these], digits = 0, nsmall = 4), las = 2, tick = FALSE, col.axis = "black")
+  }
+  
+  ## sticks
+  points(x = masses_spec[-these],  y = intensity_spec[-these],  col = colors_spec[-these],  type = "h", lwd=4)
+  points(x = masses_class, y = frequency_class, col = colors_class, type = "h", lwd=4)
+  
+  ## points
+  points(x = masses_spec, y = intensity_spec, col = pointColors,      pch=19, cex=pointSizes)
+  points(x = masses_spec, y = intensity_spec, col = pointColorsSmall, pch=19, cex=pointSizesSmall)
+  
+  ## black ones
+  points(x = masses_spec[these], y = intensity_spec[these], col = colors_spec[these], type = "h", lwd=4)
+  points(x = masses_spec[these], y = intensity_spec[these], col = pointColors[these], pch=19, cex=pointSizes[these])
+  points(x = masses_spec[these], y = intensity_spec[these], col = pointColorsSmall[these], pch=19, cex=pointSizesSmall[these])
+  
+  ## plot labels
+  graphics::text(labels = "Fragments from spectrum", x = xInterval[[2]], y = 0.9, pos = 2, adj = c(0,0))
+  graphics::text(labels = "Fragments from class",    x = xInterval[[2]], y = -0.9, pos = 2, adj = c(0,0))
 }

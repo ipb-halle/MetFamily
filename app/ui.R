@@ -72,7 +72,14 @@ shinyUI(
             tabPanel(
               shinyjs::useShinyjs(),
               title = "Input",
+              
+              ## TODO 999
+              #DT::dataTableOutput("dataTableTest"), ## TODO remove
+              
               wellPanel(
+                #div(style="display:inline-block",actionButton(inputId = "test", label = "", icon = icon(name = "chevron-up", lib = "font-awesome"))),
+                #actionButton(inputId = "test", label = NULL, icon = icon(name = "chevron-up", lib = "font-awesome")),#, width = NULL, ...)
+                #downloadButton('downloadReport2', 'Export analysis report'),
                 bsTooltip(id = "fileInputSelection", title = "The user is able to load a project file or to import external data", placement = "bottom", trigger = "hover"),
                 radioButtons(inputId = "fileInputSelection", label = NULL, choices = c("Import data", "Load project", "Example data"), selected = "Load project", inline = FALSE),
                 shiny::hr(),
@@ -126,7 +133,7 @@ shinyUI(
                       label = 'Apply parameters from import parameter file',
                       accept = c('text/comma-separated-values', 'text/plain', 'text/tab-separated-values')
                     ),
-                    h5("Fragment filter"),
+                    h5("Spectrum filter"),
                     fluidRow(
                       column(width = 6,
                              bsTooltip(id = "minimumIntensityOfMaximalMS2peak", title = "A MS/MS spectrum is considered iff the MS/MS feature with maximum intensity is greater or equal than this value", placement = "bottom", trigger = "hover"),
@@ -188,10 +195,10 @@ shinyUI(
                                  bsTooltip(id = "mzDeviationInPPM_precursorDeisotoping", title = "A MS\u00B9 feature is considered an +1 isotopic peak if the absolute of the m/z difference to the (putative) monoisotopic peak minus 1.0033548378 (=<sup>13</sup>C - <sup>12</sup>C) is smaller or equal than the m/z times this value divided by 1,000,000 (<b>p</b>arts <b>p</b>er <b>m</b>illion, analog for the +2 isotopic peak)", placement = "bottom", trigger = "hover"),
                                  textInput(inputId = "mzDeviationInPPM_precursorDeisotoping", label = "m/z deviation (PPM)", value = importParameterSetInit$mzDeviationInPPM_precursorDeisotoping)
                           )##column
-                        ),##row
-                        bsTooltip(id = "maximumRtDifference", title = "A MS\u00B9 feature is considered an isotopic peak if the absolute of the retention time difference to the (putative) monoisotopic peak is smaller or equal than this value (in minutes)", placement = "bottom", trigger = "hover"),
-                        textInput(inputId = "maximumRtDifference", label = "Retention time difference", value = importParameterSetInit$maximumRtDifference)
+                        )##row
                       ),##conditional
+                      bsTooltip(id = "maximumRtDifference", title = "A MS\u00B9 feature is considered an isotopic peak if the absolute of the retention time difference to the (putative) monoisotopic peak is smaller or equal than this value (in minutes)", placement = "bottom", trigger = "hover"),
+                      textInput(inputId = "maximumRtDifference", label = "Retention time difference", value = importParameterSetInit$maximumRtDifference),
                       h5("Fragment deisotoping"),
                       bsTooltip(id = "doMs2PeakGroupDeisotoping", title = "If checked, the set of MS/MS features is deisotoped", placement = "bottom", trigger = "hover"),
                       checkboxInput(inputId = "doMs2PeakGroupDeisotoping", label = "Fragment deisotoping", value = importParameterSetInit$doMs2PeakGroupDeisotoping),
@@ -305,6 +312,7 @@ shinyUI(
             ##############################################################################################
             ##############################################################################################
             ## global MS2 filter
+            #navbarMenu("Filter",
             tabPanel(
               title = "MS/MS filter",
               shinyjs::useShinyjs(),
@@ -416,6 +424,30 @@ shinyUI(
             ),## tab panel
             ##############################################################################################
             ##############################################################################################
+            ## sample selection
+            tabPanel(
+              title = "Sample filter", 
+              shinyjs::useShinyjs(),
+              conditionalPanel(
+                condition = "output.showGUI",
+                wellPanel(
+                  ##############################################################################################
+                  ## sample table
+                  DT::dataTableOutput("sampleTable"),
+                  bsTooltip(id = "updateSampleTable", title = "Updates the order and the exclusion status of samples", placement = "bottom", trigger = "hover"),
+                  actionButton(inputId = "updateSampleTable", label = "Apply sample order and exclusion status", class="btn-success")
+                )##well
+              ),## conditiojal panel
+              conditionalPanel(
+                condition = "!output.showGUI",
+                wellPanel(
+                  h4("Please import a data file")
+                )## well panel
+              )## conditional panel
+            ),## tab panel
+            #),
+            ##############################################################################################
+            ##############################################################################################
             ## PCA
             tabPanel(
               title = "PCA", 
@@ -444,9 +476,49 @@ shinyUI(
                     textInput(inputId = "pcaFilter_average", label = "Average MS\u00B9 abundance"),
                     bsTooltip(id = "pcaFilter_lfc", title = "The log<sub>2</sub>-fold change [ log<sub>2</sub>( mean(group one) / mean(group two) ) ] between the average MS\u00B9 abundances should be greater/smaller or equal than this value", placement = "bottom", trigger = "hover"),
                     textInput(inputId = "pcaFilter_lfc", label = "MS\u00B9 log2-fold change"),
-                    tags$div(title="Please select the set of replicate groups",
-                             checkboxGroupInput(inputId = "pcaGroups", label = "Groups", choices = c(""))
+                    
+                    fluidRow(style="overflow-y:scroll; 
+                                    max-height: 200px;",
+                      column(width = 7,
+                                 div(style="float:left;
+                                            width:100%;",
+                                     tags$div(title="Please select the set of sample groups",
+                                              checkboxGroupInput(inputId = "pcaGroups", label = "Groups", choices = c(""))
+                                     )
+                                 )
+                      ),##column
+                      column(width = 5,
+                        fluidRow(style = "vertical-align: top",
+                          bsTooltip(id = "filterByPCAgroupSamples", title = "Display and select samples for PCA analysis", placement = "bottom", trigger = "hover"),
+                          checkboxInput(inputId = "filterByPCAgroupSamples", label = "Select samples", value = FALSE)
+                        ),
+                        fluidRow(style = "vertical-align: top",
+                          bsTooltip(id = "selectAllPCAGroups", title = "Select all groups", placement = "bottom", trigger = "hover"),
+                          actionButton(inputId = "selectAllPCAGroups", label = "Select all", width = "100%"),
+                          bsTooltip(id = "selectNoPCAGroups", title = "Deselect all groups", placement = "bottom", trigger = "hover"),
+                          actionButton(inputId = "selectNoPCAGroups", label = "Deselect all", width = "100%"),
+                          bsTooltip(id = "selectInvertedPCAGroups", title = "Invert the group selection", placement = "bottom", trigger = "hover"),
+                          actionButton(inputId = "selectInvertedPCAGroups", label = "Invert", width = "100%")
+                        )
+                      )##column
+                    ),##row
+                    conditionalPanel(
+                      condition = "input.filterByPCAgroupSamples",
+                      fluidRow(style="overflow-y:scroll; 
+                                    max-height: 200px;",
+                               column(width = 12,
+                               div(style="float:left;
+                                            width:100%;",
+                        tags$div(title="Please select the set of samples",
+                                 checkboxGroupInput(inputId = "pcaSamples", label = "Samples", choices = c(""))
+                        )))
+                      )
                     ),
+                    
+                    #tags$div(title="Please select the set of sample groups",
+                    #         checkboxGroupInput(inputId = "pcaGroups", label = "Groups", choices = c(""))
+                    #),
+                    
                     bsTooltip(id = "pcaFilterIncludeIgnoredPrecursors", title = "Include or filter out ignored MS\u00B9 features, i.e. MS\u00B9 features which have been annotated as \\'Ignore\\'", placement = "bottom", trigger = "hover"),
                     checkboxInput(inputId = "pcaFilterIncludeIgnoredPrecursors", label = "Include ignored MS\u00B9 features", value = FALSE),
                     ##############################################################################################
@@ -512,7 +584,7 @@ shinyUI(
                         #"Vector normalization", 
                       ), selectize = FALSE),
                       bsTooltip(id = "pcaLogTransform", title = "MS\u00B9 abundances for the selected method will be log<sub>2</sub> transformed", placement = "bottom", trigger = "hover"),
-                      checkboxInput(inputId = "pcaLogTransform", label = "Log2 transform", value = FALSE),
+                      checkboxInput(inputId = "pcaLogTransform", label = "Log2 transformation", value = FALSE),
                       fluidRow(
                         column(
                           width = 6,
@@ -583,18 +655,20 @@ shinyUI(
                     textInput(inputId = "hcaFilter_average", label = "Average MS\u00B9 abundance"),
                     bsTooltip(id = "hcaFilter_lfc", title = "The log<sub>2</sub>-fold change [ log<sub>2</sub>( mean(group one) / mean(group two) ) ] between the average MS\u00B9 abundances should be greater/smaller or equal than this value", placement = "bottom", trigger = "hover"),
                     textInput(inputId = "hcaFilter_lfc", label = "MS\u00B9 log2-fold change"),
-                    fluidRow(
+                    fluidRow(style = "overflow-y:scroll; 
+                                      max-height: 200px",
+                             #border: 1px solid #cccccc;
                       column(
                         width = 6,
                         tags$div(
-                          title="Please select the first replicate group",
+                          title="Please select the first sample group",
                           radioButtons(inputId = "hcaFilterGroupOne", label = "Group 1", choices = c(""))
                         )
                       ),
                       column(
                         width = 6,
                         tags$div(
-                          title="Please select the second replicate group",
+                          title="Please select the second sample group",
                           radioButtons(inputId = "hcaFilterGroupTwo", label = "Group 2", choices = c(""))
                         )
                       )
@@ -801,6 +875,47 @@ shinyUI(
               )## conditional panel
             ),## tab panel
             tabPanel(
+              title = "Classifiers",
+              #shinyjs::useShinyjs(),
+              conditionalPanel(
+                condition = "output.showGUI",
+                wellPanel(
+                  h4("Classifier selection"),
+                  bsTooltip(id = "classifierCount", title = "The number of available classifiers for the semi-automated metabolite family annotation of MS\u00B9 features", placement = "bottom", trigger = "hover"),
+                  verbatimTextOutput(outputId = "classifierCount"),
+                  DT::dataTableOutput("classifierSelectionTable"),
+                  bsTooltip(id = "doAnnotation", title = "Press to automatically annotate metabolite families to spectra ", placement = "bottom", trigger = "hover"),
+                  actionButton(inputId = "doAnnotation", label = "Perform scan", class="btn-success", width = "100%")
+                )
+              ),
+              conditionalPanel(
+                condition = "!output.showGUI",
+                wellPanel(
+                  h4("Please import a data file")
+                )## well panel
+              )## conditional panel
+            ),## tab panel
+            tabPanel(
+              title = "Annotations",
+              #shinyjs::useShinyjs(),
+              conditionalPanel(
+                condition = "output.showGUI",
+                wellPanel(
+                  h4("Metabolite family selection"),
+                  bsTooltip(id = "familyCount2", title = "The number of available metabolite families which were annotated among the MS\u00B9 features", placement = "bottom", trigger = "hover"),
+                  verbatimTextOutput(outputId = "familyCount2"),
+                  DT::dataTableOutput("familySelectionTable"),
+                  h4("Metabolite family properties")
+                )
+              ),
+              conditionalPanel(
+                condition = "!output.showGUI",
+                wellPanel(
+                  h4("Please import a data file")
+                )## well panel
+              )## conditional panel
+            ),## tab panel
+            tabPanel(
               title = "Project", 
               shinyjs::useShinyjs(),
               conditionalPanel(
@@ -891,10 +1006,10 @@ shinyUI(
                                bsTooltip(id = "mzDeviationInPPM_precursorDeisotoping2", title = "A MS\u00B9 feature is considered an +1 isotopic peak if the absolute of the m/z difference to the (putative) monoisotopic peak minus 1.0033548378 (=<sup>13</sup>C - <sup>12</sup>C) is smaller or equal than the m/z times this value divided by 1,000,000 (<b>p</b>arts <b>p</b>er <b>m</b>illion, analog for the +2 isotopic peak)", placement = "bottom", trigger = "hover"),
                                textInput(inputId = "mzDeviationInPPM_precursorDeisotoping2", label = "m/z deviation (PPM)", value = 10)
                         )##column
-                      ),##row
-                      bsTooltip(id = "maximumRtDifference2", title = "A MS\u00B9 feature is considered an isotopic peak if the absolute of the retention time difference to the (putative) monoisotopic peak is smaller or equal than this value (in minutes)", placement = "bottom", trigger = "hover"),
-                      textInput(inputId = "maximumRtDifference2", label = "Retention time difference", value = 0.02)
+                      )##row
                     ),##conditional
+                    bsTooltip(id = "maximumRtDifference2", title = "A MS\u00B9 feature is considered an isotopic peak if the absolute of the retention time difference to the (putative) monoisotopic peak is smaller or equal than this value (in minutes)", placement = "bottom", trigger = "hover"),
+                    textInput(inputId = "maximumRtDifference2", label = "Retention time difference", value = 0.02),
                     h5("Fragment deisotoping"),
                     bsTooltip(id = "doMs2PeakGroupDeisotoping2", title = "If checked, the set of MS/MS features is deisotoped", placement = "bottom", trigger = "hover"),
                     checkboxInput(inputId = "doMs2PeakGroupDeisotoping2", label = "Fragment deisotoping done", value = TRUE),
@@ -960,6 +1075,21 @@ shinyUI(
                                radioButtons(inputId = "downloadHcaImageType", label = NULL, choices = c("png", "svg", "pdf"), selected = "png", inline = TRUE, width = "100%")
                            )
                     )##column
+                  ),##row
+                  br(),
+                  fluidRow(
+                    column(width = 6, style="width:50%",
+                           div(style="float:left;width:100%",
+                               bsTooltip(id = "downloadReport", title = "Download the currently displayed HCA plots and PCA plots as report", placement = "bottom", trigger = "hover"),
+                               downloadButton('downloadReport', 'Export analysis report'),
+                               tags$style(type='text/css', "#downloadReport { width:100%}")
+                           )
+                    ),##column
+                    column(width = 6, style="width:50%",
+                           div(style="float:right;width:100%"
+                               ## nothing here
+                           )
+                    )##column
                   )##row
                 )##well
               ),## conditional panel
@@ -998,7 +1128,6 @@ shinyUI(
           ),##column
           column(width = 3,
                  tags$a(imageOutput(outputId = "ipbImage", width = "100%", height = "100%"), href='http://www.ipb-halle.de/en/', target='_blank')
-                 #imageOutput(outputId = "ipbImage", width = "100%", height = "100%")
                  #HTML("<a href='http://www.ipb-halle.de/en/', target='_blank'><img src='logo_ipb_en.png' /></a>")
           )##column
         )## row

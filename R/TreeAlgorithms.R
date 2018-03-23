@@ -323,24 +323,26 @@ colorSubTreeForAnnotations <- function(cluster, index, innerNodeAnnotations, set
   
   ## parent annotations
   if(any(is.null(parentIndex), length(innerNodeAnnotations) < parentIndex))
-    ## no parent or no annotation
+    ## no parent or no annotation entry
     parentAnnotations <- NULL
   else
-    ## there is annotation
+    ## there is annotation entry - possibly NULL
     parentAnnotations <- innerNodeAnnotations[[parentIndex]]
   
   ## current annotations
   if(length(innerNodeAnnotations) < index)
+    ## no annotation entry
     currentAnnotations <- NULL
   else
+    ## there is annotation entry - possibly NULL
     currentAnnotations <- innerNodeAnnotations[[index]]
   
-  ## current color
+  ## calculate the current color
   newAnnotations <- setdiff(x = currentAnnotations, y = parentAnnotations)
   
   if(length(newAnnotations) == 0){
     if(length(parentAnnotations) == 0){
-      ## no annotations
+      ## no annotations at all
       annotation <- "Unknown"
       color      <- "black"
     } else {
@@ -386,17 +388,189 @@ colorSubTreeForAnnotations <- function(cluster, index, innerNodeAnnotations, set
   #~~~~~~~~~~~~~~~~~~~~~~~~~~~ draw what you have to draw
   x.m  <- (x.r + x.l) / 2  
   
-  #if(color != "black")
-  #  print(paste("i", index, "pi", parentIndex, "il", index.l, "ir", index.r, "a", paste(currentAnnotations, collapse = "-"), "na", paste(newAnnotations, collapse = "-"), "pa", paste(parentAnnotations, collapse = "-"), "c", color))
-  segments(
-    x0  = c(x.l, x.l, x.r),
-    x1  = c(x.l, x.r, x.r),
-    y0  = c(h.l, h.m, h.r),
-    y1  = c(h.m, h.m, h.m),
-    col = color,
-    lty = lty,
-    lwd = lwd
-  )
+  x0  <- c(out.l$x0,  c(x.l,   x.l,   x.r  ), out.r$x0 )
+  x1  <- c(out.l$x1,  c(x.l,   x.r,   x.r  ), out.r$x1 )
+  y0  <- c(out.l$y0,  c(h.l,   h.m,   h.r  ), out.r$y0 )
+  y1  <- c(out.l$y1,  c(h.m,   h.m,   h.m  ), out.r$y1 )
+  col <- c(out.l$col, c(color, color, color), out.r$col)
   
-  list(x=x.m)
+  #segments(
+  #  x0  = c(x.l, x.l, x.r),
+  #  x1  = c(x.l, x.r, x.r),
+  #  y0  = c(h.l, h.m, h.r),
+  #  y1  = c(h.m, h.m, h.m),
+  #  col = color,
+  #  lty = lty,
+  #  lwd = lwd
+  #)
+  
+  list(
+    x   = x.m,
+    x0  = x0,
+    x1  = x1,
+    y0  = y0,
+    y1  = y1,
+    col = col
+  )
+}
+drawDendrogram <- function(cluster, index, lwd = 1, lty = 1){
+  #########################################################################################
+  ## leaf case
+  if(index<0){ # it is a leaf
+    a2r_counter <<- a2r_counter + 1
+    return(list(
+      x = a2r_counter
+    ))       
+  }
+  
+  #########################################################################################
+  ## draw recursively
+  h.m   <- cluster$height[index]
+  
+  #~~~~~~~~~~~~~~~~~~~~~~~~~~ do left
+  index.l  <- cluster$merge[index,1]
+  
+  h.l <- ifelse(index.l<0, 0, cluster$height[index.l])
+  
+  out.l   <- drawDendrogram(cluster = cluster, index = index.l, lty=lty, lwd=lwd)
+  x.l     <- out.l$x
+  
+  #~~~~~~~~~~~~~~~~~~~~~~~~~~~ do right
+  index.r  <- cluster$merge[index,2]
+  h.r <- ifelse(index.r<0, 0, cluster$height[index.r])
+  out.r   <- drawDendrogram(cluster = cluster, index = index.r, lty=lty, lwd=lwd)
+  x.r     <- out.r$x
+  
+  #~~~~~~~~~~~~~~~~~~~~~~~~~~~ draw what you have to draw
+  x.m  <- (x.r + x.l) / 2  
+  
+  x0  <- c(out.l$x0,  c(x.l,   x.l,   x.r  ), out.r$x0 )
+  x1  <- c(out.l$x1,  c(x.l,   x.r,   x.r  ), out.r$x1 )
+  y0  <- c(out.l$y0,  c(h.l,   h.m,   h.r  ), out.r$y0 )
+  y1  <- c(out.l$y1,  c(h.m,   h.m,   h.m  ), out.r$y1 )
+  #col <- c(out.l$col, c(color, color, color), out.r$col)
+  
+  #segments(
+  #  x0  = c(x.l, x.l, x.r),
+  #  x1  = c(x.l, x.r, x.r),
+  #  y0  = c(h.l, h.m, h.r),
+  #  y1  = c(h.m, h.m, h.m),
+  #  col = color,
+  #  lty = lty,
+  #  lwd = lwd
+  #)
+  
+  list(
+    x   = x.m,
+    x0  = x0,
+    x1  = x1,
+    y0  = y0,
+    y1  = y1#,
+    #col = col
+  )
+}
+colorSubTreeForAnnotations2 <- function(cluster, index, dataList, filter, lwd = 1, lty = 1){
+  #########################################################################################
+  ## leaf case
+  if(index<0){ # it is a leaf
+    a2r_counter <<- a2r_counter + 1
+    annos  <- unlist(dataList$annoArrayOfLists[filter][[-index]])
+    #annos  <- dataList$annoArrayOfLists[[cluster$order[[-index]]]]
+    #annos  <- dataList$annoArrayOfLists[[which(cluster$order == -index)]]
+    colors <- dataList$annoPresentColorsList[unlist(dataList$annoPresentAnnotationsList) %in% annos]
+    
+    #print(paste(index, paste(colors, collapse = "-"), paste(annos, collapse = "-")))
+    #print(paste("leaf", a2r_counter, index, paste(colors, collapse = "-"), cluster$order[[-index]], which(cluster$order == -index)))
+    
+    return(list(
+      x = a2r_counter,
+      x0  = vector(length = 0, mode = "numeric"),
+      x1  = vector(length = 0, mode = "numeric"),
+      y0  = vector(length = 0, mode = "numeric"),
+      y1  = vector(length = 0, mode = "numeric"),
+      col = vector(length = 0, mode = "character"),
+      annos  = annos,
+    #  annos  = "Unknown",
+      colors = colors
+    #  colors = "black"
+    ))
+  }
+  
+  #########################################################################################
+  ## draw recursively
+  h.m   <- cluster$height[index]
+  
+  #~~~~~~~~~~~~~~~~~~~~~~~~~~ do left
+  index.l  <- cluster$merge[index,1]
+  
+  h.l <- if(index.l<0) 0 else cluster$height[index.l]
+  
+  out.l     <- colorSubTreeForAnnotations2(cluster = cluster, index = index.l, dataList = dataList, filter = filter, lty=lty, lwd=lwd)
+  x.l       <- out.l$x
+  annos.l   <- out.l$annos
+  colors.l  <- out.l$colors
+  
+  #~~~~~~~~~~~~~~~~~~~~~~~~~~~ do right
+  index.r  <- cluster$merge[index,2]
+  h.r <- if(index.r<0) 0 else cluster$height[index.r]
+  out.r     <- colorSubTreeForAnnotations2(cluster = cluster, index = index.r, dataList = dataList, filter = filter, lty=lty, lwd=lwd)
+  x.r       <- out.r$x
+  annos.r   <- out.r$annos
+  colors.r  <- out.r$colors
+  
+  
+  #########################################################################################
+  ## determine color by annotations
+  annos <- intersect(annos.r, annos.l)
+  
+  if(length(annos) == 0){
+    ## no common annotations
+    annos  <- "Unknown"
+    colors <- "black"
+    color  <- "black"
+  } else {
+    colors <- colors.l[annos.l %in% annos]
+    color  <- colors[[1]]
+  }
+  
+  #~~~~~~~~~~~~~~~~~~~~~~~~~~~ draw what you have to draw
+  x.m  <- (x.r + x.l) / 2  
+  
+  ## left from bottom to top; on top from left to right; right from bottom to top
+  x0  <- c(out.l$x0,  c(x.l,   x.l,   x.r  ), out.r$x0 )
+  x1  <- c(out.l$x1,  c(x.l,   x.r,   x.r  ), out.r$x1 )
+  y0  <- c(out.l$y0,  c(h.l,   h.m,   h.r  ), out.r$y0 )
+  y1  <- c(out.l$y1,  c(h.m,   h.m,   h.m  ), out.r$y1 )
+  #col <- c(out.l$col, color, color, color, out.r$col)
+  col <- c(out.l$col, color, out.r$col)
+  
+  #print(paste(
+  #  index, index.l, index.r, color
+  #  #length(out.l$col), length(out.r$col), length(col), 
+  #  #paste(out.l$col, collapse = "-"), paste(out.r$col, collapse = "-"), 
+  #  #paste(col, collapse = "-")
+  #))
+  
+  #print(paste("cluster", index, "(", index.l, index.r, ")", color, x.l, x.m, x.r, h.l, h.m, h.r))
+  
+  #segments(
+  #  x0  = c(x.l, x.l, x.r),
+  #  x1  = c(x.l, x.r, x.r),
+  #  y0  = c(h.l, h.m, h.r),
+  #  y1  = c(h.m, h.m, h.m),
+  #  col = color,
+  #  lty = lty,
+  #  lwd = lwd
+  #)
+  
+  list(
+    x   = x.m,
+    x0  = x0,
+    x1  = x1,
+    y0  = y0,
+    y1  = y1,
+    col = col,
+    annos  = annos,
+    colors = colors
+  )
 }

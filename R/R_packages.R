@@ -10,12 +10,13 @@ library("shinyjs")
 #install.packages("DT")
 library("DT")
 #install.packages("colourpicker")
-#library("colourpicker") ## TODO
+library("colourpicker")
 #install.packages("shinyBS")
 library("shinyBS")
 
 ##############################################################################################################
 ## mass spectrometry
+#sudo apt-get install libnetcdf-dev
 #source("https://bioconductor.org/biocLite.R")
 #biocLite("mzR")
 library("mzR")
@@ -43,6 +44,17 @@ library("tools")
 library("stringr")
 #install_github('rCharts', 'ramnathv')
 #library("rCharts")
+#install.packages("shinydashboard")
+#library("shinydashboard")
+#install.packages("slam")
+library("slam")
+
+##############################################################################################################
+## pdf report
+#install.packages("knitr")
+library("knitr")
+#install.packages("rmarkdown")
+#library("rmarkdown")
 
 ##############################################################################################################
 ## plot
@@ -52,3 +64,7 @@ library("cba")
 library("squash")
 #install.packages("plotrix")
 library("plotrix")
+#install.packages("plotly")
+library("plotly")
+#install.packages("RColorBrewer")
+library("RColorBrewer")

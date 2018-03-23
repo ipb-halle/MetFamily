@@ -1,14 +1,19 @@
 
 #########################################################################################
 ## constants
-filterData <- function(dataList, groups, filter_average, filter_lfc, filterList_ms2_masses, filter_ms2_ppm, filter_ms1_masses, filter_ms1_ppm, includeIgnoredPrecursors, progress = FALSE){
+filterData <- function(dataList, groups, sampleSet, filterBySamples, filter_average, filter_lfc, filterList_ms2_masses, filter_ms2_ppm, filter_ms1_masses, filter_ms1_ppm, includeIgnoredPrecursors, progress = FALSE){
   ##########################################
   ## filter
   filter <- rep(x = TRUE, times = dataList$numberOfPrecursors)
   
   ## filter_average
-  if(!is.null(filter_average))
-    filter <- filter & apply(X = as.data.frame(dataList$dataFrameMeasurements[, sapply(X = as.vector(groups), FUN = dataList$dataMeanColumnNameFunctionFromName)]), MARGIN = 1, FUN = mean) >= filter_average
+  if(!is.null(filter_average)){
+    #if(filterBySamples){
+    #  filter <- filter & apply(X = as.data.frame(dataList$dataFrameMeasurements[, sapply(X = as.vector(groups), FUN = dataList$dataMeanColumnNameFunctionFromName)]), MARGIN = 1, FUN = mean) >= filter_average
+    #} else {
+      filter <- filter & apply(X = as.data.frame(dataList$dataFrameMeasurements[, sapply(X = as.vector(groups), FUN = dataList$dataMeanColumnNameFunctionFromName)]), MARGIN = 1, FUN = mean) >= filter_average
+    #}
+  }
   
   ## filter_lfc
   if(!is.null(filter_lfc)){
@@ -68,15 +73,37 @@ filterData <- function(dataList, groups, filter_average, filter_lfc, filterList_
   
   filter <- which(filter)
   
-  resultObj <<- list()
-  resultObj$filter <<- filter
-  resultObj$numberOfPrecursorsFiltered <<- length(filter)
-  resultObj$groups <<- groups
-  resultObj$filter_average <<- filter_average
-  resultObj$filter_lfc <<- filter_lfc
-  resultObj$filterList_ms2_masses <<- filterList_ms2_masses
-  resultObj$filter_ms2_ppm <<- filter_ms2_ppm
-  resultObj$includeIgnoredPrecursors <<- includeIgnoredPrecursors
+  resultObj <- list()
+  resultObj$filter <- filter
+  resultObj$numberOfPrecursors <- dataList$numberOfPrecursors
+  resultObj$numberOfPrecursorsFiltered <- length(filter)
+  if(is.null(groups)){
+    resultObj$groups    <- list()
+    resultObj$sampleSet <- list()
+    resultObj$filterBySamples <- NA
+  } else {
+    resultObj$groups    <- groups
+    resultObj$sampleSet <- sampleSet
+    resultObj$filterBySamples <- filterBySamples
+  }
+  #resultObj$groups                   <- ifelse(test = is.null(groups),                   yes = NA, no = groups)
+  resultObj$filter_average           <- ifelse(test = is.null(filter_average),           yes = 0, no = filter_average)
+  resultObj$filter_lfc               <- ifelse(test = is.null(filter_lfc),               yes = 0, no = filter_lfc)
+  if(is.null(filterList_ms2_masses)){
+    resultObj$filterList_ms2_masses    <- list()
+  } else {
+    resultObj$filterList_ms2_masses    <- filterList_ms2_masses
+  }
+  #resultObj$filterList_ms2_masses    <- ifelse(test = is.null(filterList_ms2_masses),    yes = list(), no = filterList_ms2_masses)
+  resultObj$filter_ms2_ppm           <- ifelse(test = is.null(filter_ms2_ppm),           yes = "", no = filter_ms2_ppm)
+  if(is.null(filter_ms1_masses)){
+    resultObj$filter_ms1_masses    <- list()
+  } else {
+    resultObj$filter_ms1_masses    <- filter_ms1_masses
+  }
+  #resultObj$filter_ms1_masses        <- ifelse(test = is.null(filter_ms1_masses),        yes = "", no = filter_ms1_masses)
+  resultObj$filter_ms1_ppm           <- ifelse(test = is.null(filter_ms1_ppm),           yes = "", no = filter_ms1_ppm)
+  resultObj$includeIgnoredPrecursors <- ifelse(test = is.null(includeIgnoredPrecursors), yes = NA, no = includeIgnoredPrecursors)
   
   return (resultObj)
 }
@@ -546,8 +573,24 @@ calculateDistanceMatrix <- function(dataList, filter, distanceMeasure = "Jaccard
   
   return(returnObj)
 }
-calculateCluster <- function(dataList, filter, distanceMatrix, method, progress = FALSE){
-  numberOfPrecursorsFiltered <- length(filter)
+calculateCluster <- function(dataList, filterObj, distanceMatrix, method, distanceMeasure, progress = FALSE){
+  
+  if(FALSE){
+    dataList_ <<- dataList
+    filterObj_ <<- filterObj
+    distanceMatrix_ <<- distanceMatrix
+    method_ <<- method
+    distanceMeasure_ <<- distanceMeasure
+  }
+  if(FALSE){
+    dataList <- dataList_
+    filterObj <- filterObj_
+    distanceMatrix <- distanceMatrix_
+    method <- method_
+    distanceMeasure <- distanceMeasure_
+  }
+  
+  numberOfPrecursorsFiltered <- length(filterObj$filter)
   ##########################################
   ## compute gui stuff
   
@@ -555,7 +598,7 @@ calculateCluster <- function(dataList, filter, distanceMatrix, method, progress 
   ## compute and annotate cluster
   dist <- stats::as.dist(m = distanceMatrix)
   cluster <- hclust(d = dist, method = method)
-  cluster$labels <- dataList$precursorLabels[filter]
+  cluster$labels <- dataList$precursorLabels[filterObj$filter]
   numberOfInnerNodes <- numberOfPrecursorsFiltered - 1
   leafHeightSpacing <- 0.04
   
@@ -567,7 +610,7 @@ calculateCluster <- function(dataList, filter, distanceMatrix, method, progress 
   ## compute (transitive) cluster members, cluster positions, and leaf heights
   if(progress)  incProgress(amount = 0.3, detail = "Analyze cluster")
   
-  resultObj <- analyzeTreeFromRoot(dataList, cluster = cluster, filter)
+  resultObj <- analyzeTreeFromRoot(dataList, cluster = cluster, filterObj$filter)
   
   innerNodeHeightIncreases <- unlist(resultObj$innerNodeHeightIncreases)
   innerNodeMembersTreeClusters <- resultObj$innerNodeMembersTreeClusters
@@ -594,7 +637,7 @@ calculateCluster <- function(dataList, filter, distanceMatrix, method, progress 
   poiCoordinatesX <- unlist(c(innerNodePosition, match(x = seq_len(numberOfPrecursorsFiltered), table = cluster$order)))
   poiCoordinatesY <- unlist(c(cluster$height, leafHeights))
   
-  precursorFeatureCount <- dataList$featureCount[filter]
+  precursorFeatureCount <- dataList$featureCount[filterObj$filter]
   #innerNodeUnionlabels <- as.character(innerNodeFeaturesUnionCounter)
   #innerNodeUnionlabels[!innerNodeHeightIncreases] <- ""
   #innerNodeIntersectionlabels <- as.character(innerNodeFeaturesIntersectionCounter)
@@ -602,7 +645,7 @@ calculateCluster <- function(dataList, filter, distanceMatrix, method, progress 
   
   drawPoi <- unlist(c(
     innerNodeHeightIncreases, 
-    rep(x = TRUE, times = length(filter))
+    rep(x = TRUE, times = length(filterObj$filter))
   ))
   #poiUnion <- unlist(c(
   #  innerNodeUnionlabels, 
@@ -611,7 +654,7 @@ calculateCluster <- function(dataList, filter, distanceMatrix, method, progress 
   #poiIntersection <- unlist(c(
   #  innerNodeIntersectionlabels, 
   #  precursorFeatureCount
-  #  #vector(mode = "character", length = length(filter))
+  #  #vector(mode = "character", length = length(filterObj$filter))
   #))
   poiIntersectionSmooth <- c(innerNodeFeaturesPresent, precursorFeatureCount)
   poiLabels <- unlist(c(seq_len(numberOfInnerNodes), -(seq_len(numberOfPrecursorsFiltered))))
@@ -621,7 +664,9 @@ calculateCluster <- function(dataList, filter, distanceMatrix, method, progress 
   if(progress)  incProgress(amount = 0.5, detail = "Boxing")
   clusterDataList <- list()
   ## filter
-  clusterDataList$filter <- filter
+  clusterDataList$filterObj <- filterObj
+  clusterDataList$method <- method
+  clusterDataList$distanceMeasure <- distanceMeasure
   #clusterDataList$distanceMatrix <- distanceMatrix
   clusterDataList$numberOfPrecursorsFiltered <- numberOfPrecursorsFiltered
   ## cluster
@@ -682,7 +727,13 @@ calculateCluster <- function(dataList, filter, distanceMatrix, method, progress 
   return(clusterDataList)
 }
 calculatePCA <- function(dataList, filterObj, ms1AnalysisMethod, scaling, logTransform){
-  dataFrame <- dataList$dataFrameMeasurements[filterObj$filter, dataList$dataColumnsNameFunctionFromNames(filterObj$groups)]
+  ## data selection
+  if(filterObj$filterBySamples){
+    dataFrame <- dataList$dataFrameMeasurements[filterObj$filter, filterObj$sampleSet]
+  } else {
+    dataFrame <- dataList$dataFrameMeasurements[filterObj$filter, dataList$dataColumnsNameFunctionFromGroupNames(groups = filterObj$groups, sampleNamesToExclude = dataList$excludedSamples(dataList$groupSampleDataFrame))]
+  }
+  
   dataFrame <- t(dataFrame)
   
   if(logTransform){
@@ -710,6 +761,7 @@ calculatePCA <- function(dataList, filterObj, ms1AnalysisMethod, scaling, logTra
          "Pareto"={
            ## subtract mean and divide by sqrt of variance
            dataFrame2 <- as.data.frame(apply(X = dataFrame, MARGIN = 2, FUN = function(x){
+             #print(x)
              (x - mean(x = x)) / sqrt(sd(x = x))
            }))
          },
@@ -721,6 +773,11 @@ calculatePCA <- function(dataList, filterObj, ms1AnalysisMethod, scaling, logTra
   ## TODO pcaMethods confidence intervals analog to MetaboAnalyst: pcaMethods:::simpleEllipse
   numberOfComponents <- min(5, nrow(dataFrame2))
   returnObj <- list()
+  returnObj$filterObj = filterObj
+  returnObj$ms1AnalysisMethod = ms1AnalysisMethod
+  returnObj$scaling = scaling
+  returnObj$logTransform = logTransform
+  
   #ms1AnalysisMethod <- c(
   #  "stats",           # 1
   #  "FactoMineR",      # 2
@@ -732,7 +789,8 @@ calculatePCA <- function(dataList, filterObj, ms1AnalysisMethod, scaling, logTra
   #)[[5]]
   
   if(ms1AnalysisMethod == "PCA (Principal Component Analysis)")
-    ms1AnalysisMethod <- "mixOmics_pca"
+    #ms1AnalysisMethod <- "mixOmics_pca"
+    ms1AnalysisMethod <- "pcaMethods"
   if(ms1AnalysisMethod == "sPCA (Sparse Principal Component Analysis)")
     ms1AnalysisMethod <- "mixOmics_spca"
   #if(ms1AnalysisMethod == "PCA (Principal Component Analysis)")
@@ -798,25 +856,39 @@ calculatePCA <- function(dataList, filterObj, ms1AnalysisMethod, scaling, logTra
            returnObj$variance <- pca$explained_variance
            #returnObj$R2 <- 
            #returnObj$Q2 <- 
+           
+           val <- perf(res, criterion = c("R2", "Q2"))
+           
          },
          "mixOmics_plsda"={
            ## plsda "mixOmics" package
            print("Analysis: mixOmics_plsda")
-           groupLabels  <- unlist(lapply(X = rownames(dataFrame), FUN = dataList$groupNameFunctionFromDataColumnName))
+           groupLabels  <- unlist(lapply(X = rownames(dataFrame), FUN = function(x){dataList$groupNameFunctionFromDataColumnName(dataColumnName = x, sampleNamesToExclude = dataList$excludedSamples(dataList$groupSampleDataFrame))}))
            pca = mixOmics::plsda(X = dataFrame2, Y = groupLabels, ncomp = numberOfComponents, scale = FALSE)
            returnObj$scores   <- pca$variates[[1]]
            returnObj$loadings <- pca$loadings[[1]]
            returnObj$variance <- pca$explained_variance
            
-           #perf <- perf(pca, validation = "Mfold", folds = 2, progressBar = FALSE)
-           #perf <- perf(pca, validation = "loo", progressBar = FALSE)
-           #returnObj$R2 <- perf$R2
-           #returnObj$Q2 <- perf$Q2
+           if(FALSE){## R2 and Q2?
+           performance <- perf(pca, validation = "Mfold", folds = 2, progressBar = FALSE, tol = 1e-20)
+           performance <- perf(pca, validation = "loo", progressBar = FALSE, tol = 1e-20)
+           
+           pca = mixOmics::pca(X = dataFrame2, ncomp = numberOfComponents, center = FALSE, scale = FALSE)
+           loadings <- pca$loadings[[1]]
+           sumOfLoadings <- apply(X = loadings, MARGIN = 1, FUN = sum)
+           toRemove <- which(abs(sumOfLoadings) < 0.0001)
+           
+           dataFrame3 <- dataFrame2[-toRemove, ]
+           pca = mixOmics::plsda(X = dataFrame3, Y = groupLabels, ncomp = numberOfComponents, scale = FALSE)
+           }
+           
+           #returnObj$R2 <- performance$R2
+           #returnObj$Q2 <- performance$Q2
          },
          "mixOmics_splsda"={
            ## splsda from "mixOmics" package TODO
            print("Analysis: mixOmics_splsda")
-           groupLabels  <- unlist(lapply(X = rownames(dataFrame), FUN = dataList$groupNameFunctionFromDataColumnName))
+           groupLabels  <- unlist(lapply(X = rownames(dataFrame), FUN = function(x){dataList$groupNameFunctionFromDataColumnName(dataColumnName = x, sampleNamesToExclude = dataList$excludedSamples(dataList$groupSampleDataFrame))}))
            pca = mixOmics::splsda(X = dataFrame2, Y = groupLabels, ncomp = numberOfComponents, scale = FALSE)
            returnObj$scores   <- pca$variates[[1]]
            returnObj$loadings <- pca$loadings[[1]]
