@@ -234,39 +234,37 @@ getSetOfSubTreesFromRoot <- function(filter, clusterDataList, yesNoFunction){
   return(result$results)
 }
 getSetOfSubTrees <- function(filter, clusterDataList, yesNoFunction, index){
+  result <- list()
   if(index<0){ # it is a leaf
     leafIndex <- -index
     precursorIndex <- filter[[leafIndex]]
     criterionFulfilled <- yesNoFunction(precursorIndex)
     
-    result <- list()
     result$results <- NULL
     result$criterionFulfilled <- criterionFulfilled
-    
-    return(result)
-  }
-  
-  result.l  <- getSetOfSubTrees(filter, clusterDataList, yesNoFunction, clusterDataList$cluster$merge[index, 1])
-  result.r  <- getSetOfSubTrees(filter, clusterDataList, yesNoFunction, clusterDataList$cluster$merge[index, 2])
-  
-  result <- list()
-  result$results <- c(result.l$results, result.r$results)
-  if(result.l$criterionFulfilled & result.r$criterionFulfilled){
-    ## both children do comprise the fragment
-    result$criterionFulfilled <- TRUE
   } else {
-    result$criterionFulfilled <- FALSE
-    if((!result.l$criterionFulfilled & result.r$criterionFulfilled) | (result.l$criterionFulfilled & !result.r$criterionFulfilled)){
-      ## only one child does comprise the fragment
-      if(result.l$criterionFulfilled)
-        result$results <- c(result$results, clusterDataList$cluster$merge[index, 1])
-      else
-        result$results <- c(result$results, clusterDataList$cluster$merge[index, 2])
+    result.l  <- getSetOfSubTrees(filter, clusterDataList, yesNoFunction, clusterDataList$cluster$merge[index, 1])
+    result.r  <- getSetOfSubTrees(filter, clusterDataList, yesNoFunction, clusterDataList$cluster$merge[index, 2])
+    
+    result$results <- c(result.l$results, result.r$results)
+    if(result.l$criterionFulfilled & result.r$criterionFulfilled){
+      ## both children do comprise the fragment
+      result$criterionFulfilled <- TRUE
     } else {
-      ## no child does comprise the fragment
+      result$criterionFulfilled <- FALSE
+      if((!result.l$criterionFulfilled & result.r$criterionFulfilled) | (result.l$criterionFulfilled & !result.r$criterionFulfilled)){
+        ## only one child does comprise the fragment
+        if(result.l$criterionFulfilled)
+          result$results <- c(result$results, clusterDataList$cluster$merge[index, 1])
+        else
+          result$results <- c(result$results, clusterDataList$cluster$merge[index, 2])
+      } else {
+        ## no child does comprise the fragment
+      }
     }
   }
   
+  #print(paste(index, result$criterionFulfilled, paste(result$results, collapse = ";")))
   return(result)
 }
 colorSubTree <- function(cluster, index, lwd = 1, lty = 1, col = "black"){

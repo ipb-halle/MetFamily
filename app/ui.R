@@ -30,6 +30,7 @@ shinyUI(
     ##########################################################################################
     ## tab run
     tabPanel(
+      shinyjs::useShinyjs(),
       ##############################################################################################
       ## enable / disable actionButtons while process is running
       singleton(tags$head(HTML(
@@ -70,12 +71,7 @@ shinyUI(
             ##############################################################################################
             ## file input
             tabPanel(
-              shinyjs::useShinyjs(),
               title = "Input",
-              
-              ## TODO 999
-              #DT::dataTableOutput("dataTableTest"), ## TODO remove
-              
               wellPanel(
                 #div(style="display:inline-block",actionButton(inputId = "test", label = "", icon = icon(name = "chevron-up", lib = "font-awesome"))),
                 #actionButton(inputId = "test", label = NULL, icon = icon(name = "chevron-up", lib = "font-awesome")),#, width = NULL, ...)
@@ -306,8 +302,8 @@ shinyUI(
                 h4("Input status"),
                 bsTooltip(id = "fileInfo", title = "The current input status", placement = "bottom", trigger = "hover"),
                 verbatimTextOutput(outputId = "fileInfo")
-              ),## well panel
-              uiOutput("errorPopupDialog")
+              )#,## well panel
+              #uiOutput("errorPopupDialog")
             ),## tab panel
             ##############################################################################################
             ##############################################################################################
@@ -315,7 +311,6 @@ shinyUI(
             #navbarMenu("Filter",
             tabPanel(
               title = "MS/MS filter",
-              shinyjs::useShinyjs(),
               conditionalPanel(
                 condition = "output.showGUI",
                 wellPanel(
@@ -362,7 +357,7 @@ shinyUI(
                   fluidRow(
                     column(width = 11,
                            bsTooltip(id = "globalFilter_ms2_masses1", title = "The MS/MS spectra should include the following fragment / neutral loss mass(es) (separated by \",\")<p>E.g. \"96.969, -162.053\" for a compound with a phosphate - fragment (H<sub>2</sub>PO<sub>4</sub><sup>-</sup>) and a hexose - neutral loss (C<sub>6</sub>O<sub>5</sub>H<sub>10</sub>)", placement = "bottom", trigger = "hover"),
-                           textInput(inputId = "globalFilter_ms2_masses1", label = "MS/MS spectrum includes m/z(s) #1")
+                           textInput(inputId = "globalFilter_ms2_masses1", placeholder = 'E.g. 161.0443', label = "MS/MS spectrum includes m/z(s) #1")
                     ),
                     column(width = 1,
                            h4("or")
@@ -371,7 +366,7 @@ shinyUI(
                   fluidRow(
                     column(width = 11,
                            bsTooltip(id = "globalFilter_ms2_masses2", title = "The MS/MS spectra should include the following fragment / neutral loss mass(es) (separated by \",\")<p>E.g. \"96.969, -162.053\" for a compound with a phosphate - fragment (H<sub>2</sub>PO<sub>4</sub><sup>-</sup>) and a hexose - neutral loss (C<sub>6</sub>O<sub>5</sub>H<sub>10</sub>)", placement = "bottom", trigger = "hover"),
-                           textInput(inputId = "globalFilter_ms2_masses2", label = "MS/MS spectrum includes m/z(s) #2")
+                           textInput(inputId = "globalFilter_ms2_masses2", placeholder = 'E.g. -88.01808', label = "MS/MS spectrum includes m/z(s) #2")
                     ),
                     column(width = 1,
                            h4("or")
@@ -380,14 +375,14 @@ shinyUI(
                   fluidRow(
                     column(width = 11,
                            bsTooltip(id = "globalFilter_ms2_masses3", title = "The MS/MS spectra should include the following fragment / neutral loss mass(es) (separated by \",\")<p>E.g. \"96.969, -162.053\" for a compound with a phosphate - fragment (H<sub>2</sub>PO<sub>4</sub><sup>-</sup>) and a hexose - neutral loss (C<sub>6</sub>O<sub>5</sub>H<sub>10</sub>)", placement = "bottom", trigger = "hover"),
-                           textInput(inputId = "globalFilter_ms2_masses3", label = "MS/MS spectrum includes m/z(s) #3")
+                           textInput(inputId = "globalFilter_ms2_masses3", placeholder = 'E.g. 96.969, -162.053', label = "MS/MS spectrum includes m/z(s) #3")
                     ),
                     column(width = 1,
                            h4("")
                     )
                   ),
                   bsTooltip(id = "globalFilter_ms2_ppm", title = "The MS/MS feature matching allows this error in PPM (<b>p</b>arts <b>p</b>er <b>m</b>illion)", placement = "bottom", trigger = "hover"),
-                  textInput(inputId = "globalFilter_ms2_ppm", label = "PPM"),
+                  textInput(inputId = "globalFilter_ms2_ppm", placeholder = 'PPM number here', label = "PPM"),
                   ##############################################################################################
                   ## filter button
                   fluidRow(
@@ -400,7 +395,7 @@ shinyUI(
                     column(width = 6,
                            div(style="float:right;width:100%",
                                bsTooltip(id = "clearGlobalMS2filters", title = "Press to clear the global MS/MS filter", placement = "bottom", trigger = "hover"),
-                               actionButton(inputId = "clearGlobalMS2filters", label = "Clear MS/MS filter", class="btn-success", width = "100%")
+                               actionButton(inputId = "clearGlobalMS2filters", label = "Clear MS/MS filter", class="btn-danger", width = "100%")
                            )
                     )##column
                   ),##row
@@ -427,7 +422,6 @@ shinyUI(
             ## sample selection
             tabPanel(
               title = "Sample filter", 
-              shinyjs::useShinyjs(),
               conditionalPanel(
                 condition = "output.showGUI",
                 wellPanel(
@@ -451,7 +445,6 @@ shinyUI(
             ## PCA
             tabPanel(
               title = "PCA", 
-              shinyjs::useShinyjs(),
               conditionalPanel(
                 condition = "output.showGUI && output.globalMS2filterValid",
                 wellPanel(
@@ -473,10 +466,9 @@ shinyUI(
                   conditionalPanel(
                     condition = "input.showPCAfilterOptions",
                     bsTooltip(id = "pcaFilter_average", title = "The average MS\u00B9 abundance should be greater or equal than this value", placement = "bottom", trigger = "hover"),
-                    textInput(inputId = "pcaFilter_average", label = "Average MS\u00B9 abundance"),
+                    textInput(inputId = "pcaFilter_average", placeholder = 'E.g. 10000', label = "Average MS\u00B9 abundance"),
                     bsTooltip(id = "pcaFilter_lfc", title = "The log<sub>2</sub>-fold change [ log<sub>2</sub>( mean(group one) / mean(group two) ) ] between the average MS\u00B9 abundances should be greater/smaller or equal than this value", placement = "bottom", trigger = "hover"),
-                    textInput(inputId = "pcaFilter_lfc", label = "MS\u00B9 log2-fold change"),
-                    
+                    textInput(inputId = "pcaFilter_lfc", placeholder = 'E.g. 2 or -2', label = "MS\u00B9 log2-fold change"),
                     fluidRow(style="overflow-y:scroll; 
                                     max-height: 200px;",
                       column(width = 7,
@@ -533,7 +525,7 @@ shinyUI(
                       column(width = 6,
                              div(style="float:right;width:100%",
                                  bsTooltip(id = "clearPcaFilters", title = "Press to clear the MS\u00B9 abundance filter for PCA", placement = "bottom", trigger = "hover"),
-                                 actionButton(inputId = "clearPcaFilters", label = "Clear filter", class="btn-success", width = "100%")
+                                 actionButton(inputId = "clearPcaFilters", label = "Clear filter", class="btn-danger", width = "100%")
                              )
                       )##column
                     )##row
@@ -630,7 +622,6 @@ shinyUI(
             ## HCA
             tabPanel(
               title = "HCA", 
-              shinyjs::useShinyjs(),
               conditionalPanel(
                 condition = "output.showGUI && output.globalMS2filterValid",
                 wellPanel(
@@ -652,9 +643,9 @@ shinyUI(
                   conditionalPanel(
                     condition = "input.showHCAfilterOptions",
                     bsTooltip(id = "hcaFilter_average", title = "The average MS\u00B9 abundance should be greater or equal than this value", placement = "bottom", trigger = "hover"),
-                    textInput(inputId = "hcaFilter_average", label = "Average MS\u00B9 abundance"),
+                    textInput(inputId = "hcaFilter_average", placeholder = 'E.g. 10000', label = "Average MS\u00B9 abundance"),
                     bsTooltip(id = "hcaFilter_lfc", title = "The log<sub>2</sub>-fold change [ log<sub>2</sub>( mean(group one) / mean(group two) ) ] between the average MS\u00B9 abundances should be greater/smaller or equal than this value", placement = "bottom", trigger = "hover"),
-                    textInput(inputId = "hcaFilter_lfc", label = "MS\u00B9 log2-fold change"),
+                    textInput(inputId = "hcaFilter_lfc", placeholder = 'E.g. 2 or -2', label = "MS\u00B9 log2-fold change"),
                     fluidRow(style = "overflow-y:scroll; 
                                       max-height: 200px",
                              #border: 1px solid #cccccc;
@@ -687,7 +678,7 @@ shinyUI(
                       column(width = 6, 
                              div(style="float:right;width:100%",
                                  bsTooltip(id = "clearHcaFilters", title = "Press to clear the MS\u00B9 abundance filter for HCA", placement = "bottom", trigger = "hover"),
-                                 actionButton(inputId = "clearHcaFilters", label = "Clear filter", class="btn-success", width = "100%")
+                                 actionButton(inputId = "clearHcaFilters", label = "Clear filter", class="btn-danger", width = "100%")
                              )
                       )##column
                     )##row
@@ -779,7 +770,6 @@ shinyUI(
             ## search
             tabPanel(
               title = "Search",
-              shinyjs::useShinyjs(),
               conditionalPanel(
                 condition = "output.showGUI && (output.plotHcaShown || output.plotPcaShown)",
                 #condition = "output.showGUI",
@@ -793,11 +783,11 @@ shinyUI(
                     fluidRow(
                       column(width = 6,
                              bsTooltip(id = "searchMS1mass", title = "The MS\u00B9 feature m/z should be similar to at least one of the given values (separated by \",\")", placement = "bottom", trigger = "hover"),
-                             textInput(inputId = "searchMS1mass", label = "MS\u00B9 feature m/z('s)")
+                             textInput(inputId = "searchMS1mass", placeholder = 'E.g. 592.1792', label = "MS\u00B9 feature m/z('s)")
                       ),##column
                       column(width = 6,
                              bsTooltip(id = "searchMS1massPpm", title = "The specified MS\u00B9 feature m/z allows this error in PPM (<b>p</b>arts <b>p</b>er <b>m</b>illion)", placement = "bottom", trigger = "hover"),
-                             textInput(inputId = "searchMS1massPpm", label = "PPM")
+                             textInput(inputId = "searchMS1massPpm", placeholder = 'PPM number here', label = "PPM")
                       )##column
                     )##row
                   ),## conditional panel
@@ -806,7 +796,7 @@ shinyUI(
                     fluidRow(
                       column(width = 11,
                              bsTooltip(id = "search_ms2_masses1", title = "The MS/MS spectra should include the following fragment / neutral loss mass(es) (separated by \",\")<p>E.g. \"96.969, -162.053\" for a compound with a phosphate - fragment (H<sub>2</sub>PO<sub>4</sub><sup>-</sup>) and a hexose - neutral loss (C<sub>6</sub>O<sub>5</sub>H<sub>10</sub>)", placement = "bottom", trigger = "hover"),
-                             textInput(inputId = "search_ms2_masses1", label = "MS/MS spectrum includes mass(es) #1")
+                             textInput(inputId = "search_ms2_masses1", placeholder = 'E.g. 161.0443', label = "MS/MS spectrum includes mass(es) #1")
                       ),
                       column(width = 1,
                              h4("or")
@@ -815,7 +805,7 @@ shinyUI(
                     fluidRow(
                       column(width = 11,
                              bsTooltip(id = "search_ms2_masses2", title = "The MS/MS spectra should include the following fragment / neutral loss mass(es) (separated by \",\")<p>E.g. \"96.969, -162.053\" for a compound with a phosphate - fragment (H<sub>2</sub>PO<sub>4</sub><sup>-</sup>) and a hexose - neutral loss (C<sub>6</sub>O<sub>5</sub>H<sub>10</sub>)", placement = "bottom", trigger = "hover"),
-                             textInput(inputId = "search_ms2_masses2", label = "MS/MS spectrum includes mass(es) #2")
+                             textInput(inputId = "search_ms2_masses2", placeholder = 'E.g. -88.01808', label = "MS/MS spectrum includes mass(es) #2")
                       ),
                       column(width = 1,
                              h4("or")
@@ -824,14 +814,14 @@ shinyUI(
                     fluidRow(
                       column(width = 11,
                              bsTooltip(id = "search_ms2_masses3", title = "The MS/MS spectra should include the following fragment / neutral loss mass(es) (separated by \",\")<p>E.g. \"96.969, -162.053\" for a compound with a phosphate - fragment (H<sub>2</sub>PO<sub>4</sub><sup>-</sup>) and a hexose - neutral loss (C<sub>6</sub>O<sub>5</sub>H<sub>10</sub>)", placement = "bottom", trigger = "hover"),
-                             textInput(inputId = "search_ms2_masses3", label = "MS/MS spectrum includes mass(es) #3")
+                             textInput(inputId = "search_ms2_masses3", placeholder = 'E.g. 96.969, -162.053', label = "MS/MS spectrum includes mass(es) #3")
                       ),
                       column(width = 1,
                              h4("")
                       )
                     ),
                     bsTooltip(id = "searchMS2massPpm", title = "The specified fragment m/z's allow this error in PPM (<b>p</b>arts <b>p</b>er <b>m</b>illion)", placement = "bottom", trigger = "hover"),
-                    textInput(inputId = "searchMS2massPpm", label = "PPM")
+                    textInput(inputId = "searchMS2massPpm", placeholder = 'PPM number here', label = "PPM")
                   ),## conditional panel
                   bsTooltip(id = "searchIncludeIgnoredPrecursors", title = "Include or filter out ignored MS\u00B9 features, i.e. MS\u00B9 features which have been annotated as \\'Ignore\\'", placement = "bottom", trigger = "hover"),
                   checkboxInput(inputId = "searchIncludeIgnoredPrecursors", label = "Include ignored MS\u00B9 features", value = FALSE),
@@ -845,7 +835,7 @@ shinyUI(
                     column(width = 6,
                            div(style="float:right;width:100%",
                                bsTooltip(id = "clearSearch", title = "Press to clear the selected set of MS\u00B9 feature hits in HCA and PCA", placement = "bottom", trigger = "hover"),
-                               actionButton(inputId = "clearSearch", label = "Clear search", class="btn-success", width = "100%")
+                               actionButton(inputId = "clearSearch", label = "Clear search", class="btn-danger", width = "100%")
                            )
                     )##column
                   ),##row
@@ -876,7 +866,6 @@ shinyUI(
             ),## tab panel
             tabPanel(
               title = "Classifiers",
-              #shinyjs::useShinyjs(),
               conditionalPanel(
                 condition = "output.showGUI",
                 wellPanel(
@@ -897,7 +886,6 @@ shinyUI(
             ),## tab panel
             tabPanel(
               title = "Annotations",
-              #shinyjs::useShinyjs(),
               conditionalPanel(
                 condition = "output.showGUI",
                 wellPanel(
@@ -905,9 +893,70 @@ shinyUI(
                   bsTooltip(id = "familyCount2", title = "The number of available metabolite families which were annotated among the MS\u00B9 features", placement = "bottom", trigger = "hover"),
                   verbatimTextOutput(outputId = "familyCount2"),
                   DT::dataTableOutput("familySelectionTable"),
-                  h4("Metabolite family properties")
-                )
-              ),
+                  conditionalPanel(
+                    condition = "output.metaboliteFamilySelected",
+                    #condition = "length(input$familySelectionTable_rows_selected) == 1",
+                    h4("Metabolite family properties"),
+                    bsTooltip(id = "featureCountForFamily", title = "The number of MS\u00B9 features of the selected metabolite family", placement = "bottom", trigger = "hover"),
+                    verbatimTextOutput(outputId = "featureCountForFamily"),
+                    fluidRow(
+                      column(width = 4,
+                             bsTooltip(id = "selectMetaboliteFamily", title = "Press to select this metabolite family", placement = "bottom", trigger = "hover"),
+                             actionButton(inputId = "selectMetaboliteFamily", label = "Select", class="btn-success", width = "100%")
+                      ),##column
+                      column(width = 4,
+                             bsTooltip(id = "renameMetaboliteFamily", title = "Press to rename this metabolite family annotation", placement = "bottom", trigger = "hover"),
+                             actionButton(inputId = "renameMetaboliteFamily", label = "Rename", class="btn-success", width = "100%")
+                      ),##column
+                      column(width = 4,
+                             bsTooltip(id = "removeMetaboliteFamily", title = "Press to remove this metabolite family annotation", placement = "bottom", trigger = "hover"),
+                             actionButton(inputId = "removeMetaboliteFamily", label = "Remove", class="btn-danger", width = "100%")
+                      )##column
+                    ),##row
+                    conditionalPanel(
+                      condition = "output.classifierLoaded",
+                      bsTooltip(id = "metaboliteFamilyComparisonClass", title = "Please choose the class for comparison", placement = "bottom", trigger = "hover"),
+                      selectInput(multiple = FALSE, inputId = "metaboliteFamilyComparisonClass", label = "Compare to class", selected = "[init]", choices = c("[init]"), selectize = FALSE)
+                    ),
+                    plotOutput(height = 250, 
+                               outputId = "fragmentPlot2", 
+                               #hover    = "fragmentPlot2_hover",
+                               hover    = hoverOpts(
+                                 id = "fragmentPlot2_hover",
+                                 delay = 50, 
+                                 delayType = "debounce"
+                               ),
+                               click    = "fragmentPlot2_click",
+                               dblclick = "fragmentPlot2_dblclick",
+                               #brush    = "fragmentPlot2_brush"
+                               brush    = brushOpts(
+                                 id = "fragmentPlot2_brush",
+                                 resetOnNew = TRUE,
+                                 direction = "x",
+                                 delay = 00,
+                                 delayType = "debounce"
+                               )
+                    ),
+                    DT::dataTableOutput("ms1FeatureTableForAnnotation"),
+                    fluidRow(
+                      column(width = 6, style="width:50%",
+                             div(style="float:left;width:100%",
+                                 bsTooltip(id = "downloadMetaboliteFamilyConsensusSpectrum", title = "Download the consensus spectrum for the selected metabolite family", placement = "bottom", trigger = "hover"),
+                                 downloadButton(outputId = "downloadMetaboliteFamilyConsensusSpectrum", label = "Download consensus spectrum"),
+                                 tags$style(type='text/css', "#downloadMetaboliteFamilyConsensusSpectrum { width:100%}")
+                             )
+                      ),##column
+                      column(width = 6, style="width:50%",
+                             div(style="float:right;width:100%",
+                                 bsTooltip(id = "downloadMetaboliteFamilyFilteredPrecursors", title = "Download a project file which is reduced to the filtered set of MS\u00B9 features", placement = "bottom", trigger = "hover"),
+                                 downloadButton('downloadMetaboliteFamilyFilteredPrecursors', 'Download reduced project file'),
+                                 tags$style(type='text/css', "#downloadMetaboliteFamilyFilteredPrecursors { width:100%}")
+                             )
+                      )##column
+                    )##row
+                  )##conditional
+                )##well
+              ),##conditional
               conditionalPanel(
                 condition = "!output.showGUI",
                 wellPanel(
@@ -917,7 +966,6 @@ shinyUI(
             ),## tab panel
             tabPanel(
               title = "Project", 
-              shinyjs::useShinyjs(),
               conditionalPanel(
                 condition = "output.showGUI",
                 wellPanel(

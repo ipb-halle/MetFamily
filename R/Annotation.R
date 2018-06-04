@@ -23,11 +23,11 @@
 # $ TPR_for_FPR_of_5Percent: num 0.667
 # $ TNR_for_FNR_of_5Percent: num 0
 
-## filePath <- 
-## method <- 
+## filePath <- "/home/htreutle/Data/SubstanceClasses/Classifier_ROC_Analysis/old_colSums/2018-04-16_09:14:12_2018-02-13_09:14:10_pos_21908_MoNA-export-LC-MS-MS_Spectra.msp_Classifier.RData"
+## propertiesList <- list($library= "2018-02-13_09:14:10_pos_21908_MoNA-export-LC-MS-MS_Spectra.msp", maximumNumberOfScores= "10000", removeRareFragments= "FALSE", mergeDuplicatedSpectra= "TRUE", takeSpectraWithMaximumNumberOfPeaks= "FALSE", classOfClass= "ChemOnt|AllClasses", minimumNumberOfPosSpectraPerClass= "10", minimumNumberOfNegSpectraPerClass= "10", numberOfDataSetDecompositions= "10", proportionTraining= "0.7", unitResolution= "FALSE", methodName= "ColSumsPos", paramsString= "smoothIntensities=FALSE", algoName= "method=ColSumsPos; smoothIntensities=FALSE")
 ## featureMatrix <- dataList$featureMatrix
 ## parameterSet <- dataList$importParameterSet
-doAnnotation <- function(filePath, propertiesList, featureMatrix, parameterSet, progress = FALSE){
+doAnnotation <- function(filePath, propertiesList, featureMatrix, parameterSet, classesWhiteList = NULL, progress = FALSE){
   if(FALSE){
     filePath_ <<- filePath
     propertiesList_ <<- propertiesList
@@ -173,6 +173,9 @@ doAnnotation <- function(filePath, propertiesList, featureMatrix, parameterSet, 
   classes <- classifierClasses
   matrix <- featureMatrix
   
+  if(!is.null(classesWhiteList))
+    classes <- intersect(x = classes, classesWhiteList)
+  
   if(!smoothIntensities){
     matrix@x  [matrix@x   != 0] <- 1
   }
@@ -298,8 +301,8 @@ doAnnotation <- function(filePath, propertiesList, featureMatrix, parameterSet, 
       #"quantilesValuesNegative" #: num [1:1001] -0.374 -0.302 -0.283 -0.256 -0.249 ...
       #"positiveScores"          #: num [1:60] -0.20664 -0.01071 -0.00964 -0.00964 0.04742 ...
       #"negativeScores"          #: num [1:4010] -0.374 -0.321 -0.309 -0.302 -0.297 ...
-      "AUC"                      #: num 0.912
-      #TPR_for_FPR_of_5Percent #: num 0.667
+      "AUC",                      #: num 0.912
+      "TPR_for_FPR_of_5Percent" #: num 0.667
       #TNR_for_FNR_of_5Percent #: num 0
     )],
     x[["algorithm"]]["algoName"],
@@ -347,6 +350,7 @@ getAlgorithms <- function(){
     ## scores
     "CosinusDistance"  = predict_CosinusDistance,
     "ColSums"          = colSums_classifier,
+    "ColSumsPos"       = colSumsPos_classifier,
     "Prod"             = predict_Prod,
     "Jaccard"          = predict_Jaccard,
     "JaccardWeighted"  = predict_JaccardWeighted,
@@ -369,6 +373,10 @@ getAlgorithms <- function(){
       list(ratio=TRUE, smoothIntensities=TRUE)
     ),
     "ColSums"          = list(
+      list(smoothIntensities=FALSE),
+      list(smoothIntensities=TRUE)
+    ),
+    "ColSumsPos"          = list(
       list(smoothIntensities=FALSE),
       list(smoothIntensities=TRUE)
     ),
@@ -516,6 +524,18 @@ getAvailableClassifiers_old <- function(resultFolderForClassifiers){
   }
   return(df)
 }
+
+getClassifierProperties <- function(propertiesFile){
+  lines <- readLines(con = propertiesFile)
+  linesSplitted <- strsplit(x = lines, split = " = ")
+  
+  tags   <- unlist(lapply(X = linesSplitted, FUN = function(x){x[[1]]}))
+  values <- unlist(lapply(X = linesSplitted, FUN = function(x){x[[2]]}))
+  propertiesList <- as.list(values)
+  names(propertiesList) <- tags
+  
+  return(propertiesList)
+}
 ## resultFolderForClassifiers <- "/home/htreutle/Code/Java/MetFam/inst/data/classifiers"
 ## resultFolderForClassifiers <- "/home/htreutle/Code/Java/MetFam/inst/data/classifier"
 getAvailableClassifiers <- function(resultFolderForClassifiers){
@@ -525,18 +545,17 @@ getAvailableClassifiers <- function(resultFolderForClassifiers){
   propertiesFiles     <- gsub(x = classifierFiles, pattern = "_Classifier.RData$", replacement = "_Properties.txt")
   
   propertiesListsList <- list()
+  theseClassifiers <- rep(x = TRUE, times = length(classifierFilePaths))
   for(idx in seq_along(propertiesFiles)){
     propertiesFile <- paste(resultFolderForClassifiers, "/", propertiesFiles[[idx]], sep = "")
-    lines <- readLines(con = propertiesFile)
-    linesSplitted <- strsplit(x = lines, split = " = ")
-    
-    tags   <- unlist(lapply(X = linesSplitted, FUN = function(x){x[[1]]}))
-    values <- unlist(lapply(X = linesSplitted, FUN = function(x){x[[2]]}))
-    propertiesList <- as.list(values)
-    names(propertiesList) <- tags
-    
-    propertiesListsList[[idx]] <- propertiesList
+    propertiesList <- getClassifierProperties(propertiesFile)
+    propertiesListsList[[length(propertiesListsList)+1]] <- propertiesList
   }
+  
+  classifierFilePaths <- classifierFilePaths[theseClassifiers]
+  classifierFiles     <- classifierFiles    [theseClassifiers]
+  resultFiles         <- resultFiles        [theseClassifiers]
+  propertiesFiles     <- propertiesFiles    [theseClassifiers]
   
   if(length(classifierFiles) > 0){
     numberOfProperties <- length(propertiesListsList[[1]])
@@ -554,7 +573,8 @@ getAvailableClassifiers <- function(resultFolderForClassifiers){
     libraryNames <- gsub(x = df$library, pattern = "^\\d\\d\\d\\d\\-\\d\\d\\-\\d\\d_\\d\\d:\\d\\d:\\d\\d_", replacement = "")
     libraryNames <- gsub(x = libraryNames, pattern = "\\.[a-zA-Z]{3,4}$", replacement = "")
     df[, "library"]    <- libraryNames
-    df[, "Class"]      <- ifelse(test = df$processSubstanceClasses, yes = rep(x = "SubstanceClass", times = nrow(df)), no = rep(x = "Substituent", times = nrow(df)))
+    #df[, "Class"]      <- ifelse(test = df$processSubstanceClasses, yes = rep(x = "SubstanceClass", times = nrow(df)), no = rep(x = "Substituent", times = nrow(df)))
+    df[, "Class"]      <- df$classOfClass
     df[, "Resolution"] <- ifelse(test = df$unitResolution, yes = rep(x = "Low", times = nrow(df)), no = rep(x = "High", times = nrow(df)))
     df[, "Classifier"] <- df[, "methodName"]
     df[, "FilePath"]   <- classifierFilePaths
@@ -565,7 +585,8 @@ getAvailableClassifiers <- function(resultFolderForClassifiers){
     dfProperties <- df
   } else {
     dfShow       <- data.frame(matrix(nrow=0, ncol= 4))
-    dfProperties <- data.frame(matrix(nrow=0, ncol=19))}
+    dfProperties <- data.frame(matrix(nrow=0, ncol=18))
+  }
   
   resultObj <- list()
   resultObj$availableClassifiersDf           <- dfShow
@@ -573,33 +594,115 @@ getAvailableClassifiers <- function(resultFolderForClassifiers){
   
   return(resultObj)
 }
-evaluateDendrogramCluster <- function(dataList, clusterDataList, treeLabel, classToSpectra_class){
+
+evaluatePutativeMetaboliteFamiliesOfPrecursorSet <- function(dataList, precursorSet, classToSpectra_class){
   if(FALSE){
     dataList_ <<- dataList
-    clusterDataList_ <<- clusterDataList
-    treeLabel_ <<- treeLabel
+    precursorSet_ <<- precursorSet
     classToSpectra_class_ <<- classToSpectra_class
   }
   if(FALSE){
     dataList <<- dataList_
-    clusterDataList <<- clusterDataList_
-    treeLabel <<- treeLabel_
+    precursorSet <<- precursorSet_
     classToSpectra_class <<- classToSpectra_class_
   }
   
+  ## fetch hits of interest
+  classesAll  <- character()
+  featuresAll <- integer()
+  pValuesAll  <- numeric()
   
-  ## precursorIndeces
-  if(treeLabel < 0){
-    ## leaf
-    precursorIndeces <- clusterDataList$filterObj$filter[[-treeLabel]]
+  for(classIdx in seq_along(classToSpectra_class)){
+    featuresHere <- names(classToSpectra_class[[classIdx]])
+    indeces <- which(featuresHere %in% precursorSet)
+    if(length(indeces) > 0){
+      classes  <- rep(x = names(classToSpectra_class)[[classIdx]], times = length(indeces))
+      features <- featuresHere[indeces]
+      pValues  <- unname(classToSpectra_class[[classIdx]])[indeces]
+      classesAll  <- c(classesAll, classes)
+      featuresAll <- c(featuresAll, features)
+      pValuesAll  <- c(pValuesAll, pValues)
+    }
+  }
+  detailDf <- data.frame("MS1_feature"=featuresAll, "Class"=classesAll, "pValue"=pValuesAll, stringsAsFactors = FALSE)
+  
+  if(nrow(detailDf) == 0){
+    return(list("overviewDf" = data.frame("Class"=character(), "pValue"=numeric(), "ProportionInPercent" = numeric(), stringsAsFactors = FALSE), "detailDf" = detailDf))
+  }
+  if(length(precursorSet) == 1){
+    ## single precursor
+    overviewDf <- cbind(detailDf$Class, detailDf$pValue, rep(x = 100, times = nrow(detailDf)))
+    colnames(overviewDf) <- c("Class", "pValue", "ProportionInPercent")
+    #printPutativeMetaboliteFamilies <- paste(detailDf$Class, " (pValue=", detailDf$pValue, ")", sep = "")
   } else {
-    ## inner node
-    precursorIndeces <- clusterDataList$innerNodeMembersPrecursors[[treeLabel]]
+    ## multiple precursors: do statistics
+    potentialMetaboliteFamilies <- unique(detailDf$Class)
+    potentialMetaboliteFamiliesWithSuperClasses <- sort(unique(unlist(
+      lapply(X = strsplit(x = potentialMetaboliteFamilies, split = "; "), FUN = function(x){
+        x <- x[x != "NA"]
+        class <- sapply(X = seq_len(length(x)), FUN = function(y){
+          paste(x[1:y], collapse = "; ")
+        })
+        return(class)
+      })
+    )))
+    precursorHits <- unname(sapply(X = potentialMetaboliteFamiliesWithSuperClasses, FUN = function(class){
+      classHits <- grepl(pattern = paste("^", class, sep = ""), x = detailDf$Class)
+      count <- length(unique(detailDf$MS1_feature[classHits]))
+      return(count)
+    }))
+    retainClass <- precursorHits >= (length(precursorSet)/2)
+    #retainClass <- precursorHits >= 0
+    
+    if(sum(retainClass) == 0)
+      #return(data.frame("Class"=character(), "pValue"=numeric(), "ProportionInPercent" = numeric(), stringsAsFactors = FALSE))
+      return(list("overviewDf" = data.frame("Class"=character(), "pValue"=numeric(), "ProportionInPercent" = numeric(), stringsAsFactors = FALSE), "detailDf" = detailDf))
+    
+    potentialMetaboliteFamiliesWithSuperClasses <- potentialMetaboliteFamiliesWithSuperClasses[retainClass]
+    precursorHits <- precursorHits[retainClass]
+    
+    ## remove classes without relevance
+    detailDf <- detailDf[detailDf$Class %in% potentialMetaboliteFamiliesWithSuperClasses, ]
+    
+    proportionPercent <- precursorHits / length(precursorSet) * 100
+    medianPValue <- unlist(unname(sapply(X = potentialMetaboliteFamiliesWithSuperClasses, FUN = function(class){
+      classHits <- grepl(pattern = paste("^", class, sep = ""), x = detailDf$Class)
+      value <- median(detailDf$pValue[classHits])
+      return(value)
+    })))
+    
+    overviewDf <- data.frame(
+      "Class" = potentialMetaboliteFamiliesWithSuperClasses, 
+      "pValue" = medianPValue,
+      "ProportionInPercent" = format(x = proportionPercent, digits=3, nsmall=1), 
+      stringsAsFactors = FALSE
+    )
+    
+    #printPutativeMetaboliteFamilies <- paste(overviewDf$Proportion, "% ", overviewDf$Class, sep = "")
+  }
+  
+  returnObj <- list(
+    "overviewDf" = overviewDf,
+    "detailDf"   = detailDf
+  )
+  #return(printPutativeMetaboliteFamilies)
+  return(returnObj)
+}
+evaluatePutativeMetaboliteFamiliesOfPrecursorSet_old <- function(dataList, precursorSet, classToSpectra_class){
+  if(FALSE){
+    dataList_ <<- dataList
+    precursorSet_ <<- precursorSet
+    classToSpectra_class_ <<- classToSpectra_class
+  }
+  if(FALSE){
+    dataList <<- dataList_
+    precursorSet <<- precursorSet_
+    classToSpectra_class <<- classToSpectra_class_
   }
   
   ## hits: list of 
   hitLists <- list()
-  for(precursorIndex in precursorIndeces){
+  for(precursorIndex in precursorSet){
     hitLists[[length(hitLists)+1]] <- list()
     for(classIdx in seq_along(classToSpectra_class)){
       if(!(precursorIndex %in% names(classToSpectra_class[[classIdx]])))
@@ -607,8 +710,8 @@ evaluateDendrogramCluster <- function(dataList, clusterDataList, treeLabel, clas
       
       idx <- which(names(classToSpectra_class[[classIdx]]) == precursorIndex)
       hitLists[[length(hitLists)]][[length(hitLists[[length(hitLists)]])+1]] <- c(
-        names(classToSpectra_class)[[classIdx]],
-        unname(classToSpectra_class[[classIdx]])[[idx]]
+        "Class"  = names(classToSpectra_class)[[classIdx]],
+        "pValue" = unname(classToSpectra_class[[classIdx]])[[idx]]
       )
     }
   }
@@ -616,13 +719,13 @@ evaluateDendrogramCluster <- function(dataList, clusterDataList, treeLabel, clas
   if(is.null(unlist(hitLists))){
     return("")
   }
-  if(treeLabel < 0){
-    ## leaf: df
+  if(length(precursorSet) == 1){
+    ## single precursor
     df <- data.frame(t(matrix(data = unlist(hitLists[[1]]), nrow = 2)), stringsAsFactors = F)
     colnames(df) <- c("Class", "pValue")
     printPutativeMetaboliteFamilies <- paste(df$Class, " (pValue=", df$pValue, ")", sep = "")
   } else {
-    ## inner node: do statistics
+    ## multiple precursors: do statistics
     
     potentialMetaboliteFamilies <- unlist(hitLists)
     potentialMetaboliteFamilies <- potentialMetaboliteFamilies[seq(from = 1, to = length(potentialMetaboliteFamilies), by = 2)]
@@ -648,19 +751,130 @@ evaluateDendrogramCluster <- function(dataList, clusterDataList, treeLabel, clas
         retainClass[[idx]] <- TRUE
     }
     
-    retainClass <- retainClass & precursorHitHits >= (length(precursorIndeces)/2)
+    ## at least 50 % of the precursors must be hits of each class
+    retainClass <- retainClass & precursorHitHits >= (length(precursorSet)/2)
     
     potentialMetaboliteFamiliesWithSuperClasses <- potentialMetaboliteFamiliesWithSuperClasses[retainClass]
     precursorHitHits <- precursorHitHits[retainClass]
-    proportionPercent <- precursorHitHits / length(precursorIndeces) * 100
+    proportionPercent <- precursorHitHits / length(precursorSet) * 100
     
     df <- data.frame(
       "Class" = potentialMetaboliteFamiliesWithSuperClasses, 
       "Proportion" = format(x = proportionPercent, digits=3, nsmall=1), 
+      #"pValue" = 
       stringsAsFactors = F
     )
     
     printPutativeMetaboliteFamilies <- paste(df$Proportion, "% ", df$Class, sep = "")
   }
   return(printPutativeMetaboliteFamilies)
+}
+
+metaboliteFamilyVersusClass <- function(dataList, precursorSet, classToSpectra_class, classifierClass, mappingSpectraToClassDf, addClassifierConsensusSpectrum){
+  returnObj <- getSpectrumStatistics(dataList = dataList, precursorSet = precursorSet)
+  masses_spec <- returnObj$fragmentMasses
+  fragmentCounts_spec <- returnObj$fragmentCounts
+  frequency_spec <- fragmentCounts_spec / length(precursorSet)
+  
+  if(addClassifierConsensusSpectrum & classifierClass %in% names(classToSpectra_class)){
+    ## Plot spectrum vs consensus spectrum
+    classIdx <- which(classifierClass == names(classToSpectra_class))
+    classProperties         <- properties_class[[classIdx]]
+    frequentFragments       <- classProperties$frequentFragments
+    characteristicFragments <- classProperties$characteristicFragments
+    
+    ## class statistics for class plot
+    returnObj <- preprocessClassPlot(frequentFragments, characteristicFragments)
+    masses_class    <- returnObj$masses_class
+    frequency_class <- returnObj$frequency_class
+    #colors_class    <- returnObj$colors_class
+    
+    ## match spec to class
+    returnObj <- preprocessSpectrumVsClassPlot(dataList, precursorSet, masses_class, mappingSpectraToClassDf)
+    masses_spec <- returnObj$masses_spec
+    frequency_spec <- returnObj$intensity_spec
+    colors_spec <- returnObj$colors_spec
+    numberOfMatchingMasses <- returnObj$numberOfMatchingMasses
+    matchingMassRowIndeces <- returnObj$matchingMassRowIndeces
+    
+    colors_class    <- rep(x = "grey", times = length(masses_class))
+    colors_class[masses_class %in% mappingSpectraToClassDf$ClassMasses[matchingMassRowIndeces]] <- "black"
+  } else {
+    colors_spec <- rep(x = "black", times = length(masses_spec))
+    masses_class    <- NULL
+    frequency_class <- NULL
+    colors_class    <- NULL
+  }
+  
+  returnObj <- list(
+      masses_spec     = masses_spec, 
+      intensity_spec  = frequency_spec, 
+      colors_spec     = colors_spec, 
+      masses_class    = masses_class, 
+      frequency_class = frequency_class, 
+      colors_class    = colors_class
+  )
+  return(returnObj)
+}
+preprocessClassPlot <- function(frequentFragments, characteristicFragments){
+  frequentMasses       <- as.numeric(names(frequentFragments)) 
+  characteristicMasses <- as.numeric(names(characteristicFragments))
+  
+  masses_class <- unique(c(frequentMasses, characteristicMasses))
+  frequency_class <- rep(x = 0.01, times = length(masses_class))
+  frequency_class[match(x = frequentMasses, table = masses_class)] <- unname(frequentFragments)
+  
+  characteristics_class <- rep(x = 0., times = length(masses_class))
+  characteristics_class[match(x = characteristicMasses, table = masses_class)] <- unname(characteristicFragments)
+  classDataColorMapFragmentData  <- makecmap(
+    x = c(0, 1), n = 100, 
+    colFn = colorRampPalette(c('grey', 'black'))
+  )
+  colors_class <- cmap(x = characteristics_class, map = classDataColorMapFragmentData)
+  
+  returnObj <- list(
+    masses_class = masses_class,
+    frequency_class = frequency_class,
+    colors_class = colors_class
+  )
+  return(returnObj)
+}
+preprocessSpectrumVsClassPlot <- function(dataList, precursorIndeces, masses_class, mappingSpectraToClassDf){
+  if(length(precursorIndeces) == 1){
+    resultObj <- getMS2spectrumInfoForPrecursor(dataList = dataList, precursorIndex = precursorIndeces)
+    masses_spec <- resultObj$fragmentMasses
+    intensity_spec <- resultObj$fragmentAbundances
+  } else {
+    returnObj <- getSpectrumStatistics(dataList = dataList, precursorSet = precursorIndeces)
+    masses_spec <- returnObj$fragmentMasses
+    intensity_spec <- returnObj$fragmentCounts
+  }
+  
+  tolerance <- .Machine$double.eps ^ 0.5 ## default in function all.equal
+  
+  matchingMassRowIndeces <- which(
+    apply(X = outer(X = mappingSpectraToClassDf$SpectraMasses, Y = masses_spec , FUN = "-"), MARGIN = 1, FUN = function(x){any(abs(x) <= tolerance)}) &
+    apply(X = outer(X = mappingSpectraToClassDf$ClassMasses  , Y = masses_class, FUN = "-"), MARGIN = 1, FUN = function(x){any(abs(x) <= tolerance)})
+  )
+  #matchingMassRowIndeces <- which(
+  #  mappingSpectraToClassDf$SpectraMasses %in% masses_spec & 
+  #  mappingSpectraToClassDf$ClassMasses   %in% masses_class
+  
+  specIndeces  <- match(x = mappingSpectraToClassDf$SpectraMasses[matchingMassRowIndeces], table = masses_spec )
+  #classIndeces <- match(x = mappingSpectraToClassDf$ClassMasses  [matchingMassRowIndeces], table = masses_class)
+  
+  colors_spec <- rep(x = "grey", times = length(masses_spec))
+  #colors_spec[specIndeces] <- colors_class[classIndeces]
+  colors_spec[specIndeces] <- "black"
+  
+  numberOfMatchingMasses <- length(matchingMassRowIndeces)
+  
+  returnObj <- list(
+    masses_spec = masses_spec,
+    intensity_spec = intensity_spec,
+    colors_spec = colors_spec,
+    numberOfMatchingMasses = numberOfMatchingMasses,
+    matchingMassRowIndeces = matchingMassRowIndeces
+  )
+  return(returnObj)
 }

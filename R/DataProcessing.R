@@ -1,6 +1,27 @@
 
 #########################################################################################
 ## annotate and process matrix
+sparseMatrixToString <- function(matrixRows, matrixCols, matrixVals, parameterSet){
+  matrixRows <- c(matrixRows, 1)
+  matrixCols <- c(matrixCols, 1)
+  matrixVals <- c(matrixVals, serializeParameterSet(parameterSet))
+  
+  ## TODO performance 25s
+  ## convert matrix to dataframe
+  numberOfRows    <- max(matrixRows)
+  numberOfColumns <- max(matrixCols)
+  
+  lines <- vector(mode = "character", length = numberOfRows)
+  for(rowIdx in seq_len(numberOfRows)){
+    indeces <- matrixRows == rowIdx
+    tokens  <- vector(mode = "character", length = numberOfColumns)
+    tokens[matrixCols[indeces]] <- matrixVals[indeces]
+    lines[[rowIdx]] <- paste(tokens, collapse = "\t")
+  }
+  
+  return(lines)
+}
+
 readClusterDataFromProjectFile <- function(file, progress = FALSE){
   if(progress)  setProgress(value = 0, detail = "Parsing") else print("Parsing")
   extension <- file_ext(file)
@@ -15,7 +36,7 @@ readClusterDataFromProjectFile <- function(file, progress = FALSE){
   )
   base::close(con = file)
   
-  dataList <- readProjectData(fileLines, progress)
+  dataList <- readProjectData(fileLines = fileLines, progress = progress)
   fileLines <- NULL
   
   return(dataList)
@@ -384,6 +405,16 @@ readProjectData <- function(fileLines, progress = FALSE){
     })))
     groups[[groupIdx]]
   }
+  lfcColumnNameFunctionFromString <- function(columnName){
+    tokens <- strsplit(x = columnName, split = "_vs_")[[1]]
+    groupOne <- strsplit(x = tokens[[1]], split = "LFC_")[[1]][[2]]
+    groupTwo <- tokens[length(tokens)]
+    return(c(groupOne, groupTwo))
+  }
+  dataMeanColumnNameFunctionFromString <- function(columnName){
+    group <- substr(x = columnName, start = 1, stop = nchar(columnName) - nchar("_mean"))
+    return(group)
+  }
   
   ## manage group and samples: order and exclusion
   groupNames  <- tagsSector[sampleColumns]
@@ -487,6 +518,16 @@ readProjectData <- function(fileLines, progress = FALSE){
       annoPresentColorsList     [[1 + i]] <- annotationColorsMapValues[[i]]
     }
   
+  ## check consistency
+  if(!all(unique(unlist(annoArrayOfLists)) %in% unlist(annoPresentAnnotationsList))){
+    missing <- unique(unlist(annoArrayOfLists))[!(unique(unlist(annoArrayOfLists)) %in% unlist(annoPresentAnnotationsList))]
+    stop(paste("Annotation(s)", paste(missing, collapse = "; "), "missing in present annotations list"))
+  }
+  if(!all(unlist(annoPresentAnnotationsList) %in% unique(c(annotationValueIgnore, unlist(annoArrayOfLists))))){
+    missing <- unlist(annoPresentAnnotationsList)[!(unlist(annoPresentAnnotationsList) %in% unique(c(annotationValueIgnore, unlist(annoArrayOfLists))))]
+    stop(paste("Present annotation(s)", paste(missing, collapse = "; "), "missing in annotations"))
+  }
+  
   ##################################################################################################
   ## box
   if(progress)  incProgress(amount = 0.1, detail = "Boxing") else print("Boxing")
@@ -523,6 +564,8 @@ readProjectData <- function(fileLines, progress = FALSE){
   dataList$dataColumnsNameFunctionFromGroupIndex <- dataColumnsNameFunctionFromGroupIndex
   dataList$dataColumnsNameFunctionFromGroupNames <- dataColumnsNameFunctionFromGroupNames
   dataList$groupNameFunctionFromDataColumnName <- groupNameFunctionFromDataColumnName
+  dataList$lfcColumnNameFunctionFromString <- lfcColumnNameFunctionFromString
+  dataList$dataMeanColumnNameFunctionFromString <- dataMeanColumnNameFunctionFromString
   dataList$dataColumnIndecesFunctionFromGroupIndex <- dataColumnIndecesFunctionFromGroupIndex
   dataList$dataMeanColumnNameFunctionFromName <- dataMeanColumnNameFunctionFromName
   dataList$dataMeanColumnNameFunctionFromIndex <- dataMeanColumnNameFunctionFromIndex
@@ -536,9 +579,9 @@ readProjectData <- function(fileLines, progress = FALSE){
   dataList$featureCount <- featureCount
   dataList$featureIndexMatrix <- featureIndexMatrix
   ## ms2 plot data
-  dataList$numberOfFragments <- ms2PlotDataNumberOfFragments
-  dataList$averageAbundance  <- ms2PlotDataAverageAbundance
-  dataList$masses            <- ms2PlotDataFragmentMasses
+  dataList$ms2_numberOfFragments <- ms2PlotDataNumberOfFragments
+  dataList$ms2_averageAbundance  <- ms2PlotDataAverageAbundance
+  dataList$ms2_masses            <- ms2PlotDataFragmentMasses
   dataList$colorMapFragmentData <- ms2PlotDataColorMapFragmentData
   ## annotations
   dataList$annotationColumnName <- annotationColumnName
@@ -711,7 +754,8 @@ processMS1data <- function(
   )
   
   meanAllMax <- max(dataFrameMeasurements[, "meanAllNormed"])
-  dataFrameMeasurements[, "meanAllNormed"] <- dataFrameMeasurements[, "meanAllNormed"] / meanAllMax
+  if(meanAllMax != 0)
+    dataFrameMeasurements[, "meanAllNormed"] <- dataFrameMeasurements[, "meanAllNormed"] / meanAllMax
   
   ## log fold change between groups
   lfcColumnNames <- list()
@@ -1131,6 +1175,10 @@ getMS2spectrumInfoForPrecursor <- function(dataList, precursorIndex){
   resultObj$fragmentColor <- fragmentsColor
   resultObj$fragmentDiscriminativity <- fragmentDiscriminativity
   resultObj$infoText <- infoText
+  resultObj$infoFeatureLabel <- featureID
+  resultObj$infoFragmentCount <- length(fragmentsX)
+  resultObj$infoFamilies <- featureFamilies
+  resultObj$infoName <- featureName
   resultObj$metFragLinkList <- metFragLinkList
   resultObj$precursorSet <- precursorSet
   resultObj$numberOfPrecursors <- numberOfPrecursors
@@ -1192,6 +1240,22 @@ getMS2spectrumInfoForCluster <- function(dataList, clusterDataList, treeLabel){
   else
     clusterDiscriminativity <- 0
   
+  ## annotations
+  minimumProportionOfMembership <- 0.5
+  featureFamilies_all <- unlist(unique(dataList$annoArrayOfLists[precursorSet])) ## all families
+  proportionOfMembership <- sapply(X = featureFamilies_all, FUN = function(featureFamily){
+    numberOfMembersHere <- sum(unlist(lapply(X = dataList$annoArrayOfLists[precursorSet], function(families){featureFamily %in% families})))
+    return(numberOfMembersHere / length(precursorSet))
+  })
+  frequentFamilies <- featureFamilies_all[proportionOfMembership >= minimumProportionOfMembership]
+  
+  featureFamilies <- unlist(unique(dataList$annoArrayOfLists[precursorSet]))
+  featureFamilies <- ifelse(
+    test = length(featureFamilies) == 0, 
+    yes = "None", 
+    no = paste(unlist(featureFamilies), collapse = ", ")
+  )
+  
   ## info
   infoText <- paste(
     "This cluster has a cluster discriminativity of ", format(x = clusterDiscriminativity*100, digits = 3, nsmall = 2), "%",
@@ -1214,6 +1278,7 @@ getMS2spectrumInfoForCluster <- function(dataList, clusterDataList, treeLabel){
   resultObj$fragmentColor <- fragmentsColor
   resultObj$fragmentDiscriminativity <- fragmentDiscriminativity
   resultObj$clusterDiscriminativity <- clusterDiscriminativity
+  resultObj$frequentFamilies <- frequentFamilies
   resultObj$infoText <- infoText
   resultObj$metFragLinkList <- NULL
   resultObj$precursorSet <- precursorSet
@@ -1292,6 +1357,25 @@ getPrecursorSetFromTreeSelection <- function(clusterDataList, clusterLabel){
   }
   return(precursorSet)
 }
+getSpectrumStatistics <- function(dataList, precursorSet){
+  if(FALSE){
+    dataList_ <<- dataList
+    precursorSet_ <<- precursorSet
+  }
+  if(FALSE){
+    dataList <- dataList_
+    precursorSet <- precursorSet_
+  }
+  
+  fragmentCounts <- Matrix::colSums(x = dataList$featureMatrix[precursorSet, ] != 0)
+  theseFragments <- fragmentCounts > 0
+  fragmentCounts <- fragmentCounts[theseFragments]
+  fragmentMasses <- dataList$ms2_masses[theseFragments]
+  return(list(
+    fragmentMasses = fragmentMasses,
+    fragmentCounts = fragmentCounts
+  ))
+}
 getMS2plotData <- function(matrixRows, matrixCols, matrixVals, fragmentMasses){
   numberOfFragments <- length(fragmentMasses)
   meanIntensity <- vector(mode = "numeric", length = numberOfFragments)
@@ -1330,7 +1414,6 @@ regExExtraction = function(pattern, x, ...) {
     
     return(cap)
   }, re, x, SIMPLIFY=F)
-  
 }
 numericVectorToStringForEval <- function(vec){
   return(paste("c(", paste(vec, collapse = ","), ")", sep = ""))

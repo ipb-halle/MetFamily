@@ -195,6 +195,8 @@ parseMSP_big <- function(fileSpectra, minimumIntensityOfMaximalMS2peak, minimumP
       entryIntervals <- entryIntervals - min(entryIntervals) + 1
   }
   numberOfChunks <- length(fileLineChunks)
+  fileLineCountOfChunks  <- unlist(lapply(X = fileLineChunks, FUN = length))
+  fileLineOffsetOfChunks <- c(0, sapply(X = seq_along(fileLineCountOfChunks)[-1], FUN = function(x){sum(fileLineCountOfChunks[1:(x-1)])}))
   
   if(progress)  incProgress(amount = 0, detail = paste("Parse", numberOfChunks, "chunks")) else print(paste("Parse", numberOfChunks, "chunks"))
   ## merge chunks
@@ -215,7 +217,12 @@ parseMSP_big <- function(fileSpectra, minimumIntensityOfMaximalMS2peak, minimumP
     fileLines  <- fileLineChunks[[1]]
     fileLineChunks[[1]] <- NULL
     
-    returnObj2 <- parseMSP_chunk(fileLines, minimumIntensityOfMaximalMS2peak, minimumProportionOfMS2peaks, neutralLossesPrecursorToFragments, neutralLossesFragmentsToFragments, NA)
+    returnObj2 <- parseMSP_chunk(
+      fileLines = fileLines, 
+      minimumIntensityOfMaximalMS2peak = minimumIntensityOfMaximalMS2peak, minimumProportionOfMS2peaks = minimumProportionOfMS2peaks, 
+      neutralLossesPrecursorToFragments = neutralLossesPrecursorToFragments, neutralLossesFragmentsToFragments = neutralLossesFragmentsToFragments, 
+      offset = fileLineOffsetOfChunks[[chunkIdx]], progress = NA
+    )
     
     returnObj$spectraList                       <- c(returnObj$spectraList,                        returnObj2$spectraList)
     returnObj$numberOfSpectra                   <-   returnObj$numberOfSpectra                   + returnObj2$numberOfSpectra
@@ -234,7 +241,7 @@ parseMSP_big <- function(fileSpectra, minimumIntensityOfMaximalMS2peak, minimumP
   
   return(returnObj)
 }
-parseMSP_chunk <- function(fileLines, minimumIntensityOfMaximalMS2peak, minimumProportionOfMS2peaks, neutralLossesPrecursorToFragments, neutralLossesFragmentsToFragments, progress = FALSE){
+parseMSP_chunk <- function(fileLines, minimumIntensityOfMaximalMS2peak, minimumProportionOfMS2peaks, neutralLossesPrecursorToFragments, neutralLossesFragmentsToFragments, offset = 0, progress = FALSE){
   
   ## LC-MS/MS entry:
   ## NAME: Unknown
@@ -671,7 +678,8 @@ parseMSP_chunk <- function(fileLines, minimumIntensityOfMaximalMS2peak, minimumP
         peakNumber = length(ms2Peaks_mz),
         ms2Peaks_mz  = ms2Peaks_mz,
         ms2Peaks_int = ms2Peaks_int,
-        spectrumString = spectrumString
+        spectrumString = spectrumString,
+        entryInterval = x + offset
       )
       if(spectrumItem$peakNumber > 0){
         ## add

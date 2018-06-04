@@ -17,6 +17,7 @@ ms2StickPointSizeEmph <- 1
 ms2StickPointSizeEmphSmall <- 2/3.
 ms2StickPointSizeMaximumMultiplier <- 0.75
 dendrogramClusterPointSizeMaximumMultiplier <- 0.75
+dendrogramHeatmapLeftMargin <- 6#4
 
 #########################################################################################
 ## plotting
@@ -130,7 +131,7 @@ calcPlotDendrogram <- function(dataList, filter, clusterDataList, annoPresentAnn
   
   ####################
   ## cluster
-  par(mar=c(7.25,4,2,0), mgp = c(3, 1, 0))  ## c(bottom, left, top, right)
+  par(mar=c(7.25,dendrogramHeatmapLeftMargin,2,0), mgp = c(3, 1, 0))  ## c(bottom, left, top, right)
   
   dend <- as.dendrogram(clusterDataList$cluster)
   
@@ -156,18 +157,27 @@ calcPlotDendrogram <- function(dataList, filter, clusterDataList, annoPresentAnn
   }
   ## color labels for analysis sub-root
   if(!is.null(selectionAnalysisTreeNodeSet)){
-    for(selectionAnalysisTreeNode in selectionAnalysisTreeNodeSet){
-      clusterMembers <- NULL
-      if(selectionAnalysisTreeNode > 0){
-        clusterMembers <- c(clusterMembers, clusterDataList$innerNodeMembersTreeLeaves[[selectionAnalysisTreeNode]])
-      } else {
-        clusterMembers <- c(clusterMembers, -selectionAnalysisTreeNode)
-      }
-    }
+    clusterMembers <- c(
+      unlist(clusterDataList$innerNodeMembersTreeLeaves[selectionAnalysisTreeNodeSet[selectionAnalysisTreeNodeSet > 0]]), 
+      -selectionAnalysisTreeNodeSet[selectionAnalysisTreeNodeSet < 0]
+    )
     
     colLab <- colorLabels(precursorLabelsWithIdx, clusterMembers, 'blue')
     dend <- dendrapply(dend, colLab)
   }
+  #if(!is.null(selectionAnalysisTreeNodeSet)){
+  #  for(selectionAnalysisTreeNode in selectionAnalysisTreeNodeSet){
+  #    clusterMembers <- NULL
+  #    if(selectionAnalysisTreeNode > 0){
+  #      clusterMembers <- c(clusterMembers, clusterDataList$innerNodeMembersTreeLeaves[[selectionAnalysisTreeNode]])
+  #    } else {
+  #      clusterMembers <- c(clusterMembers, -selectionAnalysisTreeNode)
+  #    }
+  #  }
+  #  
+  #  colLab <- colorLabels(precursorLabelsWithIdx, clusterMembers, 'blue')
+  #  dend <- dendrapply(dend, colLab)
+  #}
   
   ### remove labels left of the y-axis
   #rightMostInvisibleLabelIndex <- floor(xInterval[[1]] - (xInterval[[2]] - xInterval[[1]]) * 0.04)
@@ -1145,6 +1155,28 @@ calcPlotDendrogram_plotly <- function(
   
 }
 calcPlotHeatmap <- function(dataList, filterObj, clusterDataList, selectedTreeNodeSet, frameColor, heatmapContent, heatmapOrdering, xInterval = NULL){
+  if(FALSE){
+    dataList_ <<- dataList
+    filterObj_ <<- filterObj
+    clusterDataList_ <<- clusterDataList
+    selectedTreeNodeSet_ <<- selectedTreeNodeSet
+    frameColor_ <<- frameColor
+    heatmapContent_ <<- heatmapContent
+    heatmapOrdering_ <<- heatmapOrdering
+    xInterval_ <<- xInterval
+  }
+  if(FALSE){
+    dataList <- dataList_
+    filterObj <- filterObj_
+    clusterDataList <- clusterDataList_
+    selectedTreeNodeSet <- selectedTreeNodeSet_
+    frameColor <- frameColor_
+    heatmapContent <- heatmapContent_
+    heatmapOrdering <- heatmapOrdering_
+    xInterval <- xInterval_
+  }
+  
+  
   ## TODO implement fragment selection and search selection (clustering, emphasize in plot)
   
   if(is.null(xInterval))
@@ -1172,7 +1204,7 @@ calcPlotHeatmap <- function(dataList, filterObj, clusterDataList, selectedTreeNo
          "Abundance by sample"={## samples
            columnsOfInterest <- dataList$dataColumnsNameFunctionFromGroupNames(groups = groups, sampleNamesToExclude = dataList$excludedSamples(dataList$groupSampleDataFrame))
            columnsOfInterest <- dataList$orderColumnNames(groupSampleDataFrame = dataList$groupSampleDataFrame, columnNames = columnsOfInterest)
-           columnsOfInterest <- rev(columnsOfInterest) ## plot is bottom to top
+           #columnsOfInterest <- rev(columnsOfInterest) ## plot is bottom to top
            labels <- columnsOfInterest
          },
          {## unknown state
@@ -1244,6 +1276,8 @@ calcPlotHeatmap <- function(dataList, filterObj, clusterDataList, selectedTreeNo
     values <- lapply(X = columnsOfInterest[cluster$order], FUN = function(x){
       dataList$dataFrameMeasurements[filterObj$filter, x][clusterDataList$cluster$order]
     })
+    
+    columnOrder <- cluster$order
   } else {
     colors <- lapply(X = columnsOfInterest, FUN = function(x){
       dataList$colorMatrixDataFrame[filterObj$filter, x][clusterDataList$cluster$order]
@@ -1251,10 +1285,11 @@ calcPlotHeatmap <- function(dataList, filterObj, clusterDataList, selectedTreeNo
     values <- lapply(X = columnsOfInterest, FUN = function(x){
       dataList$dataFrameMeasurements[filterObj$filter, x][clusterDataList$cluster$order]
     })
+    columnOrder <- seq_along(columnsOfInterest)
   }
   
   ## plot
-  par(mar=c(0,4,0,0), mgp = c(3, 1, 0))  ## c(bottom, left, top, right) ## c(title, axis, label)
+  par(mar=c(0,dendrogramHeatmapLeftMargin,0,0), mgp = c(3, 1, 0))  ## c(bottom, left, top, right) ## c(title, axis, label)
   
   if(numberOfGroups == 0){
     ## nothing there
@@ -1350,7 +1385,12 @@ calcPlotHeatmap <- function(dataList, filterObj, clusterDataList, selectedTreeNo
   ## https://plot.ly/r/shinyapp-plotly-events/
   return(list(plot=plot, columnsOfInterest=columnsOfInterest))
   }
-  return(columnsOfInterest)
+  
+  returnObj <- list()
+  returnObj$columnsOfInterest <- columnsOfInterest
+  returnObj$columnOrder <- columnOrder
+  
+  return(returnObj)
 }
 calcPlotHeatmapOld <- function(dataList, filterObj, clusterDataList, xInterval = NULL){
   if(is.null(xInterval))
@@ -1389,6 +1429,8 @@ calcPlotHeatmapOld <- function(dataList, filterObj, clusterDataList, xInterval =
     #}
     axis(side = 2, at = c(0.5, 1.5, 2.5), labels = c(filterObj$groups[[2]], filterObj$groups[[1]], "LFC"), las = 2, tick = TRUE)
   }
+  
+  return(columnsOfInterest)
 }
 reorderAnnotationsForLegend <- function(annoLabels, annoColors){
   if(FALSE){
@@ -1756,7 +1798,7 @@ createTickLabels <- function(maximumNumberOfLabels, max, labelPrefix){
   
   return(returnObj)
 }
-calcPlotMS2 <- function(dataList, fragmentsX = NULL, fragmentsY = NULL, fragmentsColor = NULL, fragmentsDiscriminativity = NULL, fragmentsX_02 = NULL, fragmentsY_02 = NULL, fragmentsColor_02 = NULL, fragmentsDiscriminativity_02 = NULL, xInterval = NULL, selectedFragmentIndex = NULL){
+calcPlotMS2 <- function(dataList, fragmentsX = NULL, fragmentsY = NULL, fragmentsColor = NULL, fragmentsDiscriminativity = NULL, fragmentsX_02 = NULL, fragmentsY_02 = NULL, fragmentsColor_02 = NULL, xInterval = NULL, selectedFragmentIndex = NULL, dendrogramFragmentStatistics = FALSE){
   
   if(FALSE){
     dataList_ <<- dataList
@@ -1767,7 +1809,6 @@ calcPlotMS2 <- function(dataList, fragmentsX = NULL, fragmentsY = NULL, fragment
     fragmentsX_02_ <<- fragmentsX_02
     fragmentsY_02_ <<- fragmentsY_02
     fragmentsColor_02_ <<- fragmentsColor_02
-    fragmentsDiscriminativity_02_ <<- fragmentsDiscriminativity_02
     xInterval_ <<- xInterval
     selectedFragmentIndex_ <<- selectedFragmentIndex
   }
@@ -1780,7 +1821,6 @@ calcPlotMS2 <- function(dataList, fragmentsX = NULL, fragmentsY = NULL, fragment
     fragmentsX_02 <<- fragmentsX_02_
     fragmentsY_02 <<- fragmentsY_02_
     fragmentsColor_02 <<- fragmentsColor_02_
-    fragmentsDiscriminativity_02 <<- fragmentsDiscriminativity_02_
     xInterval <<- xInterval_
     selectedFragmentIndex <<- selectedFragmentIndex_
   }
@@ -1873,7 +1913,6 @@ calcPlotMS2 <- function(dataList, fragmentsX = NULL, fragmentsY = NULL, fragment
         pointColors[[selectedFragmentIndex]] <- "green"
         #pointColorsSmall[[selectedFragmentIndex]] <- "green"
       }
-      #pointSizeMultiplier <- c(fragmentsDiscriminativity, fragmentsDiscriminativity_02) * ms2StickPointSizeMaximumMultiplier
       pointSizeMultiplier <- fragmentsDiscriminativity * ms2StickPointSizeMaximumMultiplier
       pointSizes      <- pointSizes      + pointSizeMultiplier
       pointSizesSmall <- pointSizesSmall + pointSizeMultiplier
@@ -1888,7 +1927,10 @@ calcPlotMS2 <- function(dataList, fragmentsX = NULL, fragmentsY = NULL, fragment
     graphics::text(labels = "Fragments from mouse hover", x = xInterval[[2]], y = -0.9, pos = 2, adj = c(0,0))
   }
   if(!is.null(fragmentsX) & is.null(fragmentsX_02)){
-    graphics::text(labels = "Fragments from selection", x = xInterval[[2]], y = 0.95, pos = 2, adj = c(0,0))
+    if(!dendrogramFragmentStatistics)
+      graphics::text(labels = "Fragments from selection", x = xInterval[[2]], y = 0.95, pos = 2, adj = c(0,0))
+    else
+      graphics::text(labels = "Dendrogram statistics",    x = xInterval[[2]], y = 0.95, pos = 2, adj = c(0,0))
   }
   if(is.null(fragmentsX) & !is.null(fragmentsX_02)){
     graphics::text(labels = "Fragments from mouse hover", x = xInterval[[2]], y = 0.95, pos = 2, adj = c(0,0))
@@ -2342,31 +2384,129 @@ colorPaletteScores <- function(){
   )
   return(palette)
 }
-plotFragments <- function(dataList, xInterval = NULL, yInterval = NULL, relative = FALSE){
+plotFragmentsFromDataList <- function(dataList, xInterval = NULL, yInterval = NULL, relative = FALSE){
   if(is.null(xInterval)){
-    xMin <- min(dataList$masses)
-    xMax <- max(dataList$masses)
+    xMin <- min(dataList$fragmentMasses)
+    xMax <- max(dataList$fragmentMasses)
     xInterval <- c(xMin, xMax)
   } else {
     xMin <- xInterval[[1]]
     xMax <- xInterval[[2]]
   }
   
-  massIntervalSelection <- dataList$masses >= xMin & dataList$masses <= xMax
-  numberOfFragments <- dataList$numberOfFragments[massIntervalSelection]
-  masses            <- dataList$masses[massIntervalSelection]
+  massIntervalSelection <- dataList$ms2_masses >= xMin & dataList$ms2_masses <= xMax
+  #numberOfFragments <- dataList$ms2_numberOfFragments[massIntervalSelection]
+  #masses            <- dataList$ms2_masses[massIntervalSelection]
   
   minimumNumberOfFragments <- 5
-  selection <- massIntervalSelection & (dataList$numberOfFragments >= minimumNumberOfFragments)
+  selection <- massIntervalSelection & (dataList$ms2_numberOfFragments >= minimumNumberOfFragments)
   
-  numberOfFragments <- dataList$numberOfFragments[selection]
-  masses            <- dataList$masses[selection]
+  numberOfFragments <- dataList$ms2_numberOfFragments[selection]
+  masses            <- dataList$ms2_masses[selection]
   
-  #colors <- rep(x = "black", times = length(dataList$masses))
+  colors <- cmap(x = numberOfFragments, map = dataList$colorMapFragmentData)
+  
+  #colors <- rep(x = "black", times = length(dataList$ms2_masses))
   colors <- cmap(x = numberOfFragments, map = dataList$colorMapFragmentData)
   
   if(relative)
     numberOfFragments <- numberOfFragments / dataList$numberOfPrecursors
+  
+  plotFragments(masses=masses, numberOfFragments=numberOfFragments, colors = colors, numberOfPrecursors=dataList$numberOfPrecursors, xInterval=xInterval, yInterval=yInterval)
+}  
+plotFragments <- function(masses, numberOfFragments, colors = NULL, numberOfPrecursors, title = NULL, xInterval = NULL, yInterval = NULL){
+  if(is.null(xInterval)){
+    xMin <- min(masses)
+    xMax <- max(masses)
+    xInterval <- c(xMin, xMax)
+  } else {
+    xMin <- xInterval[[1]]
+    xMax <- xInterval[[2]]
+  }
+  
+  yMin <- 0
+  if(length(masses) == 0)
+    yMax <- 1
+  else
+    yMax <- max(numberOfFragments)
+  if(is.null(yInterval))
+    yInterval <- c(yMin, yMax)
+  
+  if(is.null(colors))
+    colors <- rep(x = "black", times = length(masses))
+  
+  #########################################################################################################
+  ## plot
+  par(mar=c(5,3,ifelse(test = is.null(title), yes = 2, no = 4),3), mgp = c(2, 1, 0))  ## c(bottom, left, top, right)
+  #plot(x = dataList$ms2_masses, y = dataList$ms2_numberOfFragments, xlab = "Fragment mass", ylab = "Precursors", xlim = xInterval, ylim = yInterval, main = "Fragment plot", col = colors, pch=19, cex=1., xaxt='n')
+  #plot(x = masses, y = numberOfFragments, xlab = "", ylab = "Precursors", xlim = xInterval, ylim = yInterval, main = NULL, col = colors, pch=19, cex=1., xaxt='n')
+  #plot(x = NULL, y = NULL, xlab = "m/z", ylab = "Number of spectra", xlim = xInterval, ylim = yInterval, main = NULL, col = colors, pch=19, cex=1., xaxt='n')
+  plot(x = NULL, y = NULL, xlab = "m/z", ylab = "Number of spectra", xlim = xInterval, ylim = yInterval, main = NULL, pch=19, cex=1., xaxt='n')
+  if(!is.null(title))
+    title(title, line = 3)
+  axis(side = 3)
+  
+  ## axis
+  dataOrder <- order(numberOfFragments)
+  #axis(side = 1, at = dataList$ms2_masses, labels = dataList$ms2_masses, las = 2, tick = TRUE, col = colors)
+  #for(i in 1:length(dataList$ms2_masses))
+  for(i in dataOrder)
+    axis(side = 1, at = masses[[i]], labels = format(x = masses[[i]], digits = 0, nsmall = 4), las = 2, tick = TRUE, col.axis = colors[[i]])
+  
+  points(x = masses[dataOrder], y = numberOfFragments[dataOrder], col = colors[dataOrder], type = "h", lwd=4)
+  #points(x = masses[dataOrder], y = numberOfFragments[dataOrder], col = colors[dataOrder], pch=19, cex=1.)
+  
+  numberOfFragmentsInPercent <- numberOfFragments / numberOfPrecursors * 100
+  yInterval <- c(0, yInterval[[2]] / numberOfPrecursors * 100)
+  par(new = TRUE)
+  plot(x = c(0, masses), y = c(0, numberOfFragmentsInPercent), xlim = xInterval, ylim = yInterval, axes=FALSE, type="n", xlab = "", ylab = "")
+  axis(side = 4, line = NA, at = as.integer(pretty(c(0, numberOfFragmentsInPercent))))
+  mtext(side = 4, line = 2, text = "Number of spectra in %")
+  
+  resultObj <- list()
+  resultObj$poiFragmentX <- masses
+  resultObj$poiFragmentY <- numberOfFragments
+  
+  return(resultObj)
+}
+plotFragments2 <- function(masses, numberOfFragments, numberOfPrecursors, xInterval = NULL, yInterval = NULL){
+  if(FALSE){
+    masses_ <<- masses
+    numberOfFragments_ <<- numberOfFragments
+    numberOfPrecursors_ <<- numberOfPrecursors
+  }
+  if(FALSE){
+    masses <- masses_
+    numberOfFragments <- numberOfFragments_
+    numberOfPrecursors <- numberOfPrecursors_
+  }
+  
+  
+  if(is.null(xInterval)){
+    xMin <- min(masses)
+    xMax <- max(masses)
+    xInterval <- c(xMin, xMax)
+  } else {
+    xMin <- xInterval[[1]]
+    xMax <- xInterval[[2]]
+  }
+  
+  massIntervalSelection <- masses >= xMin & masses <= xMax
+  #numberOfFragments <- numberOfFragments[massIntervalSelection]
+  #masses            <- masses[massIntervalSelection]
+  
+  minimumNumberOfFragments <- 1
+  selection <- massIntervalSelection & (numberOfFragments >= minimumNumberOfFragments)
+  
+  numberOfFragments <- numberOfFragments[selection]
+  masses            <- masses[selection]
+  
+  ms2PlotDataColorMapFragmentData  <- makecmap(
+    x = c(0, max(numberOfFragments)), n = 100, 
+    colFn = colorRampPalette(c('grey', 'black'))
+  )
+  #colors <- rep(x = "black", times = length(masses))
+  colors <- cmap(x = numberOfFragments, map = ms2PlotDataColorMapFragmentData)
   
   yMin <- 0
   if(sum(selection) == 0)
@@ -2380,15 +2520,15 @@ plotFragments <- function(dataList, xInterval = NULL, yInterval = NULL, relative
   #########################################################################################################
   ## plot
   par(mar=c(5,3,2,3), mgp = c(2, 1, 0))  ## c(bottom, left, top, right)
-  #plot(x = dataList$masses, y = dataList$numberOfFragments, xlab = "Fragment mass", ylab = "Precursors", xlim = xInterval, ylim = yInterval, main = "Fragment plot", col = colors, pch=19, cex=1., xaxt='n')
+  #plot(x = masses, y = numberOfFragments, xlab = "Fragment mass", ylab = "Precursors", xlim = xInterval, ylim = yInterval, main = "Fragment plot", col = colors, pch=19, cex=1., xaxt='n')
   #plot(x = masses, y = numberOfFragments, xlab = "", ylab = "Precursors", xlim = xInterval, ylim = yInterval, main = NULL, col = colors, pch=19, cex=1., xaxt='n')
   plot(x = NULL, y = NULL, xlab = "m/z", ylab = "Number of spectra", xlim = xInterval, ylim = yInterval, main = NULL, col = colors, pch=19, cex=1., xaxt='n')
   axis(side = 3)
   
   ## axis
   dataOrder <- order(numberOfFragments)
-  #axis(side = 1, at = dataList$masses, labels = dataList$masses, las = 2, tick = TRUE, col = colors)
-  #for(i in 1:length(dataList$masses))
+  #axis(side = 1, at = masses, labels = masses, las = 2, tick = TRUE, col = colors)
+  #for(i in 1:length(masses))
   for(i in dataOrder)
     axis(side = 1, at = masses[[i]], labels = format(x = masses[[i]], digits = 0, nsmall = 4), las = 2, tick = TRUE, col.axis = colors[[i]])
   
@@ -2396,7 +2536,7 @@ plotFragments <- function(dataList, xInterval = NULL, yInterval = NULL, relative
   #points(x = masses[dataOrder], y = numberOfFragments[dataOrder], col = colors[dataOrder], pch=19, cex=1.)
   
   ## 2nd y-axis TODO
-  numberOfFragmentsInPercent <- numberOfFragments / dataList$numberOfPrecursors * 100
+  numberOfFragmentsInPercent <- numberOfFragments / numberOfPrecursors * 100
   par(new = TRUE)
   plot(x = c(0, masses), y = c(0, numberOfFragmentsInPercent), xlim = xInterval, axes=FALSE, type="n", xlab = "", ylab = "")
   axis(side = 4, line = NA, at = as.integer(pretty(c(0, numberOfFragmentsInPercent))))
@@ -2447,7 +2587,7 @@ calcPlotSpectrumVsClass_small <- function(masses_spec, intensity_spec, colors_sp
   points(x = masses_spec,  y = intensity_spec,  col = colors_spec,  type = "h", lwd=4)
   points(x = masses_class, y = frequency_class, col = colors_class, type = "h", lwd=4)
 }
-calcPlotSpectrumVsClass_big <- function(masses_spec, intensity_spec, colors_spec, masses_class, frequency_class, colors_class, xInterval){
+calcPlotSpectrumVsClass_big <- function(masses_spec, intensity_spec, colors_spec, masses_class, frequency_class, colors_class, singleSpec, xInterval){
   if(FALSE){
     masses_spec_ <<- masses_spec
     intensity_spec_ <<- intensity_spec
@@ -2467,13 +2607,14 @@ calcPlotSpectrumVsClass_big <- function(masses_spec, intensity_spec, colors_spec
     xInterval <- xInterval_
   }
   
-  
-  yInterval <- c(-1, 1)
+  onlyClass <- is.null(masses_class)
+  yInterval <- c(ifelse(test = is.null(masses_class), yes = 0, no = -1), 1)
   
   ## abundances greater one
   intensity_spec[intensity_spec > 1] <- 1
-  frequency_class <- -frequency_class
   
+  if(!is.null(frequency_class))
+    frequency_class <- -frequency_class
   
   yTickPositions <- c(-1, -0.75, -0.5, -0.25, 0, 0.25, 0.5, 0.75, 1)
   yTickLabels <- c(1, "", 0.5, "", 0, "", 0.5, "", 1)
@@ -2483,21 +2624,21 @@ calcPlotSpectrumVsClass_big <- function(masses_spec, intensity_spec, colors_spec
   pointColors <- rep(x = "black", times = length(masses_spec))
   pointColorsSmall <- rep(x = "gray", times = length(masses_spec))
   
-  #pointSizeMultiplier <- c(fragmentsDiscriminativity, fragmentsDiscriminativity_02) * ms2StickPointSizeMaximumMultiplier
-  #pointSizeMultiplier <- ms2StickPointSizeMaximumMultiplier
-  #pointSizes      <- pointSizes      + pointSizeMultiplier
-  #pointSizesSmall <- pointSizesSmall + pointSizeMultiplier
-  
   these <- which(colors_spec == "black")
   if(length(these) == 0)
     these <- length(masses_spec)+1
   
+  plotTitle <-  ifelse(test = singleSpec, yes = "Spectrum versus class", no = 
+                ifelse(test = onlyClass,  yes = "Metabolite family spectrum", no = "Metabolite family versus class"))
+  yAxisLabel <- ifelse(test = singleSpec, yes = "Frequency / Intensity", no = 
+                ifelse(test = onlyClass,  yes = "Frequency", no = "Frequency / Frequency"))
+  
   ## plot
-  par(mar=c(6,4,3,0), mgp = c(3, 1, 0))  ## c(bottom, left, top, right)
-  plot(NA, ylab = "Frequency / Intensity", xlab = "m/z", xlim = xInterval, ylim = yInterval, xaxt='n', yaxt='n')
+  par(mar=c(6,4.1,4,0.1), mgp = c(3, 1, 0))  ## c(bottom, left, top, right)
+  plot(NA, ylab = yAxisLabel, xlab = "m/z", xlim = xInterval, ylim = yInterval, xaxt='n', yaxt='n')
   axis(side = 2, at = yTickPositions, labels = yTickLabels)
   axis(side = 3)
-  title("Spectrum versus Metabolite family plot", line = 2)
+  title(plotTitle, line = 2.5)
   #mtext(side = 3, "m/z", line = 2)
   
   ## x-axis line
@@ -2518,7 +2659,11 @@ calcPlotSpectrumVsClass_big <- function(masses_spec, intensity_spec, colors_spec
   
   ## sticks
   points(x = masses_spec[-these],  y = intensity_spec[-these],  col = colors_spec[-these],  type = "h", lwd=4)
-  points(x = masses_class, y = frequency_class, col = colors_class, type = "h", lwd=4)
+  if(!is.null(masses_class)){
+    these2 <- colors_class == "black"
+    points(x = masses_class[!these2], y = frequency_class[!these2], col = colors_class[!these2], type = "h", lwd=4)
+    points(x = masses_class[ these2], y = frequency_class[ these2], col = colors_class[ these2], type = "h", lwd=4)
+  }
   
   ## points
   points(x = masses_spec, y = intensity_spec, col = pointColors,      pch=19, cex=pointSizes)
@@ -2530,6 +2675,6 @@ calcPlotSpectrumVsClass_big <- function(masses_spec, intensity_spec, colors_spec
   points(x = masses_spec[these], y = intensity_spec[these], col = pointColorsSmall[these], pch=19, cex=pointSizesSmall[these])
   
   ## plot labels
-  graphics::text(labels = "Fragments from spectrum", x = xInterval[[2]], y = 0.9, pos = 2, adj = c(0,0))
+  graphics::text(labels = ifelse(test = singleSpec, yes = "Fragments from spectrum", no = "Fragments from spectra"), x = xInterval[[2]], y = 0.9, pos = 2, adj = c(0,0))
   graphics::text(labels = "Fragments from class",    x = xInterval[[2]], y = -0.9, pos = 2, adj = c(0,0))
 }

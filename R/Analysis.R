@@ -726,15 +726,7 @@ calculateCluster <- function(dataList, filterObj, distanceMatrix, method, distan
   
   return(clusterDataList)
 }
-calculatePCA <- function(dataList, filterObj, ms1AnalysisMethod, scaling, logTransform){
-  ## data selection
-  if(filterObj$filterBySamples){
-    dataFrame <- dataList$dataFrameMeasurements[filterObj$filter, filterObj$sampleSet]
-  } else {
-    dataFrame <- dataList$dataFrameMeasurements[filterObj$filter, dataList$dataColumnsNameFunctionFromGroupNames(groups = filterObj$groups, sampleNamesToExclude = dataList$excludedSamples(dataList$groupSampleDataFrame))]
-  }
-  
-  dataFrame <- t(dataFrame)
+preprocessDataForPca <- function(dataFrame, scaling, logTransform){
   
   if(logTransform){
     dataFrame[dataFrame < 1] <- 1
@@ -764,19 +756,24 @@ calculatePCA <- function(dataList, filterObj, ms1AnalysisMethod, scaling, logTra
              #print(x)
              (x - mean(x = x)) / sqrt(sd(x = x))
            }))
+           
+           dataFrame2[is.na(dataFrame2)] <- 0
          },
          stop(paste("Unknown scaling (", scaling, ")!", sep = ""))
   )
   
-  dataFrame2[is.na(dataFrame2)] <- dataFrame[is.na(dataFrame2)]
+  #dataFrame2[is.na(dataFrame2)] <- dataFrame[is.na(dataFrame2)]
+  dataFrame2[is.na(dataFrame2)] <- 0
   
+  return(dataFrame2)
+}
+minimumNumberOfComponents <- 5
+performPca <- function(dataFrame2, ms1AnalysisMethod){
   ## TODO pcaMethods confidence intervals analog to MetaboAnalyst: pcaMethods:::simpleEllipse
-  numberOfComponents <- min(5, nrow(dataFrame2))
+  numberOfComponents <- min(minimumNumberOfComponents, nrow(dataFrame2))
+  
   returnObj <- list()
-  returnObj$filterObj = filterObj
   returnObj$ms1AnalysisMethod = ms1AnalysisMethod
-  returnObj$scaling = scaling
-  returnObj$logTransform = logTransform
   
   #ms1AnalysisMethod <- c(
   #  "stats",           # 1
@@ -788,114 +785,122 @@ calculatePCA <- function(dataList, filterObj, ms1AnalysisMethod, scaling, logTra
   #  "mixOmics_splsda"  # 7
   #)[[5]]
   
-  if(ms1AnalysisMethod == "PCA (Principal Component Analysis)")
-    #ms1AnalysisMethod <- "mixOmics_pca"
-    ms1AnalysisMethod <- "pcaMethods"
-  if(ms1AnalysisMethod == "sPCA (Sparse Principal Component Analysis)")
-    ms1AnalysisMethod <- "mixOmics_spca"
-  #if(ms1AnalysisMethod == "PCA (Principal Component Analysis)")
-  #  ms1AnalysisMethod <- "pcaMethods"
-  if(ms1AnalysisMethod == "PLS-DA (Partial Least Squares Discriminant Analysis)")
-    ms1AnalysisMethod <- "mixOmics_plsda"
-  if(ms1AnalysisMethod == "sPLS-DA (Sparse Partial Least Squares Discriminant Analysis)")
-    ms1AnalysisMethod <- "mixOmics_splsda"
-  
-  switch(ms1AnalysisMethod,
-         "stats"={
-           ## pca from "stats" package
-           print("Analysis: stats")
-           pca <- stats::prcomp(x = dataFrame2, retx = TRUE, center = FALSE, scale. = FALSE)
-           returnObj$scores   <- pca$x
-           returnObj$loadings <- pca$rotation
-           returnObj$variance <- pca$sdev
-         },
-         "FactoMineR"={
-           ## pca from "FactoMineR" package
-           print("Analysis: FactoMineR")
-           pca = FactoMineR::PCA(X = dataFrame2, graph = FALSE, scale.unit = FALSE, ncp = numberOfComponents)
-           returnObj$scores   <- pca$ind$coord
-           returnObj$loadings <- pca$var$coord
-           returnObj$variance <- pca$eig$"percentage of variance"
-         },
-         "pcaMethods"={
-           ## pca from "pcaMethods" package
-           print("Analysis: pcaMethods")
-           #pca <- pca(object = dataFrame2, method = "robustPca", nPcs = 2, scale = "none", center = FALSE, cv = "q2")
-           pca <- pcaMethods::pca(object = dataFrame2, method = "svd", nPcs = numberOfComponents, scale = "none", center = FALSE)
-           returnObj$scores   <- pca@scores
-           returnObj$loadings <- pca@loadings
-           returnObj$variance <- pca@sDev
-           
-           returnObj$R2 <- pca@R2
-           #returnObj$Q2 <- Q2(object = pca, fold=2)
-           returnObj$Q2 <- tryCatch(
-             {
-               Q2(object = pca, fold=2)
-             },
-             error=function(cond) {
-               rep(x = "N/A", times = numberOfComponents)
+  if(ncol(dataFrame2) < 2){
+    numberOfPrecursors <- dataList$numberOfPrecursors
+    numberOfSamples    <- ncol(dataFrame2)
+    returnObj$scores   <- matrix(nrow = numberOfSamples,    ncol = numberOfComponents, data = rep(x = 0, times = numberOfSamples    * numberOfComponents))
+    returnObj$loadings <- matrix(nrow = numberOfPrecursors, ncol = numberOfComponents, data = rep(x = 0, times = numberOfPrecursors * numberOfComponents))
+    returnObj$variance <- vector(mode = "numeric", length = numberOfComponents)
+  } else {
+    if(ms1AnalysisMethod == "PCA (Principal Component Analysis)")
+      #ms1AnalysisMethod <- "mixOmics_pca"
+      ms1AnalysisMethod <- "pcaMethods"
+    if(ms1AnalysisMethod == "sPCA (Sparse Principal Component Analysis)")
+      ms1AnalysisMethod <- "mixOmics_spca"
+    #if(ms1AnalysisMethod == "PCA (Principal Component Analysis)")
+    #  ms1AnalysisMethod <- "pcaMethods"
+    if(ms1AnalysisMethod == "PLS-DA (Partial Least Squares Discriminant Analysis)")
+      ms1AnalysisMethod <- "mixOmics_plsda"
+    if(ms1AnalysisMethod == "sPLS-DA (Sparse Partial Least Squares Discriminant Analysis)")
+      ms1AnalysisMethod <- "mixOmics_splsda"
+    
+    switch(ms1AnalysisMethod,
+           "stats"={
+             ## pca from "stats" package
+             print("Analysis: stats")
+             pca <- stats::prcomp(x = dataFrame2, retx = TRUE, center = FALSE, scale. = FALSE)
+             returnObj$scores   <- pca$x
+             returnObj$loadings <- pca$rotation
+             returnObj$variance <- pca$sdev
+           },
+           "FactoMineR"={
+             ## pca from "FactoMineR" package
+             print("Analysis: FactoMineR")
+             pca = FactoMineR::PCA(X = dataFrame2, graph = FALSE, scale.unit = FALSE, ncp = numberOfComponents)
+             returnObj$scores   <- pca$ind$coord
+             returnObj$loadings <- pca$var$coord
+             returnObj$variance <- pca$eig$"percentage of variance"
+           },
+           "pcaMethods"={
+             ## pca from "pcaMethods" package
+             print("Analysis: pcaMethods")
+             #pca <- pca(object = dataFrame2, method = "robustPca", nPcs = 2, scale = "none", center = FALSE, cv = "q2")
+             pca <- pcaMethods::pca(object = dataFrame2, method = "svd", nPcs = numberOfComponents, scale = "none", center = FALSE)
+             returnObj$scores   <- pca@scores
+             returnObj$loadings <- pca@loadings
+             returnObj$variance <- pca@sDev
+             
+             returnObj$R2 <- pca@R2
+             #returnObj$Q2 <- Q2(object = pca, fold=2)
+             returnObj$Q2 <- tryCatch(
+               {
+                 Q2(object = pca, fold=2)
+               },
+               error=function(cond) {
+                 rep(x = "N/A", times = numberOfComponents)
+               }
+             )
+           },
+           "mixOmics_pca"={
+             ## pca from "mixOmics" package
+             print("Analysis: mixOmics_pca")
+             pca = mixOmics::pca(X = dataFrame2, ncomp = numberOfComponents, center = FALSE, scale = FALSE)
+             returnObj$scores   <- pca$variates[[1]]
+             returnObj$loadings <- pca$loadings[[1]]
+             returnObj$variance <- pca$explained_variance
+             #returnObj$R2 <- 
+             #returnObj$Q2 <- 
+           },
+           "mixOmics_spca"={
+             ## pca from "mixOmics" package
+             print("Analysis: mixOmics_pca")
+             pca = mixOmics::spca(X = dataFrame2, ncomp = numberOfComponents, center = FALSE, scale = FALSE)
+             returnObj$scores   <- pca$variates[[1]]
+             returnObj$loadings <- pca$loadings[[1]]
+             returnObj$variance <- pca$explained_variance
+             #returnObj$R2 <- 
+             #returnObj$Q2 <- 
+             
+             val <- perf(res, criterion = c("R2", "Q2"))
+             
+           },
+           "mixOmics_plsda"={
+             ## plsda "mixOmics" package
+             print("Analysis: mixOmics_plsda")
+             groupLabels  <- unlist(lapply(X = rownames(dataFrame), FUN = function(x){dataList$groupNameFunctionFromDataColumnName(dataColumnName = x, sampleNamesToExclude = dataList$excludedSamples(dataList$groupSampleDataFrame))}))
+             pca = mixOmics::plsda(X = dataFrame2, Y = groupLabels, ncomp = numberOfComponents, scale = FALSE)
+             returnObj$scores   <- pca$variates[[1]]
+             returnObj$loadings <- pca$loadings[[1]]
+             returnObj$variance <- pca$explained_variance
+             
+             if(FALSE){## R2 and Q2?
+               performance <- perf(pca, validation = "Mfold", folds = 2, progressBar = FALSE, tol = 1e-20)
+               performance <- perf(pca, validation = "loo", progressBar = FALSE, tol = 1e-20)
+               
+               pca = mixOmics::pca(X = dataFrame2, ncomp = numberOfComponents, center = FALSE, scale = FALSE)
+               loadings <- pca$loadings[[1]]
+               sumOfLoadings <- apply(X = loadings, MARGIN = 1, FUN = sum)
+               toRemove <- which(abs(sumOfLoadings) < 0.0001)
+               
+               dataFrame3 <- dataFrame2[-toRemove, ]
+               pca = mixOmics::plsda(X = dataFrame3, Y = groupLabels, ncomp = numberOfComponents, scale = FALSE)
              }
-           )
-         },
-         "mixOmics_pca"={
-           ## pca from "mixOmics" package
-           print("Analysis: mixOmics_pca")
-           pca = mixOmics::pca(X = dataFrame2, ncomp = numberOfComponents, center = FALSE, scale = FALSE)
-           returnObj$scores   <- pca$variates[[1]]
-           returnObj$loadings <- pca$loadings[[1]]
-           returnObj$variance <- pca$explained_variance
-           #returnObj$R2 <- 
-           #returnObj$Q2 <- 
-         },
-         "mixOmics_spca"={
-           ## pca from "mixOmics" package
-           print("Analysis: mixOmics_pca")
-           pca = mixOmics::spca(X = dataFrame2, ncomp = numberOfComponents, center = FALSE, scale = FALSE)
-           returnObj$scores   <- pca$variates[[1]]
-           returnObj$loadings <- pca$loadings[[1]]
-           returnObj$variance <- pca$explained_variance
-           #returnObj$R2 <- 
-           #returnObj$Q2 <- 
-           
-           val <- perf(res, criterion = c("R2", "Q2"))
-           
-         },
-         "mixOmics_plsda"={
-           ## plsda "mixOmics" package
-           print("Analysis: mixOmics_plsda")
-           groupLabels  <- unlist(lapply(X = rownames(dataFrame), FUN = function(x){dataList$groupNameFunctionFromDataColumnName(dataColumnName = x, sampleNamesToExclude = dataList$excludedSamples(dataList$groupSampleDataFrame))}))
-           pca = mixOmics::plsda(X = dataFrame2, Y = groupLabels, ncomp = numberOfComponents, scale = FALSE)
-           returnObj$scores   <- pca$variates[[1]]
-           returnObj$loadings <- pca$loadings[[1]]
-           returnObj$variance <- pca$explained_variance
-           
-           if(FALSE){## R2 and Q2?
-           performance <- perf(pca, validation = "Mfold", folds = 2, progressBar = FALSE, tol = 1e-20)
-           performance <- perf(pca, validation = "loo", progressBar = FALSE, tol = 1e-20)
-           
-           pca = mixOmics::pca(X = dataFrame2, ncomp = numberOfComponents, center = FALSE, scale = FALSE)
-           loadings <- pca$loadings[[1]]
-           sumOfLoadings <- apply(X = loadings, MARGIN = 1, FUN = sum)
-           toRemove <- which(abs(sumOfLoadings) < 0.0001)
-           
-           dataFrame3 <- dataFrame2[-toRemove, ]
-           pca = mixOmics::plsda(X = dataFrame3, Y = groupLabels, ncomp = numberOfComponents, scale = FALSE)
-           }
-           
-           #returnObj$R2 <- performance$R2
-           #returnObj$Q2 <- performance$Q2
-         },
-         "mixOmics_splsda"={
-           ## splsda from "mixOmics" package TODO
-           print("Analysis: mixOmics_splsda")
-           groupLabels  <- unlist(lapply(X = rownames(dataFrame), FUN = function(x){dataList$groupNameFunctionFromDataColumnName(dataColumnName = x, sampleNamesToExclude = dataList$excludedSamples(dataList$groupSampleDataFrame))}))
-           pca = mixOmics::splsda(X = dataFrame2, Y = groupLabels, ncomp = numberOfComponents, scale = FALSE)
-           returnObj$scores   <- pca$variates[[1]]
-           returnObj$loadings <- pca$loadings[[1]]
-           returnObj$variance <- pca$explained_variance
-         },
-         stop(paste("Unknown PCA library (", pcaLibrary, ")!", sep = ""))
-  )
+             
+             #returnObj$R2 <- performance$R2
+             #returnObj$Q2 <- performance$Q2
+           },
+           "mixOmics_splsda"={
+             ## splsda from "mixOmics" package TODO
+             print("Analysis: mixOmics_splsda")
+             groupLabels  <- unlist(lapply(X = rownames(dataFrame), FUN = function(x){dataList$groupNameFunctionFromDataColumnName(dataColumnName = x, sampleNamesToExclude = dataList$excludedSamples(dataList$groupSampleDataFrame))}))
+             pca = mixOmics::splsda(X = dataFrame2, Y = groupLabels, ncomp = numberOfComponents, scale = FALSE)
+             returnObj$scores   <- pca$variates[[1]]
+             returnObj$loadings <- pca$loadings[[1]]
+             returnObj$variance <- pca$explained_variance
+           },
+           stop(paste("Unknown PCA library (", pcaLibrary, ")!", sep = ""))
+    )
+  }
   
   #str(returnObj)
   
@@ -932,11 +937,46 @@ calculatePCA <- function(dataList, filterObj, ms1AnalysisMethod, scaling, logTra
   if(any(is.na(returnObj$variance), length(returnObj$variance) == 1)){
     ## in case of artificial data
     numberOfPrecursors <- dataList$numberOfPrecursors
-    numberOfSamples    <- nrow(returnObj$scores)
+    #numberOfSamples    <- nrow(returnObj$scores)
+    numberOfSamples    <- ncol(dataFrame2)
     returnObj$scores   <- matrix(nrow = numberOfSamples, ncol = numberOfComponents)
     returnObj$loadings <- matrix(nrow = numberOfPrecursors, ncol = numberOfComponents)
     returnObj$variance <- vector(mode = "numeric", length = numberOfComponents)
   }
+  return(returnObj)
+}
+calculatePCA <- function(dataList, filterObj, ms1AnalysisMethod, scaling, logTransform){
+  if(FALSE){
+    dataList_ <<- dataList
+    filterObj_ <<- filterObj
+    ms1AnalysisMethod_ <<- ms1AnalysisMethod
+    scaling_ <<- scaling
+    logTransform_ <<- logTransform
+  }
+  if(FALSE){
+    dataList <<- dataList_
+    filterObj <<- filterObj_
+    ms1AnalysisMethod <<- ms1AnalysisMethod_
+    scaling <<- scaling_
+    logTransform <<- logTransform_
+  }
+  
+  ## data selection
+  if(filterObj$filterBySamples){
+    dataFrame <- dataList$dataFrameMeasurements[filterObj$filter, filterObj$sampleSet]
+  } else {
+    dataFrame <- dataList$dataFrameMeasurements[filterObj$filter, dataList$dataColumnsNameFunctionFromGroupNames(groups = filterObj$groups, sampleNamesToExclude = dataList$excludedSamples(dataList$groupSampleDataFrame))]
+  }
+  dataFrame <- t(dataFrame)
+  
+  ## data scaling
+  dataFrame2 <- preprocessDataForPca(dataFrame, scaling, logTransform)
+  
+  ## data analysis
+  returnObj <- performPca(dataFrame2, ms1AnalysisMethod)
+  returnObj$filterObj = filterObj
+  returnObj$scaling = scaling
+  returnObj$logTransform = logTransform
   
   return(returnObj)
 }
