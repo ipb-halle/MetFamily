@@ -146,7 +146,9 @@ output$runRightColumn <- renderUI({
                                  hover    = hoverOpts(
                                    id = "plotDendrogram_hover",
                                    delay = 50, 
-                                   delayType = "debounce"
+                                   delayType = "debounce",
+                                   clip = FALSE,
+                                   nullOutside = FALSE
                                  ),
                                  click    = "plotDendrogram_click",
                                  dblclick = "plotDendrogram_dblclick",
