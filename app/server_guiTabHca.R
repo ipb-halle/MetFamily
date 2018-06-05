@@ -906,3 +906,10 @@ if(FALSE){
   #  plot_ly(x = 1:10, y = rnorm(10), type = "scatter", mode = "markers")
   #})
 }
+
+suspendOnExitFunctions <- c(suspendOnExitFunctions, function(){
+  print("Suspending tabHca observers")
+  obsDrawHCA$suspend()
+  obsDendrogramClick$suspend()
+  obsDendrogramdblClick$suspend()
+})

@@ -295,3 +295,13 @@ openAnnotaionNameColorDialog <- function(predefinedClassName, predefinedClassCol
   
   annotationDialogCounter <<- annotationDialogCounter + 1
 }
+
+suspendOnExitFunctions <- c(suspendOnExitFunctions, function(){
+  print("Suspending tabAnnotation observers")
+  obsFamilySelectionTable_rows_selected$suspend()
+  obsFragmentPlot2dblClick$suspend()
+  obsClassSelection$suspend()
+  obsSelectMetaboliteFamily$suspend()
+  obsRenameMetaboliteFamily$suspend()
+  obsRemoveMetaboliteFamily$suspend()
+})

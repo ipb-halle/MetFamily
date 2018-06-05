@@ -85,6 +85,7 @@ createExportMatrix <- function(precursorSet){
   
   ################################################################################
   ## MS1 matrix
+  dataList$dataFrameMS1Header[[1,2]] <<- serializeSampleSelectionAndOrder(dataList$groupSampleDataFrame)
   ms1Matrix     <- rbind(
     dataList$dataFrameMS1Header,
     dataList$dataFrameInfos[precursorSet, ]

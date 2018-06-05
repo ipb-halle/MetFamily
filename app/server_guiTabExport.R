@@ -36,3 +36,9 @@ obsShowPCAplotPanel <- observe({
     shinyjs::disable("downloadPcaImage")
   }
 })
+
+suspendOnExitFunctions <- c(suspendOnExitFunctions, function(){
+  print("Suspending tabExport observers")
+  obsShowHCAplotPanel$suspend()
+  obsShowPCAplotPanel$suspend()
+})

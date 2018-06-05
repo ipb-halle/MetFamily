@@ -223,3 +223,9 @@ obsMS2dblClick <- observeEvent(input$plotMS2_dblclick, {
   }
 })
 
+
+suspendOnExitFunctions <- c(suspendOnExitFunctions, function(){
+  print("Suspending ms2Plot observers")
+  obsMS2click$suspend()
+  obsMS2dblClick$suspend()
+})

@@ -64,3 +64,10 @@ obsClearGlobalMS2filters <- observeEvent(input$clearGlobalMS2filters, {
   applyGlobalMS2filters(filter_ms2_masses1, filter_ms2_masses2, filter_ms2_masses3, filter_ms2_ppm)
   session$sendCustomMessage("enableButton", "clearGlobalMS2filters")
 })
+
+suspendOnExitFunctions <- c(suspendOnExitFunctions, function(){
+  print("Suspending tabMsmsFilter observers")
+  obsFragmentPlotdblClick$suspend()
+  obsApplyGlobalMS2filters$suspend()
+  obsClearGlobalMS2filters$suspend()
+})

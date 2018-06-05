@@ -435,3 +435,14 @@ obsMS2VsClassdblClick <- observeEvent(input$plotMS2vsClass_dblclick, {
     resetMS2VsClassPlotRange()
   }
 })
+
+suspendOnExitFunctions <- c(suspendOnExitFunctions, function(){
+  print("Suspending tabClassifier observers")
+  obsClassifierSelectionTable_rows_selected$suspend()
+  obsDoAnnotation$suspend()
+  obsAnnotationResultTableClass_selection$suspend()
+  obsAnnotationResultTableFeature_selection$suspend()
+  obsApplyConfirmedAnnotations$suspend()
+  obsToggleConfirmAnnoButton$suspend()
+  obsMS2VsClassdblClick$suspend()
+})

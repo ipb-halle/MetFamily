@@ -552,51 +552,11 @@ shinyServer(
       setSampleTable()
       updateAnnotationOverview()
     }
-    doClearPlots <- function(){
-      output$plotDendrogram <- renderPlot({
-        print(paste("reset output$plotDendrogram"))
-        NULL
-      })
-      output$plotHeatmap <- renderPlot({
-        print(paste("reset output$plotHeatmap"))
-        NULL
-      })
-      output$plotHeatmapLegend <- renderPlot({
-        print(paste("reset output$plotHeatmapLegend"))
-        NULL
-      })
-      output$plotMS2 <- renderPlot({
-        print(paste("reset output$plotMS2"))
-        NULL
-      })
-      output$plotPcaScores <- renderPlot({
-        print(paste("reset output$plotPcaScores"))
-        NULL
-      })
-      output$plotPcaLoadings <- renderPlot({
-        print(paste("reset output$plotPcaLoadings"))
-        NULL
-       })
-      output$plotAnnoLegendHCA <- renderPlot({
-        print(paste("reset output$plotAnnoLegendHCA"))
-        NULL
-      })
-      output$plotAnnoLegendPCA <- renderPlot({
-        print(paste("reset output$plotAnnoLegendPCA"))
-        NULL
-      })
-      output$plotMS2Legend <- renderPlot({
-        print(paste("reset output$plotMS2Legend"))
-        NULL
-      })
-      output$plotFragmentDiscriminativityLegend <- renderPlot({
-        print(paste("reset output$plotFragmentDiscriminativityLegend"))
-        NULL
-      })
-    }
     
     #########################################################################################
     ## source all server stuff
+    suspendOnExitFunctions <- list()
+    
     source(file = "server_functionsFilters.R", local = TRUE)$value
     source(file = "server_functionsSelections.R", local = TRUE)$value
     source(file = "server_functionsTableGui.R", local = TRUE)$value
@@ -832,98 +792,24 @@ shinyServer(
       toggle(condition = !is.null(state$importedOrLoadedFile_s_), selector = "#runTabs li a[data-value='Search']")
       toggle(condition = !is.null(state$importedOrLoadedFile_s_), selector = "#runTabs li a[data-value='Classifiers']")
       toggle(condition = !is.null(state$importedOrLoadedFile_s_), selector = "#runTabs li a[data-value='Annotations']")
-      #toggle(condition = FALSE, selector = "#runTabs li a[data-value='Annotation']")
       toggle(condition = !is.null(state$importedOrLoadedFile_s_), selector = "#runTabs li a[data-value='Project']")
+    })
+    
+    
+    suspendOnExitFunctions <- c(suspendOnExitFunctions, function(){
+      print("Suspending server observers")
+      obsTabs$suspend()
+      obsChangePlot$suspend()
+      obsShowSideBar$suspend()
     })
     
     ## suspend observer
     session$onSessionEnded(function() {
-      obsFamilySelectionTable_rows_selected$suspend()
-      obsClassSelection$suspend()
-      ## sidepanel
-      obsTabs$suspend()
-      obsChangePlot$suspend()
-      obsChangeSelection$suspend()
-      obsClearSelection$suspend()
-      obsFile$suspend()
-      obsLoadProjectData$suspend()
-      #obsExampleDataSelection$suspend()
-      obsLoadExampleData$suspend()
-      obsImportMs1DataFile$suspend()
-      obsImportMs2DataFile$suspend()
-      obsImportMs1Ms2Data$suspend()
-      obsImportMs2Data$suspend()
-      obsApplyImportParameterFile$suspend()
-      obsFileInputSelection$suspend()
-      obsShowSideBar$suspend()
-      obsShowPlotControls$suspend()
-      obsShowClusterLabels$suspend()
-      obsHcaPrecursorLabels$suspend()
-      obsShowScoresLabels$suspend()
-      #observePcaLoadingsProperties$suspend()
-      obsLoadingsLabels$suspend()
-      obsShowLoadingsFeatures$suspend()
-      #obsShowLoadingsFeaturesAnnotated$suspend()
-      #obsShowLoadingsFeaturesUnannotated$suspend()
-      #obsShowLoadingsFeaturesSelected$suspend()
-      #obsShowLoadingsFeaturesUnselected$suspend()
-      obsShowLoadingsAbundance$suspend()
-      ## filter
-      obsClearSearch$suspend()
-      obsApplySearch$suspend()
-      obsApplyGlobalMS2filters$suspend()
-      obsClearGlobalMS2filters$suspend()
-      obsApplyHcaFilters$suspend()
-      obsClearHcaFilters$suspend()
-      obsApplyPcaFilters$suspend()
-      obsClearPcaFilters$suspend()
-      observeGroupSet$suspend()
-      ## draw
-      obsDrawHCA$suspend()
-      obsDrawPCA$suspend()
-      ## dendrogram
-      if(FALSE) obsDendLabelsHeatmap$suspend() ## plotly
-      #obsDendrogramHover$suspend()
-      obsDendrogramClick$suspend()
-      obsDendrogramdblClick$suspend()
-      #obsDendrogramRangeUpdate$suspend()
-      ## heatmap
-      #obsHeatmaphover$suspend()
-      ## MS2
-      #obsMS2hover$suspend()
-      obsMS2click$suspend()
-      obsMS2dblClick$suspend()
-      #obsMS2rangeUpdate$suspend()
-      ## PCA
-      #obsPCAscoresHover$suspend()
-      obsPCAscoresDblClick$suspend()
-      #obsPCAscoresRangeUpdate$suspend()
-      obsPCAloadingsClick$suspend()
-      #obsPCAloadingsHover$suspend()
-      obsPCAloadingsDblClick$suspend()
-      obsPCAloadingsBrush$suspend()
-      #obsPCAloadingsRangeUpdate$suspend()
-      ## fragment plot
-      obsFragmentPlotdblClick$suspend()
-      obsFragmentPlot2dblClick$suspend()
-      #obsFragmentPlotRangeUpdate$suspend()
-      ## anno
-      obsSetPresentAnnoPrimary$suspend()
-      obsRemovePresentAnno$suspend()
-      obsToggleAddNewAnnoButton$suspend()
-      obsAddNewAnno$suspend()
-      obsAddPresentAnno$suspend()
-      obsIgnoreValueChanged$suspend()
-      obsSampleValuesChanged$suspend()
-      obsShowHCAplotPanel$suspend()
-      obsShowPCAplotPanel$suspend()
-      obsApplyConfirmedAnnotations$suspend()
-      obsToggleConfirmAnnoButton$suspend()
+      print("Suspending observers")
+      for(suspendOnExitFunction in suspendOnExitFunctions)
+        suspendOnExitFunction()
       
-      obsSelectMetaboliteFamily$suspend()
-      obsRenameMetaboliteFamily$suspend()
-      obsRemoveMetaboliteFamily$suspend()
-      
+      print("Exiting")
       stopApp()
     })
     

@@ -551,3 +551,16 @@ output$fileInfo <- renderText({
   print(paste("init output$fileInfo"))
   paste("Please select a project file and press 'Load project data'")
 })
+
+suspendOnExitFunctions <- c(suspendOnExitFunctions, function(){
+  print("Suspending tabInput observers")
+  obsFile$suspend()
+  obsLoadProjectData$suspend()
+  obsLoadExampleData$suspend()
+  obsImportMs1DataFile$suspend()
+  obsImportMs2DataFile$suspend()
+  obsImportMs1Ms2Data$suspend()
+  obsImportMs2Data$suspend()
+  obsFileInputSelection$suspend()
+  obsApplyImportParameterFile$suspend()
+})

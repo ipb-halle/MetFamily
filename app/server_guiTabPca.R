@@ -634,3 +634,17 @@ output$plotPcaLoadings_hover_info <- renderUI({
   panelWidth <- as.integer(plotWidth*0.6)
   showPlotTooltip(hover, info, panelWidth)
 })
+
+suspendOnExitFunctions <- c(suspendOnExitFunctions, function(){
+  print("Suspending tabPca observers")
+  obsDrawPCA$suspend()
+  obsPCAscoresDblClick$suspend()
+  obsPCAloadingsClick$suspend()
+  obsPCAloadingsDblClick$suspend()
+  obsPCAloadingsBrush$suspend()
+  observeGroupSet$suspend()
+  observeSampleSet$suspend()
+  observeSelectAllPCAGroups$suspend()
+  observeSelectNoPCAGroups$suspend()
+  observeSelectInvertedPCAGroups$suspend()
+})

@@ -59,3 +59,17 @@ obsShowLoadingsAbundance <- observeEvent(input$showLoadingsAbundance, {
   print(paste("Observe showLoadingsAbundance", showLoadingsAbundance))
   state$showLoadingsAbundance <<- showLoadingsAbundance
 })
+
+suspendOnExitFunctions <- c(suspendOnExitFunctions, function(){
+  print("Suspending plotControls observers")
+  obsShowPlotControls$suspend()
+  obsShowClusterLabels$suspend()
+  obsHeatmapContent$suspend()
+  obsHeatmapOrdering$suspend()
+  obsHcaPrecursorLabels$suspend()
+  observeGroupSet$suspend()
+  obsShowScoresLabels$suspend()
+  obsLoadingsLabels$suspend()
+  obsShowLoadingsFeatures$suspend()
+  obsShowLoadingsAbundance$suspend()
+})

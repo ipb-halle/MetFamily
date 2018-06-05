@@ -164,3 +164,9 @@ selectionBySearch <- function(precursorSet){
     updateSelectedSelection()
   }
 }
+
+suspendOnExitFunctions <- c(suspendOnExitFunctions, function(){
+  print("Suspending tabSearch observers")
+  obsClearSearch$suspend()
+  obsApplySearch$suspend()
+})

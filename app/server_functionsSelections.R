@@ -580,3 +580,10 @@ obsClearSelection <- observeEvent(input$clearSelection, {
   if(state$showHCAplotPanel)  drawDendrogramPlot( consoleInfo = "clear selection", withHeatmap = TRUE)
   if(state$showPCAplotPanel)  drawPcaPlots(       consoleInfo = "clear selection")
 })
+
+suspendOnExitFunctions <- c(suspendOnExitFunctions, function(){
+  print("Suspending selections observers")
+  obsChangeSelection$suspend()
+  obsPrecursorSelectionTabs$suspend()
+  obsClearSelection$suspend()
+})

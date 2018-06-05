@@ -59,7 +59,8 @@ readProjectData <- function(fileLines, progress = FALSE){
   
   ## metabolite profile vs fragmentMatrix
   numberOfColumns <- length(line1Tokens)
-  fragmentMatrixStart <- min(which(line1Tokens[2:numberOfColumns] != "")) + 1
+  line1TokensOffset <- 2
+  fragmentMatrixStart <- min(which(line1Tokens[(1 + line1TokensOffset):numberOfColumns] != "")) + line1TokensOffset
   numberOfMetaboliteProfileColumns <- fragmentMatrixStart - 1
   numberOfFragmentGroups <- numberOfColumns - numberOfMetaboliteProfileColumns
   
@@ -69,6 +70,7 @@ readProjectData <- function(fileLines, progress = FALSE){
     ## import parameterSet not there: backward compatibility - add if not there
     importParameters <- "ImportParameters={projectName=MetFamily project; projectDescription=; toolVersion=MetFamily 1.0; minimumIntensityOfMaximalMS2peak=2000; minimumProportionOfMS2peaks=0.05; mzDeviationAbsolute_grouping=0.01; mzDeviationInPPM_grouping=10; doPrecursorDeisotoping=TRUE; mzDeviationAbsolute_precursorDeisotoping=0.001; mzDeviationInPPM_precursorDeisotoping=10; maximumRtDifference=0.02; doMs2PeakGroupDeisotoping=FALSE; mzDeviationAbsolute_ms2PeakGroupDeisotoping=0.01; mzDeviationInPPM_ms2PeakGroupDeisotoping=10; proportionOfMatchingPeaks_ms2PeakGroupDeisotoping=0.9; mzDeviationAbsolute_mapping=0.01; minimumNumberOfMS2PeaksPerGroup=1; neutralLossesPrecursorToFragments=TRUE; neutralLossesFragmentsToFragments=FALSE}"
   }
+  groupSampleDataFrameFieldValue <- line1Tokens[[2]]
   
   fragmentGroupsNumberOfFramgents <- as.integer(line1Tokens[fragmentMatrixStart:numberOfColumns])
   line1Tokens <- NULL
@@ -152,7 +154,7 @@ readProjectData <- function(fileLines, progress = FALSE){
   annotationColorsMapInitValue <- paste(annotationColorsName, "={}", sep = "")
   annotationColumnName <- "Annotation"
   if(!any(metaboliteProfileColumnNames == annotationColumnName, na.rm = TRUE)){
-    ## backward compatibility - insert if not there
+    ## annotation column backward compatibility - insert if not there
     target <- 2
     
     if(target == 0 | target == numberOfMetaboliteProfileColumns)
@@ -419,13 +421,19 @@ readProjectData <- function(fileLines, progress = FALSE){
   ## manage group and samples: order and exclusion
   groupNames  <- tagsSector[sampleColumns]
   sampleNames <- metaboliteProfileColumnNames[sampleColumns]
-  groupSampleDataFrame <- data.frame(stringsAsFactors = FALSE, 
-                                     "Group"   = groupNames,
-                                     "Sample"  = sampleNames,
-                                     "Order"   = seq_along(sampleNames),
-                                     "Exclude" = rep(x = FALSE, times = length(sampleNames))
-  )
   
+  if(nchar(groupSampleDataFrameFieldValue) == 0){
+    ## not there: backward compatibility - add if not there
+    groupSampleDataFrame <- data.frame(stringsAsFactors = FALSE, 
+                                       "Group"   = groupNames,
+                                       "Sample"  = sampleNames,
+                                       "Order"   = seq_along(sampleNames),
+                                       "Exclude" = rep(x = FALSE, times = length(sampleNames))
+    )
+  } else {
+    groupSampleDataFrame <- deserializeSampleSelectionAndOrder(groupSampleDataFrameFieldValue)
+  }
+  dataFrameMS1Header[[1,2]] <- serializeSampleSelectionAndOrder(groupSampleDataFrame)
   
   returnObj <- processMS1data(
     sampleNamesToExclude=sampleNamesToExclude, numberOfMS1features=numberOfMS1features, precursorLabels=precursorLabels, 
@@ -849,6 +857,51 @@ processMS1data <- function(
     logAbsMax=logAbsMax
   )
 }
+
+serializeSampleSelectionAndOrder <- function(groupSampleDataFrame){
+  ## wrap columns
+  columnsSerialized <- sapply(X = seq_len(ncol(groupSampleDataFrame)), FUN = function(colIdx){
+    cellContent <- paste(groupSampleDataFrame[, colIdx], collapse = "; ")
+    paste(colnames(groupSampleDataFrame)[[colIdx]], "=", "(", cellContent, ")", sep = "")
+  })
+  ## box
+  groupSampleDataFrameName <- "SampleSelectionAndOrder"
+  groupSampleDataFrameValue <- paste(columnsSerialized, collapse = "|")
+  groupSampleDataFrameFieldValue <- paste(groupSampleDataFrameName, "=", "{", groupSampleDataFrameValue, "}", sep = "")
+  
+  return(groupSampleDataFrameFieldValue)
+}
+deserializeSampleSelectionAndOrder <- function(groupSampleDataFrameFieldValue){
+  ## unbox
+  groupSampleDataFrameName <- "SampleSelectionAndOrder"
+  groupSampleDataFrameValue <- substr(
+    x = groupSampleDataFrameFieldValue, 
+    start = nchar(paste(groupSampleDataFrameName, "={", sep = "")) + 1, 
+    stop = nchar(groupSampleDataFrameFieldValue) - nchar("}")
+  )
+  
+  ## unwrap
+  columnsSerialized <- strsplit(x = groupSampleDataFrameValue, split = "\\|")[[1]]
+  columnNames = unlist(lapply(X = strsplit(x = columnsSerialized, split = "="), FUN = function(x){
+    x[[1]]
+  }))
+  groupSampleDataFrame <- as.data.frame(stringsAsFactors = FALSE, lapply(X = strsplit(x = columnsSerialized, split = "="), FUN = function(x){
+    cellContent <- x[[2]]
+    cellContent <- substr(
+      x = cellContent, 
+      start = 1 + nchar("("), 
+      stop = nchar(cellContent) - nchar(")")
+    )
+    cellContent <- strsplit(x = cellContent, split = "; ")
+  }))
+  colnames(groupSampleDataFrame) <- columnNames
+  
+  groupSampleDataFrame[, "Order"]   <- as.integer(groupSampleDataFrame[, "Order"])
+  groupSampleDataFrame[, "Exclude"] <- as.logical(groupSampleDataFrame[, "Exclude"])
+  
+  return(groupSampleDataFrame)
+}
+
 serializeParameterSetFile <- function(importParameterSet, toolName, toolVersion){
   ## wrap
   importParametersValue <- paste(names(importParameterSet), importParameterSet, sep = "=", collapse = "\n")

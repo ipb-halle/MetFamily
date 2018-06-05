@@ -159,3 +159,8 @@ setSampleTable <- function(){
     )
   )
 }
+
+suspendOnExitFunctions <- c(suspendOnExitFunctions, function(){
+  print("Suspending tabSampleFilter observers")
+  obsSampleValuesChanged$suspend()
+})

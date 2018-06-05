@@ -273,3 +273,13 @@ obsIgnoreValueChanged <- observeEvent(input$updateArtifactsFromCheckboxes, {
   setArtifactState(selectedPrecursorSet, vals)
   session$sendCustomMessage("enableButton", "updateArtifactsFromCheckboxes")
 })
+
+suspendOnExitFunctions <- c(suspendOnExitFunctions, function(){
+  print("Suspending tabPca observers")
+  obsSetPresentAnnoPrimary$suspend()
+  obsRemovePresentAnno$suspend()
+  obsToggleAddNewAnnoButton$suspend()
+  obsAddNewAnno$suspend()
+  obsAddPresentAnno$suspend()
+  obsIgnoreValueChanged$suspend()
+})

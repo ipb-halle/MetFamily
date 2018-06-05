@@ -178,6 +178,49 @@ drawFragmentDiscriminativityLegendImpl <- function(){
   calcPlotDiscriminativityLegend()
 }
 
+doClearPlots <- function(){
+  output$plotDendrogram <- renderPlot({
+    print(paste("reset output$plotDendrogram"))
+    NULL
+  })
+  output$plotHeatmap <- renderPlot({
+    print(paste("reset output$plotHeatmap"))
+    NULL
+  })
+  output$plotHeatmapLegend <- renderPlot({
+    print(paste("reset output$plotHeatmapLegend"))
+    NULL
+  })
+  output$plotMS2 <- renderPlot({
+    print(paste("reset output$plotMS2"))
+    NULL
+  })
+  output$plotPcaScores <- renderPlot({
+    print(paste("reset output$plotPcaScores"))
+    NULL
+  })
+  output$plotPcaLoadings <- renderPlot({
+    print(paste("reset output$plotPcaLoadings"))
+    NULL
+  })
+  output$plotAnnoLegendHCA <- renderPlot({
+    print(paste("reset output$plotAnnoLegendHCA"))
+    NULL
+  })
+  output$plotAnnoLegendPCA <- renderPlot({
+    print(paste("reset output$plotAnnoLegendPCA"))
+    NULL
+  })
+  output$plotMS2Legend <- renderPlot({
+    print(paste("reset output$plotMS2Legend"))
+    NULL
+  })
+  output$plotFragmentDiscriminativityLegend <- renderPlot({
+    print(paste("reset output$plotFragmentDiscriminativityLegend"))
+    NULL
+  })
+}
+
 ## taken from https://gitlab.com/snippets/16220
 ## or https://github.com/OHDSI/StudyProtocols/blob/master/LargeScalePopEst/extras/ShinyApp/server.R
 ## or https://stackoverflow.com/questions/48044543/custom-tooltip-in-ggplot-using-geom-polygoncoord-map

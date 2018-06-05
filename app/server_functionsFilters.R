@@ -502,3 +502,11 @@ applyPcaFilters <- function(groupSet, sampleSet, filterBySamples, filter_average
   numberOfPrecursorsFiltered <- filterPca$numberOfPrecursorsFiltered
   checkPcaFilterValidity(numberOfPrecursorsFiltered)
 }
+
+suspendOnExitFunctions <- c(suspendOnExitFunctions, function(){
+  print("Suspending filters observers")
+  obsApplyHcaFilters$suspend()
+  obsClearHcaFilters$suspend()
+  obsApplyPcaFilters$suspend()
+  obsClearPcaFilters$suspend()
+})
