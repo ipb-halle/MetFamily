@@ -945,7 +945,6 @@ performPca <- function(dataList, dataFrame2, ms1AnalysisMethod){
            returnObj$scores   <- caret_splsda$variates[[1]]
            returnObj$loadings <- caret_splsda$loadings[[1]]
            returnObj$variance <- caret_splsda$explained_variance$X
-           returnObj$accurracyContribution <- leaveOneOutCrossValidation(dataFrame2, groupLabels, numberOfComponents)
          },
          "caret_plsda"={
            groupLabels  <- unlist(lapply(X = rownames(dataFrame2), FUN = function(x){dataList$groupNameFunctionFromDataColumnName(dataColumnName = x, sampleNamesToExclude = dataList$excludedSamples(dataList$groupSampleDataFrame))}))
@@ -954,7 +953,7 @@ performPca <- function(dataList, dataFrame2, ms1AnalysisMethod){
            returnObj$scores   <- caret_plsda$scores
            returnObj$loadings <- caret_plsda$loadings
            returnObj$variance <- caret_plsda$Xvar / sum(caret_plsda$Xvar)
-           returnObj$accurracyContribution <- leaveOneOutCrossValidation(dataFrame2, groupLabels, numberOfComponents)
+           returnObj$accurracyContribution <- leaveOneOutCrossValidation_plsda(dataFrame2, groupLabels, numberOfComponents)
          },
          stop(paste("Unknown analysis method (", ms1AnalysisMethod, ")!", sep = ""))
   )
@@ -1002,7 +1001,7 @@ performPca <- function(dataList, dataFrame2, ms1AnalysisMethod){
   }
   return(returnObj)
 }
-leaveOneOutCrossValidation <- function(dataFrame2, groupLabels, numberOfComponents){
+leaveOneOutCrossValidation_plsda <- function(dataFrame2, groupLabels, numberOfComponents){
   ## leave-one-out-cross-validation
   maxNumberOfComponents_train <- min(numberOfComponents, nrow(dataFrame2) - 1 - 1)
   numberOfPositivePredictions_comp <- numeric(length = maxNumberOfComponents_train)
