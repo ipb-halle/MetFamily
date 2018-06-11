@@ -791,7 +791,7 @@ performPca <- function(dataList, dataFrame2, ms1AnalysisMethod){
   returnObj <- list()
   returnObj$ms1AnalysisMethod = ms1AnalysisMethod
   
-  if(ncol(dataFrame2) < 2){
+  if(ncol(dataFrame2) < 3){
     ###########################################################
     ## no data or only one sample
     numberOfPrecursors <- dataList$numberOfPrecursors

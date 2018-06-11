@@ -562,6 +562,19 @@ shinyServer(
       sampleTable <<- createSampleTable()
       setSampleTable()
       updateAnnotationOverview()
+      
+      ## number of components for PCA
+      maximumNumberOfComponents <- length(dataList$includedSamples(dataList$groupSampleDataFrame)) - 1
+      maximumNumberOfComponents <- min(maximumNumberOfComponents, 5)
+      if(maximumNumberOfComponents < 2){
+        updateSelectInput(session = session, inputId = "pcaDimensionOne", choices = "[none]")
+        updateSelectInput(session = session, inputId = "pcaDimensionTwo", choices = "[none]")
+        shinyjs::disable(id = "pcaDimensionOne")
+        shinyjs::disable(id = "pcaDimensionTwo")
+      } else {
+        updateSelectInput(session = session, inputId = "pcaDimensionOne", choices = seq_len(maximumNumberOfComponents), selected = 1)
+        updateSelectInput(session = session, inputId = "pcaDimensionTwo", choices = seq_len(maximumNumberOfComponents), selected = 2)
+      }
     }
     
     #########################################################################################
