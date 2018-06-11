@@ -567,8 +567,8 @@ shinyServer(
       maximumNumberOfComponents <- length(dataList$includedSamples(dataList$groupSampleDataFrame)) - 1
       maximumNumberOfComponents <- min(maximumNumberOfComponents, 5)
       if(maximumNumberOfComponents < 2){
-        updateSelectInput(session = session, inputId = "pcaDimensionOne", choices = "[none]")
-        updateSelectInput(session = session, inputId = "pcaDimensionTwo", choices = "[none]")
+        updateSelectInput(session = session, inputId = "pcaDimensionOne", choices = "1")
+        updateSelectInput(session = session, inputId = "pcaDimensionTwo", choices = "1")
         shinyjs::disable(id = "pcaDimensionOne")
         shinyjs::disable(id = "pcaDimensionTwo")
       } else {
