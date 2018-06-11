@@ -33,6 +33,8 @@ library("mixOmics")
 #source("http://bioconductor.org/biocLite.R")
 #biocLite("pcaMethods")
 library("pcaMethods")
+#install.packages("caret")
+library("caret")
 
 ##############################################################################################################
 ## tools

@@ -1936,6 +1936,47 @@ calcPlotMS2 <- function(dataList, fragmentsX = NULL, fragmentsY = NULL, fragment
     graphics::text(labels = "Fragments from mouse hover", x = xInterval[[2]], y = 0.95, pos = 2, adj = c(0,0))
   }
 }
+getPcaPerformanceIndicator <- function(pcaObj, isScores){
+  variableName <- ifelse(test = isScores, yes = "t", no = "p")
+  variableName_dim <- paste(variableName, "_", pcaDimensionOne, sep = "")
+  
+  if("accurracyContribution" %in% names(pcaObj)){
+    ## R2 and Q2 or accurracyContribution
+    accOne <- format(x = pcaObj$accurracyContribution[[pcaDimensionOne]]*100, digits = 3)
+    accTwo <- format(x = pcaObj$accurracyContribution[[pcaDimensionTwo]]*100, digits = 3)
+    
+    xAxisLabel  <- paste(variableName_dim, " (acc = ", accOne, "%)", sep = "")
+    yAxisLabel  <- paste(variableName_dim, " (acc = ", accTwo, "%)", sep = "")
+  } else {
+    if(all(c("R2", "Q2") %in% names(pcaObj))){
+      ## R2 and Q2
+      r2One <- format(x = pcaObj$R2[[pcaDimensionOne]]*100, digits = 3)
+      r2Two <- format(x = pcaObj$R2[[pcaDimensionTwo]]*100, digits = 3)
+      q2One <- format(x = pcaObj$Q2[[pcaDimensionOne]]*100, digits = 3)
+      q2Two <- format(x = pcaObj$Q2[[pcaDimensionTwo]]*100, digits = 3)
+      
+      xAxisLabel  <- paste(variableName_dim, " (R^2 = ", r2One, "%; Q^2 = ", q2One, "%)", sep = "")
+      yAxisLabel  <- paste(variableName_dim, " (R^2 = ", r2Two, "%; Q^2 = ", q2Two, "%)", sep = "")
+    } else {
+      if("variance" %in% names(pcaObj)){
+        ## explained variance
+        varianceOne <- format(x = pcaObj$variance[[pcaDimensionOne]]*100, digits = 3)
+        varianceTwo <- format(x = pcaObj$variance[[pcaDimensionTwo]]*100, digits = 3)
+        xAxisLabel  <- paste(variableName_dim, " (var = ", varianceOne, "%)", sep = "")
+        yAxisLabel  <- paste(variableName_dim, " (var = ", varianceTwo, "%)", sep = "")
+      } else {
+        ## no performace indicator there
+        xAxisLabel  <- paste(variableName_dim, sep = "")
+        yAxisLabel  <- paste(variableName_dim, sep = "")
+      }
+    }
+  }
+  
+  resultObj <- list()
+  resultObj$xAxisLabel <- xAxisLabel
+  resultObj$yAxisLabel <- yAxisLabel
+  return(resultObj)
+}
 calcPlotPCAscores <- function(pcaObj, dataList, filterObj, pcaDimensionOne, pcaDimensionTwo, showScoresLabels, xInterval = NULL, yInterval = NULL){
   palette <- colorPaletteScores()
   
@@ -1953,21 +1994,16 @@ calcPlotPCAscores <- function(pcaObj, dataList, filterObj, pcaDimensionOne, pcaD
     }))]
   }
   
+  ## data
   dataDimOne <- pcaObj$scores[, pcaDimensionOne]
   dataDimTwo <- pcaObj$scores[, pcaDimensionTwo]
   
-  #varianceOne <- format(x = pcaObj$variance[[pcaDimensionOne]], digits = 3)
-  #varianceTwo <- format(x = pcaObj$variance[[pcaDimensionTwo]], digits = 3)
-  r2One <- format(x = pcaObj$R2[[pcaDimensionOne]], digits = 3)
-  r2Two <- format(x = pcaObj$R2[[pcaDimensionTwo]], digits = 3)
-  q2One <- format(x = pcaObj$Q2[[pcaDimensionOne]], digits = 3)
-  q2Two <- format(x = pcaObj$Q2[[pcaDimensionTwo]], digits = 3)
+  ## performance
+  resultObj <- getPcaPerformanceIndicator(pcaObj = pcaObj, isScores = TRUE)
+  xAxisLabel <- resultObj$xAxisLabel
+  yAxisLabel <- resultObj$yAxisLabel
   
-  #xAxisLabel  <- paste("t_", pcaDimensionOne, " (", varianceOne, "%)", sep = "")
-  #yAxisLabel  <- paste("t_", pcaDimensionTwo, " (", varianceTwo, "%)", sep = "")
-  xAxisLabel  <- paste("t_", pcaDimensionOne, " (R^2 = ", r2One, "; Q^2 = ", q2One, ")", sep = "")
-  yAxisLabel  <- paste("t_", pcaDimensionTwo, " (R^2 = ", r2Two, "; Q^2 = ", q2Two, ")", sep = "")
-  
+  ## xlim / ylim
   xMin <- min(dataDimOne)
   xMax <- max(dataDimOne)
   yMin <- min(dataDimTwo)
@@ -2059,18 +2095,6 @@ calcPlotPCAloadings <- function(
     showLoadingsFeaturesUnselected <- showLoadingsFeaturesUnselected_
   }
   
-  #varianceOne <- format(x = pcaObj$variance[[pcaDimensionOne]], digits = 3)
-  #varianceTwo <- format(x = pcaObj$variance[[pcaDimensionTwo]], digits = 3)
-  r2One <- format(x = pcaObj$R2[[pcaDimensionOne]], digits = 3)
-  r2Two <- format(x = pcaObj$R2[[pcaDimensionTwo]], digits = 3)
-  q2One <- format(x = pcaObj$Q2[[pcaDimensionOne]], digits = 3)
-  q2Two <- format(x = pcaObj$Q2[[pcaDimensionTwo]], digits = 3)
-  
-  #xAxisLabel  <- paste("p_", pcaDimensionOne, " (", varianceOne, "%)", sep = "")
-  #yAxisLabel  <- paste("p_", pcaDimensionTwo, " (", varianceTwo, "%)", sep = "")
-  xAxisLabel  <- paste("p_", pcaDimensionOne, " (R^2 = ", r2One, "; Q^2 = ", q2One, ")", sep = "")
-  yAxisLabel  <- paste("p_", pcaDimensionTwo, " (R^2 = ", r2Two, "; Q^2 = ", q2Two, ")", sep = "")
-  
   resultObjAnno <- getPrecursorColors(dataList, filter)
   
   ## shown loadings features
@@ -2097,10 +2121,16 @@ calcPlotPCAloadings <- function(
   #resultObjAnno$setOfAnnotations <- resultObjAnno$setOfAnnotations[filter]
   #resultObjAnno$setOfColors      <- resultObjAnno$setOfColors[filter]
   
-  
+  ## data
   dataDimOne <- pcaObj$loadings[, pcaDimensionOne]
   dataDimTwo <- pcaObj$loadings[, pcaDimensionTwo]
   
+  ## performance
+  resultObj <- getPcaPerformanceIndicator(pcaObj = pcaObj, isScores = TRUE)
+  xAxisLabel <- resultObj$xAxisLabel
+  yAxisLabel <- resultObj$yAxisLabel
+  
+  ## xlim / ylim
   xMin <- min(dataDimOne)
   xMax <- max(dataDimOne)
   yMin <- min(dataDimTwo)
