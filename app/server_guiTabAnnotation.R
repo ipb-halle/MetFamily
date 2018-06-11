@@ -5,6 +5,14 @@ allAnnotationNames <- NULL
 fragmentMassesForFamily <- NULL
 fragmentPlot2Range    <- reactiveValues(xMin = NULL, xMax = NULL, xInterval = NULL, xIntervalSize = NULL)
 
+state_tabAnnotation <- reactiveValues(
+  metaboliteFamilySelected = NULL
+)
+resetWorkspaceFunctions <- c(resetWorkspaceFunctions, function(){
+  print("Reset tabAnntation state")
+  state_tabAnnotation$metaboliteFamilySelected <<- FALSE
+})
+
 updateAnnotationOverview <- function(){
   allAnnotationNames  <- unlist(dataList$annoPresentAnnotationsList)
   allAnnotationColors <- unlist(dataList$annoPresentColorsList)
@@ -61,7 +69,7 @@ updateAnnotationOverview <- function(){
 obsFamilySelectionTable_rows_selected <- observeEvent(eventExpr = input$familySelectionTable_rows_selected, handlerExpr = {
   print(paste("Observe familySelectionTable_rows_selected", input$familySelectionTable_rows_selected))
   
-  state$metaboliteFamilySelected <<- !is.null(input$familySelectionTable_rows_selected)
+  state_tabAnnotation$metaboliteFamilySelected <<- !is.null(input$familySelectionTable_rows_selected)
   
   if(is.null(input$familySelectionTable_rows_selected))
     return()
@@ -98,8 +106,29 @@ obsFamilySelectionTable_rows_selected <- observeEvent(eventExpr = input$familySe
 plotMetaboliteFamilyVersusClass <- function(precursorSet){
   selectedClassifierClass <- isolate(input$metaboliteFamilyComparisonClass)
   
-  addClassifierConsensusSpectrum <- state$classifierLoaded & selectedClassifierClass != selectionNone
-  returnObj <- metaboliteFamilyVersusClass(dataList = dataList, precursorSet = precursorSet, classToSpectra_class = classToSpectra_class, classifierClass = selectedClassifierClass, addClassifierConsensusSpectrum = addClassifierConsensusSpectrum, mappingSpectraToClassDf = mappingSpectraToClassDf)
+  addClassifierConsensusSpectrum <- FALSE
+  if(exists("state_tabClassifier$classifierLoaded"))
+    addClassifierConsensusSpectrum <- state_tabClassifier$classifierLoaded & selectedClassifierClass != selectionNone
+  if(exists("state_tabClassifier$classifierLoaded")){
+    returnObj <- metaboliteFamilyVersusClass(
+      dataList = dataList, 
+      precursorSet = precursorSet, 
+      classToSpectra_class = classToSpectra_class, 
+      classifierClass = selectedClassifierClass, 
+      addClassifierConsensusSpectrum = addClassifierConsensusSpectrum, 
+      mappingSpectraToClassDf = mappingSpectraToClassDf
+    )
+  } else {
+    returnObj <- metaboliteFamilyVersusClass(
+      dataList = dataList, 
+      precursorSet = precursorSet, 
+      classToSpectra_class = NULL, 
+      classifierClass = NULL, 
+      addClassifierConsensusSpectrum = addClassifierConsensusSpectrum, 
+      mappingSpectraToClassDf = NULL
+    )
+  }
+  
   masses_spec     <- returnObj$masses_spec
   frequency_spec  <- returnObj$intensity_spec
   colors_spec     <- returnObj$colors_spec

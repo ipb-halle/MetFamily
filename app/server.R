@@ -176,7 +176,7 @@ shinyServer(
     ## program state
     initialGuiUpdatePerformed <- FALSE
     state <- reactiveValues(
-      importedOrLoadedFile_s_ = NULL, 
+      #importedOrLoadedFile_s_ = NULL, 
       globalMS2filterValid = FALSE, 
       hcafilterValid = FALSE, 
       pcafilterValid = FALSE, 
@@ -189,12 +189,15 @@ shinyServer(
       showSideBar = TRUE, 
       analysisType = "HCA",
       anyPlotDrawn = FALSE,
+      
+      ## panels
       showHCAplotPanel = FALSE, 
       showPCAplotPanel = FALSE, 
       showAnnotationplotPanel = FALSE, 
       plotHcaShown = FALSE,
       plotPcaShown = FALSE,
       plotAnnotationShown = FALSE,
+      
       precursorSetSelected = FALSE,
       selectedSelection = NULL,
       showPlotControls = FALSE,
@@ -216,10 +219,10 @@ shinyServer(
       annotationsPca = NULL,
       scoresGroupsLegendHeight = -1,
       ## metabolite families
-      metaboliteFamilySelected = FALSE,
-      classifierLoaded = FALSE,
-      classifierClassSelected = FALSE,
-      classifierClassMS1featureSelected = FALSE,
+      #metaboliteFamilySelected = FALSE,
+      #classifierLoaded = FALSE,
+      #classifierClassSelected = FALSE,
+      #classifierClassMS1featureSelected = FALSE,
       putativeAnnotationsTableFromAnalysisRowSelected = FALSE
     )
     plotToShow  <- "Display HCA"
@@ -304,8 +307,13 @@ shinyServer(
     }
     ## Parse the input file
     ## TODO decompose
+    resetWorkspaceFunctions <- list()
     resetWorkspace <- function(){
       print(paste("resetWorkspace"))
+      
+      for(resetWorkspaceFunction in resetWorkspaceFunctions)
+        resetWorkspaceFunction()
+      
       
       #########################################################################################
       ## reset
@@ -339,24 +347,27 @@ shinyServer(
       dendrogramFragmentStatistics <<- FALSE
       
       ## reset state
-      state$importedOrLoadedFile_s_ <<- NULL
+      #state$importedOrLoadedFile_s_ <<- NULL
       state$analysisType <<- "HCA"
+      
+      ## panels
       state$showHCAplotPanel <<- FALSE
       state$showPCAplotPanel <<- FALSE
       state$showAnnotationplotPanel <<- FALSE
       state$plotHcaShown <<- FALSE
       state$plotPcaShown <<- FALSE
       state$plotAnnotationShown <<- FALSE
+      
       state$precursorSetSelected <<- FALSE
       state$anyPlotDrawn <<- FALSE
       selectedPrecursorSet <<- NULL
       selectedTable <<- NULL
       state$annotationsHca <<- NULL
       state$annotationsPca <<- NULL
-      state$metaboliteFamilySelected <<- FALSE
-      state$classifierLoaded <<- FALSE
-      state$classifierClassSelected <<- FALSE
-      state$classifierClassMS1featureSelected <<- FALSE
+      #state$metaboliteFamilySelected <<- FALSE
+      #state$classifierLoaded <<- FALSE
+      #state$classifierClassSelected <<- FALSE
+      #state$classifierClassMS1featureSelected <<- FALSE
       state$putativeAnnotationsTableFromAnalysisRowSelected <<- FALSE
       scoresGroups <<- NULL
       
@@ -589,9 +600,9 @@ shinyServer(
       if(tabId == "HCA"){
         state$analysisType <<- "HCA"
         if(state$showHCAplotPanel){
-          state$plotHcaShown <<- TRUE
           state$plotPcaShown <<- FALSE
           state$plotAnnotationShown <<- FALSE
+          state$plotHcaShown <<- TRUE
         } else {
           state$plotHcaShown <<- FALSE
           state$plotPcaShown <<- FALSE
@@ -602,8 +613,8 @@ shinyServer(
         state$analysisType <<- "PCA"
         if(state$showPCAplotPanel){
           state$plotHcaShown <<- FALSE
-          state$plotPcaShown <<- TRUE
           state$plotAnnotationShown <<- FALSE
+          state$plotPcaShown <<- TRUE
         } else {
           state$plotHcaShown <<- FALSE
           state$plotPcaShown <<- FALSE
@@ -628,12 +639,12 @@ shinyServer(
       if(tabId == "Input" & !initialGuiUpdatePerformed){
         print(paste("update GUI initially", tabId))
         
-        shinyjs::disable("importMs1Ms2Data")
-        shinyjs::disable("importMs2Data")
-        shinyjs::disable("loadProjectData")
+        #shinyjs::disable("importMs1Ms2Data")
+        #shinyjs::disable("importMs2Data")
+        #shinyjs::disable("loadProjectData")
         
         ## annotation classifier selection
-        session$sendCustomMessage("disableButton", "doAnnotation")
+        #session$sendCustomMessage("disableButton", "doAnnotation")
         
         filePath <- getFile("Classifiers")
         resultObj <- getAvailableClassifiers(filePath)
@@ -784,15 +795,15 @@ shinyServer(
     
     ## display of tabs
     observe({
-      #toggle(condition = !is.null(state$importedOrLoadedFile_s_), selector = "#runTabs li a[data-value='Filter']")
-      toggle(condition = !is.null(state$importedOrLoadedFile_s_), selector = "#runTabs li a[data-value='MS/MS filter']")
-      toggle(condition = !is.null(state$importedOrLoadedFile_s_), selector = "#runTabs li a[data-value='Sample filter']")
-      toggle(condition = !is.null(state$importedOrLoadedFile_s_), selector = "#runTabs li a[data-value='PCA']")
-      toggle(condition = !is.null(state$importedOrLoadedFile_s_), selector = "#runTabs li a[data-value='HCA']")
-      toggle(condition = !is.null(state$importedOrLoadedFile_s_), selector = "#runTabs li a[data-value='Search']")
-      toggle(condition = !is.null(state$importedOrLoadedFile_s_), selector = "#runTabs li a[data-value='Classifiers']")
-      toggle(condition = !is.null(state$importedOrLoadedFile_s_), selector = "#runTabs li a[data-value='Annotations']")
-      toggle(condition = !is.null(state$importedOrLoadedFile_s_), selector = "#runTabs li a[data-value='Project']")
+      #toggle(condition = !is.null(state_tabInput$importedOrLoadedFile_s_), selector = "#runTabs li a[data-value='Filter']")
+      toggle(condition = !is.null(state_tabInput$importedOrLoadedFile_s_), selector = "#runTabs li a[data-value='MS/MS filter']")
+      toggle(condition = !is.null(state_tabInput$importedOrLoadedFile_s_), selector = "#runTabs li a[data-value='Sample filter']")
+      toggle(condition = !is.null(state_tabInput$importedOrLoadedFile_s_), selector = "#runTabs li a[data-value='PCA']")
+      toggle(condition = !is.null(state_tabInput$importedOrLoadedFile_s_), selector = "#runTabs li a[data-value='HCA']")
+      toggle(condition = !is.null(state_tabInput$importedOrLoadedFile_s_), selector = "#runTabs li a[data-value='Search']")
+      toggle(condition = !is.null(state_tabInput$importedOrLoadedFile_s_), selector = "#runTabs li a[data-value='Classifiers']")
+      toggle(condition = !is.null(state_tabInput$importedOrLoadedFile_s_), selector = "#runTabs li a[data-value='Annotations']")
+      toggle(condition = !is.null(state_tabInput$importedOrLoadedFile_s_), selector = "#runTabs li a[data-value='Project']")
     })
     
     
@@ -850,7 +861,7 @@ shinyServer(
         print(paste("init information", sep = ""))
         paste("Please perform ploting.", sep = "")
       })
-      return(!is.null(state$importedOrLoadedFile_s_))
+      return(!is.null(state_tabInput$importedOrLoadedFile_s_))
     })
     output$analysisType <- reactive({
       print(paste("reactive update analysisType", state$analysisType))
@@ -924,20 +935,8 @@ shinyServer(
       return(state$selectedSelection)
     })
     output$metaboliteFamilySelected <- reactive({
-      print(paste("reactive update metaboliteFamilySelected", state$metaboliteFamilySelected))
-      return(state$metaboliteFamilySelected)
-    })
-    output$classifierLoaded <- reactive({
-      print(paste("reactive update classifierLoaded", state$classifierLoaded))
-      return(state$classifierLoaded)
-    })
-    output$classifierClassSelected <- reactive({
-      print(paste("reactive update classifierClassSelected", state$classifierClassSelected))
-      return(state$classifierClassSelected)
-    })
-    output$classifierClassMS1featureSelected <- reactive({
-      print(paste("reactive update classifierClassMS1featureSelected", state$classifierClassMS1featureSelected))
-      return(state$classifierClassMS1featureSelected)
+      print(paste("reactive update metaboliteFamilySelected", state_tabAnnotation$metaboliteFamilySelected))
+      return(state_tabAnnotation$metaboliteFamilySelected)
     })
     output$showPutativeAnnotationsTableFromAnalysis <- reactive({
       print(paste("reactive update showPutativeAnnotationsTableFromAnalysis", state$showPutativeAnnotationsTableFromAnalysis))
@@ -991,9 +990,6 @@ shinyServer(
     outputOptions(output, 'plotAnnotationShown',     suspendWhenHidden=FALSE)
     outputOptions(output, 'selectedSelection',       suspendWhenHidden=FALSE)
     outputOptions(output, 'metaboliteFamilySelected',suspendWhenHidden=FALSE)
-    outputOptions(output, 'classifierLoaded',        suspendWhenHidden=FALSE)
-    outputOptions(output, 'classifierClassSelected', suspendWhenHidden=FALSE)
-    outputOptions(output, 'classifierClassMS1featureSelected',  suspendWhenHidden=FALSE)
     outputOptions(output, 'showPutativeAnnotationsTableFromAnalysis',  suspendWhenHidden=FALSE)
     #outputOptions(output, 'putativeAnnotationsTableFromAnalysisRowSelected',  suspendWhenHidden=FALSE)
   }## function(input, output, session)

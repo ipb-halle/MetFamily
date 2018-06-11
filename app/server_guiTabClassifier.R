@@ -12,6 +12,18 @@ selectedClassFeatureRowIdx <- -1
 specVsClassRange     <- reactiveValues(xMin = NULL, xMax = NULL, xInterval = NULL, xIntervalSize = NULL)
 ms1FeatureVsClassTableCounter <- 0
 
+state_tabClassifier <- reactiveValues(
+  classifierLoaded = FALSE,
+  classifierClassSelected = FALSE,
+  classifierClassMS1featureSelected = FALSE
+)
+resetWorkspaceFunctions <- c(resetWorkspaceFunctions, function(){
+  print("Reset tabClassifier state")
+  state_tabClassifier$classifierLoaded <<- FALSE
+  state_tabClassifier$classifierClassSelected <<- FALSE
+  state_tabClassifier$classifierClassMS1featureSelected <<- FALSE
+})
+
 obsClassifierSelectionTable_rows_selected <- observeEvent(eventExpr = input$classifierSelectionTable_rows_selected, handlerExpr = {
   print(paste("Observe classifierSelectionTable_rows_selected", input$classifierSelectionTable_rows_selected))
   if(is.null(input$classifierSelectionTable_rows_selected)){
@@ -40,7 +52,7 @@ loadClassifier <- function(){
   classToSpectra_class    <<- resultObj$classToSpectra_class
   properties_class        <<- resultObj$properties_class
   mappingSpectraToClassDf <<- resultObj$mappingSpectraToClassDf
-  state$classifierLoaded <<- TRUE
+  state_tabClassifier$classifierLoaded <<- TRUE
   updateSelectInput(session = session, inputId = "metaboliteFamilyComparisonClass", choices = c(selectionNone, names(classToSpectra_class)), selected = selectionNone)
 }
 obsDoAnnotation <- observeEvent(input$doAnnotation, {
@@ -187,12 +199,12 @@ obsAnnotationResultTableClass_selection <- observeEvent(ignoreNULL = FALSE, even
   if(is.null(selectedRowIdx) && !initialGuiUpdatePerformed) return()
   
   if(is.null(selectedRowIdx)){
-    state$classifierClassSelected <<- FALSE
+    state_tabClassifier$classifierClassSelected <<- FALSE
     return()
   }
   
   selectedClassRowIdx <<- selectedRowIdx
-  state$classifierClassSelected <<- TRUE
+  state_tabClassifier$classifierClassSelected <<- TRUE
   
   classSelected(selectedRowIdx)
 })
@@ -315,12 +327,12 @@ obsAnnotationResultTableFeature_selection <- observeEvent(ignoreNULL = FALSE, ev
   print(paste("Selected feature row:", selectedRowIdx))
   
   if(is.null(selectedRowIdx)){
-    state$classifierClassMS1featureSelected <<- FALSE
+    state_tabClassifier$classifierClassMS1featureSelected <<- FALSE
     return()
   }
   
   selectedClassFeatureRowIdx <<- selectedRowIdx
-  state$classifierClassMS1featureSelected <<- TRUE
+  state_tabClassifier$classifierClassMS1featureSelected <<- TRUE
   
   classMS1FeatureSelected(selectedRowIdx)
 })
@@ -446,3 +458,19 @@ suspendOnExitFunctions <- c(suspendOnExitFunctions, function(){
   obsToggleConfirmAnnoButton$suspend()
   obsMS2VsClassdblClick$suspend()
 })
+
+output$classifierLoaded <- reactive({
+  print(paste("reactive update classifierLoaded", state_tabClassifier$classifierLoaded))
+  return(state_tabClassifier$classifierLoaded)
+})
+output$classifierClassSelected <- reactive({
+  print(paste("reactive update classifierClassSelected", state_tabClassifier$classifierClassSelected))
+  return(state_tabClassifier$classifierClassSelected)
+})
+output$classifierClassMS1featureSelected <- reactive({
+  print(paste("reactive update classifierClassMS1featureSelected", state_tabClassifier$classifierClassMS1featureSelected))
+  return(state_tabClassifier$classifierClassMS1featureSelected)
+})
+outputOptions(output, 'classifierLoaded',        suspendWhenHidden=FALSE)
+outputOptions(output, 'classifierClassSelected', suspendWhenHidden=FALSE)
+outputOptions(output, 'classifierClassMS1featureSelected',  suspendWhenHidden=FALSE)

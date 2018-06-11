@@ -6,6 +6,13 @@ mzDeviationAbsolute_mapping <- 0.01
 
 ## data
 dataList <- NULL
+state_tabInput <- reactiveValues(
+  importedOrLoadedFile_s_ = NULL
+)
+resetWorkspaceFunctions <- c(resetWorkspaceFunctions, function(){
+  print("Reset tabInput state")
+  state_tabInput$importedOrLoadedFile_s_ <<- NULL
+})
 
 enableLoadButtons <- function(){
   session$sendCustomMessage("enableButton", "loadProjectData")
@@ -102,7 +109,7 @@ loadProjectFile <- function(filePath){
   
   resetWorkspace()
   
-  state$importedOrLoadedFile_s_ <<- fileName
+  state_tabInput$importedOrLoadedFile_s_ <<- fileName
   updateFileInputInfo()
 }
 obsImportMs1DataFile <- observeEvent(input$ms1DataFile$datapath, {
@@ -474,9 +481,9 @@ importData <- function(importMS1andMS2data){
   resetWorkspace()
   
   if(importMS1andMS2data)
-    state$importedOrLoadedFile_s_ <<- c(fileMs1Name, fileMs2Name)
+    state_tabInput$importedOrLoadedFile_s_ <<- c(fileMs1Name, fileMs2Name)
   else
-    state$importedOrLoadedFile_s_ <<- c(fileMs2Name)
+    state_tabInput$importedOrLoadedFile_s_ <<- c(fileMs2Name)
   updateFileInputInfo()
   
   setImportState()
@@ -531,9 +538,9 @@ updateFileInputInfo <- function(){
     output$fileInfo <- renderText({paste("Please press 'Load example data' to load the full example data set")})
   if(all(fileInputSelection == "Load project", is.null(filePath)))
     output$fileInfo <- renderText({paste("Please select a project file and press 'Load project data'")})
-  if(all(fileInputSelection == "Load project", !is.null(filePath), any(is.null(state$importedOrLoadedFile_s_), fileName != state$importedOrLoadedFile_s_)))
+  if(all(fileInputSelection == "Load project", !is.null(filePath), any(is.null(state_tabInput$importedOrLoadedFile_s_), fileName != state_tabInput$importedOrLoadedFile_s_)))
     output$fileInfo <- renderText({paste("Please press 'Load project data'")})
-  if(all(fileInputSelection == "Load project", !is.null(filePath), !is.null(state$importedOrLoadedFile_s_), fileName == state$importedOrLoadedFile_s_))
+  if(all(fileInputSelection == "Load project", !is.null(filePath), !is.null(state_tabInput$importedOrLoadedFile_s_), fileName == state_tabInput$importedOrLoadedFile_s_))
     output$fileInfo <- renderText({paste(fileName)})
   if(all(fileInputSelection == "Import data", is.null(fileMs1Path), is.null(fileMs2Path)))
     output$fileInfo <- renderText({paste("Please select a metabolite profile and a MS/MS library and press 'Import MS1 and MS/MS data' or select a MS/MS library and press 'Import MS/MS data'")})
@@ -541,9 +548,9 @@ updateFileInputInfo <- function(){
     output$fileInfo <- renderText({paste("Please press 'Import MS/MS data' or select a metabolite profile and press 'Import MS1 and MS/MS data'")})
   if(all(fileInputSelection == "Import data", !is.null(fileMs1Path), is.null(fileMs2Path)))
     output$fileInfo <- renderText({paste("Please select a MS/MS library and press 'Import MS1 and MS/MS data'")})
-  if(all(fileInputSelection == "Import data", !is.null(fileMs1Path), !is.null(fileMs2Path), any(is.null(state$importedOrLoadedFile_s_), c(fileMs1Name,fileMs2Name) != state$importedOrLoadedFile_s_)))
+  if(all(fileInputSelection == "Import data", !is.null(fileMs1Path), !is.null(fileMs2Path), any(is.null(state_tabInput$importedOrLoadedFile_s_), c(fileMs1Name,fileMs2Name) != state_tabInput$importedOrLoadedFile_s_)))
     output$fileInfo <- renderText({paste("Please press 'Import MS1 and MS/MS data'")})
-  if(all(fileInputSelection == "Import data", !is.null(fileMs1Path), !is.null(fileMs2Path), !is.null(state$importedOrLoadedFile_s_), c(fileMs1Name,fileMs2Name) == state$importedOrLoadedFile_s_))
+  if(all(fileInputSelection == "Import data", !is.null(fileMs1Path), !is.null(fileMs2Path), !is.null(state_tabInput$importedOrLoadedFile_s_), c(fileMs1Name,fileMs2Name) == state_tabInput$importedOrLoadedFile_s_))
     output$fileInfo <- renderText({paste(fileMs1Name, "\n", fileMs2Name, sep = "")})
 }
 
