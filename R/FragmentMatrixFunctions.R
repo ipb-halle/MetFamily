@@ -1,5 +1,5 @@
 
-library("xcms")
+#library("xcms")
 library("Matrix")
 library("stringr")
 
@@ -58,6 +58,46 @@ parsePeakAbundanceMatrix <- function(filePeakMatrix, doPrecursorDeisotoping, mzD
     sampleInjectionOrder <- NULL
   }
   
+  decimalSeparatorIsComma <- all(grepl(x = dataFrame$"Average Mz", pattern = "^(\\d+,\\d+$)|(^\\d+$)"))
+  if(decimalSeparatorIsComma){
+    if(!is.null(dataFrame$"Average Rt(min)"))     dataFrame$"Average Rt(min)"     <- gsub(x = gsub(x = dataFrame$"Average Rt(min)", pattern = "\\.", replacement = ""), pattern = ",", replacement = ".")
+    #if(!is.null(dataFrame$"Average.Rt.min."))     dataFrame$"Average.Rt.min."     <- gsub(x = gsub(x = dataFrame$"Average.Rt.min.", pattern = "\\.", replacement = ""), pattern = ",", replacement = ".")
+    if(!is.null(dataFrame$"Average Mz"))          dataFrame$"Average Mz"          <- gsub(x = gsub(x = dataFrame$"Average Mz", pattern = "\\.", replacement = ""), pattern = ",", replacement = ".")
+    #if(!is.null(dataFrame$"Average.Mz"))          dataFrame$"Average.Mz"          <- gsub(x = gsub(x = dataFrame$"Average.Mz", pattern = "\\.", replacement = ""), pattern = ",", replacement = ".")
+    if(!is.null(dataFrame$"Fill %"))              dataFrame$"Fill %"              <- gsub(x = gsub(x = dataFrame$"Fill %", pattern = "\\.", replacement = ""), pattern = ",", replacement = ".")
+    #if(!is.null(dataFrame$"Fill.."))              dataFrame$"Fill.."              <- gsub(x = gsub(x = dataFrame$"Fill..", pattern = "\\.", replacement = ""), pattern = ",", replacement = ".")
+    if(!is.null(dataFrame$"Dot product"))         dataFrame$"Dot product"         <- gsub(x = gsub(x = dataFrame$"Dot product", pattern = "\\.", replacement = ""), pattern = ",", replacement = ".")
+    #if(!is.null(dataFrame$"Dot.product"))         dataFrame$"Dot.product"         <- gsub(x = gsub(x = dataFrame$"Dot.product", pattern = "\\.", replacement = ""), pattern = ",", replacement = ".")
+    if(!is.null(dataFrame$"Reverse dot product")) dataFrame$"Reverse dot product" <- gsub(x = gsub(x = dataFrame$"Reverse dot product", pattern = "\\.", replacement = ""), pattern = ",", replacement = ".")
+    #if(!is.null(dataFrame$"Reverse.dot.product")) dataFrame$"Reverse.dot.product" <- gsub(x = gsub(x = dataFrame$"Reverse.dot.product", pattern = "\\.", replacement = ""), pattern = ",", replacement = ".")
+    if(!is.null(dataFrame$"Fragment presence %")) dataFrame$"Fragment presence %" <- gsub(x = gsub(x = dataFrame$"Fragment presence %", pattern = "\\.", replacement = ""), pattern = ",", replacement = ".")
+    #if(!is.null(dataFrame$"Fragment.presence.%")) dataFrame$"Fragment.presence.%" <- gsub(x = gsub(x = dataFrame$"Fragment.presence.%", pattern = "\\.", replacement = ""), pattern = ",", replacement = ".")
+    
+    ## replace -1 by 0
+    if(numberOfDataColumns > 0){
+      for(colIdx in dataColumnStartEndIndeces[[1]]:dataColumnStartEndIndeces[[2]]){
+        dataFrame[ , colIdx] <- gsub(x = gsub(x = dataFrame[ , colIdx], pattern = "\\.", replacement = ""), pattern = ",", replacement = ".")
+      }
+    }
+  }
+  
+  ########################################
+  ## column formats
+  if(!is.null(dataFrame$"Average Rt(min)"))     dataFrame$"Average Rt(min)"     <- as.numeric(dataFrame$"Average Rt(min)")
+  #if(!is.null(dataFrame$"Average.Rt.min."))     dataFrame$"Average.Rt.min."     <- as.numeric(dataFrame$"Average.Rt.min.")
+  if(!is.null(dataFrame$"Average Mz"))          dataFrame$"Average Mz"          <- as.numeric(dataFrame$"Average Mz")
+  #if(!is.null(dataFrame$"Average.Mz"))          dataFrame$"Average.Mz"          <- as.numeric(dataFrame$"Average.Mz")
+  if(!is.null(dataFrame$"Fill %"))              dataFrame$"Fill %"              <- as.numeric(dataFrame$"Fill %")
+  #if(!is.null(dataFrame$"Fill.."))              dataFrame$"Fill.."              <- as.numeric(dataFrame$"Fill..")
+  if(!is.null(dataFrame$"MS/MS included"))      dataFrame$"MS/MS included"      <- as.logical(dataFrame$"MS/MS included")
+  #if(!is.null(dataFrame$"MS.MS.included"))      dataFrame$"MS.MS.included"      <- as.logical(dataFrame$"MS.MS.included")
+  if(!is.null(dataFrame$"Dot product"))         dataFrame$"Dot product"         <- as.numeric(dataFrame$"Dot product")
+  #if(!is.null(dataFrame$"Dot.product"))         dataFrame$"Dot.product"         <- as.numeric(dataFrame$"Dot.product")
+  if(!is.null(dataFrame$"Reverse dot product")) dataFrame$"Reverse dot product" <- as.numeric(dataFrame$"Reverse dot product")
+  #if(!is.null(dataFrame$"Reverse.dot.product")) dataFrame$"Reverse.dot.product" <- as.numeric(dataFrame$"Reverse.dot.product")
+  if(!is.null(dataFrame$"Fragment presence %")) dataFrame$"Fragment presence %" <- as.numeric(dataFrame$"Fragment presence %")
+  #if(!is.null(dataFrame$"Fragment.presence.%")) dataFrame$"Fragment.presence.%" <- as.numeric(dataFrame$"Fragment.presence.%")
+  
   ## sorted by m/z (needed for deisotoping)
   if(!is.null(dataFrame$"Average Mz"))
     dataFrame <- dataFrame[order(dataFrame$"Average Mz"), ]
@@ -70,23 +110,6 @@ parsePeakAbundanceMatrix <- function(filePeakMatrix, doPrecursorDeisotoping, mzD
         dataFrame[(dataFrame[,colIdx] == -1),colIdx] <- 0
     }
   }
-  
-  ########################################
-  ## column formats
-  if(!is.null(dataFrame$"Average Rt(min)"))     dataFrame$"Average Rt(min)"     <- as.numeric(dataFrame$"Average Rt(min)")
-  if(!is.null(dataFrame$"Average.Rt.min."))     dataFrame$"Average.Rt.min."     <- as.numeric(dataFrame$"Average.Rt.min.")
-  if(!is.null(dataFrame$"Average Mz"))          dataFrame$"Average Mz"          <- as.numeric(dataFrame$"Average Mz")
-  if(!is.null(dataFrame$"Average.Mz"))          dataFrame$"Average.Mz"          <- as.numeric(dataFrame$"Average.Mz")
-  if(!is.null(dataFrame$"Fill %"))              dataFrame$"Fill %"              <- as.numeric(dataFrame$"Fill %")
-  if(!is.null(dataFrame$"Fill.."))              dataFrame$"Fill.."              <- as.numeric(dataFrame$"Fill..")
-  if(!is.null(dataFrame$"MS/MS included"))      dataFrame$"MS/MS included"      <- as.logical(dataFrame$"MS/MS included")
-  if(!is.null(dataFrame$"MS.MS.included"))      dataFrame$"MS.MS.included"      <- as.logical(dataFrame$"MS.MS.included")
-  if(!is.null(dataFrame$"Dot product"))         dataFrame$"Dot product"         <- as.numeric(dataFrame$"Dot product")
-  if(!is.null(dataFrame$"Dot.product"))         dataFrame$"Dot.product"         <- as.numeric(dataFrame$"Dot.product")
-  if(!is.null(dataFrame$"Reverse dot product")) dataFrame$"Reverse dot product" <- as.numeric(dataFrame$"Reverse dot product")
-  if(!is.null(dataFrame$"Reverse.dot.product")) dataFrame$"Reverse.dot.product" <- as.numeric(dataFrame$"Reverse.dot.product")
-  if(!is.null(dataFrame$"Fragment presence %")) dataFrame$"Fragment presence %" <- as.numeric(dataFrame$"Fragment presence %")
-  if(!is.null(dataFrame$"Fragment.presence.%")) dataFrame$"Fragment.presence.%" <- as.numeric(dataFrame$"Fragment.presence.%")
   
   ########################################
   ## deisotoping
@@ -303,7 +326,7 @@ parseMSP_chunk <- function(fileLines, minimumIntensityOfMaximalMS2peak, minimumP
   isPrety	<- grepl(pattern = "^precursor type:",						        x = fileLines)
   isPretyp	<- grepl(pattern = "^PRECURSORTYPE:",						          x = fileLines)
   isNumP	<- grepl(pattern = "^Num Peaks:",							            x = fileLines)
-  isPeak	<- grepl(pattern = "^\\d+(\\.\\d+)?[ \t]\\d+(\\.\\d+)?",	x = fileLines)
+  isPeak	<- grepl(pattern = "^\\d+(((\\.)|(,))\\d+)?[ \t]\\d+(((\\.)|(,))\\d+)?$",	x = fileLines)
   isCoCl	<- grepl(pattern = "^compound class:",						        x = fileLines)
   isInty	<- grepl(pattern = "^instrument type:",						        x = fileLines)
   isIntyp	<- grepl(pattern = "^INSTRUMENTTYPE:",						        x = fileLines)
@@ -313,29 +336,39 @@ parseMSP_chunk <- function(fileLines, minimumIntensityOfMaximalMS2peak, minimumP
   isInchiKey	<- grepl(pattern = "(^InChIKey:)|(^INCHIKEY:)|(^InChIKey=)|(^INCHIKEY=)|(^INCHIAUX=)",	      x = fileLines)
   isSmiles  	<- grepl(pattern = "(^SMILES:)|(^SMILES=)",		        x = fileLines)
   
+  decimalDelimiterIsComma <- all(grepl(x = trimws(c(
+    substring(text = fileLines[isMZ], first = nchar("PRECURSORMZ:") + 1), 
+    substring(text = fileLines[isMz], first = nchar("precursor m/z:") + 1)
+  )), pattern = "^(\\d+,\\d+$)|(^\\d+$)"))
+  if(decimalDelimiterIsComma){
+    fileLines_02 <- gsub(pattern = ",", replacement = ".", x = gsub(pattern = "\\.", replacement = "", x = fileLines))
+  } else {
+    fileLines_02 <- fileLines
+  }
+  
   ## extract
   suppressWarnings({
     parsedName	 <- 						      trimws(substring(text = fileLines, first = nchar("Name:") + 1))
     parsedNAme	 <- 						      trimws(substring(text = fileLines, first = nchar("NAME=") + 1))
     parsedNAME	 <- 						      trimws(substring(text = fileLines, first = nchar("TITLE=") + 1))
-    parsedRT  	 <- as.numeric(				trimws(substring(text = fileLines, first = nchar("RETENTIONTIME:") + 1)))
-    parsedRt     <- as.numeric(unlist(lapply(X = strsplit(x =   trimws(substring(text = fileLines, first = nchar("retention time:") + 1)), split = " "), FUN = function(x){if(length(x)==0) return(NA) else return(x[[1]])})))
-    parsedRts  	 <- as.numeric(				trimws(substring(text = fileLines, first = nchar("RTINSECONDS=") + 1)))
-    parsedMZ	   <- as.numeric(				trimws(substring(text = fileLines, first = nchar("PRECURSORMZ:") + 1)))
-    parsedMz	   <- as.numeric(				trimws(substring(text = fileLines, first = nchar("precursor m/z:") + 1)))
-    parsedTotEm  <- as.numeric(				trimws(substring(text = fileLines, first = nchar("total exact mass:") + 1)))
-    parsedEMass  <- as.numeric(				trimws(substring(text = fileLines, first = nchar("exact mass:") + 1)))
-    parsedE2Mass <- as.numeric(				trimws(substring(text = fileLines, first = nchar("EXACTMASS=") + 1)))
-    parsedPMass  <- as.numeric(				trimws(substring(text = fileLines, first = nchar("PEPMASS=") + 1)))
+    parsedRT  	 <- as.numeric(				trimws(substring(text = fileLines_02, first = nchar("RETENTIONTIME:") + 1)))
+    parsedRt     <- as.numeric(unlist(lapply(X = strsplit(x =   trimws(substring(text = fileLines_02, first = nchar("retention time:") + 1)), split = " "), FUN = function(x){if(length(x)==0) return(NA) else return(x[[1]])})))
+    parsedRts  	 <- as.numeric(				trimws(substring(text = fileLines_02, first = nchar("RTINSECONDS=") + 1)))
+    parsedMZ	   <- as.numeric(				trimws(substring(text = fileLines_02, first = nchar("PRECURSORMZ:") + 1)))
+    parsedMz	   <- as.numeric(				trimws(substring(text = fileLines_02, first = nchar("precursor m/z:") + 1)))
+    parsedTotEm  <- as.numeric(				trimws(substring(text = fileLines_02, first = nchar("total exact mass:") + 1)))
+    parsedEMass  <- as.numeric(				trimws(substring(text = fileLines_02, first = nchar("exact mass:") + 1)))
+    parsedE2Mass <- as.numeric(				trimws(substring(text = fileLines_02, first = nchar("EXACTMASS=") + 1)))
+    parsedPMass  <- as.numeric(				trimws(substring(text = fileLines_02, first = nchar("PEPMASS=") + 1)))
     parsedMetN	 <- 						      trimws(substring(text = fileLines, first = nchar("METABOLITENAME:") + 1))
     parsedAddN	 <- 						      trimws(substring(text = fileLines, first = nchar("Adductionname:") + 1))
-    parsedScanN  <- as.numeric(				trimws(substring(text = fileLines, first = nchar("SCANNUMBER:") + 1)))
-    parsedMIon	 <- as.numeric(				trimws(substring(text = fileLines, first = nchar("MODELION:") + 1)))
+    parsedScanN  <- as.numeric(				trimws(substring(text = fileLines_02, first = nchar("SCANNUMBER:") + 1)))
+    parsedMIon	 <- as.numeric(				trimws(substring(text = fileLines_02, first = nchar("MODELION:") + 1)))
     parsedPrety  <- 						      trimws(substring(text = fileLines, first = nchar("precursor type:") + 1))
     parsedPretyp <- 						      trimws(substring(text = fileLines, first = nchar("PRECURSORTYPE:") + 1))
-    parsedNumP	 <- as.numeric(				trimws(substring(text = fileLines, first = nchar("Num Peaks:") + 1)))
+    parsedNumP	 <- as.numeric(				trimws(substring(text = fileLines_02, first = nchar("Num Peaks:") + 1)))
     
-    parsedTokensTmp <- strsplit(x = trimws(fileLines), split = "[ \t]")
+    parsedTokensTmp <- strsplit(x = trimws(fileLines_02), split = "[ \t]")
     #parsedms2Peaks_mz <- as.numeric(unlist(lapply(X = parsedTokensTmp, FUN = function(x){head(x = x, n = 1)})))
     parsedms2Peaks_mz  <- as.numeric(unlist(lapply(X = parsedTokensTmp, FUN = function(x){if(length(x)<1) return(NA) else return(x[[1]])})))
     parsedms2Peaks_int <- as.numeric(unlist(lapply(X = parsedTokensTmp, FUN = function(x){if(length(x)<2) return(NA) else return(x[[2]])})))
@@ -363,6 +396,7 @@ parseMSP_chunk <- function(fileLines, minimumIntensityOfMaximalMS2peak, minimumP
       #print(x)
       
       fileLines2      <- fileLines 	 		[x[[1]]:x[[2]]]
+      fileLines_022   <- fileLines_02 	[x[[1]]:x[[2]]]
       parsedName2	 		<- parsedName	 		[x[[1]]:x[[2]]]
       parsedNAme2	 		<- parsedNAme	 		[x[[1]]:x[[2]]]
       parsedNAME2	 		<- parsedNAME	 		[x[[1]]:x[[2]]]
@@ -492,7 +526,7 @@ parseMSP_chunk <- function(fileLines, minimumIntensityOfMaximalMS2peak, minimumP
         if(!is.na(parsedPMass2[[which(isPMass2)[[1]]]])){
           mz  <- parsedPMass2[[which(isPMass2)[[1]]]]
         } else {
-          tmp <- as.numeric(strsplit(x = trimws(substring(text = fileLines2[[which(isPMass2)[[1]]]], first = nchar("PEPMASS=") + 1)), split = "\t")[[1]])
+          tmp <- as.numeric(strsplit(x = trimws(substring(text = fileLines_022[[which(isPMass2)[[1]]]], first = nchar("PEPMASS=") + 1)), split = "\t")[[1]])
           mz  <- tmp[[1]]
           if(length(tmp) > 1)
             ms1Int <- tmp[[2]]
@@ -784,7 +818,7 @@ parseMSP_chunk <- function(fileLines, minimumIntensityOfMaximalMS2peak, minimumP
   
   return(returnObj)
 }
-parseMSP_attributes <- function(fileSpectra, progress = FALSE){
+parseMSP_attributes <- function(fileSpectra, progress = FALSE, flexiblePeakList = FALSE, includeIDasRecordSeparator=TRUE, includeNAMEasRecordSeparator=TRUE, includeTITLEasRecordSeparator=TRUE, returnEmptySpectra = FALSE){
   fileLines <- readLines(con = fileSpectra)
   
   if(!is.na(progress))  if(progress)  incProgress(amount = 0, detail = "MS/MS file: Read file") else print("MS/MS file: Read file")
@@ -804,23 +838,43 @@ parseMSP_attributes <- function(fileSpectra, progress = FALSE){
   isBI  	<- grepl(pattern = "^BEGIN IONS$",                    		x = fileLines)
   isName	<- grepl(pattern = "(^Name:)|(^NAME:)",               		x = fileLines)
   isNAme	<- grepl(pattern = "^NAME=",                           		x = fileLines)
-  isNAME	<- grepl(pattern = "^TITLE=",                          		x = fileLines)
+  isTITLE	<- grepl(pattern = "^TITLE=",                          		x = fileLines)
   #isNumP	<- grepl(pattern = "^Num Peaks:",							            x = fileLines)
-  isPeak	<- grepl(pattern = "^\\d+(\\.\\d+)?[ \t]\\d+(\\.\\d+)?",	x = fileLines)
+  #isPeak	<- grepl(pattern = "^\\d+(\\.\\d+)?[ \t]\\d+(\\.\\d+)?$",	x = fileLines)
+  #isPeak	<- grepl(pattern = "^[ \t]*\\d+(\\.\\d+)?[ \t]\\d+(\\.\\d+)?([ \t]+\\d+(\\.\\d+)?[ \t]\\d+(\\.\\d+)?)*[ \t]*$",	x = fileLines)
+  
+  if(!includeIDasRecordSeparator) isID <- rep(x = F, times = length(isID))
+  if(!includeNAMEasRecordSeparator){
+    isName <- rep(x = F, times = length(isName))
+    isNAme <- rep(x = F, times = length(isNAme))
+  }
+  if(!includeTITLEasRecordSeparator) isTITLE <- rep(x = F, times = length(isTITLE))
+  
+  numberSmall <- "\\d+(\\.\\d+)?"
+  numberBig   <- "\\d+(\\.\\d+(E\\d+)?)?"
+  mzValueRegEx <- "(\\d+(\\.\\d+)?)"
+  intensityRegex <- "(\\d+((\\.\\d+)?([eE](-)?\\d+)?)?)"
+  annotationRegex <- "\".+\""
+  if(flexiblePeakList){
+    isPeak	<- grepl(pattern = "^[ \t]*\\d+(\\.\\d+([eE](-)?\\d+)?)?([ \t]\\d+(\\.\\d+([eE](-)?\\d+)?)?)*[ \t]*$",	x = fileLines)
+  } else {
+    #isPeak	<- grepl(pattern = "^[ \t]*\\d+(\\.\\d+)?[ \t]\\d+(\\.\\d+([eE](-)?\\d+)?)?([ \t]+((\\d+(\\.\\d+)?[ \t]\\d+(\\.\\d+([eE](-)?\\d+)?)?)|(\".+\")))*[ \t]*$",	x = fileLines)
+    isPeak	<- grepl(pattern = paste("^[ \t]*", mzValueRegEx, "[ \t]", intensityRegex, "([ \t]+((", mzValueRegEx, "[ \t]", intensityRegex, ")|(", annotationRegex, ")))*[ \t]*$", sep = ""),	x = fileLines)
+  }
   isEmpty	<- nchar(trimws(fileLines)) == 0
   
-  tagVector   <- unlist(lapply(X = str_split(string = fileLines, pattern = "(: )|(= )"), FUN = function(x){x[[1]]}))
-  valueVector <- trimws(substr(x = fileLines, start = nchar(tagVector) + 2 + 1, stop = nchar(fileLines)))
+  tagVector   <- unlist(lapply(X = str_split(string = fileLines, pattern = "(:)|(=)"), FUN = function(x){x[[1]]}))
+  valueVector <- trimws(substr(x = fileLines, start = nchar(tagVector) + 1 + 1, stop = nchar(fileLines)))
   
   ## entry line intervals in file
-  entryBorders   <- c(which(isName | isNAME | isNAME | isBI | isID), length(fileLines)+1)
+  entryBorders   <- c(which(isName | isNAme | isTITLE | isBI | isID), length(fileLines)+1)
   entryIntervals <- matrix(data = unlist(lapply(X = seq_len(length(entryBorders) - 1), FUN = function(x){c(entryBorders[[x]], entryBorders[[x+1]] - 1)})), nrow=2)
   
   ## do it
   if(!is.na(progress))  if(progress)  incProgress(amount = 0, detail = "MS/MS file: Assemble spectra") else print("MS/MS file: Assemble spectra")
   suppressWarnings(
     spectraList <- apply(X = entryIntervals, MARGIN = 2, FUN = function(x){
-      
+      #print(x)
       fileLines2   <- fileLines  [x[[1]]:x[[2]]]
       isPeak2	     <- isPeak	   [x[[1]]:x[[2]]]
       isEmpty2     <- isEmpty    [x[[1]]:x[[2]]]
@@ -832,7 +886,27 @@ parseMSP_attributes <- function(fileSpectra, progress = FALSE){
       ## built ms set
       spectrumItem <- list()
       spectrumItem[tagVector2[!isPeak2 & !isEmpty2]] <- trimws(valueVector2[!isPeak2 & !isEmpty2])
-      spectrumItem["peaks"] <- paste(fileLines2[isPeak2], collapse = "; ")
+      
+      if(!is.null(spectrumItem$"Num Peaks"))
+        if(spectrumItem$"Num Peaks" == "0" & !returnEmptySpectra)
+          return(NULL)
+      
+      #spectrumItem["peaks"] <- paste(fileLines2[isPeak2], collapse = "; ")
+      peakLines <- fileLines2[isPeak2]
+      peakLines <- trimws(gsub(x = peakLines, pattern = "\".*\"", replacement = ""))
+      spectrumItem["peaks"] <- paste(peakLines, collapse = " ")
+      spectrumItem["peaks"] <- trimws(gsub(x = spectrumItem["peaks"], pattern = "  ", replacement = " "))
+      
+      ## check peaks
+      tokens <- strsplit(x = spectrumItem[["peaks"]], split = "[ \t]")[[1]]
+      if(length(tokens) == 0){#spectrumItem$"Num Peaks" == "0"){
+        mzs  <- character(0)
+        ints <- character(0)
+      } else {
+        mzs  <- tokens[seq(from=1, to=length(tokens), by = 2)]
+        ints <- tokens[seq(from=2, to=length(tokens), by = 2)]
+      }
+      if(length(mzs) != length(ints)) stop("error in parsing peaks")
       
       ## handle duplicated tags
       duplicatedTags    <- unique(names(spectrumItem)[duplicated(names(spectrumItem))])
@@ -859,8 +933,8 @@ parseMSP_attributes <- function(fileSpectra, progress = FALSE){
   
   rm(
     isName,
-    isNAME,
     isNAme,
+    isTITLE,
     isBI,
     isID,
     isPeak,
@@ -939,7 +1013,7 @@ parseMSP_chunk_old <- function(fileLines, minimumIntensityOfMaximalMS2peak, mini
   isMIon	<- grepl(pattern = "^MODELION:",							            x = fileLines)
   isPrety	<- grepl(pattern = "^precursor type:",						        x = fileLines)
   isNumP	<- grepl(pattern = "^Num Peaks:",							            x = fileLines)
-  isPeak	<- grepl(pattern = "^\\d+(\\.\\d+)?[ \t]\\d+(\\.\\d+)?",	x = fileLines)
+  isPeak	<- grepl(pattern = "^\\d+(\\.\\d+)?[ \t]\\d+(\\.\\d+)?$",	x = fileLines)
   isCoCl	<- grepl(pattern = "^compound class:",						        x = fileLines)
   isInty	<- grepl(pattern = "^instrument type:",						        x = fileLines)
   isInchi	<- grepl(pattern = "^InChI:",								              x = fileLines)
@@ -1377,7 +1451,7 @@ parseMSPbig_ <- function(fileSpectra, minimumIntensityOfMaximalMS2peak, minimumP
   isMIon	<- which(grepl(pattern = "^MODELION:",							            x = fileLines))
   isPrety	<- which(grepl(pattern = "^precursor type:",						        x = fileLines))
   isNumP	<- which(grepl(pattern = "^Num Peaks:",							            x = fileLines))
-  isPeak	<- which(grepl(pattern = "^\\d+(\\.\\d+)?[ \t]\\d+(\\.\\d+)?",	x = fileLines))
+  isPeak	<- which(grepl(pattern = "^\\d+(\\.\\d+)?[ \t]\\d+(\\.\\d+)?$",	x = fileLines))
   isCoCl	<- which(grepl(pattern = "^compound class:",						        x = fileLines))
   isInty	<- which(grepl(pattern = "^instrument type:",						        x = fileLines))
   isInchi	<- which(grepl(pattern = "^InChI:",								              x = fileLines))
@@ -1799,7 +1873,7 @@ parseMSPbig2_ <- function(fileSpectra, minimumIntensityOfMaximalMS2peak, minimum
   isMIon	<- which(grepl(pattern = "^MODELION:",							            x = fileLines))
   isPrety	<- which(grepl(pattern = "^precursor type:",						        x = fileLines))
   isNumP	<- which(grepl(pattern = "^Num Peaks:",							            x = fileLines))
-  isPeak	<- which(grepl(pattern = "^\\d+(\\.\\d+)?[ \t]\\d+(\\.\\d+)?",	x = fileLines))
+  isPeak	<- which(grepl(pattern = "^\\d+(\\.\\d+)?[ \t]\\d+(\\.\\d+)?$",	x = fileLines))
   isCoCl	<- which(grepl(pattern = "^compound class:",						        x = fileLines))
   isInty	<- which(grepl(pattern = "^instrument type:",						        x = fileLines))
   isInchi	<- which(grepl(pattern = "^InChI:",								              x = fileLines))
@@ -2793,11 +2867,11 @@ convertToProjectFile <- function(filePeakMatrix, fileSpectra, parameterSet, prog
   rm(returnObj)
   
   returnObj <- convertToProjectFile2(
-    filePeakMatrix, 
-    spectraList, precursorMz, precursorRt, 
-    rep(x = "", times = numberOfSpectra), NULL, NULL, 
-    parameterSet, 
-    progress
+    filePeakMatrix = filePeakMatrix, 
+    spectraList = spectraList, precursorMz = precursorMz, precursorRt = precursorRt, 
+    metaboliteFamilies = rep(x = "", times = numberOfSpectra), uniqueMetaboliteFamilies = NULL, metaboliteFamilyColors = NULL, 
+    parameterSet = parameterSet, 
+    progress = progress
   )
   returnObj$numberOfSpectraOriginal <- numberOfSpectraOriginal
   returnObj$numberOfMS2PeaksOriginal <- numberOfMS2PeaksOriginal
