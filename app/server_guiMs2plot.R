@@ -1,5 +1,31 @@
 
+##############################################
+## MS2 peaks
+
+## resultObj$fragmentMasses <- fragmentsX
+## resultObj$fragmentAbundances <- fragmentsY
+## resultObj$fragmentColor <- fragmentsColor
+## resultObj$fragmentDiscriminativity <- fragmentDiscriminativity
+## ?? resultObj$clusterDiscriminativity <- clusterDiscriminativity
+## ? resultObj$infoText <- infoText
+## ? resultObj$metFragLinkList <- NULL
+## ? resultObj$precursorSet <- precursorSet
+## ? resultObj$numberOfPrecursors <- numberOfPrecursors
+ms2PlotValues <- reactiveValues(
+  fragmentListClicked = NULL,
+  fragmentListHovered = NULL
+)
 ms2PlotRange         <- reactiveValues(xMin = NULL, xMax = NULL, xInterval = NULL, xIntervalSize = NULL)
+
+resetWorkspaceFunctions <- c(resetWorkspaceFunctions, function(){
+  print("Reset ms2plot state")
+  ## MS2 plot range
+  resetMS2PlotRange()
+  ## fragments
+  ms2PlotValues$fragmentListHovered <<- NULL
+  ms2PlotValues$fragmentListClicked <<- NULL
+})
+
 
 drawMS2Plot <- function(consoleInfo = NULL){
   output$plotMS2 <- renderPlot({
@@ -125,10 +151,14 @@ output$plotMS2_hover_info <- renderUI({
   ## point selected
   fragmentIndex <- which(dataList$fragmentMasses == ms2PlotValues$fragmentListClicked$fragmentMasses[[minimumIndex]])
   
-  if(state$plotHcaShown)
+  if(state$plotHcaShown){
     numberOfPrecursors <- sum(dataList$featureMatrix[filterHca$filter, fragmentIndex] != 0)
-  if(state$plotPcaShown)
+    currentlyShownAnalysisype <- "HCA"
+  }
+  if(state$plotPcaShown){
     numberOfPrecursors <- sum(dataList$featureMatrix[filterPca$filter, fragmentIndex] != 0)
+    currentlyShownAnalysisype <- "PCA"
+  }
   
   #output$information <- renderText({
   #  print(paste("update output$information"))
@@ -149,7 +179,7 @@ output$plotMS2_hover_info <- renderUI({
   info <- paste(
     "<b>", ifelse(test = fragmentMz < 0, yes = "Neutral loss", no = "Fragment"), ": ", "</b>", fragmentMzS, "<br>",
     "<b>Average intensity: ", "</b>", intensityS, "<br>",
-    "<b>MS/MS spectra: ", "</b>", numberOfPrecursors, "<br>",
+    "<b>MS/MS spectra: ", "</b>", numberOfPrecursors, " (in ", currentlyShownAnalysisype, ")", "<br>",
     "<b>Cluster-discriminating power: ", "</b>", cdpS, "%", 
     sep = ""
   )

@@ -822,8 +822,8 @@ performPca <- function(dataList, dataFrame2, ms1AnalysisMethod){
            ms1AnalysisMethod <- "mixOmics_spca"
          },
          "PLS-DA (Partial Least Squares Discriminant Analysis)"={
-           #ms1AnalysisMethod <- "mixOmics_plsda"
-           ms1AnalysisMethod <- "caret_plsda"
+           ms1AnalysisMethod <- "mixOmics_plsda"
+           #ms1AnalysisMethod <- "caret_plsda"
          },
          "sPLS-DA (Sparse Partial Least Squares Discriminant Analysis)"={
            ms1AnalysisMethod <- "mixOmics_splsda"
@@ -903,7 +903,7 @@ performPca <- function(dataList, dataFrame2, ms1AnalysisMethod){
            
            returnObj$scores   <- pca$variates[[1]]
            returnObj$loadings <- pca$loadings[[1]]
-           returnObj$variance <- pca$explained_variance
+           returnObj$variance <- pca$explained_variance$X
            
            #performance <- perf(pca, validation = "loo", progressBar = FALSE)
            #performance$choice.ncomp

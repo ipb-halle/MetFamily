@@ -8,7 +8,7 @@ obsShowPlotControls <- observeEvent(input$showPlotControls, {
 obsShowClusterLabels <- observeEvent(input$showClusterLabels, {
   showClusterLabels <- input$showClusterLabels
   print(paste("Observe showClusterLabels", showClusterLabels))
-  state$showClusterLabels <<- showClusterLabels
+  state_tabHca$showClusterLabels <<- showClusterLabels
   #drawDendrogramPlot(consoleInfo = "showClusterLabels")
 })
 obsHeatmapContent <- observeEvent(input$heatmapContent, {
@@ -18,7 +18,7 @@ obsHeatmapContent <- observeEvent(input$heatmapContent, {
     return()
   
   print(paste("Observe heatmapContent", heatmapContent))
-  state$heatmapContent <<- heatmapContent
+  state_tabHca$heatmapContent <<- heatmapContent
 })
 obsHeatmapOrdering <- observeEvent(input$heatmapOrdering, {
   if(is.null(dataList))
@@ -26,38 +26,38 @@ obsHeatmapOrdering <- observeEvent(input$heatmapOrdering, {
   
   heatmapOrdering <- input$heatmapOrdering
   print(paste("Observe heatmapOrdering", heatmapOrdering))
-  state$heatmapOrdering <<- heatmapOrdering
+  state_tabHca$heatmapOrdering <<- heatmapOrdering
 })
 obsHcaPrecursorLabels <- observeEvent(input$hcaPrecursorLabels, {
   hcaPrecursorLabels <- input$hcaPrecursorLabels
   print(paste("Observe hcaPrecursorLabels", hcaPrecursorLabels))
-  state$hcaPrecursorLabels <<- hcaPrecursorLabels
+  state_tabHca$hcaPrecursorLabels <<- hcaPrecursorLabels
 })
 obsShowScoresLabels <- observeEvent(input$showScoresLabels, {
   showScoresLabels <- input$showScoresLabels
   print(paste("Observe showScoresLabels", showScoresLabels))
-  state$showScoresLabels <<- showScoresLabels
+  state_tabPca$showScoresLabels <<- showScoresLabels
 })
 obsLoadingsLabels <- observeEvent(input$loadingsLabels, {
   loadingsLabels <- input$loadingsLabels
   print(paste("Observe loadingsLabels", loadingsLabels))
-  state$loadingsLabels <<- loadingsLabels
+  state_tabPca$loadingsLabels <<- loadingsLabels
 })
 obsShowLoadingsFeatures <- observeEvent(input$showLoadingsFeatures, {
   showLoadingsFeatures <- input$showLoadingsFeatures
   print(paste("Observe showLoadingsFeatures", paste(showLoadingsFeatures, collapse = ";")))
   
   {
-    state$showLoadingsFeaturesAnnotated   <<- "Annotated"     %in% showLoadingsFeatures
-    state$showLoadingsFeaturesUnannotated <<- "Not Annotated" %in% showLoadingsFeatures
-    state$showLoadingsFeaturesSelected    <<- "Selected"      %in% showLoadingsFeatures
-    state$showLoadingsFeaturesUnselected  <<- "Not Selected"  %in% showLoadingsFeatures
+    state_tabPca$showLoadingsFeaturesAnnotated   <<- "Annotated"     %in% showLoadingsFeatures
+    state_tabPca$showLoadingsFeaturesUnannotated <<- "Not Annotated" %in% showLoadingsFeatures
+    state_tabPca$showLoadingsFeaturesSelected    <<- "Selected"      %in% showLoadingsFeatures
+    state_tabPca$showLoadingsFeaturesUnselected  <<- "Not Selected"  %in% showLoadingsFeatures
   }
 })
 obsShowLoadingsAbundance <- observeEvent(input$showLoadingsAbundance, {
   showLoadingsAbundance <- input$showLoadingsAbundance
   print(paste("Observe showLoadingsAbundance", showLoadingsAbundance))
-  state$showLoadingsAbundance <<- showLoadingsAbundance
+  state_tabPca$showLoadingsAbundance <<- showLoadingsAbundance
 })
 
 suspendOnExitFunctions <- c(suspendOnExitFunctions, function(){

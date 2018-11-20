@@ -14,13 +14,69 @@ clusterDataList <- NULL
 columnsOfInterestForHeatmap <- NULL
 
 dendrogramUserCoordinateRangeY <- NULL
-dendrogramPlotRange  <- reactiveValues(xMin = NULL, xMax = NULL, xInterval = NULL, xIntervalSize = NULL)
+dendrogramPlotRange  <- reactiveValues(
+  xMin = NULL, 
+  xMax = NULL, 
+  xInterval = NULL, 
+  xIntervalSize = NULL
+)
 
+## plotly dendrogram
 curveNumberToCurveName <- NULL
 
+## classifier table for dendrogram node
 putativeAnnotationsTableFromAnalysisInputFieldIdCounter <- 0
-
 putativeAnnotationsTableFromAnalysisCurrentlyShown <- NULL
+
+## statistics for dendrogram node or pca loadings brush
+dendrogramFragmentStatistics <- FALSE
+
+state_tabHca <- reactiveValues(
+  ## plot dimensions
+  #dendrogramHeatmapHeight = 1,#heatmapHeightPerRow * 3,
+  heatmapHeight = 1,#heatmapHeightPerRow * 3,## plotly: remove
+  ## plot controls
+  showClusterLabels = TRUE,
+  heatmapContent = "Log-fold-change",
+  heatmapOrdering = "Specified order",
+  hcaPrecursorLabels = "m/z / RT",
+  ## plot annotations: $setOfAnnotations, $setOfColors
+  annotationsHca = NULL,
+  ## annotation legend height
+  annotationLegendHeightHca = -1
+)
+resetWorkspaceFunctions <- c(resetWorkspaceFunctions, function(){
+  print("Reset tabHca state")
+  state_tabHca$heatmapHeight <<- 1#heatmapHeightPerRow * 3,## plotly: remove
+  ## plot controls
+  state_tabHca$showClusterLabels <<- TRUE
+  state_tabHca$heatmapContent <<- "Log-fold-change"
+  state_tabHca$heatmapOrdering <<- "Specified order"
+  state_tabHca$hcaPrecursorLabels <<- "m/z / RT"
+  ## plot annotations: $setOfAnnotations, $setOfColors
+  state_tabHca$annotationsHca <<- NULL
+  ## annotation legend height
+  state_tabHca$annotationLegendHeightHca <<- -1
+  
+  ## reset variables
+  clusterDataList <<- NULL
+  columnsOfInterestForHeatmap <<- NULL
+  dendrogramFragmentStatistics <<- FALSE
+  
+  ## reset plot range
+  dendrogramPlotRangeY <<- NULL
+  dendrogramPlotRange$xMin <<- NULL
+  dendrogramPlotRange$xMax <<- NULL
+  dendrogramPlotRange$xInterval <<- NULL
+  dendrogramPlotRange$xIntervalSize <<- NULL
+  
+  ## plotly dendrogram
+  curveNumberToCurveName <<- NULL
+  
+  ## classifier table for dendrogram node
+  putativeAnnotationsTableFromAnalysisCurrentlyShown <<- NULL
+})
+
 
 drawDendrogramPlot <- function(consoleInfo = NULL, withHeatmap = FALSE){
   output$plotDendrogram <- renderPlot({
@@ -39,7 +95,7 @@ drawDendrogramPlot <- function(consoleInfo = NULL, withHeatmap = FALSE){
   })
 }
 drawDendrogramPlotImpl_forPlotly <- function(){
-  heatmapContent <- state$heatmapContent
+  heatmapContent <- state_tabHca$heatmapContent
   
   ## heatmap
   numberOfGroups <- -1
@@ -74,10 +130,7 @@ drawDendrogramPlotImpl_forPlotly <- function(){
   heatmapHeight <- heatmapHeightPerRow * numberOfGroups
   dendrogramHeatmapHeight <- 500 + heatmapHeight
   heatmapProportion <- heatmapHeight / dendrogramHeatmapHeight
-  state$dendrogramHeatmapHeight <<- dendrogramHeatmapHeight
-  
-  ## heatmap selections
-  selectedSelection <- state$selectedSelection
+  #state_tabHca$dendrogramHeatmapHeight <<- dendrogramHeatmapHeight
   
   resultObj <- calcPlotDendrogram(
     dataList = dataList, 
@@ -86,12 +139,12 @@ drawDendrogramPlotImpl_forPlotly <- function(){
     #annoPresentAnnotationsList = dataList$annoPresentAnnotationsList, 
     #annoPresentColorsList = dataList$annoPresentColorsList, 
     distanceMeasure = currentDistanceMatrixObj$distanceMeasure, 
-    showClusterLabels = state$showClusterLabels, 
-    hcaPrecursorLabels = state$hcaPrecursorLabels, 
+    showClusterLabels = state_tabHca$showClusterLabels, 
+    hcaPrecursorLabels = state_tabHca$hcaPrecursorLabels, 
     selectionFragmentTreeNodeSet = selectionFragmentTreeNodeSet,
     selectionAnalysisTreeNodeSet = selectionAnalysisTreeNodeSet,
     selectionSearchTreeNodeSet = selectionSearchTreeNodeSet,
-    selectedSelection = selectedSelection,
+    selectedSelection = state_selections$selectedSelection,
     heatmapContent = heatmapContent,
     heatmapOrdering = heatmapOrdering,
     heatmapProportion = heatmapProportion
@@ -111,11 +164,11 @@ drawDendrogramPlotImpl_forPlotly <- function(){
   uniqueAnnotations <- resultObjAnno$setOfAnnotations[uniqueIndeces]
   uniqueColors      <- resultObjAnno$setOfColors[uniqueIndeces]
   
-  state$annotationsHca <<- list(
+  state_tabHca$annotationsHca <<- list(
     setOfAnnotations = uniqueAnnotations,
     setOfColors      = uniqueColors
   )
-  state$annotationLegendHeightHca <<- annoLegendEntryHeight * (length(state$annotationsHca$setOfAnnotations) + 1)
+  state_tabHca$annotationLegendHeightHca <<- annoLegendEntryHeight * (length(state_tabHca$annotationsHca$setOfAnnotations) + 1)
   
   return(plotlyPlot)
 }
@@ -906,6 +959,13 @@ if(FALSE){
   #  plot_ly(x = 1:10, y = rnorm(10), type = "scatter", mode = "markers")
   #})
 }
+
+output$showPutativeAnnotationsTableFromAnalysis <- reactive({
+  print(paste("reactive update showPutativeAnnotationsTableFromAnalysis", state$showPutativeAnnotationsTableFromAnalysis))
+  return(state$showPutativeAnnotationsTableFromAnalysis)
+})
+
+outputOptions(output, 'showPutativeAnnotationsTableFromAnalysis',  suspendWhenHidden=FALSE)
 
 suspendOnExitFunctions <- c(suspendOnExitFunctions, function(){
   print("Suspending tabHca observers")

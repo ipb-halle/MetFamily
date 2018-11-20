@@ -214,7 +214,7 @@ shinyUI(
                     )
                   ),
                   h4("Data file input"),
-                  p("Please choose metabolite profile"),
+                  p("Please choose metabolite profile (MS1 intensity, .txt)"),
                   bsTooltip(id = "ms1DataFile", title = "Press to choose a metabolite profile", placement = "bottom", trigger = "hover"),
                   fileInput(
                     multiple = FALSE,
@@ -222,7 +222,7 @@ shinyUI(
                     label = NULL, #label = 'Choose fragment matrix file',
                     accept = c('text/comma-separated-values', 'text/plain', 'text/tab-separated-values')
                   ),
-                  p("Please choose MS/MS library"),
+                  p("Please choose spectral library (MS/MS, .msp)"),
                   bsTooltip(id = "ms2DataFile", title = "Press to choose a MS/MS library", placement = "bottom", trigger = "hover"),
                   fileInput(
                     multiple = FALSE,
@@ -844,7 +844,7 @@ shinyUI(
                   bsTooltip(id = "searchInfo", title = "The number of MS\u00B9 features which fulfill the given filter criteria", placement = "bottom", trigger = "hover"),
                   verbatimTextOutput("searchInfo"),
                   conditionalPanel(
-                    condition = "output.searchfilterValid & output.filterSearchActive",
+                    condition = "output.searchFilterValid & output.filterSearchActive",
                     bsTooltip(id = "downloadSearchPrecursors", title = "Download a project file which is reduced to the searched set of MS\u00B9 features", placement = "bottom", trigger = "hover"),
                     downloadButton('downloadSearchPrecursors', 'Download reduced project file')
                   )##conditional

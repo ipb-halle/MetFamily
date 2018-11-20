@@ -17,7 +17,7 @@ ms2StickPointSizeEmph <- 1
 ms2StickPointSizeEmphSmall <- 2/3.
 ms2StickPointSizeMaximumMultiplier <- 0.75
 dendrogramClusterPointSizeMaximumMultiplier <- 0.75
-dendrogramHeatmapLeftMargin <- 6#4
+dendrogramHeatmapLeftMargin <- 10#6#4
 
 #########################################################################################
 ## plotting
@@ -1155,6 +1155,7 @@ calcPlotDendrogram_plotly <- function(
   
 }
 calcPlotHeatmap <- function(dataList, filterObj, clusterDataList, selectedTreeNodeSet, frameColor, heatmapContent, heatmapOrdering, xInterval = NULL){
+  
   if(FALSE){
     dataList_ <<- dataList
     filterObj_ <<- filterObj
@@ -1175,9 +1176,6 @@ calcPlotHeatmap <- function(dataList, filterObj, clusterDataList, selectedTreeNo
     heatmapOrdering <- heatmapOrdering_
     xInterval <- xInterval_
   }
-  
-  
-  ## TODO implement fragment selection and search selection (clustering, emphasize in plot)
   
   if(is.null(xInterval))
     xInterval <- c(1, clusterDataList$numberOfPrecursorsFiltered)
@@ -1262,25 +1260,27 @@ calcPlotHeatmap <- function(dataList, filterObj, clusterDataList, selectedTreeNo
     
     ## optimal leaf ordering
     if(numberOfGroups > 2){
-      opt <- order.optimal(dist = dist, merge = cluster$merge)
+      opt <- cba::order.optimal(dist = dist, merge = cluster$merge)
       cluster$merge <- opt$merge
       cluster$order <- opt$order
     }
     
-    labels <- labels[cluster$order]
+    labels            <- labels[cluster$order]
     columnsOfInterest <- columnsOfInterest[cluster$order]
     
-    colors <- lapply(X = columnsOfInterest[cluster$order], FUN = function(x){
-      dataList$colorMatrixDataFrame[filterObj$filter, x][clusterDataList$cluster$order]
+    #colors <- lapply(X = columnsOfInterest[cluster$order], FUN = function(x){
+    colors <- lapply(X = columnsOfInterest, FUN = function(x){
+      dataList$colorMatrixDataFrame [filterObj$filter, x][clusterDataList$cluster$order]
     })
-    values <- lapply(X = columnsOfInterest[cluster$order], FUN = function(x){
+    #values <- lapply(X = columnsOfInterest[cluster$order], FUN = function(x){
+    values <- lapply(X = columnsOfInterest, FUN = function(x){
       dataList$dataFrameMeasurements[filterObj$filter, x][clusterDataList$cluster$order]
     })
     
     columnOrder <- cluster$order
   } else {
     colors <- lapply(X = columnsOfInterest, FUN = function(x){
-      dataList$colorMatrixDataFrame[filterObj$filter, x][clusterDataList$cluster$order]
+      dataList$colorMatrixDataFrame [filterObj$filter, x][clusterDataList$cluster$order]
     })
     values <- lapply(X = columnsOfInterest, FUN = function(x){
       dataList$dataFrameMeasurements[filterObj$filter, x][clusterDataList$cluster$order]
@@ -1303,8 +1303,8 @@ calcPlotHeatmap <- function(dataList, filterObj, clusterDataList, selectedTreeNo
   rect(
     xleft   = rep(x = seq_len(clusterDataList$numberOfPrecursorsFiltered) - 0.5, times = numberOfGroups), 
     xright  = rep(x = seq_len(clusterDataList$numberOfPrecursorsFiltered) + 0.5, times = numberOfGroups), 
-    ybottom = unlist(lapply(X = 0:(numberOfGroups - 1),  FUN = function(x){rep(x = x, times = clusterDataList$numberOfPrecursorsFiltered)})),
-    ytop    = unlist(lapply(X = seq_len(numberOfGroups), FUN = function(x){rep(x = x, times = clusterDataList$numberOfPrecursorsFiltered)})),
+    ybottom = unlist(lapply(X = seq_len(numberOfGroups) - 1, FUN = function(x){rep(x = x, times = clusterDataList$numberOfPrecursorsFiltered)})),
+    ytop    = unlist(lapply(X = seq_len(numberOfGroups)    , FUN = function(x){rep(x = x, times = clusterDataList$numberOfPrecursorsFiltered)})),
     col     = unlist(colors),
     border = NA
   )
@@ -1314,6 +1314,14 @@ calcPlotHeatmap <- function(dataList, filterObj, clusterDataList, selectedTreeNo
     })
   
   axis(side = 2, at = seq(from = 0.5, by = 1, length.out = numberOfGroups), labels = labels, las = 2, tick = TRUE)
+  }
+  
+  if(FALSE){
+    m <- matrix(data = unlist(values), nrow = clusterDataList$numberOfPrecursorsFiltered, ncol = numberOfGroups)
+    col <- m[1, ]
+    names(col) <- labels
+    sort(col)
+    colUnSorted <- col
   }
   
   if(FALSE){
@@ -2618,13 +2626,14 @@ calcPlotSpectrumVsClass_small <- function(masses_spec, intensity_spec, colors_sp
   points(x = masses_class, y = frequency_class, col = colors_class, type = "h", lwd=4)
 }
 calcPlotSpectrumVsClass_big <- function(masses_spec, intensity_spec, colors_spec, masses_class, frequency_class, colors_class, singleSpec, xInterval){
-  if(FALSE){
+  if(TRUE){
     masses_spec_ <<- masses_spec
     intensity_spec_ <<- intensity_spec
     colors_spec_ <<- colors_spec
     masses_class_ <<- masses_class
     frequency_class_ <<- frequency_class
     colors_class_ <<- colors_class
+    singleSpec_ <<- singleSpec
     xInterval_ <<- xInterval
   }
   if(FALSE){
@@ -2634,6 +2643,7 @@ calcPlotSpectrumVsClass_big <- function(masses_spec, intensity_spec, colors_spec
     masses_class <- masses_class_
     frequency_class <- frequency_class_
     colors_class <- colors_class_
+    singleSpec <<- singleSpec_
     xInterval <- xInterval_
   }
   

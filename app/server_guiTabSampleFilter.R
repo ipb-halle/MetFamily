@@ -6,6 +6,16 @@ sampleExclusion_tmp <- NULL
 sampleTableInputFieldIdCounter <- 0
 sampleTable <- NULL
 
+resetWorkspaceFunctions <- c(resetWorkspaceFunctions, function(){
+  print("Reset sampleFilter state")
+  ## sample table
+  sampleOrder_tmp     <<- dataList$groupSampleDataFrame[, "Order"]
+  sampleExclusion_tmp <<- dataList$groupSampleDataFrame[, "Exclude"]
+  
+  sampleTable <<- createSampleTable()
+  setSampleTable()
+})
+
 createSampleTable <- function(){
   sampleTableInputFieldIdCounter <<- sampleTableInputFieldIdCounter + 1
   

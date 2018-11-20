@@ -6,11 +6,24 @@ fragmentMassesForFamily <- NULL
 fragmentPlot2Range    <- reactiveValues(xMin = NULL, xMax = NULL, xInterval = NULL, xIntervalSize = NULL)
 
 state_tabAnnotation <- reactiveValues(
-  metaboliteFamilySelected = NULL
+  metaboliteFamilySelected = FALSE
+  #classifierLoaded = FALSE,
+  #classifierClassSelected = FALSE,
+  #classifierClassMS1featureSelected = FALSE,
+  #putativeAnnotationsTableFromAnalysisRowSelected = FALSE
 )
 resetWorkspaceFunctions <- c(resetWorkspaceFunctions, function(){
-  print("Reset tabAnntation state")
+  print("Reset tabAnnotation state")
   state_tabAnnotation$metaboliteFamilySelected <<- FALSE
+  #state$classifierLoaded <<- FALSE
+  #state$classifierClassSelected <<- FALSE
+  #state$classifierClassMS1featureSelected <<- FALSE
+  
+  ## metabolite families
+  allAnnotationNames <<- NULL
+  
+  ## set state
+  updateAnnotationOverview()
 })
 
 updateAnnotationOverview <- function(){
@@ -107,13 +120,14 @@ plotMetaboliteFamilyVersusClass <- function(precursorSet){
   selectedClassifierClass <- isolate(input$metaboliteFamilyComparisonClass)
   
   addClassifierConsensusSpectrum <- FALSE
-  if(exists("state_tabClassifier$classifierLoaded"))
+  if(exists("state_tabClassifier"))
     addClassifierConsensusSpectrum <- state_tabClassifier$classifierLoaded & selectedClassifierClass != selectionNone
-  if(exists("state_tabClassifier$classifierLoaded")){
+  if(exists("state_tabClassifier")){
     returnObj <- metaboliteFamilyVersusClass(
       dataList = dataList, 
       precursorSet = precursorSet, 
       classToSpectra_class = classToSpectra_class, 
+      properties_class = properties_class,
       classifierClass = selectedClassifierClass, 
       addClassifierConsensusSpectrum = addClassifierConsensusSpectrum, 
       mappingSpectraToClassDf = mappingSpectraToClassDf
@@ -123,6 +137,7 @@ plotMetaboliteFamilyVersusClass <- function(precursorSet){
       dataList = dataList, 
       precursorSet = precursorSet, 
       classToSpectra_class = NULL, 
+      properties_class = NULL,
       classifierClass = NULL, 
       addClassifierConsensusSpectrum = addClassifierConsensusSpectrum, 
       mappingSpectraToClassDf = NULL
@@ -191,8 +206,8 @@ createMS1FeatureTable2 <- function(list){
 }
 
 obsFragmentPlot2dblClick <- observeEvent(input$fragmentPlot2_dblclick, {
-  brush <- input$fragmentPlot2_brush
-  print(paste("observe fragmentPlot2 dblclick", paste(brush, collapse = "; ")))
+  brush <- isolate(input$fragmentPlot2_brush)
+  print(paste("observe fragmentPlot2 dblclick"))#, paste(brush, collapse = "; ")))
   
   if (!is.null(brush)) {
     ## set range
@@ -210,9 +225,9 @@ obsFragmentPlot2dblClick <- observeEvent(input$fragmentPlot2_dblclick, {
   fragmentPlot2Range$xIntervalSize <<- max - min
 })
 obsClassSelection <- observeEvent(input$metaboliteFamilyComparisonClass, {
-  print(paste("Observe metaboliteFamilyComparisonClass", input$metaboliteFamilyComparisonClass))
-  
   annotationIdx <- isolate(input$familySelectionTable_rows_selected)
+  
+  print(paste("Observe metaboliteFamilyComparisonClass", input$metaboliteFamilyComparisonClass, annotationIdx))
   if(is.null(annotationIdx))
     return()
   
@@ -324,6 +339,15 @@ openAnnotaionNameColorDialog <- function(predefinedClassName, predefinedClassCol
   
   annotationDialogCounter <<- annotationDialogCounter + 1
 }
+
+
+output$metaboliteFamilySelected <- reactive({
+  print(paste("reactive update metaboliteFamilySelected", state_tabAnnotation$metaboliteFamilySelected))
+  return(state_tabAnnotation$metaboliteFamilySelected)
+})
+
+outputOptions(output, 'metaboliteFamilySelected',suspendWhenHidden=FALSE)
+
 
 suspendOnExitFunctions <- c(suspendOnExitFunctions, function(){
   print("Suspending tabAnnotation observers")

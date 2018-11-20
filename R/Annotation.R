@@ -40,9 +40,10 @@ doAnnotation <- function(filePath, propertiesList, featureMatrix, parameterSet, 
     featureMatrix <- featureMatrix_
     parameterSet <- parameterSet_
     progress <- FALSE
+    classesWhiteList = NULL
   }
   
-  if(progress)  incProgress(amount = 0, detail = "Init")
+  if(progress)  incProgress(amount = 0, detail = "Init") else print("Init")
   ################################################
   ## given
   fragmentMasses <- as.numeric(colnames(featureMatrix))
@@ -54,7 +55,7 @@ doAnnotation <- function(filePath, propertiesList, featureMatrix, parameterSet, 
   fdrThreshold <- 0.05
   
   ## load classifier
-  if(progress)  incProgress(amount = 0, detail = "Loading classifier")
+  if(progress)  incProgress(amount = 0, detail = "Loading classifier") else print("Loading classifier")
   classifiers_class <- NULL
   load(file = filePath) # --> classifiers_class
   #"classifierName"          "numberOfSpectra"         "numberOfPositiveSpectra" "numberOfNegativeSpectra"
@@ -73,7 +74,7 @@ doAnnotation <- function(filePath, propertiesList, featureMatrix, parameterSet, 
   
   ##################################################
   ## mapping of fragments
-  if(progress)  incProgress(amount = 0.1, detail = "Aligning classifier")
+  if(progress)  incProgress(amount = 0.1, detail = "Aligning classifier") else print("Aligning classifier")
   fragmentMasses_classifier <- classifiers_class[[1]]$fragmentMasses
   
   #############################################################
@@ -122,7 +123,7 @@ doAnnotation <- function(filePath, propertiesList, featureMatrix, parameterSet, 
     fragmentMassesMapped_bool  <- fragmentMassesRounded %in% fragmentMasses_classifier[mappedFragmentIndeces_target]
     fragmentMassesMappedSource <- fragmentMasses       [fragmentMassesMapped_bool]
     fragmentMassesMappedTarget <- fragmentMassesRounded[fragmentMassesMapped_bool]
-      
+    
     mappingSpectraToClassDf <- data.frame(
       "SpectraMasses" = fragmentMassesMappedSource,
       "ClassMasses"   = fragmentMassesMappedTarget
@@ -144,17 +145,22 @@ doAnnotation <- function(filePath, propertiesList, featureMatrix, parameterSet, 
       mapping_fm_test[[fragmentIdx]] <- which.min(abs(fragmentMasses_test[[fragmentIdx]] - fragmentMasses_classifier))[[1]]
     }
     
-    numberOfMappedFragments <- sum(!is.na(mapping_fm_test))
+    #numberOfMappedFragments <- sum(!is.na(mapping_fm_test))
     mappedFragmentIndeces_target <- mapping_fm_test[!is.na(mapping_fm_test)]
     mappedFragmentIndeces_source <- which(!is.na(mapping_fm_test))
     
     rm(mapping_fm_test)
     
     mappingSpectraToClassDf <- data.frame(
-      "SpectraMasses" = fragmentMasses[mappedFragmentIndeces_source],
-      "ClassMasses"   = fragmentMasses_classifier[mappedFragmentIndeces_target]
+      "SpectraMasses"      = fragmentMasses           [mappedFragmentIndeces_source],
+      "ClassMasses"        = fragmentMasses_classifier[mappedFragmentIndeces_target],
+      "SpectraMassIndeces" = mappedFragmentIndeces_source,
+      "ClassMassIndeces"   = mappedFragmentIndeces_target#,
+      #"fragmentMasses"            = fragmentMasses,
+      #"fragmentMasses_classifier" = fragmentMasses_classifier
     )
   }
+  if(progress)  incProgress(amount = 0, detail = paste("Aligned ", length(mappingSpectraToClassDf$SpectraMasses), "vs", length(fragmentMasses), "/", length(fragmentMasses_classifier), "fragments / NLs")) else print(paste("Aligned ", length(mappingSpectraToClassDf$SpectraMasses), "vs", length(fragmentMasses), "/", length(fragmentMasses_classifier), "fragments / NLs"))
   
   ## map test spectra fragments to classifier spectra fragments
   featureMatrix2 <- sparseMatrix(dims = c(numberOfSpectra, length(fragmentMasses_classifier)), i={}, j={}) * 1 ## ngCMatrix --> dgCMatrix
@@ -166,15 +172,17 @@ doAnnotation <- function(filePath, propertiesList, featureMatrix, parameterSet, 
   
   #############################################################
   ## classification
-  if(progress)  incProgress(amount = 0.1, detail = "Classification")
+  if(progress)  incProgress(amount = 0.1, detail = "Classification") else print("Classification")
   
   classifierClasses <- unlist(lapply(X = classifiers_class, FUN = function(x){x$class}))
   numberOfClasses <- length(classifierClasses)
   classes <- classifierClasses
   matrix <- featureMatrix
   
-  if(!is.null(classesWhiteList))
+  if(!is.null(classesWhiteList)){
     classes <- intersect(x = classes, classesWhiteList)
+  }
+  if(progress)  incProgress(amount = 0, detail = paste("Searching for", length(classes), "/", length(classifierClasses), "classes")) else print(paste("Searching for", length(classes), "/", length(classifierClasses), "classes"))
   
   if(!smoothIntensities){
     matrix@x  [matrix@x   != 0] <- 1
@@ -193,7 +201,7 @@ doAnnotation <- function(filePath, propertiesList, featureMatrix, parameterSet, 
       lastOut <- time
       precursorProgress <- (classIdx - lastIdx) / numberOfClasses * 0.7
       lastIdx <- classIdx
-      if(progress)  incProgress(amount = precursorProgress,     detail = paste("Classification:", classIdx, "/", numberOfClasses))
+      if(progress)  incProgress(amount = precursorProgress,     detail = paste("Classification:", classIdx, "/", numberOfClasses)) else print(paste("Classification:", classIdx, "/", numberOfClasses))
     }
     
     class <- classes[[classIdx]]
@@ -229,25 +237,22 @@ doAnnotation <- function(filePath, propertiesList, featureMatrix, parameterSet, 
     time <- difftime(endTime, startTime, units = "secs")[[1]]
     
     ## select by fdr
-    #classifier$quantiles <- quantiles
-    #classifier$quantilesValuesPositive <- quantilesValuesPositive
-    #classifier$quantilesValuesNegative <- quantilesValuesNegative
     #epsilon     <- .Machine$double.eps ^ 0.5 ## 1.490116e-08 ## .Machine$double.eps = 2.220446e-16
     #quantileIdx <- which(classifier$quantiles == (1 - fdrThreshold))
-    quantileIdx <- which(mapply(function(x, y) {isTRUE(all.equal(x, y))}, classifier$quantiles, 1 - fdrThreshold))
+    #quantileIdx <- which(mapply(FUN = function(x, y) {isTRUE(all.equal(x, y))}, classifier$quantiles, 1 - fdrThreshold))
+    quantileIdx <- which(sapply(X = classifier$quantiles, FUN = function(quantile) {isTRUE(all.equal(quantile, 1 - fdrThreshold))}))
     if(length(quantileIdx) == 0)  stop(paste("Quantile for fdrThreshold", fdrThreshold, "not there"))
+    if(length(quantileIdx) >  1)  stop(paste("Quantile for fdrThreshold", fdrThreshold, "ambiguous"))
     scoreThreshold <- classifier$quantilesValuesNegative[[quantileIdx]]
     
     spectrumIdsPredicted <- which(predicted_scores >= scoreThreshold)
-    for(spectrumId in spectrumIdsPredicted){
+    results__class_spectrum[[classIdx]] <- sapply(X = spectrumIdsPredicted, FUN = function(spectrumId){
       pValue <- 1 - classifier$quantiles[[max(which(
         classifier$quantilesValuesNegative <= predicted_scores[[spectrumId]]
       ))]]
-      #results__spectrum_class[[spectrumId]][[class]]                  <- pValue
-      results__class_spectrum[[classIdx]][[as.character(spectrumId)]] <- pValue
-      #results__spectrum_class[[spectrumId]][[class]]                  <- predicted_scores[[spectrumId]]
-      #results__class_spectrum[[classIdx]][[as.character(spectrumId)]] <- predicted_scores[[spectrumId]]
-    }
+      return(pValue)
+    })
+    names(results__class_spectrum[[classIdx]]) <- as.character(spectrumIdsPredicted)
   }## substance class
   
   #plot(sapply(1:numberOfSpectra, function(x){length(results__spectrum_class[[x]])}))
@@ -257,28 +262,68 @@ doAnnotation <- function(filePath, propertiesList, featureMatrix, parameterSet, 
   #plot(sapply(1:numberOfClasses, function(x){min(results__class_spectrum[[x]])}))
   
   classToSpectra_class <- lapply(X = results__class_spectrum, FUN = function(x){
-    if(is.null(x)){      return(NULL)
+    if(length(x)==0){      return(NULL)
     } else {             return(sort(x))
     }
   })
   names(classToSpectra_class) <- classes
   
+  
   # List of 13
-  # $ classifierName         : chr "library=MoNA-export-LC-MS_-_MSMS_-_Negative.msp_Class=ChemOnt_SubstanceClass_AltSC=TRUE_method=ColSums_smoothIntensities=FALSE"
-  # $ numberOfSpectra        : int 1355
-  # $ numberOfPositiveSpectra: int 22
-  # $ numberOfNegativeSpectra: int 1333
-  # $ class                  : chr "Organic compounds; Organic acids and derivatives; Carboxylic acids and derivatives; Amino acids, peptides, and "| __truncated__
-  # $ fragmentMasses         : num [1:12207] -970 -969 -965 -965 -963 ...
-  # $ classOfClass           : chr "ChemOnt_SubstanceClass"
-  # $ frequentFragments      : Named num [1:26] 0.333 0.333 0.267 0.267 0.2 ...
-  # ..- attr(*, "names")= chr [1:26] "128.035484804878" "-0.000562633278350665" "254.082726857143" "-43.9898101876556" ...
-  # $ characteristicFragments: Named num [1:24] 0.327 0.266 0.199 0.189 0.18 ...
-  # ..- attr(*, "names")= chr [1:24] "128.035484804878" "254.082726857143" "210.08614" "-43.9898101876556" ...
-  # $ AUC                    : num 0.823
-  # $ algoName               : chr "method=ColSums; smoothIntensities=FALSE"
-  # $ methodName             : chr "ColSums"
-  # $ paramsString           : chr "smoothIntensities=FALSE"
+  # + $ classifierName         : chr "library=MoNA-export-LC-MS_-_MSMS_-_Negative.msp_Class=ChemOnt_SubstanceClass_AltSC=TRUE_method=ColSums_smoothIntensities=FALSE"
+  # + $ numberOfSpectra        : int 1355
+  # + $ numberOfPositiveSpectra: int 22
+  # + $ numberOfNegativeSpectra: int 1333
+  # + $ class                  : chr "Organic compounds; Organic acids and derivatives; Carboxylic acids and derivatives; Amino acids, peptides, and "| __truncated__
+  # + $ fragmentMasses         : num [1:12207] -970 -969 -965 -965 -963 ...
+  # + $ classOfClass           : chr "ChemOnt_SubstanceClass"
+  # - $ maximumNumberOfScores               : int 10000
+  # - $ removeRareFragments                 : logi FALSE
+  # - $ mergeDuplicatedSpectra              : logi TRUE
+  # - $ takeSpectraWithMaximumNumberOfPeaks : logi FALSE
+  # - $ minimumNumberOfPosSpectraPerClass   : int 10
+  # - $ minimumNumberOfNegSpectraPerClass   : int 10
+  # - $ numberOfDataSetDecompositions       : int 10
+  # - $ proportionTraining                  : num 0.7
+  # - $ unitResolution                      : logi FALSE
+  # + $ AUC                                 : num 0.956
+  # + $ AUC_PR                              : num 0.755               ########################### new ###########################
+  # + $ TPR_for_FPR_of_5Percent             : num 0.841
+  # - $ TNR_for_FNR_of_5Percent             : num 0.715
+  # - $ classifier                          :List of 20
+  # - ..$ method      : chr "binda"
+  # - ..$ modelInfo   :List of 14
+  # - ..$ modelType   : chr "Classification"
+  # - ..$ results     :'data.frame':	15 obs. of  9 variables:
+  # - ...
+  # + $ frequentFragments                   : Named num [1:538] 0.328 0.314 0.299 0.277 0.212 ...
+  # - ..- attr(*, "names")= chr [1:538] "151.003240136054" "255.03036741573" "285.041143269231" "284.032276344086" ...
+  # + $ characteristicFragments             : Named num [1:492] 0.311 0.305 0.295 0.271 0.203 ...
+  # - ..- attr(*, "names")= chr [1:492] "151.003240136054" "255.03036741573" "285.041143269231" "284.032276344086" ...
+  # - $ minimumFrequency                    : num 0.01
+  # - $ frequentFragmentsMeanIntensity      : Named num [1:538] 0.362 0.309 0.647 0.528 0.243 ...
+  # - ..- attr(*, "names")= chr [1:538] "151.003240136054" "255.03036741573" "285.041143269231" "284.032276344086" ...
+  # - $ characteristicFragmentsMeanIntensity: Named num [1:492] 0.362 0.309 0.647 0.528 0.243 ...
+  # - ..- attr(*, "names")= chr [1:492] "151.003240136054" "255.03036741573" "285.041143269231" "284.032276344086" ...
+  # - $ importantFragments                  : Named num [1:35] 100 97.8 94.6 86 81.7 ...
+  # - ..- attr(*, "names")= chr [1:35] "151.003240136054" "255.03036741573" "285.041143269231" "284.032276344086" ...
+  # - $ quantiles                           : num [1:1001] 0 0.001 0.002 0.003 0.004 0.005 0.006 0.007 0.008 0.009 ...
+  # - $ quantilesValuesPositive             : num [1:1001] 1.8e-06 1.8e-06 1.8e-06 1.8e-06 1.8e-06 5.2e-06 5.2e-06 5.2e-06 9.4e-06 9.4e-06 ...
+  # - $ quantilesValuesNegative             : num [1:1001] 9.0e-07 9.0e-07 9.0e-07 1.8e-06 1.8e-06 1.8e-06 1.8e-06 1.8e-06 1.8e-06 1.8e-06 ...
+  # - $ positiveScores                      : Named num [1:410] 1.80e-06 5.20e-06 9.40e-06 1.21e-05 1.57e-05 1.71e-05 1.77e-05 2.56e-05 2.59e-05 2.59e-05 ...
+  # - ..- attr(*, "names")= chr [1:410] "5992" "6534" "5162" "6605" ...
+  # - $ negativeScores                      : Named num [1:3960] 9.0e-07 9.0e-07 9.0e-07 9.0e-07 9.0e-07 9.0e-07 9.0e-07 9.0e-07 1.0e-06 1.8e-06 ...
+  # - ..- attr(*, "names")= chr [1:3960] "3127" "5623" "5626" "5659" ...
+  # - classifier$alternativeSubstanceClasses <- alternativeSubstanceClasses               ########################### new ###########################
+  # - classifier$differentSubstanceClasses   <- differentSubstanceClasses                 ########################### new ###########################
+  # + classifier$importantFragments <- importance                                         ########################### new ###########################
+  # / $ algorithm
+  # - ..$ method      :List of 2
+  # + ..$ methodName  : chr "ColSums"
+  # - ..$ params      :List of 3
+  # + ..$ paramsString: chr "smoothIntensities=FALSE, classWeights=FALSE, modelName=binda"
+  # + ..$ algoName    : chr "method=caret; smoothIntensities=FALSE, classWeights=FALSE, modelName=binda"
+  
   properties_class <- lapply(X = classifiers_class, FUN = function(x){
     c(
     x[c(
@@ -290,20 +335,12 @@ doAnnotation <- function(filePath, propertiesList, featureMatrix, parameterSet, 
       "class",                   #: chr "Organic compounds; Alkaloids and derivatives"
       "fragmentMasses",          #: num [1:12207] -970 -969 -965 -965 -963 ...
       "classOfClass",            #: chr "ChemOnt_SubstanceClass"
-      #classifier              #: Named num [1:12207] -0.000749 -0.000749 -0.000749 -0.000749 -0.000749 ...
-      # ..- attr(*, "names")= chr [1:12207] "-970.4801" "-969.496033333333" "-964.5493" "-964.513" ...
       "frequentFragments",       #: Named num [1:29] 0.571 0.286 0.214 0.214 0.214 ...
-      # ..- attr(*, "names")= chr [1:29] "-15.0237479936883" "-16.0318143323429" "122.036402912621" "-0.000562633278350665" ...
       "characteristicFragments", #: Named num [1:28] 0.539 0.275 0.203 0.203 0.143 ...
-      # ..- attr(*, "names")= chr [1:28] "-15.0237479936883" "-16.0318143323429" "122.036402912621" "-57.0267914509474" ...
-      #"quantiles"               #: num [1:1001] 0 0.001 0.002 0.003 0.004 0.005 0.006 0.007 0.008 0.009 ...
-      #"quantilesValuesPositive" #: num [1:1001] -0.207 -0.207 -0.207 -0.207 -0.207 ...
-      #"quantilesValuesNegative" #: num [1:1001] -0.374 -0.302 -0.283 -0.256 -0.249 ...
-      #"positiveScores"          #: num [1:60] -0.20664 -0.01071 -0.00964 -0.00964 0.04742 ...
-      #"negativeScores"          #: num [1:4010] -0.374 -0.321 -0.309 -0.302 -0.297 ...
+      "importantFragments",      #
       "AUC",                      #: num 0.912
+      "AUC_PR",                   #: num 0.xxx
       "TPR_for_FPR_of_5Percent" #: num 0.667
-      #TNR_for_FNR_of_5Percent #: num 0
     )],
     x[["algorithm"]]["algoName"],
     x[["algorithm"]]["methodName"],
@@ -633,6 +670,7 @@ evaluatePutativeMetaboliteFamiliesOfPrecursorSet <- function(dataList, precursor
     ## single precursor
     overviewDf <- cbind(detailDf$Class, detailDf$pValue, rep(x = 100, times = nrow(detailDf)))
     colnames(overviewDf) <- c("Class", "pValue", "ProportionInPercent")
+    overviewDf <- as.data.frame(x = overviewDf, stringsAsFactors = FALSE)
     #printPutativeMetaboliteFamilies <- paste(detailDf$Class, " (pValue=", detailDf$pValue, ")", sep = "")
   } else {
     ## multiple precursors: do statistics
@@ -770,13 +808,13 @@ evaluatePutativeMetaboliteFamiliesOfPrecursorSet_old <- function(dataList, precu
   return(printPutativeMetaboliteFamilies)
 }
 
-metaboliteFamilyVersusClass <- function(dataList, precursorSet, classToSpectra_class, classifierClass, mappingSpectraToClassDf, addClassifierConsensusSpectrum){
+metaboliteFamilyVersusClass <- function(dataList, precursorSet, classToSpectra_class, properties_class, classifierClass, mappingSpectraToClassDf, addClassifierConsensusSpectrum){
   returnObj <- getSpectrumStatistics(dataList = dataList, precursorSet = precursorSet)
   masses_spec <- returnObj$fragmentMasses
   fragmentCounts_spec <- returnObj$fragmentCounts
   frequency_spec <- fragmentCounts_spec / length(precursorSet)
   
-  if(addClassifierConsensusSpectrum & classifierClass %in% names(classToSpectra_class)){
+  if(all(addClassifierConsensusSpectrum, classifierClass %in% names(classToSpectra_class))){
     ## Plot spectrum vs consensus spectrum
     classIdx <- which(classifierClass == names(classToSpectra_class))
     classProperties         <- properties_class[[classIdx]]
@@ -790,12 +828,13 @@ metaboliteFamilyVersusClass <- function(dataList, precursorSet, classToSpectra_c
     #colors_class    <- returnObj$colors_class
     
     ## match spec to class
-    returnObj <- preprocessSpectrumVsClassPlot(dataList, precursorSet, masses_class, mappingSpectraToClassDf)
+    returnObj <- preprocessSpectrumVsClassPlot(dataList, precursorSet, masses_class, mappingSpectraToClassDf, "Counts")
     masses_spec <- returnObj$masses_spec
     frequency_spec <- returnObj$intensity_spec
     colors_spec <- returnObj$colors_spec
     numberOfMatchingMasses <- returnObj$numberOfMatchingMasses
     matchingMassRowIndeces <- returnObj$matchingMassRowIndeces
+    frequency_spec <- frequency_spec / length(precursorSet)
     
     colors_class    <- rep(x = "grey", times = length(masses_class))
     colors_class[masses_class %in% mappingSpectraToClassDf$ClassMasses[matchingMassRowIndeces]] <- "black"
@@ -839,23 +878,49 @@ preprocessClassPlot <- function(frequentFragments, characteristicFragments){
   )
   return(returnObj)
 }
-preprocessSpectrumVsClassPlot <- function(dataList, precursorIndeces, masses_class, mappingSpectraToClassDf){
+preprocessSpectrumVsClassPlot <- function(dataList, precursorIndeces, masses_class, mappingSpectraToClassDf, yType){
   if(length(precursorIndeces) == 1){
-    resultObj <- getMS2spectrumInfoForPrecursor(dataList = dataList, precursorIndex = precursorIndeces)
+    resultObj   <- getMS2spectrumInfoForPrecursor(dataList = dataList, precursorIndex = precursorIndeces)
     masses_spec <- resultObj$fragmentMasses
-    intensity_spec <- resultObj$fragmentAbundances
+    switch(yType, 
+           "Counts"={
+             intensity_spec <- rep(x = 1, times = length(masses_spec))
+           },
+           "Intensity"={
+             intensity_spec <- resultObj$fragmentAbundances
+           },
+           {
+             stop(paste("Unknown yType", yType))
+           }
+    )
   } else {
-    returnObj <- getSpectrumStatistics(dataList = dataList, precursorSet = precursorIndeces)
+    returnObj   <- getSpectrumStatistics(dataList = dataList, precursorSet = precursorIndeces)
     masses_spec <- returnObj$fragmentMasses
-    intensity_spec <- returnObj$fragmentCounts
+    switch(yType, 
+           "Counts"={
+             intensity_spec <- returnObj$fragmentCounts
+           },
+           "Intensity"={
+             intensity_spec <- resultObj$fragmentAbundances
+           },
+           {
+             stop(paste("Unknown yType", yType))
+           }
+    )
   }
   
   tolerance <- .Machine$double.eps ^ 0.5 ## default in function all.equal
   
+  
   matchingMassRowIndeces <- which(
-    apply(X = outer(X = mappingSpectraToClassDf$SpectraMasses, Y = masses_spec , FUN = "-"), MARGIN = 1, FUN = function(x){any(abs(x) <= tolerance)}) &
-    apply(X = outer(X = mappingSpectraToClassDf$ClassMasses  , Y = masses_class, FUN = "-"), MARGIN = 1, FUN = function(x){any(abs(x) <= tolerance)})
+    as.character(mappingSpectraToClassDf$SpectraMasses) %in% as.character(masses_spec) &
+    as.character(mappingSpectraToClassDf$ClassMasses  ) %in% as.character(masses_class)
   )
+  #matchingMassRowIndeces <- which(
+  #  apply(X = outer(X = mappingSpectraToClassDf$SpectraMasses, Y = masses_spec , FUN = "-"), MARGIN = 1, FUN = function(x){any(abs(x) <= tolerance)}) &
+  #  apply(X = outer(X = mappingSpectraToClassDf$ClassMasses  , Y = masses_class, FUN = "-"), MARGIN = 1, FUN = function(x){any(abs(x) <= tolerance)})
+  #)
+  
   #matchingMassRowIndeces <- which(
   #  mappingSpectraToClassDf$SpectraMasses %in% masses_spec & 
   #  mappingSpectraToClassDf$ClassMasses   %in% masses_class

@@ -14,6 +14,75 @@ pcaLoadingsPlotRange <- reactiveValues(
   yMin = NULL, yMax = NULL, yInterval = NULL, yIntervalSize = NULL
 )
 
+
+state_tabPca <- reactiveValues(
+  ## plot controls
+  showScoresLabels = TRUE,
+  loadingsLabels = "None",
+  showLoadingsFeaturesAnnotated = TRUE, 
+  showLoadingsFeaturesUnannotated = TRUE, 
+  showLoadingsFeaturesSelected = TRUE, 
+  showLoadingsFeaturesUnselected = TRUE,
+  showLoadingsAbundance = FALSE,
+  ## annotation legend height
+  annotationLegendHeightPca = -1,
+  ## plot annotations: $setOfAnnotations, $setOfColors
+  annotationsPca = NULL,
+  scoresGroupsLegendHeight = -1
+)
+resetWorkspaceFunctions <- c(resetWorkspaceFunctions, function(){
+  print("Reset tabPca state")
+  ## plot controls
+  state_tabPca$showScoresLabels <<- TRUE
+  state_tabPca$loadingsLabels   <<- "None"
+  state_tabPca$showLoadingsFeaturesAnnotated   <<- TRUE 
+  state_tabPca$showLoadingsFeaturesUnannotated <<- TRUE 
+  state_tabPca$showLoadingsFeaturesSelected    <<- TRUE 
+  state_tabPca$showLoadingsFeaturesUnselected  <<- TRUE
+  state_tabPca$showLoadingsAbundance           <<- FALSE
+  ## annotation legend height
+  state_tabPca$annotationLegendHeightPca <<- -1
+  ## plot annotations: $setOfAnnotations, $setOfColors
+  state_tabPca$annotationsPca <<- NULL
+  state_tabPca$scoresGroupsLegendHeight <<- -1
+  
+  ## reset variables
+  pcaDataList <<- NULL
+  scoresGroups <<- NULL
+  
+  ## reset plot range
+  pcaScoresPlotRange$xMin <<- NULL
+  pcaScoresPlotRange$xMax <<- NULL
+  pcaScoresPlotRange$xInterval <<- NULL
+  pcaScoresPlotRange$xIntervalSize <<- NULL
+  pcaScoresPlotRange$yMin <<- NULL
+  pcaScoresPlotRange$yMax <<- NULL
+  pcaScoresPlotRange$yInterval <<- NULL
+  pcaScoresPlotRange$yIntervalSize <<- NULL
+  pcaLoadingsPlotRange$xMin <<- NULL
+  pcaLoadingsPlotRange$xMax <<- NULL
+  pcaLoadingsPlotRange$xInterval <<- NULL
+  pcaLoadingsPlotRange$xIntervalSize <<- NULL
+  pcaLoadingsPlotRange$yMin <<- NULL
+  pcaLoadingsPlotRange$yMax <<- NULL
+  pcaLoadingsPlotRange$yInterval <<- NULL
+  pcaLoadingsPlotRange$yIntervalSize <<- NULL
+  
+  ## number of components for PCA
+  maximumNumberOfComponents <- length(dataList$includedSamples(dataList$groupSampleDataFrame)) - 1
+  maximumNumberOfComponents <- min(maximumNumberOfComponents, 5)
+  if(maximumNumberOfComponents < 2){
+    updateSelectInput(session = session, inputId = "pcaDimensionOne", choices = "1")
+    updateSelectInput(session = session, inputId = "pcaDimensionTwo", choices = "1")
+    shinyjs::disable(id = "pcaDimensionOne")
+    shinyjs::disable(id = "pcaDimensionTwo")
+  } else {
+    updateSelectInput(session = session, inputId = "pcaDimensionOne", choices = seq_len(maximumNumberOfComponents), selected = 1)
+    updateSelectInput(session = session, inputId = "pcaDimensionTwo", choices = seq_len(maximumNumberOfComponents), selected = 2)
+  }
+})
+
+
 obsDrawPCA <- observeEvent(input$drawPCAplots, {
   session$sendCustomMessage("disableButton", "drawPCAplots")
   #################################################
@@ -90,7 +159,7 @@ calculatePca <- function(ms1AnalysisMethod, pcaScaling, pcaLogTransform, pcaDime
     groups = filterPca$groups,
     colors = colorPaletteScores()[unlist(lapply(X = filterPca$groups, FUN = dataList$groupIdxFromGroupName))]
   )
-  state$scoresGroupsLegendHeight <<- scoresGroupsLegendEntryHeight * (length(scoresGroups$groups) + 1)
+  state_tabPca$scoresGroupsLegendHeight <<- scoresGroupsLegendEntryHeight * (length(scoresGroups$groups) + 1)
   drawScoresGroupsLegend(consoleInfo = "init output$plotScoresGroupsLegend")
   
   if(!state$anyPlotDrawn){
@@ -474,52 +543,24 @@ observeSampleSet <- observeEvent(input$pcaSamples, {
       return(NULL)
   }))
   
-  shinyjs::toggleState("pcaFilter_lfc", length(groupsFromSamples) == 2)
+  shinyjs::toggleState(id = "pcaFilter_lfc", condition = length(groupsFromSamples) == 2)
   
   #########################################################################################
   ## update filter
   
-  ## TODO 888
+  #if(!is.null(filterHca)){
+  ##  applyHcaFilters(
+  ##    filterHca$groupSetOriginal[[1]], 
+  ##    filterHca$groupSetOriginal[[2]], 
+  ##    filterHca$filter_averageOriginal, 
+  ##    filterHca$filter_lfcOriginal, 
+  ##    filterHca$includeIgnoredPrecursorsOriginal
+  ##  )
+  #  applyPcaFilters_default()
+  ##}
   
-  if(FALSE){
-    filter <- doPerformFiltering(dataList$groups, NULL, FALSE, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, TRUE)$filter
-    if(length(dataList$groups) == 1)
-      filter2 <- doPerformFiltering(c(dataList$groups[[1]], dataList$groups[[1]]), NULL, FALSE, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, TRUE)$filter
-    else
-      filter2 <- filter
-    
-    filterHca    <<- filter2
-    filterPca    <<- filter
-    
-    updateHcaFilterInformation()
-    updatePcaFilterInformation()
-    
-    state$hcaFilterValid <<- TRUE
-    state$pcaFilterValid <<- TRUE
-    
-    checkHcaFilterValidity(filter2$numberOfPrecursorsFiltered)
-    checkPcaFilterValidity(filter$numberOfPrecursorsFiltered)
-  }
-  
-  if(!is.null(filterHca)){
-    applyHcaFilters(
-      filterHca$groupSetOriginal[[1]], 
-      filterHca$groupSetOriginal[[2]], 
-      filterHca$filter_averageOriginal, 
-      filterHca$filter_lfcOriginal, 
-      filterHca$includeIgnoredPrecursorsOriginal
-    )
-  }
-  if(!is.null(filterPca)){
-    applyPcaFilters(
-      filterPca$groupSetOriginal, 
-      filterPca$sampleSetOriginal, 
-      filterPca$filterBySamplesOriginal, 
-      filterPca$filter_averageOriginal, 
-      filterPca$filter_lfcOriginal, 
-      filterPca$includeIgnoredPrecursorsOriginal
-    )
-  }
+  if(!is.null(filterPca))
+    applyPcaFilters_default()
 })
 
 observeSelectAllPCAGroups <- observeEvent(input$selectAllPCAGroups, {

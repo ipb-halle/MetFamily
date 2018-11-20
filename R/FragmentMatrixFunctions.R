@@ -27,7 +27,7 @@ parsePeakAbundanceMatrix <- function(filePeakMatrix, doPrecursorDeisotoping, mzD
   )
   
   ## read file
-  if(!is.na(progress))  if(progress)  incProgress(amount = 0.1, detail = paste("Parsing MS¹ file content...", sep = "")) else print(paste("Parsing MS¹ file content...", sep = ""))
+  if(!is.na(progress))  if(progress)  incProgress(amount = 0.1, detail = paste("Parsing MS1 file content...", sep = "")) else print(paste("Parsing MS1 file content...", sep = ""))
   
   dataFrameAll <- read.table(filePeakMatrix, header=FALSE, sep = "\t", as.is=TRUE, quote = "", check.names = FALSE, comment.char = "")
   dataFrameHeader <- dataFrameAll[1:4, ]
@@ -58,7 +58,8 @@ parsePeakAbundanceMatrix <- function(filePeakMatrix, doPrecursorDeisotoping, mzD
     sampleInjectionOrder <- NULL
   }
   
-  decimalSeparatorIsComma <- all(grepl(x = dataFrame$"Average Mz", pattern = "^(\\d+,\\d+$)|(^\\d+$)"))
+  commaNumbers <- sum(grepl(x = dataFrame$"Average Mz", pattern = "^(\\d+,\\d+$)|(^\\d+$)"))
+  decimalSeparatorIsComma <- commaNumbers == nrow(dataFrame)
   if(decimalSeparatorIsComma){
     if(!is.null(dataFrame$"Average Rt(min)"))     dataFrame$"Average Rt(min)"     <- gsub(x = gsub(x = dataFrame$"Average Rt(min)", pattern = "\\.", replacement = ""), pattern = ",", replacement = ".")
     #if(!is.null(dataFrame$"Average.Rt.min."))     dataFrame$"Average.Rt.min."     <- gsub(x = gsub(x = dataFrame$"Average.Rt.min.", pattern = "\\.", replacement = ""), pattern = ",", replacement = ".")
@@ -336,10 +337,12 @@ parseMSP_chunk <- function(fileLines, minimumIntensityOfMaximalMS2peak, minimumP
   isInchiKey	<- grepl(pattern = "(^InChIKey:)|(^INCHIKEY:)|(^InChIKey=)|(^INCHIKEY=)|(^INCHIAUX=)",	      x = fileLines)
   isSmiles  	<- grepl(pattern = "(^SMILES:)|(^SMILES=)",		        x = fileLines)
   
-  decimalDelimiterIsComma <- all(grepl(x = trimws(c(
+  someStrings <- trimws(c(
+    substring(text = fileLines[isMZ], first = nchar("RETENTIONTIME:") + 1), 
     substring(text = fileLines[isMZ], first = nchar("PRECURSORMZ:") + 1), 
     substring(text = fileLines[isMz], first = nchar("precursor m/z:") + 1)
-  )), pattern = "^(\\d+,\\d+$)|(^\\d+$)"))
+  ))
+  decimalDelimiterIsComma <- ifelse(test = length(someStrings) > 0, yes = all(grepl(x = someStrings, pattern = "^(\\d+,\\d+$)|(^\\d+$)")), no = FALSE)
   if(decimalDelimiterIsComma){
     fileLines_02 <- gsub(pattern = ",", replacement = ".", x = gsub(pattern = "\\.", replacement = "", x = fileLines))
   } else {
@@ -839,6 +842,7 @@ parseMSP_attributes <- function(fileSpectra, progress = FALSE, flexiblePeakList 
   isName	<- grepl(pattern = "(^Name:)|(^NAME:)",               		x = fileLines)
   isNAme	<- grepl(pattern = "^NAME=",                           		x = fileLines)
   isTITLE	<- grepl(pattern = "^TITLE=",                          		x = fileLines)
+  isAccession	<- grepl(pattern = "^ACCESSION:",                          		x = fileLines)
   #isNumP	<- grepl(pattern = "^Num Peaks:",							            x = fileLines)
   #isPeak	<- grepl(pattern = "^\\d+(\\.\\d+)?[ \t]\\d+(\\.\\d+)?$",	x = fileLines)
   #isPeak	<- grepl(pattern = "^[ \t]*\\d+(\\.\\d+)?[ \t]\\d+(\\.\\d+)?([ \t]+\\d+(\\.\\d+)?[ \t]\\d+(\\.\\d+)?)*[ \t]*$",	x = fileLines)
@@ -867,7 +871,7 @@ parseMSP_attributes <- function(fileSpectra, progress = FALSE, flexiblePeakList 
   valueVector <- trimws(substr(x = fileLines, start = nchar(tagVector) + 1 + 1, stop = nchar(fileLines)))
   
   ## entry line intervals in file
-  entryBorders   <- c(which(isName | isNAme | isTITLE | isBI | isID), length(fileLines)+1)
+  entryBorders   <- c(which(isName | isNAme | isTITLE | isBI | isID | isAccession), length(fileLines)+1)
   entryIntervals <- matrix(data = unlist(lapply(X = seq_len(length(entryBorders) - 1), FUN = function(x){c(entryBorders[[x]], entryBorders[[x+1]] - 1)})), nrow=2)
   
   ## do it
@@ -894,6 +898,10 @@ parseMSP_attributes <- function(fileSpectra, progress = FALSE, flexiblePeakList 
       #spectrumItem["peaks"] <- paste(fileLines2[isPeak2], collapse = "; ")
       peakLines <- fileLines2[isPeak2]
       peakLines <- trimws(gsub(x = peakLines, pattern = "\".*\"", replacement = ""))
+      
+      peakLines <- unlist(lapply(X = strsplit(x = peakLines, split = "[ \t]"), FUN = function(peaktokens){peaktokens[1:2]}))
+      spectrumItem["peaks"] <- paste(peakLines, collapse = " ")
+      
       spectrumItem["peaks"] <- paste(peakLines, collapse = " ")
       spectrumItem["peaks"] <- trimws(gsub(x = spectrumItem["peaks"], pattern = "  ", replacement = " "))
       
@@ -2334,6 +2342,7 @@ builtMatrix <- function(spectraList, mzDeviationAbsolute_grouping, mzDeviationIn
   
   if(!is.na(progress))  if(progress)  incProgress(amount = 0.005, detail = paste("Fragment grouping preprocessing ready", sep = "")) else print(paste("Fragment grouping preprocessing ready", sep = ""))
   if(!is.na(progress))  if(progress)  incProgress(amount = 0,     detail = paste("Fragment grouping", sep = "")) else print(paste("Fragment grouping", sep = ""))
+  startTime <- Sys.time()
   
   #resultObj <- xcms:::mzClustGeneric(
   resultObj <- mzClustGeneric(
@@ -2343,9 +2352,12 @@ builtMatrix <- function(spectraList, mzDeviationAbsolute_grouping, mzDeviationIn
     minsamp = 1, minfrac = 0,
     progress
   )
-  if(!is.na(progress))  if(progress)  incProgress(amount = 0.2,     detail = paste("Fragment grouping ready", sep = "")) else print(paste("Fragment grouping ready", sep = ""))
+  
+  endTime <- Sys.time()
+  if(!is.na(progress))  if(progress)  incProgress(amount = 0.2,     detail = paste("Fragment grouping ready (", difftime(time1 = endTime, time2 = startTime, units = "secs"), "s)", sep = "")) else print(paste("Fragment grouping ready (", difftime(time1 = endTime, time2 = startTime, units = "secs"), "s)", sep = ""))
   
   if(!is.na(progress))  if(progress)  incProgress(amount = 0.05, detail = paste("Fragment group postprocessing", sep = "")) else print(paste("Fragment group postprocessing", sep = ""))
+  startTime <- Sys.time()
   matrixRows <- vector(mode = "numeric")
   matrixCols <- vector(mode = "numeric")
   matrixVals <- vector(mode = "numeric")
@@ -2366,7 +2378,8 @@ builtMatrix <- function(spectraList, mzDeviationAbsolute_grouping, mzDeviationIn
   
   #rm(ms2PeakGroupList)
   numberOfCollisions <- sum(duplicated(cbind(matrixRows, matrixCols)))
-  if(!is.na(progress))  if(progress)  incProgress(amount = 0, detail = paste("Fragment group postprocessing ready", sep = "")) else print(paste("Fragment group postprocessing ready", sep = ""))
+  endTime <- Sys.time()
+  if(!is.na(progress))  if(progress)  incProgress(amount = 0, detail = paste("Fragment group postprocessing ready (", difftime(time1 = endTime, time2 = startTime, units = "secs"), "s)", sep = "")) else print(paste("Fragment group postprocessing ready (", difftime(time1 = endTime, time2 = startTime, units = "secs"), "s)", sep = ""))
   
   if(length(matrixRows) == 0){
     ## box results
@@ -2406,12 +2419,17 @@ builtMatrix <- function(spectraList, mzDeviationAbsolute_grouping, mzDeviationIn
   numberOfRemovedMS2IsotopePeaks <- 0
   if(doMs2PeakGroupDeisotoping){
     if(!is.na(progress))  if(progress)  incProgress(amount = 0.05, detail = paste("Fragment group deisotoping", sep = "")) else print(paste("Fragment group deisotoping", sep = ""))
+    startTime <- Sys.time()
+    
     distance13Cminus12C <- 1.0033548378
     ## mark isotope precursors
     ms2PeakGroupsToRemove <- vector(mode = "logical", length = numberOfMS2PeakGroups)
     for(ms2PeakGroupIdx in seq_len(numberOfMS2PeakGroups)){
       if((ms2PeakGroupIdx %% (as.integer(numberOfMS2PeakGroups/10))) == 0)
-        if(!is.na(progress))  if(progress)  incProgress(amount = 0.0, detail = paste("Fragment group deisotoping ", ms2PeakGroupIdx, " / ", numberOfMS2PeakGroups, sep = "")) else print(paste("Fragment group deisotoping ", ms2PeakGroupIdx, " / ", numberOfMS2PeakGroups, sep = ""))
+        if(!is.na(progress)){
+          if(progress)  incProgress(amount = 0.0, detail = paste("Fragment group deisotoping ", ms2PeakGroupIdx, " / ", numberOfMS2PeakGroups, sep = "")) else print(paste("Fragment group deisotoping ", ms2PeakGroupIdx, " / ", numberOfMS2PeakGroups, sep = ""))
+          #break
+        }
       mzError <- abs(fragmentMasses[[ms2PeakGroupIdx]] * mzDeviationInPPM_ms2PeakGroupDeisotoping / 1E6)
       mzError <- max(mzError, mzDeviationAbsolute_ms2PeakGroupDeisotoping)
       
@@ -2435,6 +2453,7 @@ builtMatrix <- function(spectraList, mzDeviationAbsolute_grouping, mzDeviationIn
       
       ## isotopic fragments are mainly in spectra with monoisotopic fragments
       fragmentIntensitiesHere <- matrix[, ms2PeakGroupIdx]
+      #if(TRUE) next
       isotopicThere <- fragmentIntensitiesHere != 0
       numberOfFragmentPeaksHere <- sum(isotopicThere)
       
@@ -2450,6 +2469,7 @@ builtMatrix <- function(spectraList, mzDeviationAbsolute_grouping, mzDeviationIn
       
       monoisotopicFragmentColumn <- min(validInMz[validInOverlap])
       
+      
       ## intensity gets smaller in the isotope spectrum
       #monoisotopicFragmentIntensities <- matrix[, monoisotopicFragmentColumn]
       monoisotopicThere <- matrix[, monoisotopicFragmentColumn] != 0
@@ -2464,6 +2484,9 @@ builtMatrix <- function(spectraList, mzDeviationAbsolute_grouping, mzDeviationIn
         ms2PeakGroupsToRemove[[ms2PeakGroupIdx]] <- TRUE
     }
     
+    #endTime <- Sys.time()
+    #difftime(time1 = endTime, time2 = startTime, units = "secs")
+    
     ## remove
     matrix <- matrix[, !ms2PeakGroupsToRemove]
     
@@ -2472,7 +2495,8 @@ builtMatrix <- function(spectraList, mzDeviationAbsolute_grouping, mzDeviationIn
     numberOfMS2PeakGroups <- length(fragmentMasses)
     numberOfMS2Peaks <- numberOfMS2PeaksPrior - numberOfRemovedMS2IsotopePeaks
     
-    if(!is.na(progress))  if(progress)  incProgress(amount = 0.05, detail = paste("Fragment group deisotoping ready", sep = "")) else print(paste("Fragment group deisotoping ready", sep = ""))
+    endTime <- Sys.time()
+    if(!is.na(progress))  if(progress)  incProgress(amount = 0.05, detail = paste("Fragment group deisotoping ready (", difftime(time1 = endTime, time2 = startTime, units = "secs"), "s)", sep = "")) else print(paste("Fragment group deisotoping ready (", difftime(time1 = endTime, time2 = startTime, units = "secs"), "s)", sep = ""))
   }
   
   precursorMz <- unlist(lapply(X = spectraList, FUN = function(x){
@@ -2644,7 +2668,8 @@ mzClustGeneric <- function(p, sampclass=NULL, mzppm = 20, mzabs = 0, minsamp = 1
     bin <- pord[pos]
     pos <- pos+1
     basepeak <- p[bin[1],1]
-    error_range <- c(basepeak, basepeak*error_window+basepeak+2*mzabs)
+    #error_range <- c(basepeak, basepeak*error_window+basepeak+2*mzabs)
+    error_range <- c(basepeak, abs(basepeak)*error_window+basepeak+2*mzabs)
     while(pos < numpeaks && p[pord[pos],1] <= error_range[2]) {
       bin <- c(bin,pord[pos])
       pos <- pos + 1
@@ -2661,7 +2686,8 @@ mzClustGeneric <- function(p, sampclass=NULL, mzppm = 20, mzabs = 0, minsamp = 1
   meanDeviationOverLimit <- function(bin){
     bin_mz <- p[bin,1]
     m <- mean(bin_mz)
-    error_range <- c(m-ppm_error*m-mzabs, ppm_error*m+m+mzabs)
+    #error_range <- c(m-ppm_error*m-mzabs, ppm_error*m+m+mzabs)
+    error_range <- c(m-ppm_error*abs(m)-mzabs, ppm_error*abs(m)+m+mzabs)
     if(length(bin_mz[(bin_mz > error_range[2]) |
                      (bin_mz < error_range[1])]) > 0 ) {
       return(TRUE)
@@ -2719,12 +2745,19 @@ mzClustGeneric <- function(p, sampclass=NULL, mzppm = 20, mzabs = 0, minsamp = 1
   
   lastOut <- proc.time()["user.self"]
   lastPos <- 1
+  
+  loopCounter <- 0
   while(TRUE){
+    loopCounter <- loopCounter + 1
+    #print(loopCounter)
+    #if(loopCounter==618) break
+    
     if(binNumber +4 > nrow(groupmat)){
       groupmat <- rbind(groupmat, matrix(nrow = nrow(groupmat), ncol = ncol(groupmat)))
       groupindex <- c(groupindex, vector("list", length(groupindex)))
     }
     
+    ## progress output
     time <- proc.time()["user.self"]
     if(time - lastOut > 1){
       lastOut <- time
@@ -2741,6 +2774,7 @@ mzClustGeneric <- function(p, sampclass=NULL, mzppm = 20, mzabs = 0, minsamp = 1
     pos <- newbin$pos
     
     if(binB[1] < 0){
+      ## cancel
       out <- bin2output(binA)
       if(length(out) != 0){
         groupmat[binNumber,] <- out$stat
@@ -2753,7 +2787,8 @@ mzClustGeneric <- function(p, sampclass=NULL, mzppm = 20, mzabs = 0, minsamp = 1
     min_binB <- min(p[binB,1])
     
     binclust <- 0
-    if(max_binA + max_binA*error_window+2*mzabs >= min_binB && min_binB - min_binB*error_window - 2*mzabs <= max_binA){
+    if(max_binA + abs(max_binA)*error_window+2*mzabs >= min_binB && min_binB - abs(min_binB)*error_window - 2*mzabs <= max_binA){
+    #if(max_binA + max_binA*error_window+2*mzabs >= min_binB && min_binB - min_binB*error_window - 2*mzabs <= max_binA){
       binC <- c(binA,binB)
       binclust <- 1
     } else {
@@ -2785,6 +2820,13 @@ mzClustGeneric <- function(p, sampclass=NULL, mzppm = 20, mzabs = 0, minsamp = 1
       
       last_group <- groups[which.max(p[binC,1])]
       binA <- binC[which(groups == last_group)]
+      
+      ## bug fix where there were not enough empty rows in the matrix (in case of more than four new groups)
+      if(binNumber + last_group > nrow(groupmat)){
+        groupmat <- rbind(groupmat, matrix(nrow = nrow(groupmat), ncol = ncol(groupmat)))
+        groupindex <- c(groupindex, vector("list", length(groupindex)))
+      }
+      
       if(max(groups) >1){
         for(c in 1:max(groups)){
           if(c == last_group){
@@ -2893,7 +2935,7 @@ convertToProjectFile2 <- function(filePeakMatrix, spectraList, precursorMz, prec
   
   ####################################################################################
   ## metabolite profile
-  if(!is.na(progress))  if(progress)  incProgress(amount = 0.1, detail = paste("Parsing MS¹ file...", sep = "")) else print(paste("Parsing MS¹ file...", sep = ""))
+  if(!is.na(progress))  if(progress)  incProgress(amount = 0.1, detail = paste("Parsing MS1 file...", sep = "")) else print(paste("Parsing MS1 file...", sep = ""))
   
   if(!is.null(filePeakMatrix)){
     returnObj <- parsePeakAbundanceMatrix(
@@ -2964,6 +3006,8 @@ convertToProjectFile2 <- function(filePeakMatrix, spectraList, precursorMz, prec
     ## replace rounded rts in the MS1 data by the unrounded ones from the MS/MS data
     if(nrow(dataFrame) == length(spectraList)){
       dataFrame$"Average Rt(min)" <- unlist(lapply(X = spectraList, FUN = function(x){x$rt}))
+    } else {
+      
     }
     
     ## remove empty spectra
@@ -3024,8 +3068,14 @@ convertToProjectFile2 <- function(filePeakMatrix, spectraList, precursorMz, prec
   spectraList <- spectraList[orderMS1features]
   metaboliteFamilies <- metaboliteFamilies[orderMS1features]
   
-  diffAll <- abs(outer(X = precursorMz, Y = dataFrame$"Average Mz", FUN = function(x, y){abs(x-y)}))
-  allHits <- apply(X = diffAll, MARGIN = 2, FUN = function(x){which(x == min(x[x < parameterSet$mzDeviationAbsolute_mapping], Inf))})
+  if(!is.null(filePeakMatrix)){
+    ## allHits: dataFrame$"Average Mz" --> precursorMz; allHits indexes the spectraList
+    diffAll <- abs(outer(X = precursorMz, Y = dataFrame$"Average Mz", FUN = function(x, y){abs(x-y)}))
+    allHits <- apply(X = diffAll, MARGIN = 2, FUN = function(x){which(x == min(x[x < parameterSet$mzDeviationAbsolute_mapping], Inf))})
+    
+  } else {
+    allHits <- lapply(X = dataFrame$"Average Mz", FUN = function(x){which(precursorMz == x)})
+  }
   if(is.array(allHits))
     allHits <- as.list(as.data.frame(allHits))
   
@@ -3039,24 +3089,25 @@ convertToProjectFile2 <- function(filePeakMatrix, spectraList, precursorMz, prec
     if(numberOfItems == 1)
       if(is.na(allHits[[i]]))
         numberOfItems <- 0
-    
-    if(numberOfItems == 0){    ## no hit
-      allHits[[i]] <- NA
-      numberOfUnmappedPrecursorsMz <- numberOfUnmappedPrecursorsMz + 1
-    }
-    else{    ## take hit with minimum absolute RT difference
-      absoluteDifferences <- abs(dataFrame$"Average Rt(min)"[i] - precursorRt[allHits[[i]]])
-      bestIdx <- which.min(absoluteDifferences)
-      if(length(bestIdx) > 1)
-        bestIdx <- bestIdx[[1]]
-      if(absoluteDifferences[[bestIdx]] <= parameterSet$maximumRtDifference){
-        allHits[[i]] <- allHits[[i]][[bestIdx]]
-      } else {
+      
+      if(numberOfItems == 0){    ## no hit
         allHits[[i]] <- NA
-        numberOfUnmappedPrecursorsRt <- numberOfUnmappedPrecursorsRt + 1
+        numberOfUnmappedPrecursorsMz <- numberOfUnmappedPrecursorsMz + 1
       }
-      #allHits[[i]] <- allHits[[i]][[1]]
-    }
+      else{    ## take hit with minimum absolute RT difference
+        absoluteDifferences <- abs(dataFrame$"Average Rt(min)"[i] - precursorRt[allHits[[i]]])
+        bestIdx <- which.min(absoluteDifferences)
+        if(length(bestIdx) > 1)
+          bestIdx <- bestIdx[[1]]
+        if(absoluteDifferences[[bestIdx]] <= parameterSet$maximumRtDifference){
+          allHits[[i]] <- allHits[[i]][[bestIdx]]
+        } else {
+          allHits[[i]] <- NA
+          numberOfUnmappedPrecursorsRt <- numberOfUnmappedPrecursorsRt + 1
+        }
+        #allHits[[i]] <- allHits[[i]][[1]]
+      }
+      #print(allHits[[i]])
   }
   ## apply
   hitsTempAll     <- unlist(allHits)
@@ -3278,10 +3329,11 @@ convertToProjectFile2 <- function(filePeakMatrix, spectraList, precursorMz, prec
   }
   
   ## AnnotationColors={AS=#0000FF, SQT-glucosides=#FF0000}
-  if(!is.null(uniqueMetaboliteFamilies) & !is.null(metaboliteFamilyColors))
+  if(!is.null(uniqueMetaboliteFamilies) & !is.null(metaboliteFamilyColors)){
     annotationColorsValue <- paste(uniqueMetaboliteFamilies, metaboliteFamilyColors, sep = "=", collapse = ", ")
-  else
+  } else {
     annotationColorsValue <- ""
+  }
   annotationColorsFieldValue <- paste("AnnotationColors={", annotationColorsValue, "}", sep = "")
   
   matrixRows <- c(matrixRows, rep(x = 1, times = 3 + numberOfDataColumns))

@@ -507,6 +507,20 @@ readProjectData <- function(fileLines, progress = FALSE){
   )
   
   if(nchar(annotationColorsMapValue) > 0){
+    #annotationColorsMapValuePairsTmp <- unlist(strsplit(x = annotationColorsMapValue, split = "="))
+    #annotationColorsMapValues <- sapply(X = strsplit(x = annotationColorsMapValuePairsTmp[2:length(annotationColorsMapValuePairsTmp)], split = ", "), FUN = function(token){
+    #  token[[1]]
+    #})
+    #if(length(annotationColorsMapValuePairsTmp) < 3){
+    #  annotationColorsMapKeys <- annotationColorsMapValuePairsTmp[[1]]
+    #}else{
+    #  annotationColorsMapKeys <- c(annotationColorsMapValuePairsTmp[[1]], substr(
+    #    x = annotationColorsMapValuePairsTmp[2:(length(annotationColorsMapValuePairsTmp) - 1)], 
+    #    start = nchar(annotationColorsMapValues) + nchar(", ") + 1, 
+    #    stop = nchar(annotationColorsMapValuePairsTmp[2:length(annotationColorsMapValuePairsTmp)])
+    #  ))
+    #}
+    
     annotationColorsMapValuePairs <- unlist(strsplit(x = annotationColorsMapValue, split = ", "))
     annotationColorsMapValues <- unlist(strsplit(x = annotationColorsMapValuePairs, split = "="))
     annotationColorsMapKeys   <- annotationColorsMapValues[seq(from = 1, to = length(annotationColorsMapValues), by = 2)]
@@ -1420,7 +1434,7 @@ getSpectrumStatistics <- function(dataList, precursorSet){
     precursorSet <- precursorSet_
   }
   
-  fragmentCounts <- Matrix::colSums(x = dataList$featureMatrix[precursorSet, ] != 0)
+  fragmentCounts <- Matrix::colSums(x = dataList$featureMatrix[precursorSet, , drop=FALSE] != 0)
   theseFragments <- fragmentCounts > 0
   fragmentCounts <- fragmentCounts[theseFragments]
   fragmentMasses <- dataList$ms2_masses[theseFragments]

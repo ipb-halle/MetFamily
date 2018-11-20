@@ -55,6 +55,37 @@ table_Analysis_PCA_id = NULL
 table_Search_HCA_id = NULL
 table_Search_PCA_id = NULL
 
+
+state_selections <- reactiveValues(
+  ## precursor set selections
+  precursorSetSelected = FALSE,
+  selectedSelection = NULL
+)
+resetWorkspaceFunctions <- c(resetWorkspaceFunctions, function(){
+  print("Reset selection state")
+  state_selections$precursorSetSelected <<- FALSE
+  state_selections$selectedSelection <<- NULL
+  
+  ## selection
+  selectedPrecursorSet <<- NULL
+  selectedTable <<- NULL
+  
+  selectionFragmentSelectedFragmentIndex <- NULL
+  
+  selectionFragmentTreeNodeSet <- NULL
+  selectionAnalysisTreeNodeSet <- NULL
+  selectionSearchTreeNodeSet <- NULL
+  
+  selectionFragmentPcaLoadingSet <- NULL
+  selectionAnalysisPcaLoadingSet <- NULL
+  selectionSearchPcaLoadingSet <- NULL
+  
+  selectionByFragmentReset()
+  selectionByAnalysisReset()
+  selectionBySearchReset()
+})
+
+
 selectionByFragmentReset <- function(){
   selectionFragmentSelectedFragmentIndex <<- NULL
   
@@ -65,7 +96,7 @@ selectionByFragmentReset <- function(){
     table_Fragment_HCA_id <<- NULL
     table$df_Fragment_HCA <<- NULL
     #output$dt_Fragment_HCA <- DT::renderDataTable(NULL)
-    if(state$selectedSelection == selectionFragmentHcaName)
+    if(state_selections$selectedSelection == selectionFragmentHcaName)
       updateSelectedPrecursorSet()
   }
   if(!is.null(selectionFragmentPcaLoadingSet)){ ## PCA
@@ -74,7 +105,7 @@ selectionByFragmentReset <- function(){
     table_Fragment_PCA_id <<- NULL
     table$df_Fragment_PCA <<- NULL
     #output$dt_Fragment_PCA <- DT::renderDataTable(NULL)
-    if(state$selectedSelection == selectionFragmentPcaName)
+    if(state_selections$selectedSelection == selectionFragmentPcaName)
       updateSelectedPrecursorSet()
   }
 }
@@ -105,14 +136,14 @@ selectionByFragmentInitHca <- function(precursorSet){
     table$df_Fragment_HCA <<- createMS1FeatureTable(listForTable_Fragment_HCA, selectionFragmentHcaName)
     table_Fragment_HCA_id <<- ms1FeatureTableInputFieldIdCounter
     #output$dt_Fragment_HCA <- DT::renderDataTable(table$df_Fragment_HCA)
-    if(state$selectedSelection == selectionFragmentHcaName)
+    if(state_selections$selectedSelection == selectionFragmentHcaName)
       updateSelectedPrecursorSet()
   } else {
     listForTable_Fragment_HCA <<- NULL
     table_Fragment_HCA_id <<- NULL
     table$df_Fragment_HCA <<- NULL
     #output$dt_Fragment_HCA <- DT::renderDataTable(table$df_Fragment_HCA)
-    if(state$selectedSelection == selectionFragmentHcaName)
+    if(state_selections$selectedSelection == selectionFragmentHcaName)
       updateSelectedPrecursorSet()
   }
 }
@@ -127,14 +158,14 @@ selectionByFragmentInitPca <- function(precursorSet){
     table$df_Fragment_PCA <<- createMS1FeatureTable(listForTable_Fragment_PCA, selectionFragmentPcaName)
     table_Fragment_PCA_id <<- ms1FeatureTableInputFieldIdCounter
     #output$dt_Fragment_PCA <- DT::renderDataTable(table$df_Fragment_PCA)
-    if(state$selectedSelection == selectionFragmentPcaName)
+    if(state_selections$selectedSelection == selectionFragmentPcaName)
       updateSelectedPrecursorSet()
   } else {
     listForTable_Fragment_PCA <<- NULL
     table_Fragment_PCA_id <<- NULL
     table$df_Fragment_PCA <<- NULL
     #output$dt_Fragment_PCA <- DT::renderDataTable(table$df_Fragment_PCA)
-    if(state$selectedSelection == selectionFragmentPcaName)
+    if(state_selections$selectedSelection == selectionFragmentPcaName)
       updateSelectedPrecursorSet()
   }
 }
@@ -146,7 +177,7 @@ selectionByAnalysisReset <- function(){
     table_Analysis_HCA_id <<- NULL
     table$df_Analysis_HCA <<- NULL
     #output$dt_Analysis_HCA <- DT::renderDataTable(NULL)
-    if(state$selectedSelection == selectionAnalysisHcaName)
+    if(state_selections$selectedSelection == selectionAnalysisHcaName)
       updateSelectedPrecursorSet()
   }
   if(!is.null(selectionAnalysisPcaLoadingSet)){ ## PCA
@@ -155,7 +186,27 @@ selectionByAnalysisReset <- function(){
     table_Analysis_PCA_id <<- NULL
     table$df_Analysis_PCA <<- NULL
     #output$dt_Analysis_PCA <- DT::renderDataTable(NULL)
-    if(state$selectedSelection == selectionAnalysisPcaName)
+    if(state_selections$selectedSelection == selectionAnalysisPcaName)
+      updateSelectedPrecursorSet()
+  }
+}
+selectionByAnalysisInitHca <- function(precursorSet){
+  if(any(precursorSet %in% filterHca$filter)){
+    #selectionAnalysisTreeNode <<- -match(x = precursorIndex, table = filterHca$filter)
+    selectionAnalysisTreeNodeSet <<- getSetOfSubTreesFromRootForPrecursorSet(dataList = dataList, precursorSet = precursorSet, filter = filterHca$filter, clusterDataList = clusterDataList)
+    listForTable_Analysis_HCA <<- getTableFromPrecursorSet(dataList = dataList, precursorSet = precursorSet)
+    table$df_Analysis_HCA <<- createMS1FeatureTable(listForTable_Analysis_HCA, selectionAnalysisHcaName)
+    table_Analysis_HCA_id <<- ms1FeatureTableInputFieldIdCounter
+    #output$dt_Analysis_HCA <- DT::renderDataTable(table$df_Analysis_HCA)
+    if(state_selections$selectedSelection == selectionAnalysisHcaName)
+      updateSelectedPrecursorSet()
+  } else {
+    selectionAnalysisTreeNodeSet <<- NULL
+    listForTable_Analysis_HCA <<- NULL
+    table_Analysis_HCA_id <<- NULL
+    table$df_Analysis_HCA <<- NULL
+    #output$dt_Analysis_HCA <- DT::renderDataTable(NULL)
+    if(state_selections$selectedSelection == selectionAnalysisHcaName)
       updateSelectedPrecursorSet()
   }
 }
@@ -168,7 +219,7 @@ selectionByHca2 <- function(precursorSet){
   listForTable_Analysis_HCA <<- getTableFromPrecursorSet(dataList = dataList, precursorSet = precursorSet)
   table$df_Analysis_HCA <<- createMS1FeatureTable(listForTable_Analysis_HCA, selectionAnalysisHcaName)
   #output$dt_Analysis_HCA <- DT::renderDataTable(table$df_Analysis_HCA)
-  if(state$selectedSelection == selectionAnalysisHcaName)
+  if(state_selections$selectedSelection == selectionAnalysisHcaName)
     updateSelectedPrecursorSet()
   
   ## pca selection
@@ -190,7 +241,7 @@ selectionByAnalysisInitPca <- function(precursorSet){
     table$df_Analysis_PCA <<- createMS1FeatureTable(listForTable_Analysis_PCA, selectionAnalysisPcaName)
     table_Analysis_PCA_id <<- ms1FeatureTableInputFieldIdCounter
     #output$dt_Analysis_PCA <- DT::renderDataTable(table$df_Analysis_PCA)
-    if(state$selectedSelection == selectionAnalysisPcaName)
+    if(state_selections$selectedSelection == selectionAnalysisPcaName)
       updateSelectedPrecursorSet()
   } else {
     selectionAnalysisPcaLoadingSet <<- NULL
@@ -198,7 +249,7 @@ selectionByAnalysisInitPca <- function(precursorSet){
     table_Analysis_PCA_id <<- NULL
     table$df_Analysis_PCA <<- NULL
     #output$dt_Analysis_PCA <- DT::renderDataTable(NULL)
-    if(state$selectedSelection == selectionAnalysisPcaName)
+    if(state_selections$selectedSelection == selectionAnalysisPcaName)
       updateSelectedPrecursorSet()
   }
 }
@@ -211,7 +262,7 @@ selectionByPca2 <- function(precursorSet){
   listForTable_Analysis_PCA <<- getTableFromPrecursorSet(dataList = dataList, precursorSet = precursorSet)
   table$df_Analysis_PCA <<- createMS1FeatureTable(listForTable_Analysis_PCA, selectionAnalysisPcaName)
   #output$dt_Analysis_PCA <- DT::renderDataTable(table$df_Analysis_PCA)
-  if(state$selectedSelection == selectionAnalysisPcaName)
+  if(state_selections$selectedSelection == selectionAnalysisPcaName)
     updateSelectedPrecursorSet()
   
   if(state$showHCAplotPanel)
@@ -222,32 +273,36 @@ selectionByPca2 <- function(precursorSet){
     updateSelectedSelection()
   }
 }
-selectionByAnalysisInitHca <- function(precursorSet){
-  if(any(precursorSet %in% filterHca$filter)){
-    #selectionAnalysisTreeNode <<- -match(x = precursorIndex, table = filterHca$filter)
-    selectionAnalysisTreeNodeSet <<- getSetOfSubTreesFromRootForPrecursorSet(dataList = dataList, precursorSet = precursorSet, filter = filterHca$filter, clusterDataList = clusterDataList)
-    
-    print(precursorSet)
-    print(filterHca$filter)
-    print(selectionAnalysisTreeNodeSet)
-    
-    listForTable_Analysis_HCA <<- getTableFromPrecursorSet(dataList = dataList, precursorSet = precursorSet)
-    table$df_Analysis_HCA <<- createMS1FeatureTable(listForTable_Analysis_HCA, selectionAnalysisHcaName)
-    table_Analysis_HCA_id <<- ms1FeatureTableInputFieldIdCounter
-    #output$dt_Analysis_HCA <- DT::renderDataTable(table$df_Analysis_HCA)
-    if(state$selectedSelection == selectionAnalysisHcaName)
+
+selectionBySearchReset <- function(){
+  if(!is.null(selectionSearchTreeNodeSet)){ ## HCA
+    selectionSearchTreeNodeSet <<- NULL
+    listForTable_Search_HCA <<- NULL
+    table_Search_HCA_id <<- NULL
+    table$df_Search_HCA <<- NULL
+    if(state_selections$selectedSelection == selectionSearchHcaName)
       updateSelectedPrecursorSet()
-  } else {
-    selectionAnalysisTreeNodeSet <<- NULL
-    listForTable_Analysis_HCA <<- NULL
-    table_Analysis_HCA_id <<- NULL
-    table$df_Analysis_HCA <<- NULL
-    #output$dt_Analysis_HCA <- DT::renderDataTable(NULL)
-    if(state$selectedSelection == selectionAnalysisHcaName)
+  }
+  if(!is.null(selectionSearchPcaLoadingSet)){ ## HCA
+    selectionSearchPcaLoadingSet <<- NULL
+    listForTable_Search_PCA <<- NULL
+    table_Search_PCA_id <<- NULL
+    table$df_Search_PCA <<- NULL
+    if(state_selections$selectedSelection == selectionSearchHcaName)
       updateSelectedPrecursorSet()
   }
 }
-
+selectionBySearch <- function(precursorSet){
+  if(state$showHCAplotPanel)
+    selectionBySearchInitHca(precursorSet)
+  if(state$showPCAplotPanel)
+    selectionBySearchInitPca(precursorSet)
+  
+  if(input$changeSelection != selectionSearchName){
+    updateRadioButtons(session = session, inputId = "changeSelection", label = NULL, choices = c(selectionAnalysisName, selectionFragmentName, selectionSearchName), inline = TRUE, selected = selectionSearchName)
+    updateSelectedSelection()
+  }
+}
 selectionBySearchInitHca <- function(precursorSet){
   precursorSetHca <- intersect(x = precursorSet, y = filterHca$filter)
   
@@ -257,7 +312,7 @@ selectionBySearchInitHca <- function(precursorSet){
     table$df_Search_HCA <<- createMS1FeatureTable(listForTable_Search_HCA, selectionSearchHcaName)
     table_Search_HCA_id <<- ms1FeatureTableInputFieldIdCounter
     #output$dt_Search_HCA <- DT::renderDataTable(table$df_Search_HCA)
-    if(state$selectedSelection == selectionSearchHcaName)
+    if(state_selections$selectedSelection == selectionSearchHcaName)
       updateSelectedPrecursorSet()
   } else {
     selectionSearchTreeNodeSet <<- NULL
@@ -265,7 +320,7 @@ selectionBySearchInitHca <- function(precursorSet){
     table_Search_HCA_id <<- NULL
     table$df_Search_HCA <<- NULL
     #output$dt_Search_HCA <- DT::renderDataTable(NULL)
-    if(state$selectedSelection == selectionSearchHcaName)
+    if(state_selections$selectedSelection == selectionSearchHcaName)
       updateSelectedPrecursorSet()
   }
 }
@@ -277,7 +332,7 @@ selectionBySearchInitPca <- function(precursorSet){
     table$df_Search_PCA <<- createMS1FeatureTable(listForTable_Search_PCA, selectionSearchPcaName)
     table_Search_PCA_id <<- ms1FeatureTableInputFieldIdCounter
     #output$dt_Search_PCA <- DT::renderDataTable(table$df_Search_PCA)
-    if(state$selectedSelection == selectionSearchPcaName)
+    if(state_selections$selectedSelection == selectionSearchPcaName)
       updateSelectedPrecursorSet()
   } else {
     selectionSearchPcaLoadingSet <<- NULL
@@ -285,7 +340,7 @@ selectionBySearchInitPca <- function(precursorSet){
     table_Search_PCA_id <<- NULL
     table$df_Search_PCA <<- NULL
     #output$dt_Search_PCA <- DT::renderDataTable(NULL)
-    if(state$selectedSelection == selectionSearchPcaName)
+    if(state_selections$selectedSelection == selectionSearchPcaName)
       updateSelectedPrecursorSet()
   }
 }
@@ -382,8 +437,8 @@ updateMS1FeatureTableGui <- function(precursorSet){
   updateTableAssignment()
 }
 updateTableAssignment <- function(){
-  print(paste("updateTableAssignment '", state$selectedSelection, "'", sep = ""))
-  switch(state$selectedSelection, 
+  print(paste("updateTableAssignment '", state_selections$selectedSelection, "'", sep = ""))
+  switch(state_selections$selectedSelection, 
          "Analysis_HCA"={ 
            #selectionAnalysisHcaName={ 
            selectedTable_id <<- table_Analysis_HCA_id
@@ -396,7 +451,7 @@ updateTableAssignment <- function(){
            #},selectionFragmentHcaName={  
            selectedTable_id <<- table_Fragment_HCA_id
            selectedTable <<- table$df_Fragment_HCA
-           state$precursorSetSelected <<- !is.null(listForTable_Fragment_HCA)
+           state_selections$precursorSetSelected <<- !is.null(listForTable_Fragment_HCA)
          },"Fragment_PCA"={  
            #},selectionFragmentPcaName={  
            selectedTable_id <<- table_Fragment_PCA_id
@@ -410,7 +465,7 @@ updateTableAssignment <- function(){
            selectedTable_id <<- table_Search_PCA_id
            selectedTable <<- table$df_Search_PCA
          },{
-           print(paste("### unknown state$selectedSelection: '", state$selectedSelection, "'", sep = ""))
+           print(paste("### unknown state_selections$selectedSelection: '", state_selections$selectedSelection, "'", sep = ""))
          }
   )
   setMS1FeatureTable()
@@ -434,38 +489,38 @@ updateSelectedSelection <- function(){
   if(selection == selectionSearchName & state$analysisType == "PCA")
     selectedSelection <- selectionSearchPcaName
   
-  state$selectedSelection <<- selectedSelection
+  state_selections$selectedSelection <<- selectedSelection
   updateSelectedPrecursorSet()
 }
 updateSelectedPrecursorSet <- function(){
-  print(paste("updateSelectionAssignment '", state$selectedSelection, "'", sep = ""))
-  switch(state$selectedSelection, 
+  print(paste("updateSelectionAssignment '", state_selections$selectedSelection, "'", sep = ""))
+  switch(state_selections$selectedSelection, 
          "Analysis_HCA"={ 
-           state$precursorSetSelected <<- !is.null(listForTable_Analysis_HCA)
+           state_selections$precursorSetSelected <<- !is.null(listForTable_Analysis_HCA)
            if(!is.null(listForTable_Analysis_HCA)) selectedPrecursorSet <<- listForTable_Analysis_HCA$precursorSet
            else                                    selectedPrecursorSet <<- NULL
          },"Analysis_PCA"={  
-           state$precursorSetSelected <<- !is.null(listForTable_Analysis_PCA)
+           state_selections$precursorSetSelected <<- !is.null(listForTable_Analysis_PCA)
            if(!is.null(listForTable_Analysis_PCA)) selectedPrecursorSet <<- listForTable_Analysis_PCA$precursorSet
            else                                    selectedPrecursorSet <<- NULL
          },"Fragment_HCA"={  
-           state$precursorSetSelected <<- !is.null(listForTable_Fragment_HCA)
+           state_selections$precursorSetSelected <<- !is.null(listForTable_Fragment_HCA)
            if(!is.null(listForTable_Fragment_HCA)) selectedPrecursorSet <<- listForTable_Fragment_HCA$precursorSet
            else                                    selectedPrecursorSet <<- NULL
          },"Fragment_PCA"={  
-           state$precursorSetSelected <<- !is.null(listForTable_Fragment_PCA)
+           state_selections$precursorSetSelected <<- !is.null(listForTable_Fragment_PCA)
            if(!is.null(listForTable_Fragment_PCA)) selectedPrecursorSet <<- listForTable_Fragment_PCA$precursorSet
            else                                    selectedPrecursorSet <<- NULL
          },"Search_HCA"  ={  
-           state$precursorSetSelected <<- !is.null(listForTable_Search_HCA)
+           state_selections$precursorSetSelected <<- !is.null(listForTable_Search_HCA)
            if(!is.null(listForTable_Search_HCA)) selectedPrecursorSet <<- listForTable_Search_HCA$precursorSet
            else                                    selectedPrecursorSet <<- NULL
          },"Search_PCA"  ={  
-           state$precursorSetSelected <<- !is.null(listForTable_Search_PCA)
+           state_selections$precursorSetSelected <<- !is.null(listForTable_Search_PCA)
            if(!is.null(listForTable_Search_PCA)) selectedPrecursorSet <<- listForTable_Search_PCA$precursorSet
            else                                    selectedPrecursorSet <<- NULL
          },{
-           print(paste("### unknown state$selectedSelection: '", state$selectedSelection, "'", sep = ""))
+           print(paste("### unknown state_selections$selectedSelection: '", state_selections$selectedSelection, "'", sep = ""))
          }
   )
   precursorSelectionChanged()
@@ -498,7 +553,7 @@ precursorSelectionChanged <- function(){
   
   ####################
   ## selection info
-  selection <- state$selectedSelection
+  selection <- state_selections$selectedSelection
   selectionInfo <- ""
   if(selectionPresent){
     switch(as.character(length(selectedPrecursorSet)), 
@@ -580,6 +635,18 @@ obsClearSelection <- observeEvent(input$clearSelection, {
   if(state$showHCAplotPanel)  drawDendrogramPlot( consoleInfo = "clear selection", withHeatmap = TRUE)
   if(state$showPCAplotPanel)  drawPcaPlots(       consoleInfo = "clear selection")
 })
+
+output$precursorSetSelected <- reactive({
+  print(paste("reactive update precursorSetSelected", state_selections$precursorSetSelected))
+  return(state_selections$precursorSetSelected)
+})
+output$selectedSelection <- reactive({
+  print(paste("reactive update selectedSelection", state_selections$selectedSelection))
+  return(state_selections$selectedSelection)
+})
+
+outputOptions(output, 'precursorSetSelected',    suspendWhenHidden=FALSE)
+outputOptions(output, 'selectedSelection',       suspendWhenHidden=FALSE)
 
 suspendOnExitFunctions <- c(suspendOnExitFunctions, function(){
   print("Suspending selections observers")

@@ -15,16 +15,24 @@ resetWorkspaceFunctions <- c(resetWorkspaceFunctions, function(){
 })
 
 enableLoadButtons <- function(){
-  session$sendCustomMessage("enableButton", "loadProjectData")
-  session$sendCustomMessage("enableButton", "loadExampleData")
-  session$sendCustomMessage("enableButton", "importMs1Ms2Data")
-  session$sendCustomMessage("enableButton", "importMs2Data")
+  #session$sendCustomMessage("enableButton", "loadProjectData")
+  #session$sendCustomMessage("enableButton", "loadExampleData")
+  #session$sendCustomMessage("enableButton", "importMs1Ms2Data")
+  #session$sendCustomMessage("enableButton", "importMs2Data")
+  shinyjs::enable("loadProjectData")
+  shinyjs::enable("loadExampleData")
+  shinyjs::enable("importMs1Ms2Data")
+  shinyjs::enable("importMs2Data")
 }
 disableLoadButtons <- function(){
   session$sendCustomMessage("disableButton", "loadProjectData")
   session$sendCustomMessage("disableButton", "loadExampleData")
   session$sendCustomMessage("disableButton", "importMs1Ms2Data")
   session$sendCustomMessage("disableButton", "importMs2Data")
+  shinyjs::disable("loadProjectData")
+  shinyjs::disable("loadExampleData")
+  shinyjs::disable("importMs1Ms2Data")
+  shinyjs::disable("importMs2Data")
 }
 obsFile <- observeEvent(input$matrixFile$datapath, {
   filePath <- input$matrixFile$datapath
@@ -149,7 +157,7 @@ setImportState <- function(){
   updateFileInputInfo()
 }
 obsImportMs1Ms2Data <- observeEvent(input$importMs1Ms2Data, {
-  enableLoadButtons()
+  disableLoadButtons()
   importMs1Ms2Data <- as.numeric(input$importMs1Ms2Data)
   
   print(paste("Observe importMs1Ms2Data", importMs1Ms2Data))
@@ -161,7 +169,7 @@ obsImportMs1Ms2Data <- observeEvent(input$importMs1Ms2Data, {
   #importMs1Ms2DataButtonValue <<- importMs1Ms2Data
   
   importData(TRUE)
-  disableLoadButtons()
+  enableLoadButtons()
 })
 obsImportMs2Data <- observeEvent(input$importMs2Data, {
   enableLoadButtons()

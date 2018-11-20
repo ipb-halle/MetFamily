@@ -1,4 +1,14 @@
 
+resetWorkspaceFunctions <- c(resetWorkspaceFunctions, function(){
+  print("Reset annotation state")
+  ## anno
+  #updateColourInput(session = session, inputId = "newAnnotationColor", allowedCols = colorPalette())
+  updateTextInput(session = session, inputId = "newAnnotationValue", value = "")
+  updateTextInput(session = session, inputId = "newAnnotationValue2", value = "")
+  updateSelectInput(session = session, inputId = "presentAnnotationValue", choices = c("[init]"))
+  updateSelectInput(session = session, inputId = "previousAnnotationValue", choices = c("Artifact"))
+})
+
 checkAnnotationValue <- function(annotationValue){
   ## no ', '
   ## no '='
@@ -261,7 +271,7 @@ obsIgnoreValueChanged <- observeEvent(input$updateArtifactsFromCheckboxes, {
   #updateArtifactsFromCheckboxesButtonValue <<- updateArtifactsFromCheckboxes
   
   ## get and process values
-  vals <- getInputValues(id = paste(state$selectedSelection, artifactName, sep = "_"), counter = selectedTable_id, len = nrow(selectedTable))
+  vals <- getInputValues(id = paste(state_selections$selectedSelection, artifactName, sep = "_"), counter = selectedTable_id, len = nrow(selectedTable))
   
   if(all(is.na(vals)))
     return()

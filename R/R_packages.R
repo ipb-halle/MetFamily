@@ -34,7 +34,7 @@ library("mixOmics")
 #biocLite("pcaMethods")
 library("pcaMethods")
 #install.packages("caret")
-library("caret")
+#library("caret")
 
 ##############################################################################################################
 ## tools
@@ -70,3 +70,4 @@ library("plotrix")
 library("plotly")
 #install.packages("RColorBrewer")
 library("RColorBrewer")
+

@@ -154,16 +154,16 @@ shinyServer(
     ## constants
     
     ## MetFamily properties
-    toolName    <- "MetFamily"
-    toolVersion <- "1.0"
+    toolName       <- "MetFamily"
+    toolVersion    <- "1.0"
     metFamilyBuilt <- "1.2.0"
     
-    ## annotation
-    artifactName <- "Ignore"
-    artifactColor <- "red"
-    selectionNone <- "None"
+    ## annotation constants
+    artifactName   <- "Ignore"
+    artifactColor  <- "red"
+    selectionNone  <- "None"
     
-    ## GUI
+    ## GUI constants
     runRightColumnWidthFull <- 12
     legendColumnWidthFull <- 2
     runRightColumnWidthPart <- 8
@@ -176,409 +176,34 @@ shinyServer(
     ## program state
     initialGuiUpdatePerformed <- FALSE
     state <- reactiveValues(
-      #importedOrLoadedFile_s_ = NULL, 
-      globalMS2filterValid = FALSE, 
-      hcafilterValid = FALSE, 
-      pcafilterValid = FALSE, 
-      searchfilterValid = FALSE, 
-      filterSearchActive = FALSE, 
+      ## side bar handling
       runRightColumnWidth = runRightColumnWidthPart, 
       legendColumnWidth = legendColumnWidthPart,
-      dendrogramHeatmapHeight = 1,#heatmapHeightPerRow * 3,
-      heatmapHeight = 1,#heatmapHeightPerRow * 3,## plotly: remove
       showSideBar = TRUE, 
+      ## HCA vs PCA plots handling
       analysisType = "HCA",
       anyPlotDrawn = FALSE,
-      
-      ## panels
+      ## HCA / PCA / classifier handling
       showHCAplotPanel = FALSE, 
       showPCAplotPanel = FALSE, 
       showAnnotationplotPanel = FALSE, 
       plotHcaShown = FALSE,
       plotPcaShown = FALSE,
       plotAnnotationShown = FALSE,
-      
-      precursorSetSelected = FALSE,
-      selectedSelection = NULL,
-      showPlotControls = FALSE,
-      showClusterLabels = TRUE,
-      heatmapContent = "Log-fold-change",
-      heatmapOrdering = "Specified order",
-      hcaPrecursorLabels = TRUE,
-      showScoresLabels = TRUE,
-      loadingsLabels = "None",
-      showLoadingsFeaturesAnnotated = TRUE, 
-      showLoadingsFeaturesUnannotated = TRUE, 
-      showLoadingsFeaturesSelected = TRUE, 
-      showLoadingsFeaturesUnselected = TRUE,
-      showLoadingsAbundance = FALSE,
-      annotationLegendHeightHca = -1,
-      annotationLegendHeightPca = -1,
-      ## plot annotations
-      annotationsHca = NULL,
-      annotationsPca = NULL,
-      scoresGroupsLegendHeight = -1,
-      ## metabolite families
-      #metaboliteFamilySelected = FALSE,
-      #classifierLoaded = FALSE,
-      #classifierClassSelected = FALSE,
-      #classifierClassMS1featureSelected = FALSE,
-      putativeAnnotationsTableFromAnalysisRowSelected = FALSE
+      ## plot controls
+      showPlotControls = FALSE
     )
     plotToShow  <- "Display HCA"
     plotsToShow <- "Display HCA"
     showSideBar <- TRUE
     
-    ##############################################
-    ## MS2 peaks
-    
-    ## resultObj$fragmentMasses <- fragmentsX
-    ## resultObj$fragmentAbundances <- fragmentsY
-    ## resultObj$fragmentColor <- fragmentsColor
-    ## resultObj$fragmentDiscriminativity <- fragmentDiscriminativity
-    ## ?? resultObj$clusterDiscriminativity <- clusterDiscriminativity
-    ## ? resultObj$infoText <- infoText
-    ## ? resultObj$metFragLinkList <- NULL
-    ## ? resultObj$precursorSet <- precursorSet
-    ## ? resultObj$numberOfPrecursors <- numberOfPrecursors
-    ms2PlotValues <- reactiveValues(
-      fragmentListClicked = NULL,
-      fragmentListHovered = NULL
-    )
-    
-    ## statistics for dendrogram node or pca loadings brush
-    dendrogramFragmentStatistics <- FALSE
-    
     #########################################################################################
     #########################################################################################
     ## functions
     
-    ## POI selection
-    getSelectedPOI_X <- function(mouseX, poiCoordinatesX, plotWidth, plotRangeX){
-      if(any(is.na(c(poiCoordinatesX))))
-        return(NULL)
-      
-      factorX <- plotWidth  / plotRangeX
-      
-      mouseX <- mouseX * factorX
-      poiCoordinatesX <- poiCoordinatesX * factorX
-      
-      distances <- abs(poiCoordinatesX - mouseX)
-      distanceThreshold <- factorX * plotRangeX / 35
-      
-      minimumIndex <- which.min(distances)
-      minimumDistance <- distances[[minimumIndex]]
-      
-      if(minimumDistance > distanceThreshold){
-        return(NULL)
-      } else {
-        return(minimumIndex)
-      }
-    }
-    getSelectedPOI_XY <- function(mouseX, mouseY, poiCoordinatesX, poiCoordinatesY, plotWidth, plotHeight, plotRangeX, plotRangeY){
-      ## see also nearPoints(...): http://shiny.rstudio.com/gallery/plot-interaction-selecting-points.html
-      if(any(is.na(c(poiCoordinatesX, poiCoordinatesY))))
-        return(NULL)
-      
-      factorX <- plotWidth  / plotRangeX
-      factorY <- plotHeight / plotRangeY
-      
-      mouseX <- mouseX * factorX
-      mouseY <- mouseY * factorY
-      poiCoordinatesX <- poiCoordinatesX * factorX
-      poiCoordinatesY <- poiCoordinatesY * factorY
-      
-      distancesX <- poiCoordinatesX - mouseX
-      distancesY <- poiCoordinatesY - mouseY
-      distances <- sqrt(distancesX * distancesX + distancesY * distancesY)
-      distanceThreshold <- factorX * plotRangeX / 35
-      
-      minimumIndex <- which.min(distances)
-      if(length(minimumIndex)==0)
-        return(NULL)
-      if(is.na(minimumIndex))
-        return(NULL)
-      minimumDistance <- distances[[minimumIndex]]
-      if(minimumDistance > distanceThreshold){
-        return(NULL)
-      } else {
-        return(minimumIndex)
-      }
-    }
-    ## Parse the input file
-    ## TODO decompose
-    resetWorkspaceFunctions <- list()
-    resetWorkspace <- function(){
-      print(paste("resetWorkspace"))
-      
-      for(resetWorkspaceFunction in resetWorkspaceFunctions)
-        resetWorkspaceFunction()
-      
-      
-      #########################################################################################
-      ## reset
-      
-      ## reset plots
-      doClearPlots()
-      
-      ## reset variables
-      clusterDataList <<- NULL
-      pcaDataList <<- NULL
-      columnsOfInterestForHeatmap <<- NULL
-      
-      ## selection
-      selectionFragmentSelectedFragmentIndex <- NULL
-      
-      selectionFragmentTreeNodeSet <- NULL
-      selectionAnalysisTreeNodeSet <- NULL
-      selectionSearchTreeNodeSet <- NULL
-      
-      selectionFragmentPcaLoadingSet <- NULL
-      selectionAnalysisPcaLoadingSet <- NULL
-      selectionSearchPcaLoadingSet <- NULL
-      
-      selectionByFragmentReset()
-      selectionByAnalysisReset()
-      selectionBySearchReset()
-      
-      ## fragments
-      ms2PlotValues$fragmentListHovered <<- NULL
-      ms2PlotValues$fragmentListClicked <<- NULL
-      dendrogramFragmentStatistics <<- FALSE
-      
-      ## reset state
-      #state$importedOrLoadedFile_s_ <<- NULL
-      state$analysisType <<- "HCA"
-      
-      ## panels
-      state$showHCAplotPanel <<- FALSE
-      state$showPCAplotPanel <<- FALSE
-      state$showAnnotationplotPanel <<- FALSE
-      state$plotHcaShown <<- FALSE
-      state$plotPcaShown <<- FALSE
-      state$plotAnnotationShown <<- FALSE
-      
-      state$precursorSetSelected <<- FALSE
-      state$anyPlotDrawn <<- FALSE
-      selectedPrecursorSet <<- NULL
-      selectedTable <<- NULL
-      state$annotationsHca <<- NULL
-      state$annotationsPca <<- NULL
-      #state$metaboliteFamilySelected <<- FALSE
-      #state$classifierLoaded <<- FALSE
-      #state$classifierClassSelected <<- FALSE
-      #state$classifierClassMS1featureSelected <<- FALSE
-      state$putativeAnnotationsTableFromAnalysisRowSelected <<- FALSE
-      scoresGroups <<- NULL
-      
-      ## reset plot range
-      dendrogramPlotRangeY <<- NULL
-      dendrogramPlotRange$xMin <<- NULL
-      dendrogramPlotRange$xMax <<- NULL
-      dendrogramPlotRange$xInterval <<- NULL
-      dendrogramPlotRange$xIntervalSize <<- NULL
-      pcaScoresPlotRange$xMin <<- NULL
-      pcaScoresPlotRange$xMax <<- NULL
-      pcaScoresPlotRange$xInterval <<- NULL
-      pcaScoresPlotRange$xIntervalSize <<- NULL
-      pcaScoresPlotRange$yMin <<- NULL
-      pcaScoresPlotRange$yMax <<- NULL
-      pcaScoresPlotRange$yInterval <<- NULL
-      pcaScoresPlotRange$yIntervalSize <<- NULL
-      pcaLoadingsPlotRange$xMin <<- NULL
-      pcaLoadingsPlotRange$xMax <<- NULL
-      pcaLoadingsPlotRange$xInterval <<- NULL
-      pcaLoadingsPlotRange$xIntervalSize <<- NULL
-      pcaLoadingsPlotRange$yMin <<- NULL
-      pcaLoadingsPlotRange$yMax <<- NULL
-      pcaLoadingsPlotRange$yInterval <<- NULL
-      pcaLoadingsPlotRange$yIntervalSize <<- NULL
-      specVsClassRange$xMin <<- NULL
-      specVsClassRange$xMax <<- NULL
-      
-      #########################################################################################
-      ## update fragment plot
-      
-      min <- min(dataList$ms2_masses)
-      max <- max(dataList$ms2_masses)
-      
-      fragmentPlotRange$xMin <<- min
-      fragmentPlotRange$xMax <<- max
-      fragmentPlotRange$xInterval <<- c(min, max)
-      fragmentPlotRange$xIntervalSize <<- max - min
-      
-      output$fragmentPlot <- renderPlot({
-        print(paste("### MS2 ### all init"))
-        plotFragmentsFromDataList(dataList = dataList, xInterval = fragmentPlotRange$xInterval)
-      #}, bg = "transparent")
-      })
-      
-      #########################################################################################
-      ## update filter input values
-      
-      ## groups
-      switch(as.character(length(dataList$groups)), 
-        "0"={
-          stop("No groups available")
-        },
-        "1"={
-          selectedOne <- dataList$groups[[1]]
-          selectedTwo <- dataList$groups[[1]]
-        },
-        {
-          selectedOne <- dataList$groups[[1]]
-          selectedTwo <- dataList$groups[[2]]
-        }
-      )
-      
-      sampleNames <- dataList$groupSampleDataFrame[, "Sample"]
-      
-      updateRadioButtons(session = session, inputId = "hcaFilterGroupOne", choices = dataList$groups, selected = selectedOne)
-      updateRadioButtons(session = session, inputId = "hcaFilterGroupTwo", choices = dataList$groups, selected = selectedTwo)
-      updateCheckboxGroupInput(session = session, inputId = "pcaGroups",   choices = dataList$groups, selected = dataList$groups)
-      updateCheckboxGroupInput(session = session, inputId = "pcaSamples",  choices = sampleNames,     selected = sampleNames)
-      
-      ## input fields: HCA
-      updateTextInput(session = session, inputId = "globalFilter_ms2_masses1", value = "")
-      updateTextInput(session = session, inputId = "globalFilter_ms2_masses2", value = "")
-      updateTextInput(session = session, inputId = "globalFilter_ms2_masses3", value = "")
-      updateTextInput(session = session, inputId = "globalFilter_ms2_ppm", value = "20")
-      
-      ## input fields: HCA
-      updateTextInput(session = session, inputId = "hcaFilter_average", value = "0")
-      updateTextInput(session = session, inputId = "hcaFilter_lfc", value = "0")
-      updateCheckboxInput(session = session, inputId = "hcaFilterIncludeIgnoredPrecursors", value = FALSE)
-      ## input fields: PCA
-      updateTextInput(session = session, inputId = "pcaFilter_average", value = "0")
-      updateTextInput(session = session, inputId = "pcaFilter_lfc", value = "0")
-      updateCheckboxInput(session = session, inputId = "pcaFilterIncludeIgnoredPrecursors", value = FALSE)
-      ## input fields: search MS1
-      updateTextInput(session = session, inputId = "searchMS1mass", value = "")
-      updateTextInput(session = session, inputId = "searchMS1massPpm", value = 20)
-      ## input fields: search MS2
-      updateTextInput(session = session, inputId = "search_ms2_masses1", value = "")
-      updateTextInput(session = session, inputId = "search_ms2_masses2", value = "")
-      updateTextInput(session = session, inputId = "search_ms2_masses3", value = "")
-      updateTextInput(session = session, inputId = "searchMS2massPpm", value = 20)
-      updateCheckboxInput(session = session, inputId = "searchIncludeIgnoredPrecursors", value = FALSE)
-      #updateColourInput(session = session, inputId = "newAnnotationColor", allowedCols = colorPalette())
-      ## anno
-      updateTextInput(session = session, inputId = "newAnnotationValue", value = "")
-      updateTextInput(session = session, inputId = "newAnnotationValue2", value = "")
-      updateSelectInput(session = session, inputId = "presentAnnotationValue", choices = c("[init]"))
-      updateSelectInput(session = session, inputId = "previousAnnotationValue", choices = c("Artifact"))
-      
-      #########################################################################################
-      ## update filter
-      sampleSet <- dataList$groupSampleDataFrame[, "Sample"][!dataList$groupSampleDataFrame[, "Exclude"]]
-      filter <- doPerformFiltering(dataList$groups, sampleSet, FALSE, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, TRUE)$filter
-      if(length(dataList$groups) == 1)
-        filter2 <- doPerformFiltering(c(dataList$groups[[1]], dataList$groups[[1]]), NULL, FALSE, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, TRUE)$filter
-      else
-        filter2 <- filter
-      
-      filterGlobal <<- filter
-      filterHca    <<- filter2
-      filterPca    <<- filter
-      state$filterSearchActive <<- FALSE
-      state$searchfilterValid <<- TRUE
-      filterSearch    <<- NULL
-      
-      updateGlobalMS2filterInformation()
-      updateHcaFilterInformation()
-      updatePcaFilterInformation()
-      updateSearchInformation()
-      
-      state$globalMS2filterValid <<- TRUE
-      state$hcaFilterValid <<- TRUE
-      state$pcaFilterValid <<- TRUE
-      
-      checkHcaFilterValidity(filter2$numberOfPrecursorsFiltered)
-      checkPcaFilterValidity(filter$numberOfPrecursorsFiltered)
-      
-      state$plotHcaShown <<- FALSE
-      state$plotPcaShown <<- FALSE
-      state$plotAnnotationShown <<- FALSE
-      
-      ## project infos
-      updateTextInput    (session = session, inputId = "projectName2",           value = dataList$importParameterSet$projectName)
-      shinyjs::toggleState("projectName2", FALSE)
-      updateTextInput    (session = session, inputId = "projectDescription2",    value = dataList$importParameterSet$projectDescription)
-      #shinyjs::toggleState("projectName2", FALSE)
-      
-      updateTextInput    (session = session, inputId = "minimumIntensityOfMaximalMS2peak2",            value = dataList$importParameterSet$minimumIntensityOfMaximalMS2peak)
-      updateTextInput    (session = session, inputId = "minimumProportionOfMS2peaks2",                 value = dataList$importParameterSet$minimumProportionOfMS2peaks)
-      updateTextInput    (session = session, inputId = "mzDeviationAbsolute_grouping2",                value = dataList$importParameterSet$mzDeviationAbsolute_grouping)
-      updateTextInput    (session = session, inputId = "mzDeviationInPPM_grouping2",                   value = dataList$importParameterSet$mzDeviationInPPM_grouping)
-      updateCheckboxInput(session = session, inputId = "doPrecursorDeisotoping2",                      value = dataList$importParameterSet$doPrecursorDeisotoping)
-      updateTextInput    (session = session, inputId = "mzDeviationAbsolute_precursorDeisotoping2",    value = dataList$importParameterSet$mzDeviationAbsolute_precursorDeisotoping)
-      updateTextInput    (session = session, inputId = "mzDeviationInPPM_precursorDeisotoping2",       value = dataList$importParameterSet$mzDeviationInPPM_precursorDeisotoping)
-      updateTextInput    (session = session, inputId = "maximumRtDifference2",                         value = dataList$importParameterSet$maximumRtDifference)
-      updateCheckboxInput(session = session, inputId = "doMs2PeakGroupDeisotoping2",                   value = dataList$importParameterSet$doMs2PeakGroupDeisotoping)
-      updateTextInput    (session = session, inputId = "mzDeviationAbsolute_ms2PeakGroupDeisotoping2", value = dataList$importParameterSet$mzDeviationAbsolute_ms2PeakGroupDeisotoping)
-      updateTextInput    (session = session, inputId = "mzDeviationInPPM_ms2PeakGroupDeisotoping2",    value = dataList$importParameterSet$mzDeviationInPPM_ms2PeakGroupDeisotoping)
-      #dataList$importParameterSet$proportionOfMatchingPeaks_ms2PeakGroupDeisotoping
-      #dataList$importParameterSet$mzDeviationAbsolute_mapping
-      #dataList$importParameterSet$minimumNumberOfMS2PeaksPerGroup
-      updateCheckboxInput(session = session, inputId = "neutralLossesPrecursorToFragments2",           value = dataList$importParameterSet$neutralLossesPrecursorToFragments)
-      updateCheckboxInput(session = session, inputId = "neutralLossesFragmentsToFragments2",           value = dataList$importParameterSet$neutralLossesFragmentsToFragments)
-      
-      ## project tab
-      shinyjs::toggleState("minimumIntensityOfMaximalMS2peak2", FALSE)
-      shinyjs::toggleState("minimumProportionOfMS2peaks2", FALSE)
-      shinyjs::toggleState("mzDeviationAbsolute_grouping2", FALSE)
-      shinyjs::toggleState("mzDeviationInPPM_grouping2", FALSE)
-      shinyjs::toggleState("doPrecursorDeisotoping2", FALSE)
-      shinyjs::toggleState("mzDeviationAbsolute_precursorDeisotoping2", FALSE)
-      shinyjs::toggleState("mzDeviationInPPM_precursorDeisotoping2", FALSE)
-      shinyjs::toggleState("maximumRtDifference2", FALSE)
-      shinyjs::toggleState("doMs2PeakGroupDeisotoping2", FALSE)
-      shinyjs::toggleState("mzDeviationAbsolute_ms2PeakGroupDeisotoping2", FALSE)
-      shinyjs::toggleState("mzDeviationInPPM_ms2PeakGroupDeisotoping2", FALSE)
-      shinyjs::toggleState("neutralLossesPrecursorToFragments2", FALSE)
-      shinyjs::toggleState("neutralLossesFragmentsToFragments2", FALSE)
-      
-      ## MS2 plot range
-      resetMS2PlotRange()
-      
-      ## sample table
-      sampleOrder_tmp     <<- dataList$groupSampleDataFrame[, "Order"]
-      sampleExclusion_tmp <<- dataList$groupSampleDataFrame[, "Exclude"]
-      curveNumberToCurveName <<- NULL
-      
-      ## classifier annotation
-      classToSpectra_class <<- NULL
-      mappingSpectraToClassDf <<- NULL
-      properties_class <<- NULL
-      selectedClassPrecursorIndeces <<- NULL
-      selectedClassRowIdx <<- -1
-      selectedClassFeatureRowIdx <<- -1
-      putativeAnnotationsTableFromAnalysisCurrentlyShown <<- NULL
-      
-      ## annotation
-      allAnnotationNames <<- NULL
-      
-      ## set state
-      sampleTable <<- createSampleTable()
-      setSampleTable()
-      updateAnnotationOverview()
-      
-      ## number of components for PCA
-      maximumNumberOfComponents <- length(dataList$includedSamples(dataList$groupSampleDataFrame)) - 1
-      maximumNumberOfComponents <- min(maximumNumberOfComponents, 5)
-      if(maximumNumberOfComponents < 2){
-        updateSelectInput(session = session, inputId = "pcaDimensionOne", choices = "1")
-        updateSelectInput(session = session, inputId = "pcaDimensionTwo", choices = "1")
-        shinyjs::disable(id = "pcaDimensionOne")
-        shinyjs::disable(id = "pcaDimensionTwo")
-      } else {
-        updateSelectInput(session = session, inputId = "pcaDimensionOne", choices = seq_len(maximumNumberOfComponents), selected = 1)
-        updateSelectInput(session = session, inputId = "pcaDimensionTwo", choices = seq_len(maximumNumberOfComponents), selected = 2)
-      }
-    }
-    
     #########################################################################################
     ## source all server stuff
+    resetWorkspaceFunctions <- list()
     suspendOnExitFunctions <- list()
     
     source(file = "server_functionsFilters.R", local = TRUE)$value
@@ -586,6 +211,7 @@ shinyServer(
     source(file = "server_functionsTableGui.R", local = TRUE)$value
     source(file = "server_functionsDownloads.R", local = TRUE)$value
     source(file = "server_functionsSerialization.R", local = TRUE)$value
+    source(file = "server_guiDialogs.R", local = TRUE)$value
     source(file = "server_guiPlots.R", local = TRUE)$value
     source(file = "server_guiAnnotation.R", local = TRUE)$value
     source(file = "server_guiTabInput.R", local = TRUE)$value
@@ -601,6 +227,29 @@ shinyServer(
     source(file = "server_guiMs2plot.R", local = TRUE)$value
     ## ui generation
     source(file = "ui_rightColumn.R", local = TRUE)
+    
+    ## Parse the input file
+    resetWorkspace <- function(){
+      print(paste("resetWorkspace"))
+      
+      for(resetWorkspaceFunction in resetWorkspaceFunctions)
+        resetWorkspaceFunction()
+      
+      #########################################################################################
+      ## panels
+      state$showHCAplotPanel <<- FALSE
+      state$showPCAplotPanel <<- FALSE
+      state$showAnnotationplotPanel <<- FALSE
+      
+      state$plotHcaShown <<- FALSE
+      state$plotPcaShown <<- FALSE
+      state$plotAnnotationShown <<- FALSE
+      
+      state$analysisType <<- "HCA"
+      state$anyPlotDrawn <<- FALSE
+      ## plot controls
+      showPlotControls <<- FALSE
+    }
     
     #########################################################################################
     #########################################################################################
@@ -749,26 +398,6 @@ shinyServer(
       
       updateSelectedSelection()
     })
-    
-    showErrorDialog <- function(msg){
-      showDialog("An error occurred", msg)
-    }
-    showInfoDialog <- function(msg){
-      showDialog("Information", msg)
-    }
-    showDialog <- function(title, msg){
-      print("Show dialog")
-      #output$infoPopupDialog <- renderUI({
-      #  bsModal(id = "modalInfoPopupDialog", title = "Information", trigger = "", size = "large", HTML(msg))
-      #})
-      #toggleModal(session = session, modalId = "modalInfoPopupDialog", toggle = "open")
-      showModal(session = session, ui = modalDialog(title = title, HTML(msg)))
-    }
-    showUiDialog <- function(modalDialog){
-      print("Show ui dialog")
-      showModal(session = session, ui = modalDialog)
-    }
-    
     obsShowSideBar <- observeEvent(input$showSideBar, {
       showSideBar <- input$showSideBar
       print(paste("Observe showSideBar", showSideBar))
@@ -786,24 +415,25 @@ shinyServer(
       }
       
       ## restore gui state
+      ## TODO check if necessary
       updateCheckboxInput(session = session, inputId = "showPlotControls",      value    = state$showPlotControls)
-      updateCheckboxInput(session = session, inputId = "showClusterLabels",     value    = state$showClusterLabels)
-      updateRadioButtons( session = session, inputId = "heatmapContent",        selected = state$heatmapContent)
-      updateRadioButtons( session = session, inputId = "heatmapOrdering",       selected = state$heatmapOrdering)
-      updateRadioButtons( session = session, inputId = "hcaPrecursorLabels",    selected = state$hcaPrecursorLabels)
-      updateCheckboxInput(session = session, inputId = "showScoresLabels",      value    = state$showScoresLabels)
-      updateRadioButtons( session = session, inputId = "loadingsLabels",        selected = state$loadingsLabels)
+      updateCheckboxInput(session = session, inputId = "showClusterLabels",     value    = state_tabHca$showClusterLabels)
+      updateRadioButtons( session = session, inputId = "heatmapContent",        selected = state_tabHca$heatmapContent)
+      updateRadioButtons( session = session, inputId = "heatmapOrdering",       selected = state_tabHca$heatmapOrdering)
+      updateRadioButtons( session = session, inputId = "hcaPrecursorLabels",    selected = state_tabHca$hcaPrecursorLabels)
+      updateCheckboxInput(session = session, inputId = "showScoresLabels",      value    = state_tabPca$showScoresLabels)
+      updateRadioButtons( session = session, inputId = "loadingsLabels",        selected = state_tabPca$loadingsLabels)
       updateCheckboxGroupInput(session = session, inputId = "showLoadingsFeatures", selected = c(
-        ifelse(test = state$showLoadingsFeaturesAnnotated,   yes = "Annotated",     no = NULL),
-        ifelse(test = state$showLoadingsFeaturesUnannotated, yes = "Not Annotated", no = NULL),
-        ifelse(test = state$showLoadingsFeaturesSelected,    yes = "Selected",      no = NULL),
-        ifelse(test = state$showLoadingsFeaturesUnselected,  yes = "Not Selected",  no = NULL)
+        ifelse(test = state_tabPca$showLoadingsFeaturesAnnotated,   yes = "Annotated",     no = NULL),
+        ifelse(test = state_tabPca$showLoadingsFeaturesUnannotated, yes = "Not Annotated", no = NULL),
+        ifelse(test = state_tabPca$showLoadingsFeaturesSelected,    yes = "Selected",      no = NULL),
+        ifelse(test = state_tabPca$showLoadingsFeaturesUnselected,  yes = "Not Selected",  no = NULL)
       ))
-      #updateRadioButtons( session = session, inputId = "showLoadingsFeaturesAnnotated",    selected = state$showLoadingsFeaturesAnnotated)
-      #updateRadioButtons( session = session, inputId = "showLoadingsFeaturesUnannotated",  selected = state$showLoadingsFeaturesUnannotated)
-      #updateRadioButtons( session = session, inputId = "showLoadingsFeaturesSelected",     selected = state$showLoadingsFeaturesSelected)
-      #updateRadioButtons( session = session, inputId = "showLoadingsFeaturesUnselected",   selected = state$showLoadingsFeaturesUnselected)
-      updateCheckboxInput(session = session, inputId = "showLoadingsAbundance", value    = state$showLoadingsAbundance)
+      #updateRadioButtons( session = session, inputId = "showLoadingsFeaturesAnnotated",    selected = state_tabPca$showLoadingsFeaturesAnnotated)
+      #updateRadioButtons( session = session, inputId = "showLoadingsFeaturesUnannotated",  selected = state_tabPca$showLoadingsFeaturesUnannotated)
+      #updateRadioButtons( session = session, inputId = "showLoadingsFeaturesSelected",     selected = state_tabPca$showLoadingsFeaturesSelected)
+      #updateRadioButtons( session = session, inputId = "showLoadingsFeaturesUnselected",   selected = state_tabPca$showLoadingsFeaturesUnselected)
+      updateCheckboxInput(session = session, inputId = "showLoadingsAbundance", value    = state_tabPca$showLoadingsAbundance)
     })
     
     ## display of tabs
@@ -907,22 +537,6 @@ shinyServer(
       updateChangePlotRadioButton()
       return(state$showAnnotationplotPanel)
     })
-    output$globalMS2filterValid <- reactive({
-      print(paste("reactive update globalMS2filterValid", state$globalMS2filterValid))
-      return(state$globalMS2filterValid)
-    })
-    output$hcaFilterValid <- reactive({
-      print(paste("reactive update hcaFilterValid", state$hcaFilterValid))
-      return(state$hcaFilterValid)
-    })
-    output$pcaFilterValid <- reactive({
-      print(paste("reactive update pcaFilterValid", state$pcaFilterValid))
-      return(state$pcaFilterValid)
-    })
-    output$precursorSetSelected <- reactive({
-      print(paste("reactive update precursorSetSelected", state$precursorSetSelected))
-      return(state$precursorSetSelected)
-    })
     output$plotHcaShown <- reactive({
       print(paste("reactive update plotHcaShown", state$plotHcaShown))
       return(state$plotHcaShown)
@@ -934,26 +548,6 @@ shinyServer(
     output$plotAnnotationShown <- reactive({
       print(paste("reactive update plotAnnotationShown", state$plotAnnotationShown))
       return(state$plotAnnotationShown)
-    })
-    output$searchfilterValid <- reactive({
-      print(paste("reactive update searchfilterValid", state$searchfilterValid))
-      return(state$searchfilterValid)
-    })
-    output$filterSearchActive <- reactive({
-      print(paste("reactive update filterSearchActive", state$filterSearchActive))
-      return(state$filterSearchActive)
-    })
-    output$selectedSelection <- reactive({
-      print(paste("reactive update selectedSelection", state$selectedSelection))
-      return(state$selectedSelection)
-    })
-    output$metaboliteFamilySelected <- reactive({
-      print(paste("reactive update metaboliteFamilySelected", state_tabAnnotation$metaboliteFamilySelected))
-      return(state_tabAnnotation$metaboliteFamilySelected)
-    })
-    output$showPutativeAnnotationsTableFromAnalysis <- reactive({
-      print(paste("reactive update showPutativeAnnotationsTableFromAnalysis", state$showPutativeAnnotationsTableFromAnalysis))
-      return(state$showPutativeAnnotationsTableFromAnalysis)
     })
     #output$putativeAnnotationsTableFromAnalysisRowSelected <- reactive({
     #  print(paste("reactive update putativeAnnotationsTableFromAnalysisRowSelected", state$putativeAnnotationsTableFromAnalysisRowSelected))
@@ -992,18 +586,9 @@ shinyServer(
     outputOptions(output, 'showPCAplotPanel',        suspendWhenHidden=FALSE)
     outputOptions(output, 'showAnnotationplotPanel', suspendWhenHidden=FALSE)
     outputOptions(output, 'analysisType',            suspendWhenHidden=FALSE)
-    outputOptions(output, 'globalMS2filterValid',    suspendWhenHidden=FALSE)
-    outputOptions(output, 'hcaFilterValid',          suspendWhenHidden=FALSE)
-    outputOptions(output, 'pcaFilterValid',          suspendWhenHidden=FALSE)
-    outputOptions(output, 'precursorSetSelected',    suspendWhenHidden=FALSE)
-    outputOptions(output, 'searchfilterValid',       suspendWhenHidden=FALSE)
-    outputOptions(output, 'filterSearchActive',      suspendWhenHidden=FALSE)
     outputOptions(output, 'plotHcaShown',            suspendWhenHidden=FALSE)
     outputOptions(output, 'plotPcaShown',            suspendWhenHidden=FALSE)
     outputOptions(output, 'plotAnnotationShown',     suspendWhenHidden=FALSE)
-    outputOptions(output, 'selectedSelection',       suspendWhenHidden=FALSE)
-    outputOptions(output, 'metaboliteFamilySelected',suspendWhenHidden=FALSE)
-    outputOptions(output, 'showPutativeAnnotationsTableFromAnalysis',  suspendWhenHidden=FALSE)
     #outputOptions(output, 'putativeAnnotationsTableFromAnalysisRowSelected',  suspendWhenHidden=FALSE)
   }## function(input, output, session)
 )## shinyServer

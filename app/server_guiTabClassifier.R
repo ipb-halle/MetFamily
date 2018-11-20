@@ -9,6 +9,8 @@ selectedClassPrecursorIndeces <- NULL
 selectedClassRowIdx <- -1
 selectedClassFeatureRowIdx <- -1
 
+putativeAnnotationsResultTableClassInputFieldIdCounter <- 1
+
 specVsClassRange     <- reactiveValues(xMin = NULL, xMax = NULL, xInterval = NULL, xIntervalSize = NULL)
 ms1FeatureVsClassTableCounter <- 0
 
@@ -22,6 +24,18 @@ resetWorkspaceFunctions <- c(resetWorkspaceFunctions, function(){
   state_tabClassifier$classifierLoaded <<- FALSE
   state_tabClassifier$classifierClassSelected <<- FALSE
   state_tabClassifier$classifierClassMS1featureSelected <<- FALSE
+  
+  ## reset plot range
+  specVsClassRange$xMin <<- NULL
+  specVsClassRange$xMax <<- NULL
+  
+  ## classifier annotation
+  classToSpectra_class <<- NULL
+  mappingSpectraToClassDf <<- NULL
+  properties_class <<- NULL
+  selectedClassPrecursorIndeces <<- NULL
+  selectedClassRowIdx <<- -1
+  selectedClassFeatureRowIdx <<- -1
 })
 
 obsClassifierSelectionTable_rows_selected <- observeEvent(eventExpr = input$classifierSelectionTable_rows_selected, handlerExpr = {
@@ -143,10 +157,21 @@ obsDoAnnotation <- observeEvent(input$doAnnotation, {
     })
   }
   
+  ## annotation column
+  type <- "PutativeAnnotationsResultTableClass"
+  annotateColumn <- createActionButtonInputFields(
+    FUN = actionButton,  id = paste(type, "Annotate", sep = "_"), itemCount=length(classesShort), 
+    label   = "Annotate", tableCounter = putativeAnnotationsResultTableClassInputFieldIdCounter, 
+    callFunction = putativeAnnotationsResultTableClassAnnotateClicked
+  )
+  putativeAnnotationsResultTableClassInputFieldIdCounter <<- putativeAnnotationsResultTableClassInputFieldIdCounter + 1
+  
+  
   resultTable_classes <- data.frame(
     "Class"       = classesShort, 
     "Hits"        = numPValues,
-    "Best pValue" = bestPValues#,
+    "Best pValue" = bestPValues,
+    "Annotate"    = annotateColumn
     #row.names = rep("")
   )
   
@@ -193,6 +218,38 @@ obsDoAnnotation <- observeEvent(input$doAnnotation, {
   
   session$sendCustomMessage("enableButton", "doAnnotation")
 })
+putativeAnnotationsResultTableClassAnnotateClicked <- function(buttonId){
+  ## PutativeAnnotationsResultTableClass_Annotate_0_1
+  rowIdx    <- as.integer(strsplit(x = buttonId, split = "_")[[1]][[4]])
+  
+  
+  #selectedRow <- isolate(input$annotationResultTableClass_rows_selected)
+  #print("#####")
+  #print(selectedRow)
+  #print(rowIdx)
+  #if(length(selectedRow) == 0)
+  #  selectRows(proxy = dataTableProxy("annotationResultTableClass"), selected = rowIdx)
+  #else
+  #  selectRows(proxy = dataTableProxy("annotationResultTableClass"), selected = NULL)
+  
+  
+  precursorSet <- as.integer(names(classToSpectra_class[[rowIdx]]))
+  class <- names(classToSpectra_class)[[rowIdx]]
+  
+  subClass <- tail(x = strsplit(x = class, split = "; ")[[1]], n = 1)
+  print(paste(length(precursorSet), "-->", class, "(", subClass, ")", "from row", rowIdx))
+  
+  callbackFunction <- function(value, color){
+    print(paste(length(precursorSet), "-->", class, "from row", rowIdx, "-->", value, color))
+    removeModal(session = session)
+    
+    ## add
+    addAnnotation(precursorSet = precursorSet, annotationValue = value, annotationColor = color)
+  }
+  
+  openAnnotaionNameColorDialog(predefinedClassName = subClass, callbackFunction = callbackFunction)
+}
+
 obsAnnotationResultTableClass_selection <- observeEvent(ignoreNULL = FALSE, eventExpr = input$annotationResultTableClass_rows_selected, handlerExpr = {
   selectedRowIdx <- input$annotationResultTableClass_rows_selected
   print(paste("Selected class row:", selectedRowIdx))
@@ -254,6 +311,18 @@ classSelected <- function(selectedRowIdx){
   })
   
   
+  
+  print("huhu")
+  startTime_1 <- Sys.time()
+  
+  numberOfMatchingMasses_i <- getNumberOfHits(dataList, frequentFragments, characteristicFragments, precursorIndeces, mappingSpectraToClassDf, properties_class)
+  
+  endTime_1 <- Sys.time()
+  time_1 <- difftime(endTime_1, startTime_1, units = "secs")[[1]]
+  
+  
+  startTime_2 <- Sys.time()
+  
   returnObj <- createPlotOutput(
     dataList = dataList,
     id = "plotSpectrumVsClass", 
@@ -263,8 +332,17 @@ classSelected <- function(selectedRowIdx){
     tableCounter = ms1FeatureVsClassTableCounter,
     mappingSpectraToClassDf = mappingSpectraToClassDf
   )
+  
+  endTime_2 <- Sys.time()
+  time_2 <- difftime(endTime_2, startTime_2, units = "secs")[[1]]
+  print("hoho")
+  print(time_1)
+  print(time_2)
+  
+  
+  
   numberOfMatchingMasses_i <- returnObj$numberOfMatchingMasses_i
-  inputs_i <- returnObj$inputs_i
+  #inputs_i <- returnObj$inputs_i
   
   checkboxes   <- createCheckboxInputFields2(
     FUN = checkboxInput, 
@@ -278,8 +356,8 @@ classSelected <- function(selectedRowIdx){
                                      "Mz/RT"    = precursorLabels,
                                      "pValue"   = pValues,
                                      "Hits"     = numberOfMatchingMasses_i,
-                                     "Confirm"  = checkboxes,
-                                     "Spectrum" = inputs_i
+                                     "Confirm"  = checkboxes#,
+                                     #"Spectrum" = inputs_i
   )
   selected <- ifelse(test = nrow(resultTable_features) > 0, yes = 1, no = NULL)
   output$annotationResultTableFeature <- DT::renderDataTable(
@@ -373,7 +451,7 @@ drawMS2vsClassPlotImpl <- function(dataList, frequentFragments, characteristicFr
   colors_class    <- returnObj$colors_class
   
   ## match spectrum masses for spectrum plot
-  returnObj <- preprocessSpectrumVsClassPlot(dataList, precursorIndex, masses_class, mappingSpectraToClassDf)
+  returnObj <- preprocessSpectrumVsClassPlot(dataList, precursorIndex, masses_class, mappingSpectraToClassDf, "Intensity")
   masses_spec     <- returnObj$masses_spec
   intensity_spec  <- returnObj$intensity_spec
   colors_spec     <- returnObj$colors_spec

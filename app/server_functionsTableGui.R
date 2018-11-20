@@ -146,7 +146,7 @@ createPlotOutput <- function(dataList, id, frequentFragments, characteristicFrag
     precursorIndex <- precursorIndeces[[i]]
     
     ## match spectrum masses for spectrum plot
-    returnObj <- preprocessSpectrumVsClassPlot(dataList, precursorIndex, masses_class, mappingSpectraToClassDf)
+    returnObj <- preprocessSpectrumVsClassPlot(dataList, precursorIndex, masses_class, mappingSpectraToClassDf, "Intensity")
     masses_spec <- returnObj$masses_spec
     intensity_spec <- returnObj$intensity_spec
     colors_spec <- returnObj$colors_spec
@@ -189,6 +189,111 @@ createPlotOutput <- function(dataList, id, frequentFragments, characteristicFrag
   )
   
   return(returnObj)
+}
+getNumberOfHits <- function(dataList, frequentFragments, characteristicFragments, precursorIndeces, mappingSpectraToClassDf, properties_class) {
+  if(TRUE){
+    dataList_ <<- dataList
+    frequentFragments_ <<- frequentFragments
+    characteristicFragments_ <<- characteristicFragments
+    precursorIndeces_ <<- precursorIndeces
+    mappingSpectraToClassDf_ <<- mappingSpectraToClassDf
+    properties_class_ <<- properties_class
+  }
+  if(FALSE){
+    dataList <- dataList_
+    frequentFragments <- frequentFragments_
+    characteristicFragments <- characteristicFragments_
+    precursorIndeces <- precursorIndeces_
+    mappingSpectraToClassDf <- mappingSpectraToClassDf_
+    properties_class <- properties_class_
+  }
+  
+  ## class statistics for class plot
+  frequentMasses       <- as.numeric(names(frequentFragments)) 
+  characteristicMasses <- as.numeric(names(characteristicFragments))
+  masses_class <- unique(c(frequentMasses, characteristicMasses))
+  
+  if(FALSE){
+    is_equal_vec <- function(x, y_array, tol = .Machine$double.eps ^ 0.5) {
+      abs(x - y_array) < tol
+    }
+    is_equal_mat <- function(x_array, y_array, tol = .Machine$double.eps ^ 0.5) {
+      sapply(X = x_array, FUN = is_equal_vec, y_array)
+    }
+  }
+  
+  ## create a character vector of shiny inputs
+  tolerance <- .Machine$double.eps ^ 0.5 ## default in function all.equal
+  
+  
+  #mappingSpectraToClassDf <- data.frame(
+  #  "SpectraMasses"      = fragmentMasses           [mappedFragmentIndeces_source],
+  #  "ClassMasses"        = fragmentMasses_classifier[mappedFragmentIndeces_target],
+  #  "SpectraMassIndeces" = mappedFragmentIndeces_source,
+  #  "ClassMassIndeces"   = mappedFragmentIndeces_target#,
+  ##  "fragmentMasses"            = fragmentMasses,
+  ##  "fragmentMasses_classifier" = fragmentMasses_classifier
+  #)
+  
+  ## sum(match(x = masses_spec, table = dataList$fragmentMasses) %in% mappingSpectraToClassDf$SpectraMassIndeces)
+  
+  if(FALSE){
+  numberOfMatchingMasses_i <- sapply(X = precursorIndeces, FUN = function(precursorIndex){
+    masses_spec <- getMS2spectrumInfoForPrecursor(dataList = dataList, precursorIndex = precursorIndex)$fragmentMasses
+    matchingMassRowIndeces <- which(
+      apply(X = outer(X = mappingSpectraToClassDf$SpectraMasses, Y = masses_spec , FUN = "-"), MARGIN = 1, FUN = function(x){any(abs(x) <= tolerance)}) &
+      apply(X = outer(X = mappingSpectraToClassDf$ClassMasses  , Y = masses_class, FUN = "-"), MARGIN = 1, FUN = function(x){any(abs(x) <= tolerance)})
+    )
+    return(length(matchingMassRowIndeces))
+  })
+  }
+  
+  spectraMasses <- as.character(mappingSpectraToClassDf$SpectraMasses)
+  tmpResult <- as.character(mappingSpectraToClassDf$ClassMasses  ) %in% as.character(masses_class)
+  
+  numberOfMatchingMasses_i <- sapply(X = precursorIndeces, FUN = function(precursorIndex){
+    masses_spec <- getMS2spectrumInfoForPrecursor(dataList = dataList, precursorIndex = precursorIndex)$fragmentMasses
+    
+    matchingMassRowIndeces <- which(
+      spectraMasses %in% as.character(masses_spec) &
+      tmpResult
+      
+      
+      #match(x = masses_spec,  table = dataList$fragmentMasses) &
+      #match(x = masses_class, table = properties_class[[1]]$fragmentMasses)
+      
+      #apply(X = outer(X = mappingSpectraToClassDf$SpectraMasses, Y = masses_spec , FUN = "-"), MARGIN = 1, FUN = function(x){any(abs(x) <= tolerance)}) &
+      #apply(X = outer(X = mappingSpectraToClassDf$ClassMasses  , Y = masses_class, FUN = "-"), MARGIN = 1, FUN = function(x){any(abs(x) <= tolerance)})
+    )
+    return(length(matchingMassRowIndeces))
+  })
+  
+  if(FALSE){
+  numberOfMatchingMasses_i <- integer(length(precursorIndeces))
+  for (i in seq_along(precursorIndeces)){
+    #precursorIndex <- precursorIndeces[[i]]
+    masses_spec <- getMS2spectrumInfoForPrecursor(dataList = dataList, precursorIndex = precursorIndeces[[i]])
+    
+    #if(length(precursorIndeces) == 1){
+    #  resultObj   <- getMS2spectrumInfoForPrecursor(dataList = dataList, precursorIndex = precursorIndeces)
+    #  masses_spec <- resultObj$fragmentMasses
+    #} else {
+    #  returnObj   <- getSpectrumStatistics(dataList = dataList, precursorSet = precursorIndeces)
+    #  masses_spec <- returnObj$fragmentMasses
+    #}
+    
+    tolerance <- .Machine$double.eps ^ 0.5 ## default in function all.equal
+    
+    #matchingMassRowIndeces <- 1
+    matchingMassRowIndeces <- which(
+      apply(X = outer(X = mappingSpectraToClassDf$SpectraMasses, Y = masses_spec , FUN = "-"), MARGIN = 1, FUN = function(x){any(abs(x) <= tolerance)}) &
+      apply(X = outer(X = mappingSpectraToClassDf$ClassMasses  , Y = masses_class, FUN = "-"), MARGIN = 1, FUN = function(x){any(abs(x) <= tolerance)})
+    )
+    numberOfMatchingMasses_i[[i]] <- length(matchingMassRowIndeces)
+  }
+  }
+  
+  return(numberOfMatchingMasses_i)
 }
 getInputValues <- function(id, counter, len) {
   id <- paste(id, "_", counter, sep = "")

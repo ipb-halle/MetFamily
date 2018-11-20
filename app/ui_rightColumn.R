@@ -104,10 +104,10 @@ output$runRightColumn <- renderUI({
                           checkboxGroupInput(inputId = "showLoadingsFeatures", label = NULL, 
                                              choices = c("Annotated", "Not Annotated", "Selected", "Not Selected"), 
                                              selected = c(
-                                               ifelse(test = state$showLoadingsFeaturesAnnotated,   yes = "Annotated", no = ""),
-                                               ifelse(test = state$showLoadingsFeaturesUnannotated, yes = "Not Annotated", no = ""),
-                                               ifelse(test = state$showLoadingsFeaturesSelected,    yes = "Selected", no = ""),
-                                               ifelse(test = state$showLoadingsFeaturesUnselected,  yes = "Not Selected", no = "")
+                                               ifelse(test = state_tabPca$showLoadingsFeaturesAnnotated,   yes = "Annotated", no = ""),
+                                               ifelse(test = state_tabPca$showLoadingsFeaturesUnannotated, yes = "Not Annotated", no = ""),
+                                               ifelse(test = state_tabPca$showLoadingsFeaturesSelected,    yes = "Selected", no = ""),
+                                               ifelse(test = state_tabPca$showLoadingsFeaturesUnselected,  yes = "Not Selected", no = "")
                                              )
                           )
                           #checkboxInput(inputId = "showLoadingsFeaturesAnnotated",   label = "Annotated",     value = input$showLoadingsFeaturesAnnotated),
@@ -166,7 +166,7 @@ output$runRightColumn <- renderUI({
                     ),## row
                     fluidRow(
                       div(style = "position:relative",
-                      plotOutput(height = state$heatmapHeight, 
+                      plotOutput(height = state_tabHca$heatmapHeight, 
                                  outputId = "plotHeatmap",
                                  #hover    = "plotHeatmap_hover", 
                                  hover    = hoverOpts(
@@ -241,14 +241,14 @@ output$runRightColumn <- renderUI({
                     condition = 'output.analysisType == "HCA" & output.showHCAplotPanel',
                     splitLayout(
                       style = "border: 1px solid silver;",
-                      plotOutput(outputId = "plotAnnoLegendHCA", height = state$annotationLegendHeightHca)
+                      plotOutput(outputId = "plotAnnoLegendHCA", height = state_tabHca$annotationLegendHeightHca)
                     )
                   ),## conditional
                   conditionalPanel(
                     condition = 'output.analysisType == "PCA" & output.showPCAplotPanel',
                     splitLayout(
                       style = "border: 1px solid silver;",
-                      plotOutput(outputId = "plotAnnoLegendPCA", height = state$annotationLegendHeightPca)
+                      plotOutput(outputId = "plotAnnoLegendPCA", height = state_tabPca$annotationLegendHeightPca)
                     )
                   ),## conditional
                   conditionalPanel(
@@ -269,7 +269,7 @@ output$runRightColumn <- renderUI({
                     condition = 'output.analysisType == "PCA" & output.showPCAplotPanel',
                     splitLayout(
                       style = "border: 1px solid silver;",
-                      plotOutput(outputId = "plotScoresGroupsLegend", height = state$scoresGroupsLegendHeight)
+                      plotOutput(outputId = "plotScoresGroupsLegend", height = state_tabPca$scoresGroupsLegendHeight)
                     )
                   ),
                   conditionalPanel(

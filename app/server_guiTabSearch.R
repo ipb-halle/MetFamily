@@ -1,4 +1,17 @@
 
+resetWorkspaceFunctions <- c(resetWorkspaceFunctions, function(){
+  print("Reset tabSearch state")
+  ## input fields: MS1 search
+  updateTextInput(session = session, inputId = "searchMS1mass", value = "")
+  updateTextInput(session = session, inputId = "searchMS1massPpm", value = 20)
+  ## input fields: MS2 search
+  updateTextInput(session = session, inputId = "search_ms2_masses1", value = "")
+  updateTextInput(session = session, inputId = "search_ms2_masses2", value = "")
+  updateTextInput(session = session, inputId = "search_ms2_masses3", value = "")
+  updateTextInput(session = session, inputId = "searchMS2massPpm", value = 20)
+  updateCheckboxInput(session = session, inputId = "searchIncludeIgnoredPrecursors", value = FALSE)
+})
+
 obsClearSearch <- observeEvent(input$clearSearch, {
   session$sendCustomMessage("disableButton", "clearSearch")
   clearSearch <- as.numeric(input$clearSearch)
@@ -12,8 +25,8 @@ obsClearSearch <- observeEvent(input$clearSearch, {
   #clearSearchButtonValue <<- clearSearch
   
   filterSearch <<- NULL
-  state$filterSearchActive <<- FALSE
-  state$searchfilterValid <<- TRUE
+  state_filters$filterSearchActive <<- FALSE
+  state_filters$searchFilterValid <<- TRUE
   
   selectionBySearchReset()
   updateSearchInformation()
@@ -38,37 +51,37 @@ obsApplySearch <- observeEvent(input$applySearch, {
   
   #################################################
   ## MS1 or MS2?
-  searchMode <- input$searchMS1orMS2
-  if(searchMode == 'MS1 feature m/z'){
-    #################################################
-    ## get inputs
-    filter_ms1_masses <- input$searchMS1mass
-    filter_ms1_ppm    <- input$searchMS1massPpm
-    
-    if(nchar(trimws(filter_ms1_masses)) == 0)
-      return()
-    
-    filter_ms2_masses1  <- NULL
-    filter_ms2_masses2  <- NULL
-    filter_ms2_masses3  <- NULL
-    filter_ms2_ppm      <- NULL
-  }
-  if(searchMode == 'Fragment m/z'){
-    #################################################
-    ## get inputs
-    filter_ms2_masses1 <- input$search_ms2_masses1
-    filter_ms2_masses2 <- input$search_ms2_masses2
-    filter_ms2_masses3 <- input$search_ms2_masses3
-    filter_ms2_ppm     <- input$searchMS2massPpm
-    
-    filter_ms1_masses <- NULL
-    filter_ms1_ppm    <- NULL
-  }
+  includeIgnoredPrecursors  <- input$searchIncludeIgnoredPrecursors
   
+  searchMode <- input$searchMS1orMS2
+  switch (searchMode,
+          'MS1 feature m/z' = {
+            filter_ms1_masses <- input$searchMS1mass
+            filter_ms1_ppm    <- input$searchMS1massPpm
+            
+            if(nchar(trimws(filter_ms1_masses)) == 0)
+              return()
+            
+            resultObj <- doApplySearch(filter_ms1_masses = filter_ms1_masses, filter_ms1_ppm = filter_ms1_ppm, includeIgnoredPrecursors = includeIgnoredPrecursors)
+          },
+          'Fragment m/z' = {
+            filter_ms2_masses1 <- input$search_ms2_masses1
+            filter_ms2_masses2 <- input$search_ms2_masses2
+            filter_ms2_masses3 <- input$search_ms2_masses3
+            filter_ms2_ppm     <- input$searchMS2massPpm
+            
+            resultObj <- doApplySearch(filter_ms2_masses1 = filter_ms2_masses1, filter_ms2_masses2 = filter_ms2_masses2, filter_ms2_masses3 = filter_ms2_masses3, filter_ms2_ppm = filter_ms2_ppm, includeIgnoredPrecursors = includeIgnoredPrecursors)
+          }
+  )
+  
+  processSearchFilterResult(resultObj)
+  
+  session$sendCustomMessage("enableButton", "applySearch")
+})
+doApplySearch <- function(filter_ms2_masses1 = NULL, filter_ms2_masses2 = NULL, filter_ms2_masses3 = NULL, filter_ms2_ppm = NULL, filter_ms1_masses = NULL, filter_ms1_ppm = NULL, includeIgnoredPrecursors){
   filter_lfc      <- NULL
   filter_average  <- NULL
   groupSet        <- dataList$groups
-  includeIgnoredPrecursors  <- input$searchIncludeIgnoredPrecursors
   
   #################################################
   ## do filtering
@@ -77,21 +90,20 @@ obsApplySearch <- observeEvent(input$applySearch, {
   
   print(paste("Observe applySearch", "1m", filter_ms1_masses, "1p", filter_ms1_ppm, "i", includeIgnoredPrecursors, "gs", paste(groupSet, collapse = "-")))
   resultObj <- doPerformFiltering(groupSet, sampleSet, filterBySamples, filter_average, filter_lfc, filter_ms2_masses1, filter_ms2_masses2, filter_ms2_masses3, filter_ms2_ppm, filter_ms1_masses, filter_ms1_ppm, includeIgnoredPrecursors)
-  processSearchFilterResult(resultObj)
-  session$sendCustomMessage("enableButton", "applySearch")
-})
+  return(resultObj)
+}
 processSearchFilterResult <- function(resultObj){
-  state$filterSearchActive <<- TRUE
+  state_filters$filterSearchActive <<- TRUE
   #################################################
   ## info / error
   if(resultObj$error){
     filterSearch <<- NULL
-    state$searchfilterValid <<- FALSE
+    state_filters$searchFilterValid <<- FALSE
     selectionBySearch(NULL)
     updateSearchInformation()
   } else {
     filterSearch <<- resultObj$filter
-    state$searchfilterValid <<- TRUE
+    state_filters$searchFilterValid <<- TRUE
     selectionBySearch(filterSearch$filter)
     updateSearchInformation()
     
@@ -102,17 +114,17 @@ processSearchFilterResult <- function(resultObj){
   }
 }
 updateSearchInformation <- function(){
-  if(!state$filterSearchActive)
+  if(!state_filters$filterSearchActive)
     output$searchInfo <- renderText({
       print(paste("update output$searchInfo inactive search", sep = ""))
       paste("Please search for MS\u00B9 features", sep = "")
     })
-  if(state$filterSearchActive & is.null(filterSearch))
+  if(state_filters$filterSearchActive & is.null(filterSearch))
     output$searchInfo <- renderText({
       print(paste("update output$searchInfo invalid search", sep = ""))
       paste("There are invalid or missing search values", sep = "")
     })
-  if(state$filterSearchActive & !is.null(filterSearch)){
+  if(state_filters$filterSearchActive & !is.null(filterSearch)){
     str1 <- ""
     str2 <- ""
     if(state$showHCAplotPanel & !is.null(listForTable_Search_HCA))
@@ -133,35 +145,6 @@ updateSearchInformation <- function(){
       print(paste("update output$searchInfo", sep = ""))
       paste("Number of hits among MS\u00B9 features: ", val, sep = "")
     })
-  }
-}
-selectionBySearchReset <- function(){
-  if(!is.null(selectionSearchTreeNodeSet)){ ## HCA
-    selectionSearchTreeNodeSet <<- NULL
-    listForTable_Search_HCA <<- NULL
-    table_Search_HCA_id <<- NULL
-    table$df_Search_HCA <<- NULL
-    if(state$selectedSelection == selectionSearchHcaName)
-      updateSelectedPrecursorSet()
-  }
-  if(!is.null(selectionSearchPcaLoadingSet)){ ## HCA
-    selectionSearchPcaLoadingSet <<- NULL
-    listForTable_Search_PCA <<- NULL
-    table_Search_PCA_id <<- NULL
-    table$df_Search_PCA <<- NULL
-    if(state$selectedSelection == selectionSearchHcaName)
-      updateSelectedPrecursorSet()
-  }
-}
-selectionBySearch <- function(precursorSet){
-  if(state$showHCAplotPanel)
-    selectionBySearchInitHca(precursorSet)
-  if(state$showPCAplotPanel)
-    selectionBySearchInitPca(precursorSet)
-  
-  if(input$changeSelection != selectionSearchName){
-    updateRadioButtons(session = session, inputId = "changeSelection", label = NULL, choices = c(selectionAnalysisName, selectionFragmentName, selectionSearchName), inline = TRUE, selected = selectionSearchName)
-    updateSelectedSelection()
   }
 }
 

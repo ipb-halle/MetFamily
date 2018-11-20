@@ -178,7 +178,7 @@ deserialization <- function(serialization){
     includeIgnoredPrecursors
   )
   filterGlobal <<- resultObj$filter
-  state$globalMS2filterValid <<- TRUE
+  state_filters$globalMS2filterValid <<- TRUE
   updateGlobalMS2filterInformation()
   
   ###################

@@ -5,6 +5,88 @@ filterHca <- NULL
 filterPca <- NULL
 filterSearch <- NULL
 
+
+state_filters <- reactiveValues(
+  ## filter stuff
+  globalMS2filterValid = FALSE, 
+  hcaFilterValid = FALSE, 
+  pcaFilterValid = FALSE,
+  searchFilterValid = TRUE,
+  filterSearchActive = FALSE
+)
+resetWorkspaceFunctions <- c(resetWorkspaceFunctions, function(){
+  print("Reset filters state")
+  
+  #########################################################################################
+  ## update filter
+  sampleSet <- dataList$groupSampleDataFrame[, "Sample"][!dataList$groupSampleDataFrame[, "Exclude"]]
+  filter <- doPerformFiltering(dataList$groups, sampleSet, FALSE, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, TRUE)$filter
+  if(length(dataList$groups) == 1)
+    filter2 <- doPerformFiltering(c(dataList$groups[[1]], dataList$groups[[1]]), NULL, FALSE, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, TRUE)$filter
+  else
+    filter2 <- filter
+  
+  filterGlobal <<- filter
+  filterHca    <<- filter2
+  filterPca    <<- filter
+  state_filters$filterSearchActive <<- FALSE
+  state_filters$searchFilterValid <<- TRUE
+  filterSearch    <<- NULL
+  
+  updateGlobalMS2filterInformation()
+  updateHcaFilterInformation()
+  updatePcaFilterInformation()
+  updateSearchInformation()
+  
+  state_filters$globalMS2filterValid <<- TRUE
+  state_filters$hcaFilterValid <<- TRUE
+  state_filters$pcaFilterValid <<- TRUE
+  
+  checkHcaFilterValidity(filter2$numberOfPrecursorsFiltered)
+  checkPcaFilterValidity(filter$numberOfPrecursorsFiltered)
+  
+  #########################################################################################
+  ## update filter input values
+  
+  ## groups
+  switch(as.character(length(dataList$groups)), 
+         "0"={
+           stop("No groups available")
+         },
+         "1"={
+           selectedOne <- dataList$groups[[1]]
+           selectedTwo <- dataList$groups[[1]]
+         },
+         {
+           selectedOne <- dataList$groups[[1]]
+           selectedTwo <- dataList$groups[[2]]
+         }
+  )
+  
+  sampleNames <- dataList$groupSampleDataFrame[, "Sample"]
+  
+  ## input fields: global MS/MS filter
+  updateTextInput(session = session, inputId = "globalFilter_ms2_masses1", value = "")
+  updateTextInput(session = session, inputId = "globalFilter_ms2_masses2", value = "")
+  updateTextInput(session = session, inputId = "globalFilter_ms2_masses3", value = "")
+  updateTextInput(session = session, inputId = "globalFilter_ms2_ppm", value = "20")
+  
+  ## input fields: HCA filter
+  updateRadioButtons(session = session, inputId = "hcaFilterGroupOne", choices = dataList$groups, selected = selectedOne)
+  updateRadioButtons(session = session, inputId = "hcaFilterGroupTwo", choices = dataList$groups, selected = selectedTwo)
+  updateTextInput(session = session, inputId = "hcaFilter_average", value = "0")
+  updateTextInput(session = session, inputId = "hcaFilter_lfc", value = "0")
+  updateCheckboxInput(session = session, inputId = "hcaFilterIncludeIgnoredPrecursors", value = FALSE)
+  
+  ## input fields: PCA filter
+  updateCheckboxGroupInput(session = session, inputId = "pcaGroups",   choices = dataList$groups, selected = dataList$groups)
+  updateCheckboxGroupInput(session = session, inputId = "pcaSamples",  choices = sampleNames,     selected = sampleNames)
+  updateTextInput(session = session, inputId = "pcaFilter_average", value = "0")
+  updateTextInput(session = session, inputId = "pcaFilter_lfc", value = "0")
+  updateCheckboxInput(session = session, inputId = "pcaFilterIncludeIgnoredPrecursors", value = FALSE)
+})
+
+
 ## filter info
 updateGlobalMS2filterInformation <- function(){
   if(is.null(filterGlobal)){
@@ -274,13 +356,13 @@ checkHcaFilterValidity <- function(numberOfPrecursorsFiltered){
     
     shinyjs::enable("drawHCAplots")
     #enableActionButton(session, "drawHCAplots")
-    state$hcaFilterValid <<- TRUE
+    state_filters$hcaFilterValid <<- TRUE
   } else {
     ## filter invalid
     
     shinyjs::disable("drawHCAplots")
     #disableActionButton(session, "drawHCAplots")
-    state$hcaFilterValid <<- FALSE
+    state_filters$hcaFilterValid <<- FALSE
   }
 }
 checkPcaFilterValidity <- function(numberOfPrecursorsFiltered){
@@ -289,13 +371,13 @@ checkPcaFilterValidity <- function(numberOfPrecursorsFiltered){
     print(paste("Observe applyFilters # > 0", sep = ""))
     
     shinyjs::enable("drawPCAplots")
-    state$pcaFilterValid <<- TRUE
+    state_filters$pcaFilterValid <<- TRUE
   } else {
     ## filter invalid
     print(paste("Observe applyFilters # = 0", sep = ""))
     
     shinyjs::disable("drawPCAplots")
-    state$pcaFilterValid <<- FALSE
+    state_filters$pcaFilterValid <<- FALSE
   }
 }
 
@@ -315,10 +397,10 @@ applyGlobalMS2filters <- function(filter_ms2_masses1, filter_ms2_masses2, filter
   
   if(resultObj$error){
     filterGlobal <<- NULL
-    state$globalMS2filterValid <<- FALSE
+    state_filters$globalMS2filterValid <<- FALSE
   } else {
     filterGlobal <<- resultObj$filter
-    state$globalMS2filterValid <<- TRUE
+    state_filters$globalMS2filterValid <<- TRUE
   }
   updateGlobalMS2filterInformation()
 }
@@ -388,7 +470,7 @@ applyHcaFilters <- function(groupOne, groupTwo, filter_average, filter_lfc, incl
     #disableActionButton(session, "drawHCAplots")
     filterHca <<- NULL
     updateHcaFilterInformation()
-    state$hcaFilterValid <<- FALSE
+    state_filters$hcaFilterValid <<- FALSE
     return()
   }
   
@@ -474,6 +556,21 @@ obsClearPcaFilters <- observeEvent(input$clearPcaFilters, {
   applyPcaFilters(groupSet, sampleSet, filterByPCAgroupSamples, filter_average, filter_lfc, includeIgnoredPrecursors)
   session$sendCustomMessage("enableButton", "clearPcaFilters")
 })
+
+applyPcaFilters_default <- function(){
+  if(!is.null(filterPca)){
+    applyPcaFilters(
+      groupSet = filterPca$groupSetOriginal, 
+      sampleSet = filterPca$sampleSetOriginal, 
+      filterBySamples = filterPca$filterBySamplesOriginal, 
+      filter_average = filterPca$filter_averageOriginal, 
+      filter_lfc = filterPca$filter_lfcOriginal, 
+      includeIgnoredPrecursors = filterPca$includeIgnoredPrecursorsOriginal
+    )
+  } else {
+    stop("Tried to apply pca filtering without filterPca obj")
+  }
+}
 applyPcaFilters <- function(groupSet, sampleSet, filterBySamples, filter_average, filter_lfc, includeIgnoredPrecursors){
   filter_ms2_masses1  <- filterGlobal$filter_ms2_masses1Original   
   filter_ms2_masses2  <- filterGlobal$filter_ms2_masses2Original   
@@ -492,7 +589,7 @@ applyPcaFilters <- function(groupSet, sampleSet, filterBySamples, filter_average
     #disableActionButton(session, "drawPCAplots")
     filterPca <<- NULL
     updatePcaFilterInformation()
-    state$pcaFilterValid <<- FALSE
+    state_filters$pcaFilterValid <<- FALSE
     return()
   }
   
@@ -510,3 +607,30 @@ suspendOnExitFunctions <- c(suspendOnExitFunctions, function(){
   obsApplyPcaFilters$suspend()
   obsClearPcaFilters$suspend()
 })
+
+output$globalMS2filterValid <- reactive({
+  print(paste("reactive update globalMS2filterValid", state_filters$globalMS2filterValid))
+  return(state_filters$globalMS2filterValid)
+})
+output$hcaFilterValid <- reactive({
+  print(paste("reactive update hcaFilterValid", state_filters$hcaFilterValid))
+  return(state_filters$hcaFilterValid)
+})
+output$pcaFilterValid <- reactive({
+  print(paste("reactive update pcaFilterValid", state_filters$pcaFilterValid))
+  return(state_filters$pcaFilterValid)
+})
+output$searchFilterValid <- reactive({
+  print(paste("reactive update searchFilterValid", state_filters$searchFilterValid))
+  return(state_filters$searchFilterValid)
+})
+output$filterSearchActive <- reactive({
+  print(paste("reactive update filterSearchActive", state_filters$filterSearchActive))
+  return(state_filters$filterSearchActive)
+})
+
+outputOptions(output, 'globalMS2filterValid',    suspendWhenHidden=FALSE)
+outputOptions(output, 'hcaFilterValid',          suspendWhenHidden=FALSE)
+outputOptions(output, 'pcaFilterValid',          suspendWhenHidden=FALSE)
+outputOptions(output, 'searchFilterValid',       suspendWhenHidden=FALSE)
+outputOptions(output, 'filterSearchActive',      suspendWhenHidden=FALSE)

@@ -407,7 +407,7 @@ plotHCA <- function(file, fileType, plotMS2 = TRUE){
   ## 7
   drawFragmentDiscriminativityLegendImpl()
   ## 8
-  calcPlotAnnoLegendForImage(state$annotationsHca$setOfAnnotations, state$annotationsHca$setOfColors, 15)
+  drawAnnotationLegendForImageHCAimpl()
   #drawAnnotationLegendImpl()
   
   dev.off()
@@ -497,7 +497,7 @@ plotPCA <- function(file, fileType, plotMS2 = TRUE){
   ## 7
   if(plotMS2)  drawFragmentDiscriminativityLegendImpl()
   ## 8
-  calcPlotAnnoLegendForImage(state$annotationsPca$setOfAnnotations, state$annotationsPca$setOfColors, 20)
+  drawAnnotationLegendForImagePCAimpl()
   #drawAnnotationLegendImpl()
   
   dev.off()

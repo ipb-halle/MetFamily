@@ -1,6 +1,30 @@
 
 fragmentPlotRange    <- reactiveValues(xMin = NULL, xMax = NULL, xInterval = NULL, xIntervalSize = NULL)
 
+resetWorkspaceFunctions <- c(resetWorkspaceFunctions, function(){
+  print("Reset tabMsmsFilter state")
+  state_tabClassifier$classifierLoaded <<- FALSE
+  state_tabClassifier$classifierClassSelected <<- FALSE
+  state_tabClassifier$classifierClassMS1featureSelected <<- FALSE
+  
+  #########################################################################################
+  ## update fragment plot
+  min <- min(dataList$ms2_masses)
+  max <- max(dataList$ms2_masses)
+  
+  ## reset plot range
+  fragmentPlotRange$xMin <<- min
+  fragmentPlotRange$xMax <<- max
+  fragmentPlotRange$xInterval <<- c(min, max)
+  fragmentPlotRange$xIntervalSize <<- (max - min)
+  
+  output$fragmentPlot <- renderPlot({
+    print(paste("### MS2 ### all init"))
+    plotFragmentsFromDataList(dataList = dataList, xInterval = fragmentPlotRange$xInterval)
+    #}, bg = "transparent")
+  })
+})
+
 obsFragmentPlotdblClick <- observeEvent(input$fragmentPlot_dblclick, {
   brush <- input$fragmentPlot_brush
   print(paste("observe fragmentPlot dblclick", paste(brush, collapse = "; ")))

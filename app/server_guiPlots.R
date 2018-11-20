@@ -1,4 +1,63 @@
 
+resetWorkspaceFunctions <- c(resetWorkspaceFunctions, function(){
+  print("Reset plot state")
+  ## reset plots
+  doClearPlots()
+})
+
+## POI selection
+getSelectedPOI_X <- function(mouseX, poiCoordinatesX, plotWidth, plotRangeX){
+  if(any(is.na(c(poiCoordinatesX))))
+    return(NULL)
+  
+  factorX <- plotWidth  / plotRangeX
+  
+  mouseX <- mouseX * factorX
+  poiCoordinatesX <- poiCoordinatesX * factorX
+  
+  distances <- abs(poiCoordinatesX - mouseX)
+  distanceThreshold <- factorX * plotRangeX / 35
+  
+  minimumIndex <- which.min(distances)
+  minimumDistance <- distances[[minimumIndex]]
+  
+  if(minimumDistance > distanceThreshold){
+    return(NULL)
+  } else {
+    return(minimumIndex)
+  }
+}
+getSelectedPOI_XY <- function(mouseX, mouseY, poiCoordinatesX, poiCoordinatesY, plotWidth, plotHeight, plotRangeX, plotRangeY){
+  ## see also nearPoints(...): http://shiny.rstudio.com/gallery/plot-interaction-selecting-points.html
+  if(any(is.na(c(poiCoordinatesX, poiCoordinatesY))))
+    return(NULL)
+  
+  factorX <- plotWidth  / plotRangeX
+  factorY <- plotHeight / plotRangeY
+  
+  mouseX <- mouseX * factorX
+  mouseY <- mouseY * factorY
+  poiCoordinatesX <- poiCoordinatesX * factorX
+  poiCoordinatesY <- poiCoordinatesY * factorY
+  
+  distancesX <- poiCoordinatesX - mouseX
+  distancesY <- poiCoordinatesY - mouseY
+  distances <- sqrt(distancesX * distancesX + distancesY * distancesY)
+  distanceThreshold <- factorX * plotRangeX / 35
+  
+  minimumIndex <- which.min(distances)
+  if(any(length(minimumIndex)==0, is.na(minimumIndex)))
+    return(NULL)
+  
+  minimumDistance <- distances[[minimumIndex]]
+  if(minimumDistance > distanceThreshold){
+    return(NULL)
+  } else {
+    return(minimumIndex)
+  }
+}
+
+
 drawDendrogramPlotImpl <- function(){
   resultObj <- calcPlotDendrogram(
     dataList = dataList, 
@@ -10,16 +69,16 @@ drawDendrogramPlotImpl <- function(){
     selectionFragmentTreeNodeSet = selectionFragmentTreeNodeSet,
     selectionAnalysisTreeNodeSet = selectionAnalysisTreeNodeSet,
     selectionSearchTreeNodeSet = selectionSearchTreeNodeSet,
-    showClusterLabels = state$showClusterLabels, 
-    hcaPrecursorLabels = state$hcaPrecursorLabels, 
+    showClusterLabels = state_tabHca$showClusterLabels, 
+    hcaPrecursorLabels = state_tabHca$hcaPrecursorLabels, 
     xInterval = dendrogramPlotRange$xInterval
   )
   
   dendrogramUserCoordinateRange <- par("usr")
   dendrogramUserCoordinateRangeY <<- dendrogramUserCoordinateRange[[4]] - dendrogramUserCoordinateRange[[3]]
   
-  state$annotationsHca <<- resultObj
-  state$annotationLegendHeightHca <<- annoLegendEntryHeight * (length(state$annotationsHca$setOfAnnotations) + 1)
+  state_tabHca$annotationsHca <<- resultObj
+  state_tabHca$annotationLegendHeightHca <<- annoLegendEntryHeight * (length(state_tabHca$annotationsHca$setOfAnnotations) + 1)
 }
 drawHeatmapPlotImpl <- function(consoleInfo = NULL){
   #calcPlotHeatmap(dataList = dataList, filterObj = filterHca, clusterDataList = clusterDataList, xInterval = dendrogramPlotRange$xInterval)
@@ -29,19 +88,19 @@ drawHeatmapPlotImpl <- function(consoleInfo = NULL){
   selectedTreeNodeSet <- NULL
   frameColor <- NULL
   
-  selectedSelection <- state$selectedSelection
+  selectedSelection <- state_selections$selectedSelection
   if(!is.null(selectedSelection)){
     analysisSelection <- function(){
-      selectedTreeNodeSet <- selectionAnalysisTreeNodeSet
-      frameColor <- "blue"
+      selectedTreeNodeSet <<- selectionAnalysisTreeNodeSet
+      frameColor <<- "blue"
     }
     fragmentSelection <- function(){
-      selectedTreeNodeSet <- selectionFragmentTreeNodeSet
-      frameColor <- "green"
+      selectedTreeNodeSet <<- selectionFragmentTreeNodeSet
+      frameColor <<- "green"
     }
     searchSelection <- function(){
-      selectedTreeNodeSet <- selectionSearchTreeNodeSet
-      frameColor <- "red"
+      selectedTreeNodeSet <<- selectionSearchTreeNodeSet
+      frameColor <<- "red"
     }
     switch(selectedSelection,
            "Analysis_HCA"=analysisSelection(),
@@ -59,17 +118,14 @@ drawHeatmapPlotImpl <- function(consoleInfo = NULL){
   if(hcaHeatMapNew){
     #####################################################################################
     ## new heatmap functionality
-    heatmapContent  <- state$heatmapContent
-    heatmapOrdering <- state$heatmapOrdering
-    
     returnObj <- calcPlotHeatmap(
       dataList = dataList, 
       filterObj = filterHca, 
       clusterDataList = clusterDataList, 
       selectedTreeNodeSet = selectedTreeNodeSet, 
       frameColor = frameColor,
-      heatmapContent = heatmapContent,
-      heatmapOrdering = heatmapOrdering,
+      heatmapContent = state_tabHca$heatmapContent,
+      heatmapOrdering = state_tabHca$heatmapOrdering,
       xInterval = dendrogramPlotRange$xInterval
     )
     columnsOfInterest <- returnObj$columnsOfInterest
@@ -89,7 +145,7 @@ drawHeatmapPlotImpl <- function(consoleInfo = NULL){
         (maximumheatmapHeightPerRow - minimumheatmapHeightPerRow)
     }
     
-    state$heatmapHeight <<- heatmapHeightPerRow * length(columnsOfInterest)
+    state_tabHca$heatmapHeight <<- heatmapHeightPerRow * length(columnsOfInterest)
   } else {
     #####################################################################################
     ## old heatmap functionality
@@ -100,7 +156,7 @@ drawHeatmapPlotImpl <- function(consoleInfo = NULL){
       xInterval = dendrogramPlotRange$xInterval
     )
     columnsOfInterestForHeatmap <<- columnsOfInterest
-    state$heatmapHeight <<- heatmapHeightPerRow * 3
+    state_tabHca$heatmapHeight <<- heatmapHeightPerRow * 3
   }
 }
 drawHeatmapLegendImpl <- function(){
@@ -110,7 +166,10 @@ drawDendrogramLegendImpl <- function(){
   calcPlotDendrogramLegend()
 }
 drawAnnotationLegendHCAimpl <- function(){
-  calcPlotAnnoLegend(state$annotationsHca$setOfAnnotations, state$annotationsHca$setOfColors)
+  calcPlotAnnoLegend(state_tabHca$annotationsHca$setOfAnnotations, state_tabHca$annotationsHca$setOfColors)
+}
+drawAnnotationLegendForImageHCAimpl <- function(){
+  calcPlotAnnoLegendForImage(state_tabHca$annotationsHca$setOfAnnotations, state_tabHca$annotationsHca$setOfColors)
 }
 
 drawPcaScoresPlotImpl <- function(){
@@ -121,7 +180,7 @@ drawPcaScoresPlotImpl <- function(){
     filterObj = filterPca, 
     pcaDimensionOne = pcaDataList$dimensionOne, 
     pcaDimensionTwo = pcaDataList$dimensionTwo, 
-    showScoresLabels = state$showScoresLabels, 
+    showScoresLabels = state_tabPca$showScoresLabels, 
     xInterval = pcaScoresPlotRange$xInterval, 
     yInterval = pcaScoresPlotRange$yInterval
   )
@@ -138,19 +197,22 @@ drawPcaLoadingsPlotImpl <- function(){
     selectionSearchPcaLoadingSet   = selectionSearchPcaLoadingSet,
     xInterval = pcaLoadingsPlotRange$xInterval, 
     yInterval = pcaLoadingsPlotRange$yInterval,
-    loadingsLabels = state$loadingsLabels, 
-    showLoadingsAbundance = state$showLoadingsAbundance, 
-    showLoadingsFeaturesAnnotated   = state$showLoadingsFeaturesAnnotated,
-    showLoadingsFeaturesUnannotated = state$showLoadingsFeaturesUnannotated,
-    showLoadingsFeaturesSelected    = state$showLoadingsFeaturesSelected,
-    showLoadingsFeaturesUnselected  = state$showLoadingsFeaturesUnselected
+    loadingsLabels = state_tabPca$loadingsLabels, 
+    showLoadingsAbundance = state_tabPca$showLoadingsAbundance, 
+    showLoadingsFeaturesAnnotated   = state_tabPca$showLoadingsFeaturesAnnotated,
+    showLoadingsFeaturesUnannotated = state_tabPca$showLoadingsFeaturesUnannotated,
+    showLoadingsFeaturesSelected    = state_tabPca$showLoadingsFeaturesSelected,
+    showLoadingsFeaturesUnselected  = state_tabPca$showLoadingsFeaturesUnselected
   )
   
-  state$annotationsPca <<- resultObj
-  state$annotationLegendHeightPca <<- annoLegendEntryHeight * (length(state$annotationsPca$setOfAnnotations) + 1)
+  state_tabPca$annotationsPca <<- resultObj
+  state_tabPca$annotationLegendHeightPca <<- annoLegendEntryHeight * (length(state_tabPca$annotationsPca$setOfAnnotations) + 1)
 }
 drawAnnotationLegendPCAimpl <- function(){
-  calcPlotAnnoLegend(state$annotationsPca$setOfAnnotations, state$annotationsPca$setOfColors)
+  calcPlotAnnoLegend(state_tabPca$annotationsPca$setOfAnnotations, state_tabPca$annotationsPca$setOfColors)
+}
+drawAnnotationLegendForImagePCAimpl <- function(){
+  calcPlotAnnoLegendForImage(state_tabPca$annotationsPca$setOfAnnotations, state_tabPca$annotationsPca$setOfColors)
 }
 drawScoresGroupsLegendImpl <- function(){
   calcPlotScoresGroupsLegend(scoresGroups$groups, scoresGroups$colors)
@@ -239,7 +301,7 @@ showPlotTooltip <- function(hover, info, panelWidth){
   # z-index is set so we are sure are tooltip will be on top
   #style <- paste0("position:absolute; z-index:100; background-color: rgba(245, 245, 245, 0.85); ",
   style <- paste0("position:absolute; z-index:100; background-color: rgba(245, 245, 245, 0.85); ",
-                  "left:", left_px + 2, "px; top:", top_px + 2, "px; width:", panelWidth, "px;")
+                  "left:", left_px + 7, "px; top:", top_px + 7, "px; width:", panelWidth, "px;")
   
   # actual tooltip created as wellPanel
   wellPanel(
