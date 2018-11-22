@@ -10,7 +10,6 @@ LABEL Description="MetFamily helps identifying metabolites and groups them into 
 ENV METFAMILY_BRANCH="master"
 ENV PATH /usr/lib/rstudio-server/bin/:$PATH
 ENV PACK_R="cba colourpicker devtools DT FactoMineR htmltools Matrix matrixStats plotrix rCharts rmarkdown shiny shinyBS shinyjs squash stringi tools"
-ENV PACK_R="cba colourpicker devtools DT htmltools Matrix matrixStats plotrix rCharts rmarkdown shiny shinyBS shinyjs squash stringi tools"
 ENV PACK_BIOC="mzR pcaMethods xcms"
 ENV PACK_GITHUB=""
 
