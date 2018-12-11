@@ -3003,11 +3003,9 @@ convertToProjectFile2 <- function(filePeakMatrix, spectraList, precursorMz, prec
     #dataFrame$"Average Mz" <- seq_len(nrow(dataFrame))
     dataFrame$"Average Mz" <- as.numeric(dataFrame$"Quant mass")
     
-    ## replace rounded rts in the MS1 data by the unrounded ones from the MS/MS data
     if(nrow(dataFrame) == length(spectraList)){
+      ## replace rounded rts in the MS1 data by the unrounded ones from the MS/MS data
       dataFrame$"Average Rt(min)" <- unlist(lapply(X = spectraList, FUN = function(x){x$rt}))
-    } else {
-      
     }
     
     ## remove empty spectra

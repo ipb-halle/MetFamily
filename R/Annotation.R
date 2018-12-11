@@ -124,6 +124,7 @@ doAnnotation <- function(filePath, propertiesList, featureMatrix, parameterSet, 
     fragmentMassesMappedSource <- fragmentMasses       [fragmentMassesMapped_bool]
     fragmentMassesMappedTarget <- fragmentMassesRounded[fragmentMassesMapped_bool]
     
+    ## TODO add index vector for mapping of ClassMasses to aligned ClassMasses
     mappingSpectraToClassDf <- data.frame(
       "SpectraMasses" = fragmentMassesMappedSource,
       "ClassMasses"   = fragmentMassesMappedTarget
@@ -194,6 +195,7 @@ doAnnotation <- function(filePath, propertiesList, featureMatrix, parameterSet, 
   lastOut <- proc.time()["user.self"]
   lastIdx <- 1
   
+  #classIdx <- 1
   for(classIdx in seq_along(classes)){
     ## progress
     time <- proc.time()["user.self"]
@@ -211,21 +213,25 @@ doAnnotation <- function(filePath, propertiesList, featureMatrix, parameterSet, 
     classifier <- classifiers_class[[which(classifierClasses==class)]]
     
     methodFunctions   <- trainingAlgorithm$method
-    methodName        <- trainingAlgorithm$methodName
-    parameters_train  <- trainingAlgorithm$params
-    paramsString      <- trainingAlgorithm$paramsString
-    algoName          <- trainingAlgorithm$algoName
+    #methodName        <- trainingAlgorithm$methodName
+    #parameters_train  <- trainingAlgorithm$params
+    #paramsString      <- trainingAlgorithm$paramsString
+    #algoName          <- trainingAlgorithm$algoName
+    
+    if(is.null(classifier$fragmentMassSelection)){
+      fragmentMassSelection <- rep(x = TRUE, times = ncol(matrix))
+    } else {
+      fragmentMassSelection <- mappingSpectraToClassDf$ClassMassIndeces %in% classifier$fragmentMassSelection
+    }
     
     parameters_test <- list()
-    parameters_test$matrix_test <- matrix
+    parameters_test$matrix_test <- matrix[, fragmentMassSelection]
     parameters_test$classifier  <- classifier$classifier
     
     ########################## do
     startTime <- Sys.time()
-    predicted_scores <- tryCatch(
-      {
+    predicted_scores <- tryCatch(expr = {
         do.call(what = methodFunctions$classify, args = parameters_test)
-        
       }, error = function(e) {
         #error <- e
         print(paste("####################"))
@@ -276,6 +282,7 @@ doAnnotation <- function(filePath, propertiesList, featureMatrix, parameterSet, 
   # + $ numberOfNegativeSpectra: int 1333
   # + $ class                  : chr "Organic compounds; Organic acids and derivatives; Carboxylic acids and derivatives; Amino acids, peptides, and "| __truncated__
   # + $ fragmentMasses         : num [1:12207] -970 -969 -965 -965 -963 ...
+  # - $ fragmentMassSelection  : indeces
   # + $ classOfClass           : chr "ChemOnt_SubstanceClass"
   # - $ maximumNumberOfScores               : int 10000
   # - $ removeRareFragments                 : logi FALSE
@@ -314,8 +321,8 @@ doAnnotation <- function(filePath, propertiesList, featureMatrix, parameterSet, 
   # - ..- attr(*, "names")= chr [1:410] "5992" "6534" "5162" "6605" ...
   # - $ negativeScores                      : Named num [1:3960] 9.0e-07 9.0e-07 9.0e-07 9.0e-07 9.0e-07 9.0e-07 9.0e-07 9.0e-07 1.0e-06 1.8e-06 ...
   # - ..- attr(*, "names")= chr [1:3960] "3127" "5623" "5626" "5659" ...
-  # - classifier$alternativeSubstanceClasses <- alternativeSubstanceClasses               ########################### new ###########################
-  # - classifier$differentSubstanceClasses   <- differentSubstanceClasses                 ########################### new ###########################
+  # + classifier$alternativeSubstanceClasses <- alternativeSubstanceClasses               ########################### new ###########################
+  # + classifier$differentSubstanceClasses   <- differentSubstanceClasses                 ########################### new ###########################
   # + classifier$importantFragments <- importance                                         ########################### new ###########################
   # / $ algorithm
   # - ..$ method      :List of 2
@@ -338,6 +345,8 @@ doAnnotation <- function(filePath, propertiesList, featureMatrix, parameterSet, 
       "frequentFragments",       #: Named num [1:29] 0.571 0.286 0.214 0.214 0.214 ...
       "characteristicFragments", #: Named num [1:28] 0.539 0.275 0.203 0.203 0.143 ...
       "importantFragments",      #
+      "alternativeSubstanceClasses", #: chr [1:12]
+      "differentSubstanceClasses",   #: chr [1:8]
       "AUC",                      #: num 0.912
       "AUC_PR",                   #: num 0.xxx
       "TPR_for_FPR_of_5Percent" #: num 0.667
@@ -350,7 +359,7 @@ doAnnotation <- function(filePath, propertiesList, featureMatrix, parameterSet, 
   
   remove <- sapply(classToSpectra_class, is.null)
   classToSpectra_class <- classToSpectra_class[!remove]
-  properties_class <- properties_class[!remove]
+  properties_class     <- properties_class    [!remove]
   
   ## classToSpectra_class[[10]]
   # Named num [1:3] 0.032 0.041 0.042
