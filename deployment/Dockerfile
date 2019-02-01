@@ -9,15 +9,16 @@ LABEL Description="MetFamily helps identifying metabolites and groups them into 
 # Environment variables
 ENV METFAMILY_BRANCH="master"
 ENV PATH /usr/lib/rstudio-server/bin/:$PATH
-ENV PACK_R="cba colourpicker devtools DT FactoMineR htmltools knitr Matrix matrixStats mixOmics plotrix rCharts rmarkdown shiny shinyBS shinyjs squash stringi tools slam plotly RColorBrewer caret"
-ENV PACK_BIOC="mzR pcaMethods xcms"
+ENV PACK_R="cba colourpicker devtools DT FactoMineR htmltools knitr Matrix matrixStats mixOmics plotrix rCharts rmarkdown shiny shinyBS shinyjs squash stringi tools slam plotly RColorBrewer caret RSpectra rARPACK"
+ENV PACK_BIOC="mzR pcaMethods xcms mixOmics"
 ENV PACK_GITHUB=""
 
 # Add cran R backport
 RUN apt-get -y update
 RUN apt-get -y install apt-transport-https
 RUN apt-key adv --keyserver keyserver.ubuntu.com --recv-keys E084DAB9
-RUN echo "deb https://cloud.r-project.org/bin/linux/ubuntu xenial/" >> /etc/apt/sources.list
+#RUN echo "deb https://cloud.r-project.org/bin/linux/ubuntu xenial/" >> /etc/apt/sources.list
+RUN echo "deb https://cloud.r-project.org/bin/linux/ubuntu xenial-cran35/" >> /etc/apt/sources.list
 
 # Update & upgrade sources
 RUN apt-get -y update
@@ -38,12 +39,14 @@ RUN apt-get -y install git python xorg-dev libglu1-mesa-dev freeglut3-dev libgom
 # Clean up
 RUN apt-get -y clean && apt-get -y autoremove && rm -rf /var/lib/{cache,log}/ /tmp/* /var/tmp/*
 
-# Install R packages
+# Install R and Bioconductor packages
+RUN R -e "install.packages('BiocManager')"
 RUN for PACK in $PACK_R; do R -e "install.packages(\"$PACK\", repos='https://cran.r-project.org/')"; done
+RUN for PACK in $PACK_BIOC; do R -e "library(BiocManager); BiocManager::install(\"$PACK\", ask=FALSE)"; done
 
 # Install Bioconductor packages
-RUN R -e "source('https://bioconductor.org/biocLite.R'); biocLite(\"BiocInstaller\", dep=TRUE, ask=FALSE)"
-RUN for PACK in $PACK_BIOC; do R -e "library(BiocInstaller); biocLite(\"$PACK\", ask=FALSE)"; done
+#RUN R -e "source('https://bioconductor.org/biocLite.R'); biocLite(\"BiocInstaller\", dep=TRUE, ask=FALSE)"
+#RUN for PACK in $PACK_BIOC; do R -e "library(BiocInstaller); biocLite(\"$PACK\", ask=FALSE)"; done
 
 # Install other R packages from source
 #RUN for PACK in $PACK_GITHUB; do R -e "library('devtools'); install_github(\"$PACK\")"; done
