@@ -1,0 +1,39 @@
+version: '3'
+
+services:
+  metfamily_dev:
+    image: korseby/metfamily-dev
+    networks:
+    - metfamily_dev_net
+    volumes:
+    - /vol/R/shiny/srv/shiny-server/MetFam:/vol/R/shiny/srv/shiny-server/MetFam
+    expose:
+    - 3838
+    restart: always
+
+  haproxy:
+    container_name: metfamily_dev_haproxy
+    build: metfamily-dev-haproxy
+    networks:
+    - metfamily_dev_net
+    volumes:
+    - ./metfamily-dev-haproxy:/haproxy-override
+    links:
+    - metfamily_dev
+    ports:
+    - "9011:80"
+    - "9012:70"
+    expose:
+    - "80"
+    - "70"
+    restart: always
+
+networks:
+  metfamily_dev_net:
+    driver: bridge
+    ipam:
+      config:
+      - subnet: 10.83.83.0/24
+#        ip_range: 10.83.83.0/24
+#        gateway: 10.83.83.1
+

@@ -17,14 +17,14 @@ ENV PACK_GITHUB=""
 RUN apt-get -y update
 RUN apt-get -y install apt-transport-https
 RUN apt-key adv --keyserver keyserver.ubuntu.com --recv-keys E084DAB9
-RUN echo "deb https://cran.uni-muenster.de/bin/linux/ubuntu xenial/" >> /etc/apt/sources.list
+RUN echo "deb https://cloud.r-project.org/bin/linux/ubuntu xenial/" >> /etc/apt/sources.list
 
 # Update & upgrade sources
 RUN apt-get -y update
 RUN apt-get -y dist-upgrade
 
 # Install supervisord
-RUN apt-get -y install supervisor
+#RUN apt-get -y install supervisor
 
 # Install r related packages
 RUN apt-get -y install texlive-binaries r-base
@@ -72,9 +72,9 @@ RUN cp -r /usr/src/shiny-server/samples/* /srv/shiny-server/
 ADD shiny-server.conf /etc/shiny-server/shiny-server.conf
 
 # Configure supervisor
-ADD supervisord.conf /etc/supervisor/conf.d/supervisord.conf
-RUN mkdir -p /var/log/supervisor
-RUN chmod 777 -R /var/log/supervisor
+#ADD supervisord.conf /etc/supervisor/conf.d/supervisord.conf
+#RUN mkdir -p /var/log/supervisor
+#RUN chmod 777 -R /var/log/supervisor
 
 # Using official github repository
 RUN mv /srv/shiny-server /srv/shiny-server_orig
@@ -88,5 +88,6 @@ EXPOSE 3838
 # Define Entry point script
 WORKDIR /
 #ENTRYPOINT ["/usr/bin/shiny-server","--pidfile=/var/run/shiny-server.pid"]
-CMD ["/usr/bin/supervisord", "-c", "/etc/supervisor/conf.d/supervisord.conf"]
+#CMD ["/usr/bin/supervisord", "-c", "/etc/supervisor/conf.d/supervisord.conf"]
+CMD ["/usr/bin/shiny-server", "--pidfile=/var/run/shiny-server.pid"]
 
