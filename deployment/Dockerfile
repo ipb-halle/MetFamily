@@ -79,7 +79,7 @@ ADD shiny-server.conf /etc/shiny-server/shiny-server.conf
 # Using official github repository
 RUN mv /srv/shiny-server /srv/shiny-server_orig
 WORKDIR /srv
-RUN git clone -b $METFAMILY_BRANCH https://github.com/ipb-halle/MetFamily
+RUN git clone -b $METFAMILY_BRANCH https://github.com/ipb-halle/MetFamily --branch MetFamily_2
 RUN mv MetFamily shiny-server
 
 # Expose port
