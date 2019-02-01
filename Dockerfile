@@ -72,7 +72,7 @@ RUN mkdir -p /etc/shiny-server
 RUN wget https://raw.github.com/rstudio/shiny-server/master/config/upstart/shiny-server.conf -O /etc/init/shiny-server.conf
 RUN cp -r /usr/src/shiny-server/samples/* /srv/shiny-server/
 #RUN wget https://raw.githubusercontent.com/rstudio/shiny-server/master/config/default.config -O /etc/shiny-server/shiny-server.conf
-ADD shiny-server.conf /etc/shiny-server/shiny-server.conf
+ADD deployment/shiny-server.conf /etc/shiny-server/shiny-server.conf
 
 # Configure supervisor
 #ADD supervisord.conf /etc/supervisor/conf.d/supervisord.conf
@@ -81,9 +81,10 @@ ADD shiny-server.conf /etc/shiny-server/shiny-server.conf
 
 # Using official github repository
 RUN mv /srv/shiny-server /srv/shiny-server_orig
-WORKDIR /srv
-RUN git clone -b $METFAMILY_BRANCH https://github.com/ipb-halle/MetFamily --branch MetFamily_2
-RUN mv MetFamily shiny-server
+#RUN git clone -b $METFAMILY_BRANCH https://github.com/ipb-halle/MetFamily --branch MetFamily_2
+RUN mkdir /srv/shiny-server
+ADD app/* /srv/shiny-server/
+ADD R/* /srv/shiny-server/
 
 # Expose port
 EXPOSE 3838
