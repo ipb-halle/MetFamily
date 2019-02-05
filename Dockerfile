@@ -85,6 +85,8 @@ RUN mv /srv/shiny-server /srv/shiny-server_orig
 RUN mkdir /srv/shiny-server
 ADD app/* /srv/shiny-server/
 ADD R/* /srv/shiny-server/
+ADD inst /srv/shiny-server/
+#ADD /vol/R/shiny/srv/shiny-server/MetFam/data/classifier/ /srv/shiny-server/inst/data/
 
 # Expose port
 EXPOSE 3838

@@ -15,7 +15,11 @@ NAME="korseby/metfamily-dev"
 
 
 # Build docker
+cd ..
+cp -af /vol/R/shiny/srv/shiny-server/MetFam/data/classifier ./inst/data/
 docker build $CACHE --rm=true $CPU_SHARES $CPU_SETS $CPU_MEMS $MEM --tag=$NAME .
+rm -rf ./inst/data/classifier
+cd deployment
 
 #docker push $NAME
 
