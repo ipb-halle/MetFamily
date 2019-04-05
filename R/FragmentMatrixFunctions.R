@@ -29,7 +29,8 @@ parsePeakAbundanceMatrix <- function(filePeakMatrix, doPrecursorDeisotoping, mzD
   ## read file
   if(!is.na(progress))  if(progress)  incProgress(amount = 0.1, detail = paste("Parsing MS1 file content...", sep = "")) else print(paste("Parsing MS1 file content...", sep = ""))
   
-  dataFrameAll <- read.table(filePeakMatrix, header=FALSE, sep = "\t", as.is=TRUE, quote = "", check.names = FALSE, comment.char = "")
+  dataFrameAll <- read.table(filePeakMatrix, header=FALSE, sep = "\t", as.is=TRUE, quote = "\"", check.names = FALSE, comment.char = "")
+  
   dataFrameHeader <- dataFrameAll[1:4, ]
   dataFrame <- dataFrameAll[5:nrow(dataFrameAll), ]
   colnames(dataFrame) <- dataFrameHeader[4, ]
@@ -529,7 +530,7 @@ parseMSP_chunk <- function(fileLines, minimumIntensityOfMaximalMS2peak, minimumP
         if(!is.na(parsedPMass2[[which(isPMass2)[[1]]]])){
           mz  <- parsedPMass2[[which(isPMass2)[[1]]]]
         } else {
-          tmp <- as.numeric(strsplit(x = trimws(substring(text = fileLines_022[[which(isPMass2)[[1]]]], first = nchar("PEPMASS=") + 1)), split = "\t")[[1]])
+          tmp <- as.numeric(strsplit(x = trimws(substring(text = fileLines_022[[which(isPMass2)[[1]]]], first = nchar("PEPMASS=") + 1)), split = "[\t ]")[[1]])
           mz  <- tmp[[1]]
           if(length(tmp) > 1)
             ms1Int <- tmp[[2]]
@@ -821,7 +822,7 @@ parseMSP_chunk <- function(fileLines, minimumIntensityOfMaximalMS2peak, minimumP
   
   return(returnObj)
 }
-parseMSP_attributes <- function(fileSpectra, progress = FALSE, flexiblePeakList = FALSE, includeIDasRecordSeparator=TRUE, includeNAMEasRecordSeparator=TRUE, includeTITLEasRecordSeparator=TRUE, returnEmptySpectra = FALSE){
+parseMSP_attributes <- function(fileSpectra, progress = FALSE, flexiblePeakList = FALSE, multiplePeaksPerLine = FALSE, includeIDasRecordSeparator=TRUE, includeNAMEasRecordSeparator=TRUE, includeTITLEasRecordSeparator=TRUE, returnEmptySpectra = FALSE){
   fileLines <- readLines(con = fileSpectra)
   
   if(!is.na(progress))  if(progress)  incProgress(amount = 0, detail = "MS/MS file: Read file") else print("MS/MS file: Read file")
@@ -877,6 +878,7 @@ parseMSP_attributes <- function(fileSpectra, progress = FALSE, flexiblePeakList 
   ## do it
   if(!is.na(progress))  if(progress)  incProgress(amount = 0, detail = "MS/MS file: Assemble spectra") else print("MS/MS file: Assemble spectra")
   suppressWarnings(
+    ## x <- entryIntervals[,1]
     spectraList <- apply(X = entryIntervals, MARGIN = 2, FUN = function(x){
       #print(x)
       fileLines2   <- fileLines  [x[[1]]:x[[2]]]
@@ -899,9 +901,11 @@ parseMSP_attributes <- function(fileSpectra, progress = FALSE, flexiblePeakList 
       peakLines <- fileLines2[isPeak2]
       peakLines <- trimws(gsub(x = peakLines, pattern = "\".*\"", replacement = ""))
       
-      peakLines <- unlist(lapply(X = strsplit(x = peakLines, split = "[ \t]"), FUN = function(peaktokens){peaktokens[1:2]}))
-      spectrumItem["peaks"] <- paste(peakLines, collapse = " ")
-      
+      if(multiplePeaksPerLine){
+        peakLines <- unlist(strsplit(x = peakLines, split = "[ \t]"))
+      } else {
+        peakLines <- unlist(lapply(X = strsplit(x = peakLines, split = "[ \t]"), FUN = function(peaktokens){peaktokens[1:2]}))
+      }
       spectrumItem["peaks"] <- paste(peakLines, collapse = " ")
       spectrumItem["peaks"] <- trimws(gsub(x = spectrumItem["peaks"], pattern = "  ", replacement = " "))
       
@@ -2930,7 +2934,7 @@ convertToProjectFile <- function(filePeakMatrix, fileSpectra, parameterSet, prog
 ## metaboliteFamilies <- rep(x = "", times = numberOfSpectra)
 ## uniqueMetaboliteFamilies <- NULL
 ## metaboliteFamilyColors <- NULL
-convertToProjectFile2 <- function(filePeakMatrix, spectraList, precursorMz, precursorRt, metaboliteFamilies, uniqueMetaboliteFamilies, metaboliteFamilyColors, parameterSet, progress = FALSE){
+convertToProjectFile2 <- function(filePeakMatrix, spectraList, precursorMz, precursorRt, metaboliteFamilies, uniqueMetaboliteFamilies, metaboliteFamilyColors, furtherProperties = list(), parameterSet, progress = FALSE){
   numberOfSpectraParsed <- length(spectraList)
   
   ####################################################################################
@@ -2961,16 +2965,18 @@ convertToProjectFile2 <- function(filePeakMatrix, spectraList, precursorMz, prec
     
     rm(returnObj)
   } else {
-    dataFrame <- data.frame(
+    propList <- list(
       "Average Rt(min)" = precursorRt,
       "Average Mz" = precursorMz,
       "Metabolite name" = unlist(lapply(X = spectraList, FUN = function(x){x$name})),
-      "Adduct ion name" = unlist(lapply(X = spectraList, FUN = function(x){x$adduct})),
-      "MySample" = rep(x = 0, times = numberOfSpectraParsed),
-      check.names = FALSE, stringsAsFactors = FALSE
+      "Adduct ion name" = unlist(lapply(X = spectraList, FUN = function(x){x$adduct}))
     )
+    propList <- c(propList, furtherProperties)
+    propList <- c(propList, list("MySample" = rep(x = 0, times = numberOfSpectraParsed)))
+    dataFrame <- data.frame(propList, check.names = FALSE, stringsAsFactors = FALSE)
+    
     numberOfPrecursors <- numberOfSpectraParsed
-    dataColumnStartEndIndeces <- c(5,5)
+    dataColumnStartEndIndeces <- c(5,5) + length(furtherProperties)
     numberOfDataColumns <- 1
     
     #groupLabels <- returnObj$groupLabels
@@ -3014,6 +3020,7 @@ convertToProjectFile2 <- function(filePeakMatrix, spectraList, precursorMz, prec
       spectraList[nullSpectra] <- NULL
       dataFrame <- dataFrame[-which(nullSpectra),]
       metaboliteFamilies <- metaboliteFamilies[-which(nullSpectra)] ## unique metabolite families and colors...?
+      furtherProperties <- lapply(X = furtherProperties, FUN = function(props){props[-which(nullSpectra)]})
       numberOfPrecursors <- length(spectraList)
       precursorMz <- dataFrame$"Average Mz"
       precursorRt <- dataFrame$"Average Rt(min)"
@@ -3065,12 +3072,13 @@ convertToProjectFile2 <- function(filePeakMatrix, spectraList, precursorMz, prec
   precursorRt <- precursorRt[orderMS1features]
   spectraList <- spectraList[orderMS1features]
   metaboliteFamilies <- metaboliteFamilies[orderMS1features]
+  furtherProperties <- lapply(X = furtherProperties, FUN = function(props){props[orderMS1features]})
   
   if(!is.null(filePeakMatrix)){
     ## allHits: dataFrame$"Average Mz" --> precursorMz; allHits indexes the spectraList
     diffAll <- abs(outer(X = precursorMz, Y = dataFrame$"Average Mz", FUN = function(x, y){abs(x-y)}))
     allHits <- apply(X = diffAll, MARGIN = 2, FUN = function(x){which(x == min(x[x < parameterSet$mzDeviationAbsolute_mapping], Inf))})
-    
+    rm(diffAll)
   } else {
     allHits <- lapply(X = dataFrame$"Average Mz", FUN = function(x){which(precursorMz == x)})
   }
@@ -3081,7 +3089,6 @@ convertToProjectFile2 <- function(filePeakMatrix, spectraList, precursorMz, prec
   numberOfUnmappedPrecursorsRt <- 0
   
   #bestHits <- as.integer(rep(x = NA, times = numberOfPrecursors))
-  rm(diffAll)
   for(i in seq_len(numberOfPrecursors)){
     numberOfItems <- length(allHits[[i]])
     if(numberOfItems == 1)
@@ -3119,6 +3126,7 @@ convertToProjectFile2 <- function(filePeakMatrix, spectraList, precursorMz, prec
   #precursorMzAll <- precursorMz[hitsTempAll]
   #precursorRtAll <- precursorRt[hitsTempAll]
   metaboliteFamiliesAll <- metaboliteFamilies[hitsTempAll]
+  furtherPropertiesAll <- lapply(X = furtherProperties, FUN = function(props){props[hitsTempAll]})
   
   dataFrame <- dataFrame[!naRows, ]
   precursorMzAll <- dataFrame$"Average Mz"
@@ -3250,7 +3258,7 @@ convertToProjectFile2 <- function(filePeakMatrix, spectraList, precursorMz, prec
   numberOfRows <- length(precursorMzAll)
   #numberOfPrimaryAnnotationColumns <- 4
   numberOfPrimaryAnnotationColumns <- 3
-  columnOffset <- numberOfPrimaryAnnotationColumns + numberOfAnnotationColumns
+  columnOffset <- numberOfPrimaryAnnotationColumns + numberOfAnnotationColumns# + length(furtherPropertiesAll)
   matrixCols <- matrixCols + columnOffset
   
   ######################################
@@ -3282,6 +3290,12 @@ convertToProjectFile2 <- function(filePeakMatrix, spectraList, precursorMz, prec
     matrixCols <- c(matrixCols, rep(x = numberOfPrimaryAnnotationColumns + colIdx, times = numberOfRows))
     matrixVals <- c(matrixVals, dataFrame[, colIdx])
   }
+  
+  #for(colIdx in seq_along(furtherPropertiesAll)){
+  #  matrixRows <- c(matrixRows, seq_len(numberOfRows))
+  #  matrixCols <- c(matrixCols, rep(x = numberOfPrimaryAnnotationColumns + numberOfAnnotationColumns + colIdx, times = numberOfRows))
+  #  matrixVals <- c(matrixVals, furtherPropertiesAll[[colIdx]])
+  #}
   
   ## sort rows
   rowOrderReverse <- vector(mode = "numeric", length = numberOfRows)
