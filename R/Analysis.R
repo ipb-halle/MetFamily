@@ -110,7 +110,7 @@ filterData <- function(dataList, groups, sampleSet, filterBySamples, filter_aver
 calculateDistanceMatrix <- function(dataList, filter, distanceMeasure = "Jaccard", progress = FALSE){
   numberOfPrecursors <- length(filter)
   
-  if(progress)  incProgress(amount = 0, detail = paste("Distances 0 / ", numberOfPrecursors, sep = ""))
+  if(!is.na(progress))  if(progress)  incProgress(amount = 0, detail = paste("Distances 0 / ", numberOfPrecursors, sep = ""))
   ## compute distance matrix:
   lastOut <- proc.time()["user.self"]
   lastPrecursor <- 1
@@ -127,7 +127,7 @@ calculateDistanceMatrix <- function(dataList, filter, distanceMeasure = "Jaccard
                lastOut <- time
                precursorProgress <- (i - lastPrecursor) / numberOfPrecursors
                lastPrecursor <- i
-               if(progress)  incProgress(amount = precursorProgress,     detail = paste("Distance ", i, " / ", numberOfPrecursors, sep = "")) else print(paste("Distance ", i, " / ", numberOfPrecursors, sep = ""))
+               if(!is.na(progress))  if(progress)  incProgress(amount = precursorProgress,     detail = paste("Distance ", i, " / ", numberOfPrecursors, sep = "")) else print(paste("Distance ", i, " / ", numberOfPrecursors, sep = ""))
              }
              #if(numberOfPrecursors >= 10 & ((i %% (as.integer(numberOfPrecursors/10))) == 0))
              #  if(progress)  incProgress(amount = 1 / 10, detail = paste("Distances ", i, " / ", numberOfPrecursors, sep = ""))
@@ -156,7 +156,7 @@ calculateDistanceMatrix <- function(dataList, filter, distanceMeasure = "Jaccard
                lastOut <- time
                precursorProgress <- (i - lastPrecursor) / numberOfPrecursors
                lastPrecursor <- i
-               if(progress)  incProgress(amount = precursorProgress,     detail = paste("Distance ", i, " / ", numberOfPrecursors, sep = "")) else print(paste("Distance ", i, " / ", numberOfPrecursors, sep = ""))
+               if(!is.na(progress))  if(progress)  incProgress(amount = precursorProgress,     detail = paste("Distance ", i, " / ", numberOfPrecursors, sep = "")) else print(paste("Distance ", i, " / ", numberOfPrecursors, sep = ""))
              }
              for(j in seq_len(numberOfPrecursors)){
                if(i == j){
@@ -202,7 +202,7 @@ calculateDistanceMatrix <- function(dataList, filter, distanceMeasure = "Jaccard
                lastOut <- time
                precursorProgress <- (i - lastPrecursor) / numberOfPrecursors
                lastPrecursor <- i
-               if(progress)  incProgress(amount = precursorProgress,     detail = paste("Distance ", i, " / ", numberOfPrecursors, sep = "")) else print(paste("Distance ", i, " / ", numberOfPrecursors, sep = ""))
+               if(!is.na(progress))  if(progress)  incProgress(amount = precursorProgress,     detail = paste("Distance ", i, " / ", numberOfPrecursors, sep = "")) else print(paste("Distance ", i, " / ", numberOfPrecursors, sep = ""))
              }
              
              featureMatrixBinaryHere <- t(featureMatrixBinary)
@@ -268,7 +268,7 @@ calculateDistanceMatrix <- function(dataList, filter, distanceMeasure = "Jaccard
                lastOut <- time
                precursorProgress <- (i - lastPrecursor) / numberOfPrecursors
                lastPrecursor <- i
-               if(progress)  incProgress(amount = precursorProgress,     detail = paste("Distance ", i, " / ", numberOfPrecursors, sep = "")) else print(paste("Distance ", i, " / ", numberOfPrecursors, sep = ""))
+               if(!is.na(progress))  if(progress)  incProgress(amount = precursorProgress,     detail = paste("Distance ", i, " / ", numberOfPrecursors, sep = "")) else print(paste("Distance ", i, " / ", numberOfPrecursors, sep = ""))
              }
              for(j in seq_len(numberOfPrecursors)){
                if(i == j){
@@ -340,7 +340,7 @@ calculateDistanceMatrix <- function(dataList, filter, distanceMeasure = "Jaccard
                lastOut <- time
                precursorProgress <- (i - lastPrecursor) / numberOfPrecursors
                lastPrecursor <- i
-               if(progress)  incProgress(amount = precursorProgress,     detail = paste("Distance ", i, " / ", numberOfPrecursors, sep = "")) else print(paste("Distance ", i, " / ", numberOfPrecursors, sep = ""))
+               if(!is.na(progress))  if(progress)  incProgress(amount = precursorProgress,     detail = paste("Distance ", i, " / ", numberOfPrecursors, sep = "")) else print(paste("Distance ", i, " / ", numberOfPrecursors, sep = ""))
              }
              for(j in seq_len(numberOfPrecursors)){
                if(i == j){
@@ -388,7 +388,7 @@ calculateDistanceMatrix <- function(dataList, filter, distanceMeasure = "Jaccard
                lastOut <- time
                precursorProgress <- (i - lastPrecursor) / numberOfPrecursors
                lastPrecursor <- i
-               if(progress)  incProgress(amount = precursorProgress,     detail = paste("Distance ", i, " / ", numberOfPrecursors, sep = "")) else print(paste("Distance ", i, " / ", numberOfPrecursors, sep = ""))
+               if(!is.na(progress))  if(progress)  incProgress(amount = precursorProgress,     detail = paste("Distance ", i, " / ", numberOfPrecursors, sep = "")) else print(paste("Distance ", i, " / ", numberOfPrecursors, sep = ""))
              }
              for(j in seq_len(numberOfPrecursors)){
                if(i == j){
@@ -418,7 +418,7 @@ calculateDistanceMatrix <- function(dataList, filter, distanceMeasure = "Jaccard
                lastOut <- time
                precursorProgress <- (i - lastPrecursor) / numberOfPrecursors
                lastPrecursor <- i
-               if(progress)  incProgress(amount = precursorProgress,     detail = paste("Distance ", i, " / ", numberOfPrecursors, sep = "")) else print(paste("Distance ", i, " / ", numberOfPrecursors, sep = ""))
+               if(!is.na(progress))  if(progress)  incProgress(amount = precursorProgress,     detail = paste("Distance ", i, " / ", numberOfPrecursors, sep = "")) else print(paste("Distance ", i, " / ", numberOfPrecursors, sep = ""))
              }
              for(j in seq_len(numberOfPrecursors)){
                if(i == j){
@@ -455,7 +455,7 @@ calculateDistanceMatrix <- function(dataList, filter, distanceMeasure = "Jaccard
                lastOut <- time
                precursorProgress <- (i - lastPrecursor) / numberOfPrecursors
                lastPrecursor <- i
-               if(progress)  incProgress(amount = precursorProgress,     detail = paste("Distance ", i, " / ", numberOfPrecursors, sep = "")) else print(paste("Distance ", i, " / ", numberOfPrecursors, sep = ""))
+               if(!is.na(progress))  if(progress)  incProgress(amount = precursorProgress,     detail = paste("Distance ", i, " / ", numberOfPrecursors, sep = "")) else print(paste("Distance ", i, " / ", numberOfPrecursors, sep = ""))
              }
              for(j in seq_len(numberOfPrecursors)){
                if(i == j){
@@ -487,7 +487,7 @@ calculateDistanceMatrix <- function(dataList, filter, distanceMeasure = "Jaccard
                lastOut <- time
                precursorProgress <- (counter - lastPrecursor) / numberOfPrecursors
                lastPrecursor <- counter
-               if(progress)  incProgress(amount = precursorProgress,     detail = paste("Distance ", counter, " / ", numberOfPrecursors, sep = "")) else print(paste("Distance ", counter, " / ", numberOfPrecursors, sep = ""))
+               if(!is.na(progress))  if(progress)  incProgress(amount = precursorProgress,     detail = paste("Distance ", counter, " / ", numberOfPrecursors, sep = "")) else print(paste("Distance ", counter, " / ", numberOfPrecursors, sep = ""))
              }
              intersectionSum <- apply(X = featureIndexMatrix, MARGIN = 1, FUN = function(y){  sum(fragmentFrequency[x[x %in% y]], na.rm = TRUE)  })
              unionSum        <- apply(X = featureIndexMatrix, MARGIN = 1, FUN = function(y){  sum(fragmentFrequency[c(x[!x %in% y], y)], na.rm = TRUE)  })
@@ -508,7 +508,7 @@ calculateDistanceMatrix <- function(dataList, filter, distanceMeasure = "Jaccard
                lastOut <- time
                precursorProgress <- (i - lastPrecursor) / numberOfPrecursors
                lastPrecursor <- i
-               if(progress)  incProgress(amount = precursorProgress,     detail = paste("Distance ", i, " / ", numberOfPrecursors, sep = "")) else print(paste("Distance ", i, " / ", numberOfPrecursors, sep = ""))
+               if(!is.na(progress))  if(progress)  incProgress(amount = precursorProgress,     detail = paste("Distance ", i, " / ", numberOfPrecursors, sep = "")) else print(paste("Distance ", i, " / ", numberOfPrecursors, sep = ""))
              }
              for(j in seq_len(numberOfPrecursors)){
                if(i == j){
@@ -540,7 +540,7 @@ calculateDistanceMatrix <- function(dataList, filter, distanceMeasure = "Jaccard
                lastOut <- time
                precursorProgress <- (i - lastPrecursor) / numberOfPrecursors
                lastPrecursor <- i
-               if(progress)  incProgress(amount = precursorProgress,     detail = paste("Distance ", i, " / ", numberOfPrecursors, sep = "")) else print(paste("Distance ", i, " / ", numberOfPrecursors, sep = ""))
+               if(!is.na(progress))  if(progress)  incProgress(amount = precursorProgress,     detail = paste("Distance ", i, " / ", numberOfPrecursors, sep = "")) else print(paste("Distance ", i, " / ", numberOfPrecursors, sep = ""))
              }
              for(j in seq_len(numberOfPrecursors)){
                if(i == j){
@@ -594,7 +594,7 @@ calculateCluster <- function(dataList, filterObj, distanceMatrix, method, distan
   ##########################################
   ## compute gui stuff
   
-  if(progress)  incProgress(amount = 0, detail = "Clustering")
+  if(!is.na(progress))  if(progress)  incProgress(amount = 0, detail = "Clustering")
   ## compute and annotate cluster
   dist <- stats::as.dist(m = distanceMatrix)
   cluster <- hclust(d = dist, method = method)
@@ -608,7 +608,7 @@ calculateCluster <- function(dataList, filterObj, distanceMatrix, method, distan
   #cluster$order <- opt$order
   
   ## compute (transitive) cluster members, cluster positions, and leaf heights
-  if(progress)  incProgress(amount = 0.3, detail = "Analyze cluster")
+  if(!is.na(progress))  if(progress)  incProgress(amount = 0.3, detail = "Analyze cluster")
   
   resultObj <- analyzeTreeFromRoot(dataList, cluster = cluster, filterObj$filter)
   
@@ -661,7 +661,7 @@ calculateCluster <- function(dataList, filterObj, distanceMatrix, method, distan
   
   ##########################################
   ## box
-  if(progress)  incProgress(amount = 0.5, detail = "Boxing")
+  if(!is.na(progress))  if(progress)  incProgress(amount = 0.5, detail = "Boxing")
   clusterDataList <- list()
   ## filter
   clusterDataList$filterObj <- filterObj
@@ -695,18 +695,18 @@ calculateCluster <- function(dataList, filterObj, distanceMatrix, method, distan
   
   ##########################################
   ## calculate ms2 spectra
-  if(progress)  incProgress(amount = 0.1, detail = "Calculate spectrum information for leaves")
+  if(!is.na(progress))  if(progress)  incProgress(amount = 0.1, detail = "Calculate spectrum information for leaves")
   ms2spectrumInfoForLeaves <<- list()
   for(leafIdx in seq_len(numberOfPrecursorsFiltered))
-    ms2spectrumInfoForLeaves[[leafIdx]] <- getMS2spectrumInfoForPrecursorLeaf(dataList, clusterDataList, treeLabel = -leafIdx)
+    ms2spectrumInfoForLeaves[[leafIdx]] <- getMS2spectrumInfoForPrecursorLeaf(dataList, clusterDataList, treeLabel = -leafIdx, outAdductWarning = FALSE)
   
-  if(progress)  incProgress(amount = 0.1, detail = "Calculate consensus spectra for clusters")
+  if(!is.na(progress))  if(progress)  incProgress(amount = 0.1, detail = "Calculate consensus spectra for clusters")
   ms2spectrumInfoForClusters <<- list()
   for(clusterIdx in seq_len(numberOfInnerNodes))
     ms2spectrumInfoForClusters[[clusterIdx]] <- getMS2spectrumInfoForCluster(dataList, clusterDataList, treeLabel = clusterIdx)
   
   ## calculate cluster discriminativity
-  if(progress)  incProgress(amount = 0.1, detail = "Calculate cluster discriminativity")
+  if(!is.na(progress))  if(progress)  incProgress(amount = 0.1, detail = "Calculate cluster discriminativity")
   #clusterDiscriminativity <- vector(mode = "numeric", length = numberOfInnerNodes)
   clusterDiscriminativity <- unlist(suppressWarnings(lapply(X = ms2spectrumInfoForClusters, FUN = function(x){x$clusterDiscriminativity})))
   clusterDiscriminativity <- c(clusterDiscriminativity, rep(x = 0, times = numberOfPrecursorsFiltered))
@@ -715,7 +715,7 @@ calculateCluster <- function(dataList, filterObj, distanceMatrix, method, distan
   clusterDataList$ms2spectrumInfoForClusters  <- ms2spectrumInfoForClusters
   clusterDataList$clusterDiscriminativity     <- clusterDiscriminativity
   
-  if(progress)  setProgress(1)
+  if(!is.na(progress))  if(progress)  setProgress(1)
   
   ## 1 167 983 544
   ##   127 968 176
