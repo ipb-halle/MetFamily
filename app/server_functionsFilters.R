@@ -537,9 +537,9 @@ obsClearPcaFilters <- observeEvent(input$clearPcaFilters, {
   
   #################################################
   ## check if button was hit
-  if(clearPcaFilters == clearPcaFiltersButtonValue)
-    return()
-  clearPcaFiltersButtonValue <<- clearPcaFilters
+  #if(clearPcaFilters == clearPcaFiltersButtonValue)
+  #  return()
+  #clearPcaFiltersButtonValue <<- clearPcaFilters
   
   #################################################
   ## get inputs
