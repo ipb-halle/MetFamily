@@ -23,7 +23,7 @@ sparseMatrixToString <- function(matrixRows, matrixCols, matrixVals, parameterSe
 }
 
 readClusterDataFromProjectFile <- function(file, progress = FALSE){
-  if(progress)  setProgress(value = 0, detail = "Parsing") else print("Parsing")
+  if(!is.na(progress))  if(progress)  setProgress(value = 0, detail = "Parsing") else print("Parsing")
   extension <- file_ext(file)
   if(extension == "gz"){
     file <- gzfile(file, "r")
@@ -47,7 +47,7 @@ readProjectData <- function(fileLines, progress = FALSE){
   
   ##################################################################################################
   ## parse data
-  if(progress)  incProgress(amount = 0.1, detail = "Preprocessing") else print("Preprocessing")
+  if(!is.na(progress))  if(progress)  incProgress(amount = 0.1, detail = "Preprocessing") else print("Preprocessing")
   
   numberOfRows <- length(fileLines)
   numberOfMS1features <- as.integer(numberOfRows - 3)
@@ -103,7 +103,7 @@ readProjectData <- function(fileLines, progress = FALSE){
       lastOut <- time
       rowProgress <- (rowIdx - lastRow) / numberOfMS1features
       lastRow <- rowIdx
-      if(progress)  incProgress(amount = rowProgress*0.2,     detail = paste("Preprocessing ", rowIdx, " / ", numberOfMS1features, sep = "")) else print(paste("Preprocessing ", rowIdx, " / ", numberOfMS1features, sep = ""))
+      if(!is.na(progress))  if(progress)  incProgress(amount = rowProgress*0.2,     detail = paste("Preprocessing ", rowIdx, " / ", numberOfMS1features, sep = "")) else print(paste("Preprocessing ", rowIdx, " / ", numberOfMS1features, sep = ""))
     }
     
     lineIdx <- rowIdx + 3
@@ -308,7 +308,7 @@ readProjectData <- function(fileLines, progress = FALSE){
   
   #############################################################################################
   ## process features
-  if(progress)  incProgress(amount = 0.1, detail = "Features") else print("Features")
+  if(!is.na(progress))  if(progress)  incProgress(amount = 0.1, detail = "Features") else print("Features")
   
   ## get features
   featureIndeces <- list()
@@ -327,7 +327,7 @@ readProjectData <- function(fileLines, progress = FALSE){
     #fragmentMassPresent[featureIndecesHere] <- TRUE
   }
   
-  if(progress)  incProgress(amount = 0.1, detail = "Feature postprocessing") else print("Feature postprocessing")
+  if(!is.na(progress))  if(progress)  incProgress(amount = 0.1, detail = "Feature postprocessing") else print("Feature postprocessing")
   
   ## ms2 plot data
   # resultObj <- getMS2plotData(matrixRows, matrixCols, matrixVals, fragmentMasses = fragmentGroupsAverageMass)
@@ -463,7 +463,7 @@ readProjectData <- function(fileLines, progress = FALSE){
   
   #########################################################################################
   ## precursor annotation fields
-  if(progress)  incProgress(amount = 0.1, detail = "Feature annotations") else print("Feature annotations")
+  if(!is.na(progress))  if(progress)  incProgress(amount = 0.1, detail = "Feature annotations") else print("Feature annotations")
   annotationValueIgnore <- "Ignore"
   annotationColorIgnore <- "red"
   
@@ -552,7 +552,7 @@ readProjectData <- function(fileLines, progress = FALSE){
   
   ##################################################################################################
   ## box
-  if(progress)  incProgress(amount = 0.1, detail = "Boxing") else print("Boxing")
+  if(!is.na(progress))  if(progress)  incProgress(amount = 0.1, detail = "Boxing") else print("Boxing")
   dataList <- list()
   ## data
   dataList$dataFrameHeader <- dataFrameHeader
@@ -616,7 +616,7 @@ readProjectData <- function(fileLines, progress = FALSE){
   dataList$annoPresentAnnotationsList <- annoPresentAnnotationsList
   dataList$annoPresentColorsList <- annoPresentColorsList
   
-  if(progress)  setProgress(1) else print("Ready")
+  if(!is.na(progress))  if(progress)  setProgress(1) else print("Ready")
   
   
   ## redefine MS1 column functions
@@ -713,14 +713,14 @@ processMS1data <- function(
   
   ####################
   ## MS1 measurement data: mean and LFC
-  if(progress)  incProgress(amount = 0.1, detail = "Coloring") else print("Coloring")
-  if(progress)  incProgress(amount = 0, detail = "Coloring init") else print("Coloring init")
+  if(!is.na(progress))  if(progress)  incProgress(amount = 0.1, detail = "Coloring") else print("Coloring")
+  if(!is.na(progress))  if(progress)  incProgress(amount = 0, detail = "Coloring init") else print("Coloring init")
   
   dataFrameMeasurements <- data.frame(matrix(nrow = numberOfMS1features, ncol = 0))
   rownames(dataFrameMeasurements) <- precursorLabels
   
   ## column name functions
-  if(progress)  incProgress(amount = 0, detail = "Coloring naming functions") else print("Coloring naming functions")
+  if(!is.na(progress))  if(progress)  incProgress(amount = 0, detail = "Coloring naming functions") else print("Coloring naming functions")
   
   ## store data of groups
   dataColumnNames <- list()
@@ -752,7 +752,7 @@ processMS1data <- function(
     return(match(x = group, table = groups))
   }
   
-  if(progress)  incProgress(amount = 0, detail = "Coloring gather data") else print("Coloring gather data")
+  if(!is.na(progress))  if(progress)  incProgress(amount = 0, detail = "Coloring gather data") else print("Coloring gather data")
   ## mean data columns
   dataMeanColumnNames <- list()
   for(groupIdx in seq_len(numberOfGroups)){
@@ -799,7 +799,7 @@ processMS1data <- function(
   
   #########################################################################################
   ## MS1 measurement data to colors
-  if(progress)  incProgress(amount = 0, detail = "Coloring matrix") else print("Coloring matrix")
+  if(!is.na(progress))  if(progress)  incProgress(amount = 0, detail = "Coloring matrix") else print("Coloring matrix")
   
   matrixDataFrame <- data.matrix(dataFrameMeasurements)
   
@@ -836,7 +836,7 @@ processMS1data <- function(
   columnGroupLabels <- sapply(X = groups, FUN = function(x){ rep(x = x, times = length(dataColumnsNameFunctionFromGroupName(group = x, sampleNamesToExclude = sampleNamesToExclude))) })
   
   ## translate and box colors
-  if(progress)  incProgress(amount = 0, detail = "Coloring box") else print("Coloring box")
+  if(!is.na(progress))  if(progress)  incProgress(amount = 0, detail = "Coloring box") else print("Coloring box")
   colorDataFrame <- dataFrameMeasurements
   colorDataFrame[, dataColumnNames    ] <- cmap(x = matrixDataFrame[, dataColumnNames    ], map = colorMapAbsoluteData)
   colorDataFrame[, dataMeanColumnNames] <- cmap(x = matrixDataFrame[, dataMeanColumnNames], map = colorMapAbsoluteData)
@@ -1078,7 +1078,7 @@ getPrecursorColors <- function(dataList, precursorSet){
 
 #########################################################################################
 ## data fetching
-getMetFragLink <- function(dataList, precursorIndex){
+getMetFragLink <- function(dataList, precursorIndex, outAdductWarning = TRUE){
   features <- dataList$featureIndeces[[precursorIndex]]
   fragmentsX <- dataList$fragmentMasses[features]
   fragmentsY <- as.numeric(dataList$featureMatrix[precursorIndex, features])
@@ -1112,7 +1112,7 @@ getMetFragLink <- function(dataList, precursorIndex){
            error <- paste("This MS\u00B9 feature cannot be send to MetFrag, because the adduct is unknown.")
          },{
            #stop(paste("Unknown adduct (", adduct, ")!", sep = ""))
-           print(paste("###### Unknown adduct (", adduct, ")!", sep = ""))
+           if(outAdductWarning) print(paste("###### Unknown adduct (", adduct, ")!", sep = ""))
            #generateLink <- FALSE
            neutralMassCorrection <- NA
            ionMode <- NA
@@ -1126,37 +1126,43 @@ getMetFragLink <- function(dataList, precursorIndex){
   fragmentsPositiveY <- fragmentsY[fragmentsPositive]
   fragmentStrings <- paste(fragmentsPositiveX, fragmentsPositiveY, sep = " ", collapse = "; ")
   
-  # http://msbi.ipb-halle.de/MetFragBeta/LandingPage.jspx?limit=1000&ionmode=-1&database=pubchem&mzppm=7&mzabs=0.005&mass=448.468&formula=C16H20N2O9S2&mzabs=0.05&peaks=130.0655 288214.8119 ; 207.0589 422771.0127 ; 208.0622  87002.3217 ; 210.1334   2674.1707 ; 351.1016  27580.9393 ; 369.1115 739357.5045 ; 370.1148 143864.9611 ; 385.1094   5971.8328 ; 391.0937 337133.4536 ; 392.1025  40126.6888 ; 407.0678   3095.0322 ; 449.0690  37952.2515 
-  landingPageUrl <- paste(sep = "",
-                          "http://msbi.ipb-halle.de/MetFrag/LandingPage.jspx?",
-                          "mass=", neutralMass, "&",
-                          "formula=", "", "&",
-                          "ionmode=", ionMode, "&",
-                          #"limit=", "1000", "&",
-                          "database=", "pubchem", "&",
-                          #"mzppm=", "7", "&"
-                          #"mzabs=", "0.005", "&",
-                          "peaks=", fragmentStrings
-  )
+  metFragOld <- FALSE
+  if(metFragOld){
+    # http://msbi.ipb-halle.de/MetFragBeta/LandingPage.jspx?limit=1000&ionmode=-1&database=pubchem&mzppm=7&mzabs=0.005&mass=448.468&formula=C16H20N2O9S2&mzabs=0.05&peaks=130.0655 288214.8119 ; 207.0589 422771.0127 ; 208.0622  87002.3217 ; 210.1334   2674.1707 ; 351.1016  27580.9393 ; 369.1115 739357.5045 ; 370.1148 143864.9611 ; 385.1094   5971.8328 ; 391.0937 337133.4536 ; 392.1025  40126.6888 ; 407.0678   3095.0322 ; 449.0690  37952.2515 
+    landingPageUrl <- paste(sep = "",
+                            "http://msbi.ipb-halle.de/MetFrag/LandingPage.jspx?",
+                            "mass=", neutralMass, "&",
+                            "formula=", "", "&",
+                            "ionmode=", ionMode, "&",
+                            #"limit=", "1000", "&",
+                            "database=", "pubchem", "&",
+                            #"mzppm=", "7", "&"
+                            #"mzabs=", "0.005", "&",
+                            "peaks=", fragmentStrings
+    )
+  } else {
+    
+    fragmentStrings <- paste(fragmentsPositiveX, fragmentsPositiveY, sep = "_", collapse = ";")
+    
+    ## https://msbi.ipb-halle.de/MetFragBeta/landing.xhtml?FragmentPeakMatchAbsoluteMassDeviation=0.01&FragmentPeakMatchRelativeMassDeviation=10&DatabaseSearchRelativeMassDeviation=10&PeakList=110_100;210_100&IonizedPrecursorMass=200.101&MetFragDatabaseType=PubChem
+    #FragmentPeakMatchAbsoluteMassDeviation
+    #FragmentPeakMatchRelativeMassDeviation
+    #DatabaseSearchRelativeMassDeviation
+    #PrecursorCompoundIDs
+    #IonizedPrecursorMass
+    #NeutralPrecursorMolecularFormula
+    #PrecursorIonMode
+    #IonizedPrecursorMass
+    landingPageUrl <- paste(sep = "",
+                            "https://msbi.ipb-halle.de/MetFragBeta/landing.xhtml", "?",
+                            #"https://msbi.ipb-halle.de/MetFrag/landing.xhtml", "?",
+                            "NeutralPrecursorMass", "=", neutralMass, "&",
+                            "PrecursorIonMode", "=", ionMode, "&",
+                            "MetFragDatabaseType", "=", "PubChem", "&",
+                            "PeakList", "=", fragmentStrings
+    )
+  }
   
-  #fragmentStrings <- paste(fragmentsPositiveX, fragmentsPositiveY, sep = "_", collapse = ";")
-  
-  ## https://msbi.ipb-halle.de/MetFragBeta/landing.xhtml?FragmentPeakMatchAbsoluteMassDeviation=0.01&FragmentPeakMatchRelativeMassDeviation=10&DatabaseSearchRelativeMassDeviation=10&PeakList=110_100;210_100&IonizedPrecursorMass=200.101&MetFragDatabaseType=PubChem
-  #FragmentPeakMatchAbsoluteMassDeviation
-  #FragmentPeakMatchRelativeMassDeviation
-  #DatabaseSearchRelativeMassDeviation
-  #PrecursorCompoundIDs
-  #IonizedPrecursorMass
-  #NeutralPrecursorMolecularFormula
-  #PrecursorIonMode
-  #IonizedPrecursorMass
-  #landingPageUrl <- paste(sep = "",
-  #                        "https://msbi.ipb-halle.de/MetFragBeta/landing.xhtml", "?",
-  #                        "NeutralPrecursorMass", "=", neutralMass, "&",
-  #                        "PrecursorIonMode", "=", ionMode, "&",
-  #                        "MetFragDatabaseType", "=", "PubChem", "&",
-  #                        "PeakList", "=", fragmentStrings
-  #)
   
   #writeClipboard(landingPageUrl, format = 1)
   returObj <- list(
@@ -1184,15 +1190,15 @@ getMS2spectrum <- function(dataList, clusterDataList, treeLabel){
     return(clusterDataList$ms2spectrumInfoForClusters[[treeLabel]])
   }
 }
-getMS2spectrumInfoForPrecursorLeaf <- function(dataList, clusterDataList, treeLabel){
+getMS2spectrumInfoForPrecursorLeaf <- function(dataList, clusterDataList, treeLabel, outAdductWarning = TRUE){
   if(treeLabel >= 0)
     return(NULL)
   ###############################################
   ## leaf
   precursorIndex <- clusterDataList$filterObj$filter[[-treeLabel]]
-  return(getMS2spectrumInfoForPrecursor(dataList, precursorIndex))
+  return(getMS2spectrumInfoForPrecursor(dataList, precursorIndex, outAdductWarning))
 }
-getMS2spectrumInfoForPrecursor <- function(dataList, precursorIndex){
+getMS2spectrumInfoForPrecursor <- function(dataList, precursorIndex, outAdductWarning = TRUE){
   
   precursorSet <- precursorIndex
   numberOfPrecursors <- length(precursorSet)
@@ -1225,7 +1231,7 @@ getMS2spectrumInfoForPrecursor <- function(dataList, precursorIndex){
     " comprises ", length(fragmentsX), " fragments. Families: ", featureFamilies, ". Name: ", featureName,
     sep = ""
   )
-  metFragLinkList <- getMetFragLink(dataList, precursorIndex)
+  metFragLinkList <- getMetFragLink(dataList, precursorIndex, outAdductWarning = FALSE)
   
   
   ## order data
