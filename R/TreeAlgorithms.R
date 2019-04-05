@@ -202,6 +202,33 @@ analyzeTreeForAnnotations <- function(dataList, cluster, filter, nodeIdx){
     return(resultObj)
   }
 }
+analyzeTreeForFrequentFragments <- function(clusterDataList, nodeIdx, minimumNumberOfChildren){
+  if(nodeIdx < 0){
+    ###################################
+    ## leaf
+    #leafIdx <- -nodeIdx
+    #precursorIndex <- filter[leafIdx]
+    #getMS2spectrumInfoForPrecursorLeaf()
+    
+    ## box
+    return(data.frame("NodeIdx" = nodeIdx, "numberOfChildren" = 0, "numberOfFrequentFeatures" = NA))
+  } else {
+    ###################################
+    ## inner node
+    df.l <- analyzeTreeForFrequentFragments(clusterDataList, clusterDataList$cluster$merge[nodeIdx, 1], minimumNumberOfChildren)
+    df.r <- analyzeTreeForFrequentFragments(clusterDataList, clusterDataList$cluster$merge[nodeIdx, 2], minimumNumberOfChildren)
+    df <- rbind(df.l, df.r)
+    numberOfChildren <- sum(df$"NodeIdx" < 0)
+    
+    if(numberOfChildren >= minimumNumberOfChildren & any(clusterDataList$innerNodeFeaturesCountsMatrix[nodeIdx, ] > (numberOfChildren * minimumProportionOfLeafs))){
+      if(any(df$numberOfFrequentFeatures > 0, na.rm = TRUE))
+        df <- df[-which(df$numberOfFrequentFeatures > 0), ]
+      df[nrow(df)+1, ] <- c(nodeIdx, numberOfChildren, sum(clusterDataList$innerNodeFeaturesCountsMatrix[nodeIdx, ] > (numberOfChildren * minimumProportionOfLeafs)))
+    }
+    
+    return(df)
+  }
+}
 getSetOfSubTreesFromRootForMass <- function(dataList, fragmentMass, filter, clusterDataList){
   yesNoFunction <- function(precursorIndex){
     features <- dataList$featureIndeces[[precursorIndex]]
