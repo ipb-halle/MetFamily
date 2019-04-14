@@ -5,8 +5,15 @@ library(shinyBS)
 library(shinyjs)
 library(DT)
 
+ipbheader <- HTML(readLines("ipbheader.html"))
+ipbfooter <- HTML(readLines("ipbfooter.html"))
+
 shinyUI(
-  ui = navbarPage(title = "MetFamily", 
+  ui = fluidPage(titlePanel(ipbheader),
+                 # IPB header 
+                 tags$head(tags$link(rel = "stylesheet", type = "text/css", 
+                                     href = "css/ipb-styles.css")),
+                 navbarPage(title = "MetFamily", 
     ##########################################################################################
     ##########################################################################################
     ##########################################################################################
@@ -939,5 +946,8 @@ shinyUI(
         verbatimTextOutput(outputId = "rInfo")
       )## well panel
     )## tab
-  )## navBar
+  ),## navBar
+  # Application footer
+  fluidRow(ipbfooter)
+  )## fluidPage
 )## shinyUI
