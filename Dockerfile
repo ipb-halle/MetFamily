@@ -1,9 +1,14 @@
+<<<<<<< HEAD
 FROM ubuntu:xenial
+=======
+FROM rocker/shiny:latest
+>>>>>>> master
 
 MAINTAINER Kristian Peters <kpeters@ipb-halle.de>
 
 LABEL Description="MetFamily helps identifying metabolites and groups them into metabolite clusters (a.k.a. families)."
 
+<<<<<<< HEAD
 
 
 # Environment variables
@@ -47,10 +52,28 @@ RUN for PACK in $PACK_BIOC; do R -e "library(BiocManager); BiocManager::install(
 # Install Bioconductor packages
 #RUN R -e "source('https://bioconductor.org/biocLite.R'); biocLite(\"BiocInstaller\", dep=TRUE, ask=FALSE)"
 #RUN for PACK in $PACK_BIOC; do R -e "library(BiocInstaller); biocLite(\"$PACK\", ask=FALSE)"; done
+=======
+RUN apt-get -y update && apt-get -y install \
+  netcdf-bin libnetcdf-dev libdigest-sha-perl \
+  xorg-dev libglu1-mesa-dev freeglut3-dev libgomp1 libxml2-dev gcc g++ libcurl4-gnutls-dev libssl-dev gdebi-core
+
+ADD binder/install.R /tmp
+
+ENV PACK_R="BiocManager cba colourpicker devtools DT FactoMineR htmltools Matrix matrixStats plotrix rCharts rmarkdown shiny shinyBS shinyjs squash stringi tools"
+ENV PACK_BIOC="mzR pcaMethods xcms"
+ENV PACK_GITHUB=""
+
+# Install R packages
+RUN for PACK in $PACK_R; do R -e "install.packages(\"$PACK\", repos='https://cran.r-project.org/')"; done
+
+# Install Bioconductor packages
+RUN for PACK in $PACK_BIOC; do R -e "BiocManager::install("\"$PACK\"", ask=FALSE)"; done
+>>>>>>> master
 
 # Install other R packages from source
 #RUN for PACK in $PACK_GITHUB; do R -e "library('devtools'); install_github(\"$PACK\")"; done
 
+<<<<<<< HEAD
 # Install and configure shiny-server
 WORKDIR /usr/src
 RUN git clone https://github.com/rstudio/shiny-server.git
@@ -96,4 +119,10 @@ WORKDIR /
 #ENTRYPOINT ["/usr/bin/shiny-server","--pidfile=/var/run/shiny-server.pid"]
 #CMD ["/usr/bin/supervisord", "-c", "/etc/supervisor/conf.d/supervisord.conf"]
 CMD ["/usr/bin/shiny-server", "--pidfile=/var/run/shiny-server.pid"]
+=======
+
+#RUN R -e "source('/tmp/install.R')"
+
+ADD . /srv/shiny-server/
+>>>>>>> master
 
