@@ -312,16 +312,16 @@ classSelected <- function(selectedRowIdx){
   
   
   
-  print("huhu")
-  startTime_1 <- Sys.time()
+  #print("huhu")
+  #startTime_1 <- Sys.time()
   
   numberOfMatchingMasses_i <- getNumberOfHits(dataList, frequentFragments, characteristicFragments, precursorIndeces, mappingSpectraToClassDf, properties_class)
   
-  endTime_1 <- Sys.time()
-  time_1 <- difftime(endTime_1, startTime_1, units = "secs")[[1]]
+  #endTime_1 <- Sys.time()
+  #time_1 <- difftime(endTime_1, startTime_1, units = "secs")[[1]]
   
   
-  startTime_2 <- Sys.time()
+  #startTime_2 <- Sys.time()
   
   returnObj <- createPlotOutput(
     dataList = dataList,
@@ -333,11 +333,11 @@ classSelected <- function(selectedRowIdx){
     mappingSpectraToClassDf = mappingSpectraToClassDf
   )
   
-  endTime_2 <- Sys.time()
-  time_2 <- difftime(endTime_2, startTime_2, units = "secs")[[1]]
-  print("hoho")
-  print(time_1)
-  print(time_2)
+  #endTime_2 <- Sys.time()
+  #time_2 <- difftime(endTime_2, startTime_2, units = "secs")[[1]]
+  #print("hoho")
+  #print(time_1)
+  #print(time_2)
   
   
   

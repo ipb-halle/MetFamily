@@ -440,7 +440,8 @@ updateMS1FeatureTableGui <- function(precursorSet){
     table_Search_PCA_id <<- ms1FeatureTableInputFieldIdCounter
   }
   ## update
-  updateTableAssignment()
+  if(!is.null(state_selections$selectedSelection))
+    updateTableAssignment()
 }
 updateTableAssignment <- function(){
   print(paste("updateTableAssignment '", state_selections$selectedSelection, "'", sep = ""))

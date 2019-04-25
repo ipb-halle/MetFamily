@@ -43,6 +43,7 @@ updateAnnotationOverview <- function(){
     "Color"  = allAnnotationColors,
     "Count"  = annoCounts
   )
+  
   dataTable <- datatable(
     data = metaboliteFamiliesDf, 
     escape = FALSE, rownames = FALSE,
