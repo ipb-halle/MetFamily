@@ -6,6 +6,7 @@ selectionSearchName   <- "Selection by search"
 precursorSelectionTabSelection  <- "Selection"
 precursorSelectionTabAnnotation <- "Annotation"
 precursorSelectionTabTable      <- "Table"
+precursorSelectionTabSpectrum   <- "Fragments"
 selectionAnalysisHcaName <- "Analysis_HCA"
 selectionAnalysisPcaName <- "Analysis_PCA"
 selectionFragmentHcaName <- "Fragment_HCA"
@@ -96,8 +97,9 @@ selectionByFragmentReset <- function(){
     table_Fragment_HCA_id <<- NULL
     table$df_Fragment_HCA <<- NULL
     #output$dt_Fragment_HCA <- DT::renderDataTable(NULL)
-    if(state_selections$selectedSelection == selectionFragmentHcaName)
-      updateSelectedPrecursorSet()
+    if(!is.null(state_selections$selectedSelection))
+      if(state_selections$selectedSelection == selectionFragmentHcaName)
+        updateSelectedPrecursorSet()
   }
   if(!is.null(selectionFragmentPcaLoadingSet)){ ## PCA
     selectionFragmentPcaLoadingSet <<- NULL
@@ -105,8 +107,9 @@ selectionByFragmentReset <- function(){
     table_Fragment_PCA_id <<- NULL
     table$df_Fragment_PCA <<- NULL
     #output$dt_Fragment_PCA <- DT::renderDataTable(NULL)
-    if(state_selections$selectedSelection == selectionFragmentPcaName)
-      updateSelectedPrecursorSet()
+    if(!is.null(state_selections$selectedSelection))
+      if(state_selections$selectedSelection == selectionFragmentPcaName)
+        updateSelectedPrecursorSet()
   }
 }
 selectionByFragment <- function(minimumIndex){
@@ -177,8 +180,9 @@ selectionByAnalysisReset <- function(){
     table_Analysis_HCA_id <<- NULL
     table$df_Analysis_HCA <<- NULL
     #output$dt_Analysis_HCA <- DT::renderDataTable(NULL)
-    if(state_selections$selectedSelection == selectionAnalysisHcaName)
-      updateSelectedPrecursorSet()
+    if(!is.null(state_selections$selectedSelection))
+      if(state_selections$selectedSelection == selectionAnalysisHcaName)
+        updateSelectedPrecursorSet()
   }
   if(!is.null(selectionAnalysisPcaLoadingSet)){ ## PCA
     selectionAnalysisPcaLoadingSet <<- NULL
@@ -280,16 +284,18 @@ selectionBySearchReset <- function(){
     listForTable_Search_HCA <<- NULL
     table_Search_HCA_id <<- NULL
     table$df_Search_HCA <<- NULL
-    if(state_selections$selectedSelection == selectionSearchHcaName)
-      updateSelectedPrecursorSet()
+    if(!is.null(state_selections$selectedSelection))
+      if(state_selections$selectedSelection == selectionSearchHcaName)
+        updateSelectedPrecursorSet()
   }
   if(!is.null(selectionSearchPcaLoadingSet)){ ## HCA
     selectionSearchPcaLoadingSet <<- NULL
     listForTable_Search_PCA <<- NULL
     table_Search_PCA_id <<- NULL
     table$df_Search_PCA <<- NULL
-    if(state_selections$selectedSelection == selectionSearchHcaName)
-      updateSelectedPrecursorSet()
+    if(!is.null(state_selections$selectedSelection))
+      if(state_selections$selectedSelection == selectionSearchHcaName)
+        updateSelectedPrecursorSet()
   }
 }
 selectionBySearch <- function(precursorSet){
@@ -550,6 +556,34 @@ precursorSelectionChanged <- function(){
       })
     }
   }
+  
+  ####################
+  ## fragment spectrum
+  switch(as.character(length(selectedPrecursorSet)), 
+         "0"={
+           selectedSpectrumHere <- ""
+         },
+         "1"={
+           precursorIndex <- selectedPrecursorSet
+           features <- dataList$featureIndeces[[precursorIndex]]
+           fragmentsX <- dataList$fragmentMasses[features]
+           fragmentsY <- as.numeric(dataList$featureMatrix[precursorIndex, features])
+           fragmentsY[fragmentsY > 1] <- 1
+           selectedSpectrumHere <- paste(fragmentsX, fragmentsY, sep = "\t", collapse = "\n")
+         },
+         {
+           ## set of spectra
+           featureMatrixHere <- dataList$featureMatrix[selectedPrecursorSet, ]
+           fragmentFrequency <- apply(X = featureMatrixHere, MARGIN = 2, FUN = function(column){sum(column>0)}) / length(selectedPrecursorSet)
+           fragmentIntensities <- apply(X = featureMatrixHere, MARGIN = 2, FUN = function(column){mean(column[column>0])})
+           fragmentsToFilter <- fragmentFrequency < minimumProportionToShowFragment
+           rm(fragmentFrequency)
+           fragmentIntensities <- fragmentIntensities[!fragmentsToFilter]
+           fragmentMasses <- dataList$fragmentMasses[!fragmentsToFilter]
+           selectedSpectrumHere <- paste(fragmentMasses, fragmentIntensities, sep = "\t", collapse = "\n")
+         }
+  )
+  updateTextInput    (session = session, inputId = "selectedSpectrum",    value = selectedSpectrumHere)
   
   ####################
   ## selection info

@@ -413,6 +413,13 @@ output$runRightColumn <- renderUI({
                                         actionButton(inputId = "updateArtifactsFromCheckboxes", label = "Apply annotation 'Ignore' to MS\u00B9 features", class="btn-danger"),
                                         DT::dataTableOutput("ms1FeatureTable")
                                       )## well
+                             ),## tab
+                             tabPanel(title = precursorSelectionTabSpectrum, 
+                                      wellPanel(
+                                        bsTooltip(id = "selectedSpectrum", title = "The selected spectrum or frequent fragments / neutral losses", placement = "bottom", trigger = "hover"),
+                                        tags$style(type="text/css", "textarea {width:100%}"),
+                                        tags$textarea(id = 'selectedSpectrum', placeholder = 'Nothing selected', rows = 10, "")
+                                      )## well
                              )## tab
                  )## tab set
                )## conditional

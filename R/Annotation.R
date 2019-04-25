@@ -28,19 +28,20 @@
 ## featureMatrix <- dataList$featureMatrix
 ## parameterSet <- dataList$importParameterSet
 doAnnotation <- function(filePath, propertiesList, featureMatrix, parameterSet, classesWhiteList = NULL, progress = FALSE){
-  if(FALSE){
+  if(TRUE){
     filePath_ <<- filePath
     propertiesList_ <<- propertiesList
     featureMatrix_ <<- featureMatrix
     parameterSet_ <<- parameterSet
+    classesWhiteList_ <<- classesWhiteList
   }
   if(FALSE){
     filePath <- filePath_
     propertiesList <- propertiesList_
     featureMatrix <- featureMatrix_
     parameterSet <- parameterSet_
+    classesWhiteList = classesWhiteList_
     progress <- FALSE
-    classesWhiteList = NULL
   }
   
   if(progress)  incProgress(amount = 0, detail = "Init") else print("Init")
@@ -237,6 +238,7 @@ doAnnotation <- function(filePath, propertiesList, featureMatrix, parameterSet, 
         print(paste("####################"))
         print(paste("####################", e))
         print(paste("####################"))
+        return(NULL)
       }
     )
     endTime <- Sys.time()

@@ -390,7 +390,7 @@ plotHCA <- function(file, fileType, plotMS2 = TRUE){
   }
   
   #cex <- par("cex")
-  #par(cex = 0.42)
+  #par(cex = 0.4)
   ## 1
   drawDendrogramPlotImpl()
   #par(cex = cex)

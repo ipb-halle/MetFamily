@@ -1513,7 +1513,7 @@ calcPlotLegend <- function(annoLabels, annoColors, title){
   ## plot
   plotLegendWithBalls(labels, xPositions, yPositions, symbolXPositions, symbolYPositions, annoColors, xSpacing*0.075)
 }
-calcPlotAnnoLegendForImage <- function(annoLabels, annoColors, maximumNumberOfLines){
+calcPlotAnnoLegendForImage <- function(annoLabels, annoColors, maximumNumberOfLines=10){
   ## get and reorder annotations
   resultObj <- reorderAnnotationsForLegend(annoLabels, annoColors)
   annoLabels <- resultObj$annoLabels
@@ -1521,7 +1521,7 @@ calcPlotAnnoLegendForImage <- function(annoLabels, annoColors, maximumNumberOfLi
   
   calcPlotLegendForImage(annoLabels, annoColors, "Annotations", maximumNumberOfLines)
 }
-calcPlotScoresGroupsLegendForImage <- function(groups, colors, maximumNumberOfLines){
+calcPlotScoresGroupsLegendForImage <- function(groups, colors, maximumNumberOfLines=10){
   ## get and reorder annotations
   calcPlotLegendForImage(groups, colors, "Scores", maximumNumberOfLines)
 }
