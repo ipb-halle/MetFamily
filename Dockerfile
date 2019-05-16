@@ -8,8 +8,6 @@ RUN apt-get -y update && apt-get -y install \
   netcdf-bin libnetcdf-dev libdigest-sha-perl \
   xorg-dev libglu1-mesa-dev freeglut3-dev libgomp1 libxml2-dev gcc g++ libcurl4-gnutls-dev libssl-dev gdebi-core
 
-ADD binder/install.R /tmp
-
 ENV PACK_R="BiocManager cba colourpicker devtools DT FactoMineR htmltools Matrix matrixStats plotrix rCharts rmarkdown shiny shinyBS shinyjs squash stringi tools"
 ENV PACK_BIOC="mzR pcaMethods xcms"
 ENV PACK_GITHUB=""
