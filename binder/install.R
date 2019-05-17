@@ -1,11 +1,26 @@
-# Install R packages
 
-RUN for PACK in $PACK_R; do R -e "install.packages(\"$PACK\", repos='https://cran.r-project.org/')"; done
+install.packages("devtools")
+library("devtools")
+source("https://bioconductor.org/biocLite.R")
 
-# Install Bioconductor packages
-RUN R -e "source('https://bioconductor.org/biocLite.R'); biocLite(\"BiocInstaller\", dep=TRUE, ask=FALSE)"
-RUN for PACK in $PACK_BIOC; do R -e "library(BiocInstaller); biocLite(\"$PACK\", ask=FALSE)"; done
-
-# Install other R packages from source
-#RUN for PACK in $PACK_GITHUB; do R -e "library('devtools'); install_github(\"$PACK\")"; done
-
+install.packages("shiny")
+devtools::install_github("rstudio/htmltools")
+install.packages("shinyjs")
+install.packages("DT")
+install.packages("colourpicker")
+install.packages("shinyBS")
+biocLite("mzR")
+biocLite("xmcs")
+install.packages("FactoMineR")
+install.packages("mixOmics")
+biocLite("pcaMethods")
+install.packages("matrixStats")
+install.packages("Matrix")
+install.packages("tools")
+install.packages("stringi")
+install.packages("slam")
+install.packages("knitr")
+install.packages("cba")
+install.packages("squash")
+install.packages("plotrix")
+install.packages("RColorBrewer")
