@@ -1,6 +1,7 @@
 
 install.packages("devtools")
 library("devtools")
+install.packages("BiocManager")
 
 install.packages("shiny")
 devtools::install_github("rstudio/htmltools")
@@ -9,11 +10,10 @@ install.packages("DT")
 install.packages("colourpicker")
 install.packages("shinyBS")
 
-install.packages("BiocManager")
 BiocManager::install("mzR")
 BiocManager::install("xcms")
-BiocManager::install("pcaMethods")
 BiocManager::install("mixOmics")
+BiocManager::install("pcaMethods")
 
 install.packages("FactoMineR")
 install.packages("matrixStats")

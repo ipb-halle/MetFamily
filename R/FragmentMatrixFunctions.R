@@ -877,7 +877,7 @@ parseMSP_attributes <- function(fileSpectra, progress = FALSE, flexiblePeakList 
   
   ## do it
   if(!is.na(progress))  if(progress)  incProgress(amount = 0, detail = "MS/MS file: Assemble spectra") else print("MS/MS file: Assemble spectra")
-  suppressWarnings(
+  #suppressWarnings(
     ## x <- entryIntervals[,1]
     spectraList <- apply(X = entryIntervals, MARGIN = 2, FUN = function(x){
       #print(x)
@@ -914,6 +914,7 @@ parseMSP_attributes <- function(fileSpectra, progress = FALSE, flexiblePeakList 
       if(length(tokens) == 0){#spectrumItem$"Num Peaks" == "0"){
         mzs  <- character(0)
         ints <- character(0)
+        warning(paste(basename(fileSpectra), ": Empty peak list for [", paste(x, collapse = ","), "]", sep = ""))
       } else {
         mzs  <- tokens[seq(from=1, to=length(tokens), by = 2)]
         ints <- tokens[seq(from=2, to=length(tokens), by = 2)]
@@ -941,7 +942,7 @@ parseMSP_attributes <- function(fileSpectra, progress = FALSE, flexiblePeakList 
       
       return(spectrumItem)
     })
-  )## suppressWarnings
+  #)## suppressWarnings
   
   rm(
     isName,

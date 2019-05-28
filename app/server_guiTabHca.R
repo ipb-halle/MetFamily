@@ -1,7 +1,7 @@
 
 ## HCA constants
 minimumNumberOfPrecursorsForHca <- 6
-maximumNumberOfPrecursorsForHca <- 10000
+maximumNumberOfPrecursorsForHca <- 1500
 minimumNumberOfPrecursorsForDendrogramStatistics <- 2
 
 minimumheatmapHeightPerRow <- 11
