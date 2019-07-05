@@ -124,15 +124,15 @@ sourceTheCode <- function(){
   }
 }
 
-if(isDevelopment){
+#if(isDevelopment){
   sourceFiles <- paste(sourceFolder, "../R", getSourceFileNames(), sep = "/")
   for(sourceFile in sourceFiles)
     source(sourceFile)
-} else {
-  for(sourceFile in getSourceFileNames())
-    source(sourceFile)
-  #sourceTheCode()
-}
+#} else {
+#  for(sourceFile in getSourceFileNames())
+#    source(sourceFile)
+#  #sourceTheCode()
+#}
 
 #if(!isDevelopment)  setwd("/var/log/shiny-server")
 
