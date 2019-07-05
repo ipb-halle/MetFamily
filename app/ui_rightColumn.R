@@ -1,30 +1,32 @@
 
-output$runRightColumn <- renderUI({
-  print(paste("### GUI ### Generate right GUI"))
-  column(width = state$runRightColumnWidth,
+#output$runRightColumn <- renderUI({
+  #print(paste("### GUI ### Generate right GUI"))
+  #column(width = state$runRightColumnWidth,
+  column(width = 8,
          #########################################################################################
          ## show side bar and change plot
          conditionalPanel(
            condition = "(output.showHCAplotPanel & output.analysisType == 'HCA') | (output.showPCAplotPanel & output.analysisType == 'PCA') | (output.showAnnotationplotPanel & output.analysisType == 'Annotation')",
            #condition = "output.showHCAplotPanel | output.showPCAplotPanel",
-           fluidRow(
-             column(width = 6,
-                    div(style="float:right",
-                        bsTooltip(id = "showSideBar", title = "Display or hide the side bar", placement = "bottom", trigger = "hover"),
-                        checkboxInput(inputId = "showSideBar", label = "Display side bar", value = showSideBar)
-                    )
-             ),##column
-             column(width = 6,
+           #fluidRow(
+           #  column(width = 6,
+           #         div(style="float:right",
+           #             bsTooltip(id = "showSideBar", title = "Display or hide the side bar", placement = "bottom", trigger = "hover"),
+           #             checkboxInput(inputId = "showSideBar", label = "Display side bar", value = showSideBar)
+           #         )
+           #  ),##column
+           #  column(width = 6,
                     conditionalPanel(
                       condition = "(output.showHCAplotPanel & output.showPCAplotPanel) | (output.showHCAplotPanel & output.showAnnotationplotPanel) | (output.showAnnotationplotPanel & output.showPCAplotPanel)",
                       div(style="float:left",
                           bsTooltip(id = "changePlot", title = "Switch between HCA plots and PCA plots", placement = "bottom", trigger = "hover"),
                           #c("Display HCA", "Display PCA", "Display Annotation")
-                          radioButtons(inputId = "changePlot", label = NULL, choices = plotsToShow, inline = TRUE, selected = plotToShow)
+                          #radioButtons(inputId = "changePlot", label = NULL, choices = plotsToShow, inline = TRUE, selected = plotToShow)
+                          radioButtons(inputId = "changePlot", label = NULL, choices = "Display HCA", inline = TRUE, selected = "Display HCA")
                       )
                     )##conditional
-             )##column
-           )##row
+           #  )##column
+           #)##row
          ),##conditional
          ##############################################################################################
          ##############################################################################################
@@ -44,7 +46,8 @@ output$runRightColumn <- renderUI({
                column(width = 6,
                       div(style="float:right",
                           bsTooltip(id = "showPlotControls", title = "Display control panels for the plots below", placement = "bottom", trigger = "hover"),
-                          checkboxInput(inputId = "showPlotControls", label = "Show plot controls", value = input$showPlotControls)
+                          #checkboxInput(inputId = "showPlotControls", label = "Show plot controls", value = input$showPlotControls)
+                          checkboxInput(inputId = "showPlotControls", label = "Show plot controls", value = FALSE)
                       )
                )##column
              ),##row
@@ -57,26 +60,30 @@ output$runRightColumn <- renderUI({
                         h5("Heatmap content"),
                         tags$div(
                           title="Please select the abundance information you would like to display in the heatmap below the dendrogram",
-                          radioButtons(inputId = "heatmapContent", label = NULL, choices = c("Log-fold-change", "Abundance by group", "Abundance by sample"), selected = input$heatmapContent)
+                          #radioButtons(inputId = "heatmapContent", label = NULL, choices = c("Log-fold-change", "Abundance by group", "Abundance by sample"), selected = input$heatmapContent)
+                          radioButtons(inputId = "heatmapContent", label = NULL, choices = c("Log-fold-change", "Abundance by group", "Abundance by sample"), selected = "Log-fold-change")
                         )
                  ),
                  column(width = 3,
                         h5("Heatmap ordering"),
                         tags$div(
                           title="Please select the mode of ordering the heatmap rows below the dendrogram",
-                          radioButtons(inputId = "heatmapOrdering", label = NULL, choices = c("Specified order", "MS1 clustering"), selected = input$heatmapOrdering)
+                          #radioButtons(inputId = "heatmapOrdering", label = NULL, choices = c("Specified order", "MS1 clustering"), selected = input$heatmapOrdering)
+                          radioButtons(inputId = "heatmapOrdering", label = NULL, choices = c("Specified order", "MS1 clustering"), selected = "Specified order")
                         )
                  ),
                  column(width = 3,
                         h5("HCA dendrogram"),
                         bsTooltip(id = "showClusterLabels", title = "Display the labels of cluster nodes and MS\u00B9 feature nodes representing the number of characteristic fragments", placement = "bottom", trigger = "hover"),
-                        checkboxInput(inputId = "showClusterLabels", label = "Show node labels", value = input$showClusterLabels)
+                        #checkboxInput(inputId = "showClusterLabels", label = "Show node labels", value = input$showClusterLabels)
+                        checkboxInput(inputId = "showClusterLabels", label = "Show node labels", value = TRUE)
                  ),
                  column(width = 3,
                         h5("Precursor label"),
                         tags$div(
                           title="Please select the information you would like to display in the labels below the precursors",
-                          radioButtons(inputId = "hcaPrecursorLabels", label = NULL, choices = c("m/z / RT", "Metabolite name", "Metabolite family"), selected = input$hcaPrecursorLabels)
+                          #radioButtons(inputId = "hcaPrecursorLabels", label = NULL, choices = c("m/z / RT", "Metabolite name", "Metabolite family"), selected = input$hcaPrecursorLabels)
+                          radioButtons(inputId = "hcaPrecursorLabels", label = NULL, choices = c("m/z / RT", "Metabolite name", "Metabolite family"), selected = "m/z / RT")
                         )
                  )
                ),## conditional
@@ -87,13 +94,15 @@ output$runRightColumn <- renderUI({
                  column(width = 3,
                         h5("PCA scores"),
                         bsTooltip(id = "showScoresLabels", title = "Display scores labels", placement = "bottom", trigger = "hover"),
-                        checkboxInput(inputId = "showScoresLabels", label = "Show labels", value = input$showScoresLabels)
+                        #checkboxInput(inputId = "showScoresLabels", label = "Show labels", value = input$showScoresLabels)
+                        checkboxInput(inputId = "showScoresLabels", label = "Show labels", value = TRUE)
                  ),
                  column(width = 3,
                         h5("PCA loadings labels"),
                         tags$div(
                           title="Please select the information you would like to display in the precursor labels of the loadings",
-                          radioButtons(inputId = "loadingsLabels", label = NULL, choices = c("None", "m/z / RT", "Metabolite name", "Metabolite family"), selected = input$loadingsLabels)
+                          #radioButtons(inputId = "loadingsLabels", label = NULL, choices = c("None", "m/z / RT", "Metabolite name", "Metabolite family"), selected = input$loadingsLabels)
+                          radioButtons(inputId = "loadingsLabels", label = NULL, choices = c("None", "m/z / RT", "Metabolite name", "Metabolite family"), selected = "None")
                         )
                  ),
                  column(width = 3,
@@ -103,12 +112,13 @@ output$runRightColumn <- renderUI({
                           bsTooltip(id = "showLoadingsAbundance", title = "Use abundance in MS\u00B9 to scale the size of loadings nodes", placement = "bottom", trigger = "hover"),
                           checkboxGroupInput(inputId = "showLoadingsFeatures", label = NULL, 
                                              choices = c("Annotated", "Not Annotated", "Selected", "Not Selected"), 
-                                             selected = c(
-                                               ifelse(test = state_tabPca$showLoadingsFeaturesAnnotated,   yes = "Annotated", no = ""),
-                                               ifelse(test = state_tabPca$showLoadingsFeaturesUnannotated, yes = "Not Annotated", no = ""),
-                                               ifelse(test = state_tabPca$showLoadingsFeaturesSelected,    yes = "Selected", no = ""),
-                                               ifelse(test = state_tabPca$showLoadingsFeaturesUnselected,  yes = "Not Selected", no = "")
-                                             )
+                                             selected = c("Annotated", "Not Annotated", "Selected", "Not Selected")
+                                             #selected = c(
+                                             #  ifelse(test = state_tabPca$showLoadingsFeaturesAnnotated,   yes = "Annotated", no = ""),
+                                             #  ifelse(test = state_tabPca$showLoadingsFeaturesUnannotated, yes = "Not Annotated", no = ""),
+                                             #  ifelse(test = state_tabPca$showLoadingsFeaturesSelected,    yes = "Selected", no = ""),
+                                             #  ifelse(test = state_tabPca$showLoadingsFeaturesUnselected,  yes = "Not Selected", no = "")
+                                             #)
                           )
                           #checkboxInput(inputId = "showLoadingsFeaturesAnnotated",   label = "Annotated",     value = input$showLoadingsFeaturesAnnotated),
                           #checkboxInput(inputId = "showLoadingsFeaturesUnannotated", label = "Not Annotated", value = input$showLoadingsFeaturesUnannotated),
@@ -119,7 +129,8 @@ output$runRightColumn <- renderUI({
                  column(width = 3,
                         h5("PCA loadings size"),
                         bsTooltip(id = "showLoadingsAbundance", title = "Use abundance in MS\u00B9 to scale the size of loadings nodes", placement = "bottom", trigger = "hover"),
-                        checkboxInput(inputId = "showLoadingsAbundance", label = "Scale by abundance", value = input$showLoadingsAbundance)
+                        #checkboxInput(inputId = "showLoadingsAbundance", label = "Scale by abundance", value = input$showLoadingsAbundance)
+                        checkboxInput(inputId = "showLoadingsAbundance", label = "Scale by abundance", value = FALSE)
                  )
                )## conditional
              )## row
@@ -128,7 +139,8 @@ output$runRightColumn <- renderUI({
          ##############################################################################################
          ## plots
          fluidRow(
-           column(width = 12-state$legendColumnWidth,
+           #column(width = 12-state$legendColumnWidth,
+           column(width = 12-2,
                   ##############################################################################################
                   ## HCA plots
                   conditionalPanel(
@@ -166,16 +178,7 @@ output$runRightColumn <- renderUI({
                     ),## row
                     fluidRow(
                       div(style = "position:relative",
-                      plotOutput(height = state_tabHca$heatmapHeight, 
-                                 outputId = "plotHeatmap",
-                                 #hover    = "plotHeatmap_hover", 
-                                 hover    = hoverOpts(
-                                   id = "plotHeatmap_hover",
-                                   delay = 50, 
-                                   delayType = "debounce"
-                                 )
-                                 #click = "plotHeatmap_click"
-                      ),
+                      uiOutput("ui_plotHeatmap"),
                       uiOutput("plotHeatmap_hover_info")
                       )
                     )## row
@@ -236,19 +239,20 @@ output$runRightColumn <- renderUI({
                     )## row
                   )## conditional
            ),##column for plot controls and plots
-           column(width = state$legendColumnWidth,
+           #column(width = state$legendColumnWidth,
+           column(width = 2,
                   conditionalPanel(
                     condition = 'output.analysisType == "HCA" & output.showHCAplotPanel',
                     splitLayout(
                       style = "border: 1px solid silver;",
-                      plotOutput(outputId = "plotAnnoLegendHCA", height = state_tabHca$annotationLegendHeightHca)
+                      uiOutput("ui_plotAnnoLegendHCA")
                     )
                   ),## conditional
                   conditionalPanel(
                     condition = 'output.analysisType == "PCA" & output.showPCAplotPanel',
                     splitLayout(
                       style = "border: 1px solid silver;",
-                      plotOutput(outputId = "plotAnnoLegendPCA", height = state_tabPca$annotationLegendHeightPca)
+                      uiOutput("ui_plotAnnoLegendPCA")
                     )
                   ),## conditional
                   conditionalPanel(
@@ -269,7 +273,7 @@ output$runRightColumn <- renderUI({
                     condition = 'output.analysisType == "PCA" & output.showPCAplotPanel',
                     splitLayout(
                       style = "border: 1px solid silver;",
-                      plotOutput(outputId = "plotScoresGroupsLegend", height = state_tabPca$scoresGroupsLegendHeight)
+                      uiOutput("ui_plotScoresGroupsLegend")
                     )
                   ),
                   conditionalPanel(
@@ -343,14 +347,16 @@ output$runRightColumn <- renderUI({
              wellPanel(
                h4("MS\u00B9 feature selections"),
                bsTooltip(id = "changeSelection", title = "Switch MS\u00B9 feature selection", placement = "bottom", trigger = "hover"),
-               radioButtons(inputId = "changeSelection", label = NULL, choices = c(selectionAnalysisName, selectionFragmentName, selectionSearchName), selected = changeSelectionCurrentSelection, inline = TRUE),
+               #radioButtons(inputId = "changeSelection", label = NULL, choices = c(selectionAnalysisName, selectionFragmentName, selectionSearchName), selected = changeSelectionCurrentSelection, inline = TRUE),
+               radioButtons(inputId = "changeSelection", label = NULL, choices = c("Selection by HCA/PCA", "Selection by fragment", "Selection by search"), selected = "Selection by HCA/PCA", inline = TRUE),
                bsTooltip(id = "selectionInfo", title = "The number of MS\u00B9 features in the current selection", placement = "bottom", trigger = "hover"),
                hr(),
                verbatimTextOutput("selectionInfo"),
                conditionalPanel(
                  condition = 'output.precursorSetSelected',
                  tabsetPanel(id = "precursorSelectionTabs",
-                             tabPanel(title = precursorSelectionTabSelection, 
+                             #tabPanel(title = precursorSelectionTabSelection, 
+                             tabPanel(title = "Selection", 
                                       wellPanel(
                                         ## selection infos
                                         tags$div(
@@ -364,7 +370,8 @@ output$runRightColumn <- renderUI({
                                         actionButton(inputId = "clearSelection", label = "Clear selection", class="btn-danger")
                                       )## well
                              ),## tab
-                             tabPanel(title = precursorSelectionTabAnnotation, 
+                             #tabPanel(title = precursorSelectionTabAnnotation, 
+                             tabPanel(title = "Annotation", 
                                       wellPanel(
                                         h4("Present annotation(s)"),
                                         fluidRow(
@@ -406,7 +413,8 @@ output$runRightColumn <- renderUI({
                                         )
                                       )## well
                              ),## tab
-                             tabPanel(title = precursorSelectionTabTable, 
+                             #tabPanel(title = precursorSelectionTabTable, 
+                             tabPanel(title = "Table", 
                                       wellPanel(
                                         h4("Selected MS\u00B9 features"),
                                         bsTooltip(id = "updateArtifactsFromCheckboxes", title = "Adds the annotation \\'ignore\\' to the set of checked MS\u00B9 features in the table", placement = "bottom", trigger = "hover"),
@@ -414,7 +422,8 @@ output$runRightColumn <- renderUI({
                                         DT::dataTableOutput("ms1FeatureTable")
                                       )## well
                              ),## tab
-                             tabPanel(title = precursorSelectionTabSpectrum, 
+                             #tabPanel(title = precursorSelectionTabSpectrum, 
+                             tabPanel(title = "Fragments", 
                                       wellPanel(
                                         bsTooltip(id = "selectedSpectrum", title = "The selected spectrum or frequent fragments / neutral losses", placement = "bottom", trigger = "hover"),
                                         tags$style(type="text/css", "textarea {width:100%}"),
@@ -505,4 +514,4 @@ output$runRightColumn <- renderUI({
            )## row
          )##conditional
   )##column
-})
+#})

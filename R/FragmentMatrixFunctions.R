@@ -2370,8 +2370,9 @@ builtMatrix <- function(spectraList, mzDeviationAbsolute_grouping, mzDeviationIn
   numberOfMS2PeakGroups <- nrow(resultObj$mat)
   fragmentMasses <- resultObj$mat[, "mzmed"]
   for(groupIdx in seq_len(numberOfMS2PeakGroups)){
-    if((groupIdx %% (as.integer(numberOfMS2PeakGroups/10))) == 0)
-      if(!is.na(progress))  if(progress)  incProgress(amount = 0.01, detail = paste("Fragment group postprocessing: ", groupIdx, " / ", numberOfMS2PeakGroups, sep = "")) else print(paste("Fragment group postprocessing: ", groupIdx, " / ", numberOfMS2PeakGroups, sep = ""))
+    if(numberOfMS2PeakGroups > 10)
+      if((groupIdx %% (as.integer(numberOfMS2PeakGroups/10))) == 0)
+        if(!is.na(progress))  if(progress)  incProgress(amount = 0.01, detail = paste("Fragment group postprocessing: ", groupIdx, " / ", numberOfMS2PeakGroups, sep = "")) else print(paste("Fragment group postprocessing: ", groupIdx, " / ", numberOfMS2PeakGroups, sep = ""))
     
     groupMembers <- resultObj$idx[[groupIdx]]
     numberOfFragmentsInGroup <- length(groupMembers)
@@ -2430,10 +2431,11 @@ builtMatrix <- function(spectraList, mzDeviationAbsolute_grouping, mzDeviationIn
     ## mark isotope precursors
     ms2PeakGroupsToRemove <- vector(mode = "logical", length = numberOfMS2PeakGroups)
     for(ms2PeakGroupIdx in seq_len(numberOfMS2PeakGroups)){
-      if((ms2PeakGroupIdx %% (as.integer(numberOfMS2PeakGroups/10))) == 0)
-        if(!is.na(progress)){
-          if(progress)  incProgress(amount = 0.0, detail = paste("Fragment group deisotoping ", ms2PeakGroupIdx, " / ", numberOfMS2PeakGroups, sep = "")) else print(paste("Fragment group deisotoping ", ms2PeakGroupIdx, " / ", numberOfMS2PeakGroups, sep = ""))
-          #break
+      if(numberOfMS2PeakGroups > 10)
+        if((ms2PeakGroupIdx %% (as.integer(numberOfMS2PeakGroups/10))) == 0)
+          if(!is.na(progress)){
+            if(progress)  incProgress(amount = 0.0, detail = paste("Fragment group deisotoping ", ms2PeakGroupIdx, " / ", numberOfMS2PeakGroups, sep = "")) else print(paste("Fragment group deisotoping ", ms2PeakGroupIdx, " / ", numberOfMS2PeakGroups, sep = ""))
+            #break
         }
       mzError <- abs(fragmentMasses[[ms2PeakGroupIdx]] * mzDeviationInPPM_ms2PeakGroupDeisotoping / 1E6)
       mzError <- max(mzError, mzDeviationAbsolute_ms2PeakGroupDeisotoping)

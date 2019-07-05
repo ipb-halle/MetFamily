@@ -114,8 +114,8 @@ obsDoAnnotation <- observeEvent(input$doAnnotation, {
   chemOntClassNodeRegEx <- "[- ,/'0-9a-zA-Z]+"
   chemOntClassRegEx <- paste("^(", chemOntClassNodeRegEx, "; )*(", chemOntClassNodeRegEx, ")$", sep = "")
   
+  ## shrink class names of the form "Organic compounds; Benzenoids; Benzene and substituted derivatives; Benzoic acids and derivatives; Halobenzoic acids and derivatives; 2-halobenzoic acids and derivatives"
   if(all(grepl(x = classes, pattern = chemOntClassRegEx))){
-    ## shrink class names of the form "Organic compounds; Benzenoids; Benzene and substituted derivatives; Benzoic acids and derivatives; Halobenzoic acids and derivatives; 2-halobenzoic acids and derivatives"
     maxLength <- 70
     tokenSeparator <- "; "
     abbreviator <- "."
@@ -177,7 +177,9 @@ obsDoAnnotation <- observeEvent(input$doAnnotation, {
   
   output$familyCount <- renderText({
     print(paste("init output$familyCount"))
-    paste("Number of putative metabolite families:", nrow(resultTable_classes))
+    paste("Number of putative metabolite families: ", nrow(resultTable_classes),
+          "\nNumber of putatively annotated features: ", length(unique(unlist(lapply(X = classToSpectra_class, FUN = names)))), " / ", dataList$numberOfPrecursors, 
+          sep = "")
   })
   
   #selected <- ifelse(test = nrow(resultTable_classes) > 0, yes = 1, no = NULL)
@@ -301,27 +303,16 @@ classSelected <- function(selectedRowIdx){
   }
   
   precursorLabels <- dataList$precursorLabels[precursorIndeces]
-  
   selectedClassPrecursorIndeces <<- precursorIndeces
   
   
   output$classToSpectraCount <- renderText({
     print(paste("init output$classToSpectraCount"))
-    paste("Number of spectrum hits:", ifelse(test = length(precursorIndecesAll) > maximumNumberOfDisplayedSpectrumHits, yes = paste(length(precursorIndeces), "/", length(precursorIndecesAll), sep = ""), no = length(precursorIndecesAll)))
+    paste("Number of putatively annotated features: ", ifelse(test = length(precursorIndecesAll) > maximumNumberOfDisplayedSpectrumHits, yes = paste(length(precursorIndeces), "/", length(precursorIndecesAll), sep = ""), no = length(precursorIndecesAll)),
+          "\nEstimated true positive rate: ", format(classProperties$TPR_for_FPR_of_5Percent, digits=4), sep = "")
   })
   
-  
-  
-  #print("huhu")
-  #startTime_1 <- Sys.time()
-  
   numberOfMatchingMasses_i <- getNumberOfHits(dataList, frequentFragments, characteristicFragments, precursorIndeces, mappingSpectraToClassDf, properties_class)
-  
-  #endTime_1 <- Sys.time()
-  #time_1 <- difftime(endTime_1, startTime_1, units = "secs")[[1]]
-  
-  
-  #startTime_2 <- Sys.time()
   
   returnObj <- createPlotOutput(
     dataList = dataList,
@@ -332,14 +323,6 @@ classSelected <- function(selectedRowIdx){
     tableCounter = ms1FeatureVsClassTableCounter,
     mappingSpectraToClassDf = mappingSpectraToClassDf
   )
-  
-  #endTime_2 <- Sys.time()
-  #time_2 <- difftime(endTime_2, startTime_2, units = "secs")[[1]]
-  #print("hoho")
-  #print(time_1)
-  #print(time_2)
-  
-  
   
   numberOfMatchingMasses_i <- returnObj$numberOfMatchingMasses_i
   #inputs_i <- returnObj$inputs_i
