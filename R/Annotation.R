@@ -587,6 +587,9 @@ getClassifierProperties <- function(propertiesFile){
 ## resultFolderForClassifiers <- "/home/htreutle/Code/Java/MetFam/inst/data/classifiers"
 ## resultFolderForClassifiers <- "/home/htreutle/Code/Java/MetFam/inst/data/classifier"
 getAvailableClassifiers <- function(resultFolderForClassifiers){
+  
+  resultFolderForClassifiers <- gsub(x = resultFolderForClassifiers, pattern = "app/data/classifier", replacement = "inst/data/classifier")
+  
   classifierFilePaths <- list.files(path = resultFolderForClassifiers, recursive = FALSE, pattern = "^.*_Classifier.RData$", include.dirs = FALSE, full.names = TRUE)
   classifierFiles     <- basename(classifierFilePaths)
   resultFiles         <- gsub(x = classifierFiles, pattern = "_Classifier.RData$", replacement = "_Results.tsv")
