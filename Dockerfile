@@ -12,6 +12,6 @@ ENV NETCDF_INCLUDE=/usr/include
 
 WORKDIR /srv/shiny-server
 
-ADD . /srv/shiny-server/
+ADD app /srv/shiny-server/
 RUN R -e "source('binder/install.R')"
 
