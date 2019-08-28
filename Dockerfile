@@ -9,6 +9,7 @@ RUN apt-get -y update && apt-get -y install \
   xorg-dev libglu1-mesa-dev freeglut3-dev libgomp1 libxml2-dev gcc g++ libcurl4-gnutls-dev libssl-dev gdebi-core
 
 ENV NETCDF_INCLUDE=/usr/include
+RUN echo 'sanitize_errors off;disable_protocols xdr-streaming xhr-streaming iframe-eventsource iframe-htmlfile;' >> /etc/shiny-server/shiny-server.conf
 
 WORKDIR /srv/shiny-server
 
