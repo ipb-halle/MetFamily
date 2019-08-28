@@ -398,7 +398,7 @@
                                             bsTooltip(id = "newAnnotationValue", title = "The name of this annotation", placement = "bottom", trigger = "hover"),
                                             textInput(inputId = "newAnnotationValue", placeholder = 'Metabolite family name here', label = "Type new annotation"),
                                             bsTooltip(id = "newAnnotationColor", title = "The color of this annotation", placement = "bottom", trigger = "hover"),
-                                            colourInput(inputId = "newAnnotationColor", label = "Select annotation color", palette = "limited", showColour = "background", allowedCols = colorPalette()),
+                                            colourpicker::colourInput(inputId = "newAnnotationColor", label = "Select annotation color", palette = "limited", showColour = "background", allowedCols = colorPalette()),
                                             bsTooltip(id = "submitNewAnnotation", title = "Adds this annotation to the set of selected MS\u00B9 features", placement = "bottom", trigger = "hover"),
                                             actionButton(inputId = "submitNewAnnotation", label = "Add new annotation", class="btn-success")
                                           ),
@@ -505,7 +505,7 @@
                    bsTooltip(id = "newAnnotationValue2", title = "The name of this annotation", placement = "bottom", trigger = "hover"),
                    textInput(inputId = "newAnnotationValue2", placeholder = 'Metabolite family name', label = "Type new annotation"),
                    bsTooltip(id = "newAnnotationColor2", title = "The color of this annotation", placement = "bottom", trigger = "hover"),
-                   colourInput(inputId = "newAnnotationColor2", label = "Select annotation color", palette = "limited", showColour = "background", allowedCols = colorPalette()),
+                   colourpicker::colourInput(inputId = "newAnnotationColor2", label = "Select annotation color", palette = "limited", showColour = "background", allowedCols = colorPalette()),
                    bsTooltip(id = "confirmAnnotation", title = "Applies the metabolite family annotation to all confirmed MS\u00B9 features", placement = "bottom", trigger = "hover"),
                    actionButton(inputId = "confirmAnnotation", label = "Apply confirmed annotations", class="btn-success")
                  )## cond ms1
