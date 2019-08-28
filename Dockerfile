@@ -13,6 +13,9 @@ RUN echo 'sanitize_errors off;disable_protocols xdr-streaming xhr-streaming ifra
 
 WORKDIR /srv/shiny-server
 
-ADD app/* /srv/shiny-server/
+ADD app /srv/shiny-server/
+ADD inst /srv/shiny-server/
+ADD R /srv/shiny-server/
+
 RUN R -e "source('binder/install.R')"
 
