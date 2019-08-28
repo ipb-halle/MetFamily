@@ -820,7 +820,7 @@ shinyUI(
                              h4("")
                       )
                     ),
-                    bsTooltip(id = "searchMS2massPpm", title = "The specified fragment m/z's allow this error in PPM (<b>p</b>arts <b>p</b>er <b>m</b>illion)", placement = "bottom", trigger = "hover"),
+                    bsTooltip(id = "searchMS2massPpm", title = "The specified fragment m/z values allow this error in PPM (<b>p</b>arts <b>p</b>er <b>m</b>illion)", placement = "bottom", trigger = "hover"),
                     textInput(inputId = "searchMS2massPpm", placeholder = 'PPM number here', label = "PPM")
                   ),## conditional panel
                   bsTooltip(id = "searchIncludeIgnoredPrecursors", title = "Include or filter out ignored MS\u00B9 features, i.e. MS\u00B9 features which have been annotated as \\'Ignore\\'", placement = "bottom", trigger = "hover"),
@@ -1024,7 +1024,7 @@ shinyUI(
                              checkboxInput(inputId = "neutralLossesPrecursorToFragments2", label = "Fragment vs. precursor", value = TRUE)
                       ),##column
                       column(width = 6,
-                             bsTooltip(id = "neutralLossesFragmentsToFragments2", title = "Include neutral losses amongst fragment ions, i.e. the m/z difference between the m/z's of all pairs of fragment ions within each MS/MS spectrum", placement = "bottom", trigger = "hover"),
+                             bsTooltip(id = "neutralLossesFragmentsToFragments2", title = "Include neutral losses amongst fragment ions, i.e. the m/z difference between the m/z values of all pairs of fragment ions within each MS/MS spectrum", placement = "bottom", trigger = "hover"),
                              checkboxInput(inputId = "neutralLossesFragmentsToFragments2", label = "Fragment vs. fragment", value = FALSE)
                       )##column
                     ),##row
