@@ -967,6 +967,25 @@ output$showPutativeAnnotationsTableFromAnalysis <- reactive({
 
 outputOptions(output, 'showPutativeAnnotationsTableFromAnalysis',  suspendWhenHidden=FALSE)
 
+output$ui_plotAnnoLegendHCA <- renderUI({
+  print(paste("### GUI ### ui_plotAnnoLegendHCA"))
+  plotOutput(outputId = "plotAnnoLegendHCA", height = state_tabHca$annotationLegendHeightHca)
+})
+output$ui_plotHeatmap <- renderUI({
+  print(paste("### GUI ### ui_plotHeatmap"))
+  plotOutput(height = state_tabHca$heatmapHeight, 
+             outputId = "plotHeatmap",
+             #hover    = "plotHeatmap_hover", 
+             hover    = hoverOpts(
+               id = "plotHeatmap_hover",
+               delay = 50, 
+               delayType = "debounce"
+             )
+             #click = "plotHeatmap_click"
+  )
+})
+
+
 suspendOnExitFunctions <- c(suspendOnExitFunctions, function(){
   print("Suspending tabHca observers")
   obsDrawHCA$suspend()

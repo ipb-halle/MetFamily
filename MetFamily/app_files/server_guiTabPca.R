@@ -676,6 +676,15 @@ output$plotPcaLoadings_hover_info <- renderUI({
   showPlotTooltip(hover, info, panelWidth)
 })
 
+output$ui_plotAnnoLegendPCA <- renderUI({
+  print(paste("### GUI ### ui_plotAnnoLegendPCA"))
+  plotOutput(outputId = "plotAnnoLegendPCA", height = state_tabPca$annotationLegendHeightPca)
+})
+output$ui_plotScoresGroupsLegend <- renderUI({
+  print(paste("### GUI ### ui_plotScoresGroupsLegend"))
+  plotOutput(outputId = "plotScoresGroupsLegend", height = state_tabPca$scoresGroupsLegendHeight)
+})
+
 suspendOnExitFunctions <- c(suspendOnExitFunctions, function(){
   print("Suspending tabPca observers")
   obsDrawPCA$suspend()
