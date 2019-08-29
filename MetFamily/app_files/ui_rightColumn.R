@@ -8,7 +8,7 @@
          conditionalPanel(
            condition = "(output.showHCAplotPanel & output.analysisType == 'HCA') | (output.showPCAplotPanel & output.analysisType == 'PCA') | (output.showAnnotationplotPanel & output.analysisType == 'Annotation')",
            #condition = "output.showHCAplotPanel | output.showPCAplotPanel",
-           #fluidRow(
+           fluidRow(
            #  column(width = 6,
            #         div(style="float:right",
            #             bsTooltip(id = "showSideBar", title = "Display or hide the side bar", placement = "bottom", trigger = "hover"),
@@ -26,7 +26,7 @@
                       )
                     )##conditional
            #  )##column
-           #)##row
+           )##row
          ),##conditional
          ##############################################################################################
          ##############################################################################################
@@ -178,8 +178,8 @@
                     ),## row
                     fluidRow(
                       div(style = "position:relative",
-                      uiOutput("ui_plotHeatmap"),
-                      uiOutput("plotHeatmap_hover_info")
+                        uiOutput("ui_plotHeatmap"),
+                        uiOutput("plotHeatmap_hover_info")
                       )
                     )## row
                   ),## conditional
