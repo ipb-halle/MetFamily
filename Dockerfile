@@ -16,7 +16,7 @@ WORKDIR /srv/shiny-server
 RUN rm -rf *
 
 ADD MetFamily /srv/shiny-server/
-ADD binder tmp
+ADD binder /tmp
 
 RUN R -e "source('/tmp/install.R')"
 
