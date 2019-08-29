@@ -6,34 +6,17 @@ library("stringr")
 ####################################################################################
 ## aligned spectra
 parsePeakAbundanceMatrix <- function(filePeakMatrix, doPrecursorDeisotoping, mzDeviationInPPM_precursorDeisotoping, mzDeviationAbsolute_precursorDeisotoping, maximumRtDifference, progress){
-  ## known columns
-  assumedColumns <- c(
-    ## in file            ## parsed
-    "Alignment ID",       "Alignment.ID",
-    "Average Rt(min)",    "Average.Rt.min.",
-    "Average Mz",         "Average.Mz",
-    "Metabolite name",    "Metabolite.name",
-    "Adduct ion name",    "Adduct.ion.name",
-    "Fill %",             "Fill..",
-    "MS/MS included",     "MS.MS.included",
-    "INCHIKEY",           "INCHIKEY",
-    "SMILES",             "SMILES",
-    "LINK",               "LINK",
-    "SCORE",              "SCORE",
-    "Dot product",        "Dot.product",
-    "Reverse dot product","Reverse.dot.product",
-    "Fragment presence %","Fragment.presence.%",
-    "Spectrum reference file name", "Spectrum.reference.file.name"
-  )
-  
   ## read file
   if(!is.na(progress))  if(progress)  incProgress(amount = 0.1, detail = paste("Parsing MS1 file content...", sep = "")) else print(paste("Parsing MS1 file content...", sep = ""))
   
   dataFrameAll <- read.table(filePeakMatrix, header=FALSE, sep = "\t", as.is=TRUE, quote = "\"", check.names = FALSE, comment.char = "")
   
-  dataFrameHeader <- dataFrameAll[1:4, ]
-  dataFrame <- dataFrameAll[5:nrow(dataFrameAll), ]
-  colnames(dataFrame) <- dataFrameHeader[4, ]
+  oldFormat <- max(which(dataFrameAll[1:5, 1] == "")) == 3
+  header_rowNumber <- ifelse(test = oldFormat, yes = 4, no = 5)
+  
+  dataFrameHeader <- dataFrameAll[1:header_rowNumber, ]
+  dataFrame <- dataFrameAll[(header_rowNumber + 1):nrow(dataFrameAll), ]
+  colnames(dataFrame) <- dataFrameHeader[header_rowNumber, ]
   
   numberOfPrecursors <- nrow(dataFrame)
   numberOfPrecursorsPrior <- numberOfPrecursors
@@ -46,17 +29,21 @@ parsePeakAbundanceMatrix <- function(filePeakMatrix, doPrecursorDeisotoping, mzD
     numberOfDataColumns <- dataColumnStartEndIndeces[[2]] - dataColumnStartEndIndeces[[1]] + 1
     dataColumnNames <- colnames(dataFrame)[dataColumnStartEndIndeces[[1]]:dataColumnStartEndIndeces[[2]]]
     
-    sampleClass <- dataFrameHeader[1, (columnIndexEndOfAnnotation + 1):ncol(dataFrameHeader)]
-    sampleType  <- dataFrameHeader[2, (columnIndexEndOfAnnotation + 1):ncol(dataFrameHeader)]
+    sampleClass          <- dataFrameHeader[1, (columnIndexEndOfAnnotation + 1):ncol(dataFrameHeader)]
+    sampleType           <- dataFrameHeader[2, (columnIndexEndOfAnnotation + 1):ncol(dataFrameHeader)]
     sampleInjectionOrder <- dataFrameHeader[3, (columnIndexEndOfAnnotation + 1):ncol(dataFrameHeader)]
+    batchID              <- NULL
+    if(!oldFormat)
+      batchID            <- dataFrameHeader[4, (columnIndexEndOfAnnotation + 1):ncol(dataFrameHeader)]
   } else {
     dataColumnStartEndIndeces <- NULL
     numberOfDataColumns <- 0
     dataColumnNames <- NULL
     
-    sampleClass <- NULL
-    sampleType  <- NULL
+    sampleClass          <- NULL
+    sampleType           <- NULL
     sampleInjectionOrder <- NULL
+    batchID              <- NULL
   }
   
   commaNumbers <- sum(grepl(x = dataFrame$"Average Mz", pattern = "^(\\d+,\\d+$)|(^\\d+$)"))
@@ -162,13 +149,15 @@ parsePeakAbundanceMatrix <- function(filePeakMatrix, doPrecursorDeisotoping, mzD
   returnObj <- list()
   returnObj$dataFrame <- dataFrame
   ## meta
+  returnObj$oldFormat <- oldFormat
   returnObj$numberOfPrecursors <- numberOfPrecursors
   returnObj$dataColumnStartEndIndeces <- dataColumnStartEndIndeces
   returnObj$numberOfDataColumns <- numberOfDataColumns
   ## group anno
-  returnObj$sampleClass <- sampleClass
-  returnObj$sampleType <- sampleType
+  returnObj$sampleClass          <- sampleClass
+  returnObj$sampleType           <- sampleType
   returnObj$sampleInjectionOrder <- sampleInjectionOrder
+  returnObj$batchID              <- batchID
   ## misc
   returnObj$numberOfPrecursorsPrior <- numberOfPrecursorsPrior
   returnObj$numberOfRemovedIsotopePeaks <- numberOfRemovedIsotopePeaks
@@ -2954,14 +2943,16 @@ convertToProjectFile2 <- function(filePeakMatrix, spectraList, precursorMz, prec
       progress = progress
     )
     dataFrame <- returnObj$dataFrame
+    oldFormat <- returnObj$oldFormat
     numberOfPrecursors <- returnObj$numberOfPrecursors
     dataColumnStartEndIndeces <- returnObj$dataColumnStartEndIndeces
     numberOfDataColumns <- returnObj$numberOfDataColumns
     
     #groupLabels <- returnObj$groupLabels
-    groupLabels <- returnObj$sampleClass
-    sampleType <- returnObj$sampleType
+    groupLabels          <- returnObj$sampleClass
+    sampleType           <- returnObj$sampleType
     sampleInjectionOrder <- returnObj$sampleInjectionOrder
+    batchID              <- returnObj$batchID
     
     numberOfParsedMs1Features <- returnObj$numberOfPrecursorsPrior
     numberOfRemovedPrecursorIsotopePeaks <- returnObj$numberOfRemovedIsotopePeaks
@@ -2977,6 +2968,7 @@ convertToProjectFile2 <- function(filePeakMatrix, spectraList, precursorMz, prec
     propList <- c(propList, furtherProperties)
     propList <- c(propList, list("MySample" = rep(x = 0, times = numberOfSpectraParsed)))
     dataFrame <- data.frame(propList, check.names = FALSE, stringsAsFactors = FALSE)
+    oldFormat <- FALSE
     
     numberOfPrecursors <- numberOfSpectraParsed
     dataColumnStartEndIndeces <- c(5,5) + length(furtherProperties)
@@ -2985,7 +2977,8 @@ convertToProjectFile2 <- function(filePeakMatrix, spectraList, precursorMz, prec
     #groupLabels <- returnObj$groupLabels
     groupLabels <- c("Unknown")
     sampleType <- c("Sample")
-    sampleInjectionOrder <- c(-1)
+    sampleInjectionOrder <- -1
+    batchID              <- -1
     
     numberOfPrecursorsPrior <- numberOfPrecursors
     numberOfRemovedPrecursorIsotopePeaks <- 0
