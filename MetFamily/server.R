@@ -9,26 +9,7 @@ sourceFolder <- getwd()
 #isDevelopment <- TRUE
 isDevelopment <- grepl(pattern = "htreutle", x = sourceFolder) | grepl(pattern = "Treutler", x = sourceFolder)
 errorHunting <- FALSE
-
 hcaHeatMapNew <- TRUE
-
-#####################################################################################################
-## redirect console output to file
-
-## set log path: broken
-if(FALSE & !isDevelopment){
-  logPath <- "var/log/shiny-server/"
-  timeStamp <- gsub(" ", "_", gsub(":", ".", Sys.time()))
-  logFileName <- paste(timeStamp, "MetFamily", "Console", "Output", sep = "_")
-  logFilePath <- paste(logPath, logFileName, sep = "/")
-  
-  writeToFile <- TRUE
-  if(!file.exists(logPath))
-    if(!dir.create(path = logPath, recursive = TRUE))
-      writeToFile <- FALSE
-  if(writeToFile)
-    sink(file = logFilePath, type=c("output", "message"))
-}
 
 #####################################################################################################
 ## handling of errors and warnings
@@ -48,45 +29,39 @@ if(errorHunting){
 #####################################################################################################
 ## file paths
 getFile <- function(files){
-  #isPackage <- "MetFamily" %in% rownames(installed.packages())
-  isPackage <- FALSE
+  isPackage <- "MetFamily" %in% rownames(installed.packages())
+  #isPackage <- FALSE
   
   resultFiles <- vector(mode = "character", length = length(files))
   for(idx in seq_along(files)){
     switch(files[[idx]], 
-           "logo_ipb_en.png"={                                file <- ifelse(test = isPackage, yes = system.file("www/logo_ipb_en.png",                                           package = "MetFamily", lib.loc=.libPaths()), no = paste(sourceFolder, "../inst/www/logo_ipb_en.png",                                          sep = "/"))},
-           "MetFamily_Input_Specification.pdf"={              file <- ifelse(test = isPackage, yes = system.file("doc/MetFamily_Input_Specification.pdf",                         package = "MetFamily", lib.loc=.libPaths()), no = paste(sourceFolder, "../inst/doc/MetFamily_Input_Specification.pdf",                        sep = "/"))},
-           "MetFamily_user_guide.pdf"={                       file <- ifelse(test = isPackage, yes = system.file("doc/MetFamily_user_guide.pdf",                                  package = "MetFamily", lib.loc=.libPaths()), no = paste(sourceFolder, "../inst/doc/MetFamily_user_guide.pdf",                                 sep = "/"))},
-           "MetFamily_Showcase_protocol.pdf"={                file <- ifelse(test = isPackage, yes = system.file("doc/MetFamily_Showcase_protocol.pdf",                           package = "MetFamily", lib.loc=.libPaths()), no = paste(sourceFolder, "../inst/doc/MetFamily_Showcase_protocol.pdf",                          sep = "/"))},
-           "Fragment_matrix_showcase.csv"={                   file <- ifelse(test = isPackage, yes = system.file("data/showcase/Fragment_matrix_showcase.csv",                    package = "MetFamily", lib.loc=.libPaths()), no = paste(sourceFolder, "../inst/data/showcase/Fragment_matrix_showcase.csv",                   sep = "/"))},
-           "Metabolite_profile_showcase.txt"={                file <- ifelse(test = isPackage, yes = system.file("data/showcase/Metabolite_profile_showcase.txt",                 package = "MetFamily", lib.loc=.libPaths()), no = paste(sourceFolder, "../inst/data/showcase/Metabolite_profile_showcase.txt",                sep = "/"))},
-           "MSMS_library_showcase.msp"={                      file <- ifelse(test = isPackage, yes = system.file("data/showcase/MSMS_library_showcase.msp",                       package = "MetFamily", lib.loc=.libPaths()), no = paste(sourceFolder, "../inst/data/showcase/MSMS_library_showcase.msp",                      sep = "/"))},
-           "Project_file_showcase_annotated.csv.gz"={         file <- ifelse(test = isPackage, yes = system.file("data/showcase/Project_file_showcase_annotated.csv.gz",          package = "MetFamily", lib.loc=.libPaths()), no = paste(sourceFolder, "../inst/data/showcase/Project_file_showcase_annotated.csv.gz",         sep = "/"))},
-           "Project_file_showcase_annotated_reduced.csv.gz"={ file <- ifelse(test = isPackage, yes = system.file("data/showcase/Project_file_showcase_annotated_reduced.csv.gz",  package = "MetFamily", lib.loc=.libPaths()), no = paste(sourceFolder, "../inst/data/showcase/Project_file_showcase_annotated_reduced.csv.gz", sep = "/"))},
-           "Project_file_showcase_reduced.csv.gz"={           file <- ifelse(test = isPackage, yes = system.file("data/showcase/Project_file_showcase_reduced.csv.gz",            package = "MetFamily", lib.loc=.libPaths()), no = paste(sourceFolder, "../inst/data/showcase/Project_file_showcase_reduced.csv.gz",           sep = "/"))},
+           "logo_ipb_en.png"={                                file <- ifelse(test = isPackage, yes = system.file("www/logo_ipb_en.png",                                           package = "MetFamily", lib.loc=.libPaths()), no = paste(sourceFolder, "www/logo_ipb_en.png",                                          sep = "/"))},
            
-           #"Classifiers"={                                    file <- ifelse(test = isPackage, yes = system.file("data/classifiers/",                                             package = "MetFamily", lib.loc=.libPaths()), no = paste(sourceFolder, "../inst/data/classifiers/",                                            sep = "/"))},
-           "Classifiers"={                                    file <- ifelse(test = isPackage, yes = system.file("data/classifier/",                                              package = "MetFamily", lib.loc=.libPaths()), no = paste(sourceFolder, "../inst/data/classifier/",                                             sep = "/"))},
-           #resultFolderForClassifiers <- "/home/htreutle/Data/SubstanceClasses/Classifier_ROC_Analysis/Classifiers"
-           #resultFolderForClassifiers <- "/mnt/Treutler/Data/SubstanceClasses/Classifier_ROC_Analysis/Classifiers"
+           "MetFamily_Input_Specification.pdf"={              file <- ifelse(test = isPackage, yes = system.file("doc/MetFamily_Input_Specification.pdf",                         package = "MetFamily", lib.loc=.libPaths()), no = paste(sourceFolder, "inst/doc/MetFamily_Input_Specification.pdf",                        sep = "/"))},
+           "MetFamily_user_guide.pdf"={                       file <- ifelse(test = isPackage, yes = system.file("doc/MetFamily_user_guide.pdf",                                  package = "MetFamily", lib.loc=.libPaths()), no = paste(sourceFolder, "inst/doc/MetFamily_user_guide.pdf",                                 sep = "/"))},
+           "MetFamily_Showcase_protocol.pdf"={                file <- ifelse(test = isPackage, yes = system.file("doc/MetFamily_Showcase_protocol.pdf",                           package = "MetFamily", lib.loc=.libPaths()), no = paste(sourceFolder, "inst/doc/MetFamily_Showcase_protocol.pdf",                          sep = "/"))},
+           "Fragment_matrix_showcase.csv"={                   file <- ifelse(test = isPackage, yes = system.file("data/showcase/Fragment_matrix_showcase.csv",                    package = "MetFamily", lib.loc=.libPaths()), no = paste(sourceFolder, "inst/data/showcase/Fragment_matrix_showcase.csv",                   sep = "/"))},
+           "Metabolite_profile_showcase.txt"={                file <- ifelse(test = isPackage, yes = system.file("data/showcase/Metabolite_profile_showcase.txt",                 package = "MetFamily", lib.loc=.libPaths()), no = paste(sourceFolder, "inst/data/showcase/Metabolite_profile_showcase.txt",                sep = "/"))},
+           "MSMS_library_showcase.msp"={                      file <- ifelse(test = isPackage, yes = system.file("data/showcase/MSMS_library_showcase.msp",                       package = "MetFamily", lib.loc=.libPaths()), no = paste(sourceFolder, "inst/data/showcase/MSMS_library_showcase.msp",                      sep = "/"))},
+           "Project_file_showcase_annotated.csv.gz"={         file <- ifelse(test = isPackage, yes = system.file("data/showcase/Project_file_showcase_annotated.csv.gz",          package = "MetFamily", lib.loc=.libPaths()), no = paste(sourceFolder, "inst/data/showcase/Project_file_showcase_annotated.csv.gz",         sep = "/"))},
+           "Project_file_showcase_annotated_reduced.csv.gz"={ file <- ifelse(test = isPackage, yes = system.file("data/showcase/Project_file_showcase_annotated_reduced.csv.gz",  package = "MetFamily", lib.loc=.libPaths()), no = paste(sourceFolder, "inst/data/showcase/Project_file_showcase_annotated_reduced.csv.gz", sep = "/"))},
+           "Project_file_showcase_reduced.csv.gz"={           file <- ifelse(test = isPackage, yes = system.file("data/showcase/Project_file_showcase_reduced.csv.gz",            package = "MetFamily", lib.loc=.libPaths()), no = paste(sourceFolder, "inst/data/showcase/Project_file_showcase_reduced.csv.gz",           sep = "/"))},
            
-           "Analysis.R"={                                     file <- ifelse(test = isPackage, yes = "", no = paste("Analysis.R",                sep = "/"))},
-           "DataProcessing.R"={                               file <- ifelse(test = isPackage, yes = "", no = paste("DataProcessing.R",          sep = "/"))},
-           "FragmentMatrixFunctions.R"={                      file <- ifelse(test = isPackage, yes = "", no = paste("FragmentMatrixFunctions.R", sep = "/"))},
-           "Plots.R"={                                        file <- ifelse(test = isPackage, yes = "", no = paste("Plots.R",                   sep = "/"))},
-           "R_packages.R"={                                   file <- ifelse(test = isPackage, yes = "", no = paste("R_packages.R",              sep = "/"))},
-           "StartApp.R"={                                     file <- ifelse(test = isPackage, yes = "", no = paste("StartApp.R",                sep = "/"))},
-           "Annotation.R"={                                   file <- ifelse(test = isPackage, yes = "", no = paste("Annotation.R",              sep = "/"))},
-           "Classifiers.R"={                                  file <- ifelse(test = isPackage, yes = "", no = paste("Classifiers.R",             sep = "/"))},
-           "TreeAlgorithms.R"={                               file <- ifelse(test = isPackage, yes = "", no = paste("TreeAlgorithms.R",          sep = "/"))},
+           "Classifiers"={                                    file <- ifelse(test = isPackage, yes = system.file("data/classifier/",                                              package = "MetFamily", lib.loc=.libPaths()), no = paste(sourceFolder, "inst/data/classifier/",                                             sep = "/"))},
+           
+           "Analysis.R"={                                     file <- ifelse(test = isPackage, yes = "", no = paste("R/Analysis.R",                sep = "/"))},
+           "DataProcessing.R"={                               file <- ifelse(test = isPackage, yes = "", no = paste("R/DataProcessing.R",          sep = "/"))},
+           "FragmentMatrixFunctions.R"={                      file <- ifelse(test = isPackage, yes = "", no = paste("R/FragmentMatrixFunctions.R", sep = "/"))},
+           "Plots.R"={                                        file <- ifelse(test = isPackage, yes = "", no = paste("R/Plots.R",                   sep = "/"))},
+           "R_packages.R"={                                   file <- ifelse(test = isPackage, yes = "", no = paste("R/R_packages.R",              sep = "/"))},
+           "StartApp.R"={                                     file <- ifelse(test = isPackage, yes = "", no = paste("R/StartApp.R",                sep = "/"))},
+           "Annotation.R"={                                   file <- ifelse(test = isPackage, yes = "", no = paste("R/Annotation.R",              sep = "/"))},
+           "Classifiers.R"={                                  file <- ifelse(test = isPackage, yes = "", no = paste("R/Classifiers.R",             sep = "/"))},
+           "TreeAlgorithms.R"={                               file <- ifelse(test = isPackage, yes = "", no = paste("R/TreeAlgorithms.R",          sep = "/"))},
            {## unknown state
              stop(paste("Unknown file", file))
            }
     )
-    #print(paste(isPackage,files[[idx]],file))
-    if(!file.exists(file))
-      file <- gsub(x = file, pattern = "\\.\\./inst/", replacement = "")
-    
     resultFiles[[idx]] <- file
   }
   return(resultFiles)
@@ -114,8 +89,8 @@ sourceTheCode <- function(){
   isPackage <- "MetFamily" %in% rownames(installed.packages())
   
   if(!isPackage){
-    print(paste("Sourcing", length(sourceFiles), "files"))
     sourceFiles <- getSourceFiles()
+    print(paste("Sourcing", length(sourceFiles), "files"))
     
     for(sourceFile in sourceFiles)
       source(sourceFile)
@@ -123,18 +98,7 @@ sourceTheCode <- function(){
     library("MetFamily")
   }
 }
-
-#if(isDevelopment){
-  sourceFiles <- paste(sourceFolder, "../R", getSourceFileNames(), sep = "/")
-  for(sourceFile in sourceFiles)
-    source(sourceFile)
-#} else {
-#  for(sourceFile in getSourceFileNames())
-#    source(sourceFile)
-#  #sourceTheCode()
-#}
-
-#if(!isDevelopment)  setwd("/var/log/shiny-server")
+sourceTheCode()
 
 #########################################################################################
 #########################################################################################
@@ -206,27 +170,27 @@ shinyServer(
     resetWorkspaceFunctions <- list()
     suspendOnExitFunctions <- list()
     
-    source(file = "server_functionsFilters.R", local = TRUE)$value
-    source(file = "server_functionsSelections.R", local = TRUE)$value
-    source(file = "server_functionsTableGui.R", local = TRUE)$value
-    source(file = "server_functionsDownloads.R", local = TRUE)$value
-    source(file = "server_functionsSerialization.R", local = TRUE)$value
-    source(file = "server_guiDialogs.R", local = TRUE)$value
-    source(file = "server_guiPlots.R", local = TRUE)$value
-    source(file = "server_guiAnnotation.R", local = TRUE)$value
-    source(file = "server_guiTabInput.R", local = TRUE)$value
-    source(file = "server_guiTabAnnotation.R", local = TRUE)$value
-    source(file = "server_guiTabClassifier.R", local = TRUE)$value
-    source(file = "server_guiTabSampleFilter.R", local = TRUE)$value
-    source(file = "server_guiTabMsmsFilter.R", local = TRUE)$value
-    source(file = "server_guiTabPca.R", local = TRUE)$value
-    source(file = "server_guiTabHca.R", local = TRUE)$value
-    source(file = "server_guiTabSearch.R", local = TRUE)$value
-    source(file = "server_guiTabExport.R", local = TRUE)$value
-    source(file = "server_guiPlotControls.R", local = TRUE)$value
-    source(file = "server_guiMs2plot.R", local = TRUE)$value
+    source(file = "app_files/server_functionsFilters.R", local = TRUE)$value
+    source(file = "app_files/server_functionsSelections.R", local = TRUE)$value
+    source(file = "app_files/server_functionsTableGui.R", local = TRUE)$value
+    source(file = "app_files/server_functionsDownloads.R", local = TRUE)$value
+    source(file = "app_files/server_functionsSerialization.R", local = TRUE)$value
+    source(file = "app_files/server_guiDialogs.R", local = TRUE)$value
+    source(file = "app_files/server_guiPlots.R", local = TRUE)$value
+    source(file = "app_files/server_guiAnnotation.R", local = TRUE)$value
+    source(file = "app_files/server_guiTabInput.R", local = TRUE)$value
+    source(file = "app_files/server_guiTabAnnotation.R", local = TRUE)$value
+    source(file = "app_files/server_guiTabClassifier.R", local = TRUE)$value
+    source(file = "app_files/server_guiTabSampleFilter.R", local = TRUE)$value
+    source(file = "app_files/server_guiTabMsmsFilter.R", local = TRUE)$value
+    source(file = "app_files/server_guiTabPca.R", local = TRUE)$value
+    source(file = "app_files/server_guiTabHca.R", local = TRUE)$value
+    source(file = "app_files/server_guiTabSearch.R", local = TRUE)$value
+    source(file = "app_files/server_guiTabExport.R", local = TRUE)$value
+    source(file = "app_files/server_guiPlotControls.R", local = TRUE)$value
+    source(file = "app_files/server_guiMs2plot.R", local = TRUE)$value
     ## ui generation
-    source(file = "ui_rightColumn.R", local = TRUE)
+    #source(file = "app_files/ui_rightColumn.R", local = TRUE)
     
     ## Parse the input file
     resetWorkspace <- function(){

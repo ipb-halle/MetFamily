@@ -8,7 +8,7 @@
          conditionalPanel(
            condition = "(output.showHCAplotPanel & output.analysisType == 'HCA') | (output.showPCAplotPanel & output.analysisType == 'PCA') | (output.showAnnotationplotPanel & output.analysisType == 'Annotation')",
            #condition = "output.showHCAplotPanel | output.showPCAplotPanel",
-           #fluidRow(
+           fluidRow(
            #  column(width = 6,
            #         div(style="float:right",
            #             bsTooltip(id = "showSideBar", title = "Display or hide the side bar", placement = "bottom", trigger = "hover"),
@@ -26,7 +26,7 @@
                       )
                     )##conditional
            #  )##column
-           #)##row
+           )##row
          ),##conditional
          ##############################################################################################
          ##############################################################################################
@@ -178,8 +178,8 @@
                     ),## row
                     fluidRow(
                       div(style = "position:relative",
-                      uiOutput("ui_plotHeatmap"),
-                      uiOutput("plotHeatmap_hover_info")
+                        uiOutput("ui_plotHeatmap"),
+                        uiOutput("plotHeatmap_hover_info")
                       )
                     )## row
                   ),## conditional
@@ -398,7 +398,40 @@
                                             bsTooltip(id = "newAnnotationValue", title = "The name of this annotation", placement = "bottom", trigger = "hover"),
                                             textInput(inputId = "newAnnotationValue", placeholder = 'Metabolite family name here', label = "Type new annotation"),
                                             bsTooltip(id = "newAnnotationColor", title = "The color of this annotation", placement = "bottom", trigger = "hover"),
-                                            colourpicker::colourInput(inputId = "newAnnotationColor", label = "Select annotation color", palette = "limited", showColour = "background", allowedCols = colorPalette()),
+                                            colourpicker::colourInput(inputId = "newAnnotationColor", label = "Select annotation color", palette = "limited", showColour = "background", allowedCols = c(
+                                              "blue",
+                                              "red",
+                                              "yellow",
+                                              "green",
+                                              "brown",
+                                              "deepskyblue",
+                                              "orange",
+                                              "deeppink",
+                                              "aquamarine",##
+                                              "burlywood", 
+                                              "cadetblue",
+                                              "coral",
+                                              "cornflowerblue",
+                                              "cyan",##
+                                              "darkblue",
+                                              "firebrick",
+                                              "goldenrod",
+                                              "indianred",
+                                              "khaki",##
+                                              "magenta",
+                                              "maroon",
+                                              "beige",
+                                              "moccasin",
+                                              "olivedrab",
+                                              "orangered",
+                                              "orchid",
+                                              "paleturquoise3",##
+                                              "rosybrown",
+                                              "salmon",
+                                              "seagreen3",
+                                              "skyblue",
+                                              "steelblue"
+                                            )),
                                             bsTooltip(id = "submitNewAnnotation", title = "Adds this annotation to the set of selected MS\u00B9 features", placement = "bottom", trigger = "hover"),
                                             actionButton(inputId = "submitNewAnnotation", label = "Add new annotation", class="btn-success")
                                           ),
@@ -505,7 +538,40 @@
                    bsTooltip(id = "newAnnotationValue2", title = "The name of this annotation", placement = "bottom", trigger = "hover"),
                    textInput(inputId = "newAnnotationValue2", placeholder = 'Metabolite family name', label = "Type new annotation"),
                    bsTooltip(id = "newAnnotationColor2", title = "The color of this annotation", placement = "bottom", trigger = "hover"),
-                   colourpicker::colourInput(inputId = "newAnnotationColor2", label = "Select annotation color", palette = "limited", showColour = "background", allowedCols = colorPalette()),
+                   colourpicker::colourInput(inputId = "newAnnotationColor2", label = "Select annotation color", palette = "limited", showColour = "background", allowedCols = c(
+                     "blue",
+                     "red",
+                     "yellow",
+                     "green",
+                     "brown",
+                     "deepskyblue",
+                     "orange",
+                     "deeppink",
+                     "aquamarine",##
+                     "burlywood", 
+                     "cadetblue",
+                     "coral",
+                     "cornflowerblue",
+                     "cyan",##
+                     "darkblue",
+                     "firebrick",
+                     "goldenrod",
+                     "indianred",
+                     "khaki",##
+                     "magenta",
+                     "maroon",
+                     "beige",
+                     "moccasin",
+                     "olivedrab",
+                     "orangered",
+                     "orchid",
+                     "paleturquoise3",##
+                     "rosybrown",
+                     "salmon",
+                     "seagreen3",
+                     "skyblue",
+                     "steelblue"
+                   )),
                    bsTooltip(id = "confirmAnnotation", title = "Applies the metabolite family annotation to all confirmed MS\u00B9 features", placement = "bottom", trigger = "hover"),
                    actionButton(inputId = "confirmAnnotation", label = "Apply confirmed annotations", class="btn-success")
                  )## cond ms1
