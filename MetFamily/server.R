@@ -116,12 +116,8 @@ shinyServer(
     
     ##############################################
     ## constants
-    
-    ## MetFamily properties
-    toolName       <- "MetFamily"
-    toolVersion    <- "1.0"
-    metFamilyBuilt <- "1.2.0"
-    
+    source("version.R")
+      
     ## annotation constants
     artifactName   <- "Ignore"
     artifactColor  <- "red"
@@ -445,6 +441,7 @@ shinyServer(
       paste(
         R.Version()$version.string, 
         "\nMetFamily build: ", metFamilyBuilt, "-", system(command = "hostname", intern = TRUE),
+        "\nMetFamily package: ", packageVersion,
         #"\n", getwd(),
         #"\n", paste(list.files(path = getwd(), all.files = F, full.names = F, recursive = T, include.dirs = F), collapse = "\n"),
         sep = ""
