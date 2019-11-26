@@ -687,7 +687,10 @@ shinyUI(
                 # wellPanel(
                   hr(),
                   h4("Filtered MS\u00B9 features"),
-                  bsTooltip(id = "hcaFilteredPrecursors", title = "The number of MS\u00B9 features which fulfill the given filter criteria", placement = "bottom", trigger = "hover"),
+                  bsTooltip(id = "hcaFilteredPrecursors", title = paste("The number of MS\u00B9 features which fulfill the given filter criteria. HCA analysis is only possible for less than",
+                                                                        5000, #maximumNumberOfPrecursorsForHca,
+                                                                        "MS\u00B9 features."),
+                            placement = "bottom", trigger = "hover"),
                   verbatimTextOutput("hcaFilteredPrecursors"),
                   conditionalPanel(
                     condition = "output.hcaFilterValid",
