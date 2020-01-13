@@ -422,9 +422,6 @@ shinyServer(
       print("Suspending observers")
       for(suspendOnExitFunction in suspendOnExitFunctions)
         suspendOnExitFunction()
-      
-      print("Exiting")
-      stopApp()
     })
     
     #########################################################################################
