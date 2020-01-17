@@ -969,7 +969,9 @@ outputOptions(output, 'showPutativeAnnotationsTableFromAnalysis',  suspendWhenHi
 
 output$ui_plotAnnoLegendHCA <- renderUI({
   print(paste("### GUI ### ui_plotAnnoLegendHCA"))
-  plotOutput(outputId = "plotAnnoLegendHCA", height = state_tabHca$annotationLegendHeightHca)
+  if(state_tabHca$annotationLegendHeightHca != -1) {
+    plotOutput(outputId = "plotAnnoLegendHCA", height = state_tabHca$annotationLegendHeightHca)
+  }
 })
 output$ui_plotHeatmap <- renderUI({
   print(paste("### GUI ### ui_plotHeatmap"))

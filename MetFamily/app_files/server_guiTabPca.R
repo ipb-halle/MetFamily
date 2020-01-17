@@ -678,11 +678,15 @@ output$plotPcaLoadings_hover_info <- renderUI({
 
 output$ui_plotAnnoLegendPCA <- renderUI({
   print(paste("### GUI ### ui_plotAnnoLegendPCA"))
-  plotOutput(outputId = "plotAnnoLegendPCA", height = state_tabPca$annotationLegendHeightPca)
+  if(state_tabPca$annotationLegendHeightPca != -1) {
+    plotOutput(outputId = "plotAnnoLegendPCA", height = state_tabPca$annotationLegendHeightPca)
+  }
 })
 output$ui_plotScoresGroupsLegend <- renderUI({
   print(paste("### GUI ### ui_plotScoresGroupsLegend"))
-  plotOutput(outputId = "plotScoresGroupsLegend", height = state_tabPca$scoresGroupsLegendHeight)
+  if(state_tabPca$scoresGroupsLegendHeight != -1) {
+    plotOutput(outputId = "plotScoresGroupsLegend", height = state_tabPca$scoresGroupsLegendHeight)
+  }
 })
 
 suspendOnExitFunctions <- c(suspendOnExitFunctions, function(){
