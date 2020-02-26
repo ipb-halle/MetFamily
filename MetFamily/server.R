@@ -123,6 +123,9 @@ shinyServer(
     artifactColor  <- "red"
     selectionNone  <- "None"
     
+    ## Download names
+    ExportMatrixName <- NULL
+    
     ## GUI constants
     runRightColumnWidthFull <- 12
     legendColumnWidthFull <- 2
