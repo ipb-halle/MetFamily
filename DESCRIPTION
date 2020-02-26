@@ -1,0 +1,44 @@
+Package: MetFamily
+Type: Package
+Title: MetFamily: Discovering Regulated Metabolite Families in Untargeted Metabolomics Studies
+Version: 0.99.1
+Date: 2016-07-24
+Author: c( person("Hendrik", "Treutler, role = c("aut", "cre"), email = "hendrik.treutler@ipb-halle.de") )
+Depends:
+    R (>= 3.2.2),
+    htmltools,
+    shiny,
+    shinyBS,
+    shinyjs,
+    shinybusy,
+    DT,
+    colourpicker,
+    Matrix,
+    squash,
+    FactoMineR,
+    mixOmics,
+    pcaMethods,
+    cba,
+    tools,
+    stringr,
+    xcms,
+    mzR,
+    matrixStats,
+    plotrix
+Suggests:
+    knitr,
+    testthat
+VignetteBuilder: knitr
+Maintainer: Hendrik Treutler<hendrik.treutler@ipb-halle.de>
+Description: We present a novel approach for the untargeted discovery of metabolite families offering a bird's eye view of metabolic regulation in comparative metabolomics. We implemented the presented methodology in the easy-to-use web application MetFamily to enable the analysis of comprehensive metabolomics studies for all researchers worldwide.
+License: GPL (>= 2)
+biocViews: Software, Visualization
+Collate:
+    'StartApp.R'
+    'R_packages.R'
+    'FragmentMatrixFunctions.R'
+    'DataProcessing.R'
+    'Analysis.R'
+    'TreeAlgorithms.R'
+    'Plots.R'
+RoxygenNote: 6.0.1
