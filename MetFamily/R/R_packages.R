@@ -13,6 +13,8 @@ library("DT")
 library("colourpicker")
 #install.packages("shinyBS")
 library("shinyBS")
+#install.packages("shinybusy")
+library("shinybusy")
 
 ##############################################################################################################
 ## mass spectrometry
