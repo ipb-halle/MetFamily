@@ -230,10 +230,12 @@ writeTable <- function(precursorSet, file){
   #gz1 <- gzfile(description = file, open = "w")
   #write.table(x = dataFrame, file = gz1, sep = "\t", row.names = FALSE, col.names = FALSE, quote = FALSE)
   #close(gz1)
+  show_modal_spinner(spin="scaling-squares", text="\nMerging project files to csv. This can take several minutes!")
   lines <- createExportMatrix(precursorSet)
   gz1 <- gzfile(description = file, open = "w")
   writeLines(text = lines, con = gz1)
   close(gz1)
+  remove_modal_spinner()
 }
 ## individual downloads
 output$downloadGlobalMS2filteredPrecursors <- downloadHandler(
@@ -286,13 +288,22 @@ output$downloadSelectedPrecursors <- downloadHandler(
   },
   contentType = 'text/csv'
 )
-output$downloadAllPrecursors <- downloadHandler(
-  filename = function() {
-    createExportMatrixName()
-  },
-  content = function(file) {
-    precursorSet <- 1:dataList$numberOfPrecursors
-    writeTable(precursorSet = precursorSet, file = file)
+#Obvserve button for exporting the project
+observeEvent(input$prepareAllPrecursors, {
+  ExportMatrixName <<- createExportMatrixName()
+  precursorSet <- 1:dataList$numberOfPrecursors
+  writeTable(precursorSet = precursorSet, file = file.path(tempdir(),ExportMatrixName))
+  showModal(modalDialog(title = "Download", footer = NULL, size="s", fluidRow(column(12, p("Your download is ready."))), 
+                        fluidRow(column(3,downloadButton(outputId = "downloadAllpreparedPrecursors", label = "Download project"))),
+))
+})
+#Serving the modal with the download button to download the project
+output$downloadAllpreparedPrecursors <- downloadHandler(
+  filename <- ExportMatrixName, 
+  content = function(file){
+    file.copy(file.path(tempdir(),ExportMatrixName), file)
+    file.remove(file.path(tempdir(),ExportMatrixName))
+    removeModal()
   },
   contentType = 'text/csv'
 )
