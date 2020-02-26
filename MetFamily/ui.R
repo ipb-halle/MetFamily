@@ -23,7 +23,8 @@ importParameterSetInit <- list(
 )
 
 shinyUI(
-  ui = navbarPage(title = "MetFamily", 
+    ui = navbarPage(title = "MetFamily", 
+   
     ##########################################################################################
     ##########################################################################################
     ##########################################################################################
@@ -55,8 +56,18 @@ shinyUI(
               }
             )
           </script>
-        '
+
+          '
       ))),
+      singleton(tags$head(tags$style(
+        HTML(".shiny-notification {
+             position:fixed;
+             top: calc(40%);
+             left: calc(50%);
+             }
+             "
+      )))),
+        
       title = "Run",
       ##############################################################################################
       ##############################################################################################
@@ -1082,11 +1093,11 @@ shinyUI(
                   fluidRow(
                     column(width = 6, style="width:50%",
                            div(style="float:left;width:100%",
-                               bsTooltip(id = "downloadAllPrecursors", title = "Download the full project file", placement = "bottom", trigger = "hover"),
-                               downloadButton(outputId = "downloadAllPrecursors", label = "Export project"),
+                               bsTooltip(id = "prepareAllPrecursors", title = "Download the full project file", placement = "bottom", trigger = "hover"),
+                               actionButton("prepareAllPrecursors", "Project export", icon = icon("file-export", lib = "font-awesome"), style="width:100%"),
                                tags$style(type='text/css', "#downloadAllPrecursors { width:100%}")
                            )
-                    ),##column
+                    ), #column
                     column(width = 6, style="width:50%",
                            div(style="float:right;width:100%",
                                bsTooltip(id = "downloadImportParameterSet", title = "Download a parameter file with the parameters which have been used for the initial data import", placement = "bottom", trigger = "hover"),
