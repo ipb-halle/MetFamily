@@ -10,6 +10,7 @@ Depends:
     shiny,
     shinyBS,
     shinyjs,
+    shinybusy,
     DT,
     colourpicker,
     Matrix,
@@ -29,7 +30,7 @@ Suggests:
     testthat
 VignetteBuilder: knitr
 Maintainer: Hendrik Treutler<hendrik.treutler@ipb-halle.de>
-Description: DiffLogo is an easy-to-use tool for the discovery of regulated metabolite families.
+Description: We present a novel approach for the untargeted discovery of metabolite families offering a bird's eye view of metabolic regulation in comparative metabolomics. We implemented the presented methodology in the easy-to-use web application MetFamily to enable the analysis of comprehensive metabolomics studies for all researchers worldwide.
 License: GPL (>= 2)
 biocViews: Software, Visualization
 Collate:
