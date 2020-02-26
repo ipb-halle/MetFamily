@@ -110,6 +110,7 @@ sourceTheCode()
 ## server-side logic of the Shiny app
 shinyServer(
   func = function(input, output, session) {
+    show_modal_spinner(spin = "self-building-square", text="Loading libraries")
     #########################################################################################
     #########################################################################################
     ## global variables per user
@@ -217,6 +218,7 @@ shinyServer(
     #########################################################################################
     #########################################################################################
     ## observer
+    remove_modal_spinner() #Remove preparing message
     
     ## controls
     obsTabs <- observeEvent(input$runTabs, {
