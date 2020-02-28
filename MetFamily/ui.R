@@ -5,7 +5,6 @@ library(shinyBS)
 library(shinyjs)
 library(DT)
 
-ipbheader <- HTML(readLines("www/ipbheader.html"))
 ipbfooter <- HTML(readLines("www/ipbfooter.html"))
 
 importParameterSetInit <- list(
@@ -45,7 +44,6 @@ shinyUI(
       shinyjs::useShinyjs(),
       ##############################################################################################
       ## enable / disable actionButtons while process is running
-      singleton(tags$body(ipbheader)),
       singleton(tags$head(HTML(
         '
           <script type="text/javascript">
