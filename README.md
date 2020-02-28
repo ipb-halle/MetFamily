@@ -12,4 +12,5 @@ the actual MetFamily code and web application.
 
 Build via `docker build -t sneumann/metfamily . `
 
+The build of the metfamily-base image https://hub.docker.com/r/sneumann/metfamily-base is triggerd whenever in the `master` branch a tag `basechange-<date>` e.g. `basechange-20190804` is specified.
 
