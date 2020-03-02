@@ -1,0 +1,82 @@
+/* ----------------- Navigation und Footer unterhalb Content ----------------------- */
+#second-wrap{
+    background: #ededed;
+    min-height: 40px;
+    overflow: visible;
+    margin: 15px 0 0 0;
+}
+
+#second-nav{
+    margin-left: 52px;
+    float: left;
+}
+
+#second-nav ul li{
+    list-style-type: none;
+    float: left;
+    line-height: 40px;
+    color: #191F39;
+    font-size: 13px;
+}
+
+#second-nav ul li a{
+    font-size: 13px;
+    color: #191F39;
+    text-decoration: none;
+}
+
+#second-nav ul li a:hover,
+#second-nav ul li a:focus{
+    color:#0C67AE;
+}
+
+#footer{
+    float: right;
+    margin-right: 52px;
+}
+
+#footer p{
+    line-height: 40px;
+    color: #191F39;
+    font-size: 13px;
+}
+
+/* ----------------- Sitemap ------------------- */
+
+#sitemap-header{
+    background: #19213a;
+    height: 100px;
+    line-height: 100px;
+    overflow: visible;
+}
+#sitemap-header #left-nav{
+    margin-left:60px;
+    float: left;
+}
+#sitemap-header #right-nav{
+    float: right;
+}
+#sitemap-header #left-nav li, #sitemap-header #right-nav li{
+    list-style-type: none;
+    color: #fff;
+    line-height: 80px;
+    font-size: 60px;
+    float: left;
+}
+#sitemap-header #left-nav li{
+    padding-right: 20px;
+}
+#sitemap-header #right-nav li{
+    padding-left: 20px;
+}
+#sitemap-header #left-nav li .border, #sitemap-header #right-nav li .border{
+    display: block;
+    width: 1px;
+    height: 60px;
+    border-right:1px #7c8497 solid;
+    margin-top: 20px;
+}
+#sitemap-header #left-nav{
+    margin-left:60px;
+    float: left;
+}

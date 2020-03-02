@@ -5,6 +5,8 @@ library(shinyBS)
 library(shinyjs)
 library(DT)
 
+ipbfooter <- HTML(readLines("www/ipbfooter.html"))
+
 importParameterSetInit <- list(
   minimumIntensityOfMaximalMS2peak = 2000,
   minimumProportionOfMS2peaks = 0.05,
@@ -22,9 +24,19 @@ importParameterSetInit <- list(
   mzDeviationInPPM_ms2PeakGroupDeisotoping = 10
 )
 
+#shinyUI(
+ # ui = fluidPage(titlePanel(ipbheader),
+#                 # IPB header 
+ #                tags$head(tags$link(rel = "stylesheet", type = "text/css", 
+#                                     href = "css/ipb-styles.css")),
+#                 navbarPage(title = "MetFamily", 
+
+
 shinyUI(
-    ui = navbarPage(title = "MetFamily", 
-   
+    ui =  navbarPage(title = div(img(src='img/Metfamily.gif',style="margin-top: -14px; padding-right:10px;padding-bottom:10px", height = 60)),
+                     windowTitle="MetFamily",
+                     footer = ipbfooter,
+                    
     ##########################################################################################
     ##########################################################################################
     ##########################################################################################
@@ -67,12 +79,16 @@ shinyUI(
              }
              "
       )))),
+      singleton(tags$head(tags$link(rel = "stylesheet", 
+                                     type = "text/css",
+                                     href = "css/ipb-styles.css"))),
         
       title = "Run",
       ##############################################################################################
       ##############################################################################################
       ##############################################################################################
       ## side panel
+      fluidRow(
       conditionalPanel(
         condition = "output.showSideBar",
         column(width = 4,
@@ -1172,6 +1188,7 @@ shinyUI(
       #uiOutput("runRightColumn")
       source(file = "app_files/ui_rightColumn.R", local = TRUE)$value
     ),## tab
+    ),
     ##########################################################################################
     ##########################################################################################
     ##########################################################################################
@@ -1239,5 +1256,8 @@ shinyUI(
         verbatimTextOutput(outputId = "rInfo")
       )## well panel
     )## tab
-  )## navBar
+  )#,## navBar
+  # Application footer
+  #fluidRow(ipbfooter)
+  #)## fluidPage
 )## shinyUI
