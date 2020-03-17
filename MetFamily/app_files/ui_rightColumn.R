@@ -413,7 +413,6 @@
                                               "coral",
                                               "cornflowerblue",
                                               "cyan",##
-                                              "darkblue",
                                               "firebrick",
                                               "goldenrod",
                                               "indianred",
@@ -430,7 +429,16 @@
                                               "salmon",
                                               "seagreen3",
                                               "skyblue",
-                                              "steelblue"
+                                              "steelblue",
+                                              "#BF360C",
+                                              "#33691E",
+                                              "#311B92",
+                                              "#880E4F",
+                                              "#1A237E",
+                                              "#006064",
+                                              "#004D40",
+                                              "#FF6F00",
+                                              "#E65100"
                                             )),
                                             bsTooltip(id = "submitNewAnnotation", title = "Adds this annotation to the set of selected MS\u00B9 features", placement = "bottom", trigger = "hover"),
                                             actionButton(inputId = "submitNewAnnotation", label = "Add new annotation", class="btn-success")
@@ -553,7 +561,6 @@
                      "coral",
                      "cornflowerblue",
                      "cyan",##
-                     "darkblue",
                      "firebrick",
                      "goldenrod",
                      "indianred",
@@ -570,7 +577,16 @@
                      "salmon",
                      "seagreen3",
                      "skyblue",
-                     "steelblue"
+                     "steelblue",
+                     "#BF360C",
+                     "#33691E",
+                     "#311B92",
+                     "#880E4F",
+                     "#1A237E",
+                     "#006064",
+                     "#004D40",
+                     "#FF6F00",
+                     "#E65100"
                    )),
                    bsTooltip(id = "confirmAnnotation", title = "Applies the metabolite family annotation to all confirmed MS\u00B9 features", placement = "bottom", trigger = "hover"),
                    actionButton(inputId = "confirmAnnotation", label = "Apply confirmed annotations", class="btn-success")
