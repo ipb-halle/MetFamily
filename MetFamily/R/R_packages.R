@@ -1,22 +1,5 @@
 
 ##############################################################################################################
-## GUI
-#install.packages("shiny")
-library("shiny")
-#devtools::install_github("rstudio/htmltools")
-library("htmltools")
-#install.packages("shinyjs")
-library("shinyjs")
-#install.packages("DT")
-library("DT")
-#install.packages("colourpicker")
-library("colourpicker")
-#install.packages("shinyBS")
-library("shinyBS")
-#install.packages("shinybusy")
-library("shinybusy")
-
-##############################################################################################################
 ## mass spectrometry
 #sudo apt-get install libnetcdf-dev
 #source("https://bioconductor.org/biocLite.R")
