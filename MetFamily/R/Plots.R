@@ -4,7 +4,8 @@
 minimumProportionOfLeafs <- 0.75
 minimumProportionToShowFragment <- 0.5
 
-clusterNodePointSize0 <- 2/3
+## changing this from 2 to 1.89
+clusterNodePointSize0 <- 1.89/3
 clusterNodePointSize1 <- 3/3
 clusterNodePointSize2 <- 4/3
 clusterNodePointSize3 <- 5/3
@@ -94,9 +95,10 @@ calcPlotDendrogram <- function(dataList, filter, clusterDataList, annoPresentAnn
          "Metabolite name"={
            precursorLabels <- dataList$dataFrameInfos[filter, "Metabolite name"]
            
-           maximumNumberOfCharacters <- 17
+           maximumNumberOfCharacters <- 40
            tooLong <- nchar(x = precursorLabels) > maximumNumberOfCharacters
-           precursorLabels[tooLong] <- paste(substring(text = precursorLabels[tooLong], first = 1, last = maximumNumberOfCharacters - 3), rep(x = "...", times = sum(tooLong)), sep = "")
+           precursorLabels[tooLong] <- paste(substring(text = precursorLabels[tooLong], first = 1, last = maximumNumberOfCharacters ), rep(x = "...", times = sum(tooLong)), sep = "")
+           #precursorLabels[tooLong] <- paste(substring(text = precursorLabels[tooLong], first = 1, last = maximumNumberOfCharacters - 3), rep(x = "...", times = sum(tooLong)), sep = "")
          },
          "Metabolite family"={
            precursorLabels <- unlist(lapply(X = dataList$annoArrayOfLists[filter], FUN = function(x){
@@ -106,9 +108,10 @@ calcPlotDendrogram <- function(dataList, filter, clusterDataList, annoPresentAnn
                return(x[[1]])
            }))
            
-           maximumNumberOfCharacters <- 17
+           maximumNumberOfCharacters <- 40
            tooLong <- nchar(x = precursorLabels) > maximumNumberOfCharacters
-           precursorLabels[tooLong] <- paste(substring(text = precursorLabels[tooLong], first = 1, last = maximumNumberOfCharacters - 3), rep(x = "...", times = sum(tooLong)), sep = "")
+           precursorLabels[tooLong] <- paste(substring(text = precursorLabels[tooLong], first = 1, last = maximumNumberOfCharacters ), rep(x = "...", times = sum(tooLong)), sep = "")
+           #precursorLabels[tooLong] <- paste(substring(text = precursorLabels[tooLong], first = 1, last = maximumNumberOfCharacters - 3), rep(x = "...", times = sum(tooLong)), sep = "")
          },
          {## unknown state
            stop(paste("Unknown hcaPrecursorLabels value", hcaPrecursorLabels))
@@ -365,9 +368,11 @@ calcPlotDendrogram_plotly <- function(
          "Metabolite name"={
            precursorLabels <- dataList$dataFrameInfos[filterObj$filter, "Metabolite name"]
            
-           maximumNumberOfCharacters <- 17
+           #maximumNumberOfCharacters <- 17
+           maximumNumberOfCharacters <- 40
            tooLong <- nchar(x = precursorLabels) > maximumNumberOfCharacters
-           precursorLabels[tooLong] <- paste(substring(text = precursorLabels[tooLong], first = 1, last = maximumNumberOfCharacters - 3), rep(x = "...", times = sum(tooLong)), sep = "")
+           precursorLabels[tooLong] <- paste(substring(text = precursorLabels[tooLong], first = 1, last = maximumNumberOfCharacters), rep(x = "...", times = sum(tooLong)), sep = "")
+           #precursorLabels[tooLong] <- paste(substring(text = precursorLabels[tooLong], first = 1, last = maximumNumberOfCharacters - 3), rep(x = "...", times = sum(tooLong)), sep = "")
          },
          "Metabolite family"={
            precursorLabels <- unlist(lapply(X = dataList$annoArrayOfLists[filterObj$filter], FUN = function(x){
@@ -377,9 +382,11 @@ calcPlotDendrogram_plotly <- function(
                return(x[[1]])
            }))
            
-           maximumNumberOfCharacters <- 17
+           #maximumNumberOfCharacters <- 17
+           maximumNumberOfCharacters <- 40
            tooLong <- nchar(x = precursorLabels) > maximumNumberOfCharacters
-           precursorLabels[tooLong] <- paste(substring(text = precursorLabels[tooLong], first = 1, last = maximumNumberOfCharacters - 3), rep(x = "...", times = sum(tooLong)), sep = "")
+           precursorLabels[tooLong] <- paste(substring(text = precursorLabels[tooLong], first = 1, last = maximumNumberOfCharacters ), rep(x = "...", times = sum(tooLong)), sep = "")
+           #precursorLabels[tooLong] <- paste(substring(text = precursorLabels[tooLong], first = 1, last = maximumNumberOfCharacters - 3), rep(x = "...", times = sum(tooLong)), sep = "")
          },
          {## unknown state
            stop(paste("Unknown hcaPrecursorLabels value", hcaPrecursorLabels))
@@ -1513,7 +1520,7 @@ calcPlotLegend <- function(annoLabels, annoColors, title){
   ## plot
   plotLegendWithBalls(labels, xPositions, yPositions, symbolXPositions, symbolYPositions, annoColors, xSpacing*0.075)
 }
-calcPlotAnnoLegendForImage <- function(annoLabels, annoColors, maximumNumberOfLines=10){
+calcPlotAnnoLegendForImage <- function(annoLabels, annoColors, maximumNumberOfLines=20){
   ## get and reorder annotations
   resultObj <- reorderAnnotationsForLegend(annoLabels, annoColors)
   annoLabels <- resultObj$annoLabels
@@ -1521,7 +1528,7 @@ calcPlotAnnoLegendForImage <- function(annoLabels, annoColors, maximumNumberOfLi
   
   calcPlotLegendForImage(annoLabels, annoColors, "Annotations", maximumNumberOfLines)
 }
-calcPlotScoresGroupsLegendForImage <- function(groups, colors, maximumNumberOfLines=10){
+calcPlotScoresGroupsLegendForImage <- function(groups, colors, maximumNumberOfLines=20){
   ## get and reorder annotations
   calcPlotLegendForImage(groups, colors, "Scores", maximumNumberOfLines)
 }
