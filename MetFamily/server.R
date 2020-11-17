@@ -71,7 +71,6 @@ getFile <- function(files){
 ## source code
 getSourceFileNames <- function(){
   return(c(
-    "R_packages.R",
     "FragmentMatrixFunctions.R",
     "DataProcessing.R",
     "TreeAlgorithms.R",
@@ -111,6 +110,7 @@ sourceTheCode()
 shinyServer(
   func = function(input, output, session) {
     show_modal_spinner(spin = "self-building-square", text="Loading libraries")
+    source(getFile("R_packages.R"))
     #########################################################################################
     #########################################################################################
     ## global variables per user
