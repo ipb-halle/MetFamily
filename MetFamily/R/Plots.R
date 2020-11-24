@@ -4,7 +4,8 @@
 minimumProportionOfLeafs <- 0.75
 minimumProportionToShowFragment <- 0.5
 
-clusterNodePointSize0 <- 2/3
+## changing this from 2 to 1.89
+clusterNodePointSize0 <- 1.89/3
 clusterNodePointSize1 <- 3/3
 clusterNodePointSize2 <- 4/3
 clusterNodePointSize3 <- 5/3
@@ -94,9 +95,10 @@ calcPlotDendrogram <- function(dataList, filter, clusterDataList, annoPresentAnn
          "Metabolite name"={
            precursorLabels <- dataList$dataFrameInfos[filter, "Metabolite name"]
            
-           maximumNumberOfCharacters <- 17
+           maximumNumberOfCharacters <- 40
            tooLong <- nchar(x = precursorLabels) > maximumNumberOfCharacters
-           precursorLabels[tooLong] <- paste(substring(text = precursorLabels[tooLong], first = 1, last = maximumNumberOfCharacters - 3), rep(x = "...", times = sum(tooLong)), sep = "")
+           precursorLabels[tooLong] <- paste(substring(text = precursorLabels[tooLong], first = 1, last = maximumNumberOfCharacters ), rep(x = "...", times = sum(tooLong)), sep = "")
+           #precursorLabels[tooLong] <- paste(substring(text = precursorLabels[tooLong], first = 1, last = maximumNumberOfCharacters - 3), rep(x = "...", times = sum(tooLong)), sep = "")
          },
          "Metabolite family"={
            precursorLabels <- unlist(lapply(X = dataList$annoArrayOfLists[filter], FUN = function(x){
@@ -106,9 +108,10 @@ calcPlotDendrogram <- function(dataList, filter, clusterDataList, annoPresentAnn
                return(x[[1]])
            }))
            
-           maximumNumberOfCharacters <- 17
+           maximumNumberOfCharacters <- 40
            tooLong <- nchar(x = precursorLabels) > maximumNumberOfCharacters
-           precursorLabels[tooLong] <- paste(substring(text = precursorLabels[tooLong], first = 1, last = maximumNumberOfCharacters - 3), rep(x = "...", times = sum(tooLong)), sep = "")
+           precursorLabels[tooLong] <- paste(substring(text = precursorLabels[tooLong], first = 1, last = maximumNumberOfCharacters ), rep(x = "...", times = sum(tooLong)), sep = "")
+           #precursorLabels[tooLong] <- paste(substring(text = precursorLabels[tooLong], first = 1, last = maximumNumberOfCharacters - 3), rep(x = "...", times = sum(tooLong)), sep = "")
          },
          {## unknown state
            stop(paste("Unknown hcaPrecursorLabels value", hcaPrecursorLabels))
@@ -365,9 +368,11 @@ calcPlotDendrogram_plotly <- function(
          "Metabolite name"={
            precursorLabels <- dataList$dataFrameInfos[filterObj$filter, "Metabolite name"]
            
-           maximumNumberOfCharacters <- 17
+           #maximumNumberOfCharacters <- 17
+           maximumNumberOfCharacters <- 40
            tooLong <- nchar(x = precursorLabels) > maximumNumberOfCharacters
-           precursorLabels[tooLong] <- paste(substring(text = precursorLabels[tooLong], first = 1, last = maximumNumberOfCharacters - 3), rep(x = "...", times = sum(tooLong)), sep = "")
+           precursorLabels[tooLong] <- paste(substring(text = precursorLabels[tooLong], first = 1, last = maximumNumberOfCharacters), rep(x = "...", times = sum(tooLong)), sep = "")
+           #precursorLabels[tooLong] <- paste(substring(text = precursorLabels[tooLong], first = 1, last = maximumNumberOfCharacters - 3), rep(x = "...", times = sum(tooLong)), sep = "")
          },
          "Metabolite family"={
            precursorLabels <- unlist(lapply(X = dataList$annoArrayOfLists[filterObj$filter], FUN = function(x){
@@ -377,9 +382,11 @@ calcPlotDendrogram_plotly <- function(
                return(x[[1]])
            }))
            
-           maximumNumberOfCharacters <- 17
+           #maximumNumberOfCharacters <- 17
+           maximumNumberOfCharacters <- 40
            tooLong <- nchar(x = precursorLabels) > maximumNumberOfCharacters
-           precursorLabels[tooLong] <- paste(substring(text = precursorLabels[tooLong], first = 1, last = maximumNumberOfCharacters - 3), rep(x = "...", times = sum(tooLong)), sep = "")
+           precursorLabels[tooLong] <- paste(substring(text = precursorLabels[tooLong], first = 1, last = maximumNumberOfCharacters ), rep(x = "...", times = sum(tooLong)), sep = "")
+           #precursorLabels[tooLong] <- paste(substring(text = precursorLabels[tooLong], first = 1, last = maximumNumberOfCharacters - 3), rep(x = "...", times = sum(tooLong)), sep = "")
          },
          {## unknown state
            stop(paste("Unknown hcaPrecursorLabels value", hcaPrecursorLabels))
@@ -1480,6 +1487,8 @@ reorderAnnotationsForLegend <- function(annoLabels, annoColors){
 }
 calcPlotAnnoLegend <- function(annoLabels, annoColors){
   if(is.null(annoLabels)){
+    #annoLabels <- vector(mode = "character")
+    ### testing this for sorting purpose
     annoLabels <- vector(mode = "character")
     annoColors <- vector(mode = "character")
   }
@@ -1499,6 +1508,7 @@ calcPlotLegend <- function(annoLabels, annoColors, title){
   ## layout
   numberOfLines <- length(annoLabels) + 1
   ySpacing <- 1 / (numberOfLines + 1)
+  #### this is my test only changing x spacing from 0.1 to 0.09
   xSpacing <- 0.1
   
   labels <- c(paste(title, ":", sep = ""), annoLabels)
@@ -1513,7 +1523,7 @@ calcPlotLegend <- function(annoLabels, annoColors, title){
   ## plot
   plotLegendWithBalls(labels, xPositions, yPositions, symbolXPositions, symbolYPositions, annoColors, xSpacing*0.075)
 }
-calcPlotAnnoLegendForImage <- function(annoLabels, annoColors, maximumNumberOfLines=10){
+calcPlotAnnoLegendForImage <- function(annoLabels, annoColors, maximumNumberOfLines=20){
   ## get and reorder annotations
   resultObj <- reorderAnnotationsForLegend(annoLabels, annoColors)
   annoLabels <- resultObj$annoLabels
@@ -1521,7 +1531,7 @@ calcPlotAnnoLegendForImage <- function(annoLabels, annoColors, maximumNumberOfLi
   
   calcPlotLegendForImage(annoLabels, annoColors, "Annotations", maximumNumberOfLines)
 }
-calcPlotScoresGroupsLegendForImage <- function(groups, colors, maximumNumberOfLines=10){
+calcPlotScoresGroupsLegendForImage <- function(groups, colors, maximumNumberOfLines=20){
   ## get and reorder annotations
   calcPlotLegendForImage(groups, colors, "Scores", maximumNumberOfLines)
 }
@@ -1530,18 +1540,20 @@ calcPlotLegendForImage <- function(annoLabels, annoColors, title, maximumNumberO
   numberOfLines <- length(annoLabels) + 1
   ySpacing <- 1 / maximumNumberOfLines
   xSpacing <- 0.1
-  
+  ### I am trying to see if the sorting works for the label ...to be removed later
   labels <- c(paste(title, ":", sep = ""), annoLabels)
+  ### changing this from -0.05 to -0.02
   xPositions <- c(-0.05, rep(x = xSpacing, times = length(annoLabels)))
   #yPositions <- seq(from = 1, to = 0, by = 1/(-length(xPositions)))
   yPositions <- seq(from = 1 - ySpacing, to = ySpacing, length.out = maximumNumberOfLines)
   yPositions <- yPositions[seq_len(numberOfLines)]
-  
-  symbolXPositions <- rep(x = xSpacing * 0.75, times = length(annoLabels))
+  #### changing this to 0.65 from 0.75
+  symbolXPositions <- rep(x = xSpacing * 0.65, times = length(annoLabels))
   symbolYPositions <- yPositions[2:length(yPositions)]
   symbolYPositions <- symbolYPositions[seq_len(length(symbolXPositions))]
   
   if(numberOfLines > maximumNumberOfLines){
+    #### I am adding the sort function to the label.. will remove late if it dont work
     labels <- labels[seq_len(maximumNumberOfLines)]
     annoColors <- annoColors[seq_len((maximumNumberOfLines - 1))]
     xPositions <- xPositions[seq_len(maximumNumberOfLines)]
@@ -2028,8 +2040,9 @@ calcPlotPCAscores <- function(pcaObj, dataList, filterObj, pcaDimensionOne, pcaD
     xInterval <- c(xMin, xMax)
   if(is.null(yInterval))
     yInterval <- c(yMin, yMax)
-  
-  par(mar=c(3 + 0.35, 3, 2, 1), mgp = c(2, 1, 0))  ## c(bottom, left, top, right)
+  ### commenting the original
+  ##par(mar=c(3 + 0.35, 3, 2, 1), mgp = c(2, 1, 0))  ## c(bottom, left, top, right)
+  par(mar=c(3+0.015 , 3, 2, 1), mgp = c(2.0, 1, 0))
   plot(
     x = dataDimOne, y = dataDimTwo, 
     xlim = xInterval, ylim = yInterval, 
@@ -2038,8 +2051,8 @@ calcPlotPCAscores <- function(pcaObj, dataList, filterObj, pcaDimensionOne, pcaD
   )
   
   ## axis
-  xInt <- xMax - xMin
-  yInt <- yMax - yMin
+  xInt <- xMax - xMin 
+  yInt <- yMax - yMin 
   xl <- xMin - xInt
   xr <- xMax + xInt
   yl <- yMin - yInt
@@ -2055,7 +2068,8 @@ calcPlotPCAscores <- function(pcaObj, dataList, filterObj, pcaDimensionOne, pcaD
     } else {
       labels <- dataList$dataColumnsNameFunctionFromGroupNames(filterObj$groups, sampleNamesToExclude = dataList$excludedSamples(dataList$groupSampleDataFrame))
     }
-    graphics::text(x = dataDimOne, y = dataDimTwo, labels = labels, pos = 4)
+    ### changing the pos= 3 from 4 and will see what happens
+    graphics::text(x = dataDimOne, y = dataDimTwo, labels = labels, pos = 2)
   }
 }
 calcPlotPCAloadings <- function(
@@ -2253,12 +2267,18 @@ calcPlotPCAloadings <- function(
   
   ############################################################################################
   ## plot
-  par(mar=c(3 + 0.35, 3, 2, 1), mgp = c(2, 1, 0))  ## c(bottom, left, top, right)
+  ### commenting the original value for the par
+  ##par(mar=c(3 + 0.35, 3, 2, 1), mgp = c(2, 1, 0))  ## c(bottom, left, top, right)
+  par(mar=c(3+0.15 , 3, 2, 1), mgp = c(2.0, 1, 0))
+  
   #plot(x = dataDimOne, y = dataDimTwo, xlim = xInterval, ylim = yInterval, xlab = xAxisLabel, ylab = yAxisLabel, main = "Loadings", pch=19, cex=0.7, col = nodeColors)
   plot(x = NULL, y = NULL, xlim = xInterval, ylim = yInterval, xlab = xAxisLabel, ylab = yAxisLabel, main = "Loadings")
   points(x = poisXpoints, y = poisYpoints, col = pointColors, pch=19, cex=pointSizes)
   
   ## axis
+  ### changing 
+  #xInt <- xMax - xMin
+  #yInt <- yMax - yMin
   xInt <- xMax - xMin
   yInt <- yMax - yMin
   xl <- xMin - xInt
@@ -2269,7 +2289,8 @@ calcPlotPCAloadings <- function(
   segments(x0 = 0, x1 = 0, y0 = yl, y1 = yr, col = "black", lwd = 1)
   
   if(all(!is.null(labels), length(labels) > 0))
-    graphics::text(  x = poisX - 0.0, y = poisY + 0.0, labels = labels, pos = 4)
+    ### changing pos = 4 to pos =3 
+    graphics::text(  x = poisX - 0.0, y = poisY + 0.0, labels = labels, pos = 2)
   
   uniqueIndeces     <- which(!duplicated(resultObjAnno$setOfAnnotations))
   uniqueAnnotations <- resultObjAnno$setOfAnnotations[uniqueIndeces]

@@ -361,9 +361,13 @@ plotHCA <- function(file, fileType, plotMS2 = TRUE){
   ## 
   
   ## parameters
-  widthInInch     <- 10
-  heigthInInch    <- ifelse(test = plotMS2, yes = 7.5, no = (5.2-1.5)/5.2 * 7.5)  
-  resolutionInDPI <- 600
+  ##widthInInch     <- 10
+  ##heigthInInch    <- ifelse(test = plotMS2, yes = 7.5, no = (5.2-1.5)/5.2 * 7.5)  
+  ##resolutionInDPI <- 600
+  widthInInch  <- 11
+  heigthInInch <- ifelse(test = plotMS2, yes = 
+                           7.05, no = (5.2-1.5)/5.2 * 7.05)
+  resolutionInDPI <- 650
   widthInPixel    <- widthInInch  * resolutionInDPI
   heightInPixel   <- heigthInInch * resolutionInDPI
   
@@ -383,22 +387,27 @@ plotHCA <- function(file, fileType, plotMS2 = TRUE){
   if(plotMS2){
     graphics::layout(
       mat = matrix(
+        ### Just commenting this
         data = c(1, 1, 1, 1, 2, 3,
-                 4, 5, 6, 7, 8, 8), 
+               4, 5, 6, 7, 8, 8), 
+        ### for now changing this from 6 ..2 to 4 ... 3
         nrow = 6, ncol = 2), 
-      widths = c(4, 1), 
-      heights = c(0.6, 1.4, 0.6, 0.6, 0.5, 1.5)
+      widths = c(4.5, 1.5), 
+      ### heights origina; heights= c(0.6,0.8,0.6,0.5,0.5)
+      heights = c(0.002, 0.001, 0.002, 0.0012, 0.0013, 0.000001)
     )
   } else {
     graphics::layout(
       mat = matrix(
         data = c(1, 1, 1, 1, 2, 
                  3, 4, 5, 6, 6), 
-        nrow = 5, ncol = 2), 
+        nrow = 4, ncol = 2), 
       widths = c(4, 1), 
       heights = c(0.6, 1.4, 0.6, 1.2, 0.5)
     )
   }
+  
+  ### changing this from 0.4 to 0.2
   
   #cex <- par("cex")
   #par(cex = 0.4)
@@ -408,13 +417,13 @@ plotHCA <- function(file, fileType, plotMS2 = TRUE){
   ## 2
   drawHeatmapPlotImpl() ## out for plotly and adapt layout
   ## 3
-  if(plotMS2)  drawMS2PlotImpl()
+ # if(plotMS2)  drawMS2PlotImpl()
   ## 4
   drawDendrogramLegendImpl()
   ## 5
   drawHeatmapLegendImpl()
   ## 6
-  if(plotMS2)  drawMS2LegendImpl()
+  #if(plotMS2)  drawMS2LegendImpl()
   ## 7
   drawFragmentDiscriminativityLegendImpl()
   ## 8
@@ -434,6 +443,8 @@ output$downloadPcaImage <- downloadHandler(
   }#,
   #contentType = 'image/png'
 )
+
+
 plotPCA <- function(file, fileType, plotMS2 = TRUE){
   ## 1 score  ## 2 loadings
   ## 3 ms2    ## 4 l anno
@@ -448,11 +459,13 @@ plotPCA <- function(file, fileType, plotMS2 = TRUE){
   ## 
   
   ## parameters
-  widthInInch     <- 10
+  ### changing the widthInInch from 10 to 11
+  widthInInch     <- 15.82
   #widthInInch     <- 10 * 4 / 5
-  heigthInInch    <- ifelse(test = plotMS2, yes = 6, no = (5.2-1.5)/5.2 * 6)  
+  ## changing the yes from 6 to 7.05
+  heigthInInch    <- ifelse(test = plotMS2, yes = 7.05, no = (5.2-1.5)/5.2 * 7.05)  
   #heigthInInch    <- 6 * 4 / 5
-  resolutionInDPI <- 600
+  resolutionInDPI <- 650
   widthInPixel    <- widthInInch  * resolutionInDPI
   heightInPixel   <- heigthInInch * resolutionInDPI
   
@@ -472,12 +485,42 @@ plotPCA <- function(file, fileType, plotMS2 = TRUE){
   if(plotMS2){
     graphics::layout(
       mat = matrix(
-        data = c(1, 1, 1, 1, 1, 3,
-                 2, 2, 2, 2, 2, 3, 
-                 4, 5, 6, 7, 8, 8), 
-        nrow = 6, ncol = 3), 
-      widths = c(2, 2, 1), 
-      heights = c(0.7, 0.6, 0.6, 0.6, 1.2, 1.5)
+        ###################
+       # data = c(1, 1, 1, 1, 1, 3,
+        #         2, 2, 2, 2, 2, 3, 
+         #        4, 5, 6, 7, 8, 8), 
+        #### changing from 6, 3 to 9 to 2
+        #nrow = 3, ncol = 6), 
+       ########## perfectly working
+       #data = c(1, 1, 1, 1, 1, 8,
+        #        2, 2, 2, 2, 2, 7, 
+         #       4, 3, 3, 5, 5, 6), 
+       #nrow = 3, ncol = 6), 
+       #################### changing 5 to 3 
+       ### again changing the data numbers
+       data = c(1, 1, 1, 1, 1, 8,
+                2, 2, 2, 2, 2, 7, 
+                4, 3, 3, 5, 5, 6), 
+       nrow = 3, ncol = 6), 
+      widths = c(1.0012, 1.001, 1.084), 
+      heights = c(0.123, 0.22, 0.24, 0.19, 0.20, 0.015)
+      #heights = c(0.7, 0.6, 0.6, 0.6, 1.2, 1.5)
+      #######################################
+      ### changing the width from 2,2,1 to 3,2,1.5
+      #widths = c(2.5, 2.8, -2.012), 
+      ### heights = c(0.002, 0.001, 0.002, 0.0012, 0.0013, 0.000001) ## This is HCA heights
+      #heights = c(0.538, 0.6, 0.6, 0.6, 1.2, 1.5)
+      #widths = c(3.19, 4.25, -2.9912)
+      #heights = c(0.998, 0.6, 0.6, 0.6, 1.2, 1.5)
+      #########
+      #widths = c(2.9, 2.25, -2.1912), 
+      #heights = c(1.0998, 0.6, 0.6, 0.6, 1.2, 1.5)
+      ##########
+      #widths = c(-2.8, 2.6, 2.9912), 
+      #heights = c(0.00998, 0.006, 0.006, 0.006, 1.2, 1.5)
+      ###########################
+      
+      
     )
   } else {
     graphics::layout(
@@ -491,24 +534,36 @@ plotPCA <- function(file, fileType, plotMS2 = TRUE){
     )
   }
   
-  
-  ## 1
+  ### this are original settings I am changing them now
   drawPcaScoresPlotImpl()
-  ## 2
   drawPcaLoadingsPlotImpl()
-  ## 3
-  if(plotMS2)  drawMS2PlotImpl()
+  calcPlotScoresGroupsLegendForImage(scoresGroups$groups, scoresGroups$colors, 25)
+  drawDendrogramLegendImpl()
+  drawAnnotationLegendForImagePCAimpl()
+  ###################
+  #drawPcaScoresPlotImpl()
+  #drawPcaLoadingsPlotImpl()
+  #drawAnnotationLegendForImagePCAimpl()
+  #drawDendrogramLegendImpl()
+  #calcPlotScoresGroupsLegendForImage(scoresGroups$groups, scoresGroups$colors, 25)
+  ## 1
+  #drawPcaScoresPlotImpl()
+  ## 2
+  #drawPcaLoadingsPlotImpl()
+  ## 3 .. This is not important 
+  #if(plotMS2)  drawMS2PlotImpl()
   ## 4
-  calcPlotScoresGroupsLegendForImage(scoresGroups$groups, scoresGroups$colors, 5)
+  ### I am changing this from 5 to 25
+  #calcPlotScoresGroupsLegendForImage(scoresGroups$groups, scoresGroups$colors, 25)
   #calcPlotScoresGroupsLegendForImage(c("Glandular trichomes", "Trichome-free leaves"), scoresGroups$colors, 5)
   ## 5
-  drawDendrogramLegendImpl()
-  ## 6
-  if(plotMS2)  drawMS2LegendImpl()
-  ## 7
-  if(plotMS2)  drawFragmentDiscriminativityLegendImpl()
+  #drawDendrogramLegendImpl()
+  ## 6 ... This is not important 
+  #if(plotMS2)  drawMS2LegendImpl()
+  ## 7 ... This is not important 
+  #if(plotMS2)  drawFragmentDiscriminativityLegendImpl()
   ## 8
-  drawAnnotationLegendForImagePCAimpl()
+  #drawAnnotationLegendForImagePCAimpl()
   #drawAnnotationLegendImpl()
   
   dev.off()

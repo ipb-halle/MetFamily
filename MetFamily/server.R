@@ -128,12 +128,16 @@ shinyServer(
     ExportMatrixName <- NULL
     
     ## GUI constants
-    runRightColumnWidthFull <- 12
-    legendColumnWidthFull <- 2
-    runRightColumnWidthPart <- 8
-    legendColumnWidthPart <- 2
-    
-    annoLegendEntryHeight <- 20
+    ### I am changing RightColumnWidth 12 to 11
+    runRightColumnWidthFull <- 11
+    ## changing the legend column width from 2 to 1.8
+    legendColumnWidthFull <- 1.08
+    ### changing this from 8 to 8.5
+    runRightColumnWidthPart <- 8.5
+    ## changing the legend column width from 2 to 1.8
+    legendColumnWidthPart <- 1.08
+    ### change the anno legend height to 18
+    annoLegendEntryHeight <- 18
     maximumNumberOfTableEntries <- 50
     
     ##############################################
