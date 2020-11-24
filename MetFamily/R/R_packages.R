@@ -7,8 +7,9 @@
 library("mzR")
 #biocLite("xmcs")
 library("xcms")
-
-
+##### I am adding this dependency
+#install.packages('gtools')
+library(gtools)
 ##############################################################################################################
 ## MS1 analyses
 #install.packages("FactoMineR")
