@@ -387,14 +387,16 @@ plotHCA <- function(file, fileType, plotMS2 = TRUE){
   if(plotMS2){
     graphics::layout(
       mat = matrix(
-        ### Just commenting this
-        data = c(1, 1, 1, 1, 2, 3,
-               4, 5, 6, 7, 8, 8), 
-        ### for now changing this from 6 ..2 to 4 ... 3
-        nrow = 6, ncol = 2), 
+        ### Just commenting this..This is Original
+        # data = c(1, 1, 1, 1, 2, 3,
+        #        4, 5, 6, 7, 8, 8), 
+        # ### for now changing this from 6 ..2 to 4 ... 3
+        # nrow = 6, ncol = 2), 
+      data = c(1, 1, 1, 1, 2, 3,4, 5, 6, 6,7, 8), nrow = 6, ncol = 2),
+      #data = c(1, 1, 1, 1, 2,2,2, 3, 4, 5, 6, 6, 7, 8), nrow = 7, ncol = 2),
       widths = c(4.5, 1.5), 
-      ### heights origina; heights= c(0.6,0.8,0.6,0.5,0.5)
-      heights = c(0.002, 0.001, 0.002, 0.0012, 0.0013, 0.000001)
+      ### heights original heights= c(0.6,0.8,0.6,0.5,0.5)
+      heights = c(0.002, 0.001, 0.002, 0.002, 0.003, 0.000001)
     )
   } else {
     graphics::layout(
@@ -408,26 +410,33 @@ plotHCA <- function(file, fileType, plotMS2 = TRUE){
   }
   
   ### changing this from 0.4 to 0.2
-  
+  #### Checking to see what will happen 
+  drawDendrogramPlotImpl()
+  drawHeatmapPlotImpl()
+  drawDendrogramLegendImpl() # may be need to remove ...
+  drawHeatmapLegendImpl()
+  drawFragmentDiscriminativityLegendImpl()
+  drawAnnotationLegendForImageHCAimpl()
+  ######## commenting the original section 
   #cex <- par("cex")
   #par(cex = 0.4)
   ## 1
-  drawDendrogramPlotImpl()
+  #drawDendrogramPlotImpl()
   #par(cex = cex)
   ## 2
-  drawHeatmapPlotImpl() ## out for plotly and adapt layout
+  #drawHeatmapPlotImpl() ## out for plotly and adapt layout
   ## 3
  # if(plotMS2)  drawMS2PlotImpl()
   ## 4
-  drawDendrogramLegendImpl()
+  #drawDendrogramLegendImpl()
   ## 5
-  drawHeatmapLegendImpl()
+  #drawHeatmapLegendImpl()
   ## 6
   #if(plotMS2)  drawMS2LegendImpl()
   ## 7
-  drawFragmentDiscriminativityLegendImpl()
+  #drawFragmentDiscriminativityLegendImpl()
   ## 8
-  drawAnnotationLegendForImageHCAimpl()
+  #drawAnnotationLegendForImageHCAimpl()
   #drawAnnotationLegendImpl()
   
   dev.off()
@@ -460,10 +469,10 @@ plotPCA <- function(file, fileType, plotMS2 = TRUE){
   
   ## parameters
   ### changing the widthInInch from 10 to 11
-  widthInInch     <- 15.82
+  widthInInch     <- 11
   #widthInInch     <- 10 * 4 / 5
   ## changing the yes from 6 to 7.05
-  heigthInInch    <- ifelse(test = plotMS2, yes = 7.05, no = (5.2-1.5)/5.2 * 7.05)  
+  heigthInInch    <- ifelse(test = plotMS2, yes = 7.25, no = (5.2-1.5)/5.2 * 7.25)  
   #heigthInInch    <- 6 * 4 / 5
   resolutionInDPI <- 650
   widthInPixel    <- widthInInch  * resolutionInDPI
@@ -498,12 +507,15 @@ plotPCA <- function(file, fileType, plotMS2 = TRUE){
        #nrow = 3, ncol = 6), 
        #################### changing 5 to 3 
        ### again changing the data numbers
-       data = c(1, 1, 1, 1, 1, 8,
-                2, 2, 2, 2, 2, 7, 
-                4, 3, 3, 5, 5, 6), 
-       nrow = 3, ncol = 6), 
-      widths = c(1.0012, 1.001, 1.084), 
-      heights = c(0.123, 0.22, 0.24, 0.19, 0.20, 0.015)
+       #data = c(1, 1, 1, 1, 1, 8,
+                #2, 2, 2, 2, 2, 7, 
+                #4, 3, 3, 5, 5, 6), 
+       #nrow = 3, ncol = 6),
+       #widths = c(1.0012, 1.001, 1.084), 
+       #heights = c(0.123, 0.22, 0.24, 0.19, 0.20, 0.015)
+      data=c(1,1,2,2,2,2,2,2,3,3,3,3,3,3,4,4,4,4,4,4,5,6,7,8),nrow=2,ncol=12),
+      widths = c(1.0012, 1.084),
+      heights = c(0.123, 0.22, 0.24, 0.19, 0.20, 0.015,0.24,0.19,0.26)
       #heights = c(0.7, 0.6, 0.6, 0.6, 1.2, 1.5)
       #######################################
       ### changing the width from 2,2,1 to 3,2,1.5
@@ -535,11 +547,15 @@ plotPCA <- function(file, fileType, plotMS2 = TRUE){
   }
   
   ### this are original settings I am changing them now
+  calcPlotScoresGroupsLegendForImage(scoresGroups$groups, scoresGroups$colors, 30)
   drawPcaScoresPlotImpl()
   drawPcaLoadingsPlotImpl()
-  calcPlotScoresGroupsLegendForImage(scoresGroups$groups, scoresGroups$colors, 25)
-  drawDendrogramLegendImpl()
   drawAnnotationLegendForImagePCAimpl()
+  #drawPcaScoresPlotImpl()
+  #drawPcaLoadingsPlotImpl()
+  #calcPlotScoresGroupsLegendForImage(scoresGroups$groups, scoresGroups$colors, 25)
+  #drawDendrogramLegendImpl()
+  #drawAnnotationLegendForImagePCAimpl()
   ###################
   #drawPcaScoresPlotImpl()
   #drawPcaLoadingsPlotImpl()

@@ -794,6 +794,8 @@ calcPlotDendrogram_plotly <- function(
   quantiles <- c(-dataList$logFoldChangeMax, 0, dataList$logFoldChangeMax, dataList$logFoldChangeMax*1.01, 10^(seq(from=dataList$logAbsMax/10, to=dataList$logAbsMax, length.out=9)))
   quantiles <- approx(x = quantiles, n = 10000)$y
   colors    <- c('blue', 'white', 'red', rainbow(18)[10:1])
+  #### I am adding this new line 
+  colors1    <- c('yellow', 'green', 'red', rainbow(5)[10:1])
   #colors    <- c('blue', 'white', 'red', rainbow(50)[17:8])
   colors    <- colorRampPalette(colors)(10000)
   
@@ -1485,6 +1487,10 @@ reorderAnnotationsForLegend <- function(annoLabels, annoColors){
     annoColors = annoColors
   )
 }
+
+#### This is area from which I need to check 
+
+
 calcPlotAnnoLegend <- function(annoLabels, annoColors){
   if(is.null(annoLabels)){
     #annoLabels <- vector(mode = "character")
@@ -1498,12 +1504,40 @@ calcPlotAnnoLegend <- function(annoLabels, annoColors){
   annoLabels <- resultObj$annoLabels
   annoColors <- resultObj$annoColors
   
-  calcPlotLegend(annoLabels, annoColors, "Annotations")
+  ##calcPlotLegend(annoLabels, annoColors, "Annotations")
+  calcPlotLegend(annoLabels, annoColors, "Loadings")
 }
-calcPlotScoresGroupsLegend <- function(groups, colors){
+calcPlotScoresGroupsLegend <- function(groups, colors1){
   ## get and reorder annotations
-  calcPlotLegend(groups, colors, "Scores")
+  #calcPlotLegend(groups, colors, "Scores")
+  calcPlotLegend1(groups, colors1, "Scores")
 }
+
+#### I am adding this new line
+
+calcPlotLegend1 <- function(annoLabels, annoColors, title){
+  ## layout
+  numberOfLines <- length(annoLabels) + 1
+  ySpacing <- 1 / (numberOfLines + 1)
+  #### this is my test only changing x spacing from 0.1 to 0.09
+  ### changing x spacing from 0.1 to 0.5
+  xSpacing <- 0.1
+  
+  labels <- c(paste(title, ":", sep = ""), annoLabels)
+  ##### -0.05 to changing -0.15
+  xPositions <- c(-0.15, rep(x = xSpacing, times = length(annoLabels)))
+  #yPositions <- seq(from = 1, to = 0, by = 1/(-length(xPositions)))
+  yPositions <- seq(from = 1 - ySpacing, to = ySpacing, length.out = numberOfLines)
+  #### changing 0.75 to 1.2
+  symbolXPositions <- rep(x = xSpacing * 1.22, times = length(annoLabels))
+  symbolYPositions <- yPositions[2:length(yPositions)]
+  
+  ##################################################################################################
+  ## plot
+  plotLegendWithBalls1(labels, xPositions, yPositions, symbolXPositions, symbolYPositions, annoColors, xSpacing*0.075)
+}
+
+
 calcPlotLegend <- function(annoLabels, annoColors, title){
   ## layout
   numberOfLines <- length(annoLabels) + 1
@@ -1523,18 +1557,62 @@ calcPlotLegend <- function(annoLabels, annoColors, title){
   ## plot
   plotLegendWithBalls(labels, xPositions, yPositions, symbolXPositions, symbolYPositions, annoColors, xSpacing*0.075)
 }
-calcPlotAnnoLegendForImage <- function(annoLabels, annoColors, maximumNumberOfLines=20){
+
+calcPlotAnnoLegendForImage <- function(annoLabels, annoColors, maximumNumberOfLines=25){
   ## get and reorder annotations
   resultObj <- reorderAnnotationsForLegend(annoLabels, annoColors)
   annoLabels <- resultObj$annoLabels
   annoColors <- resultObj$annoColors
   
-  calcPlotLegendForImage(annoLabels, annoColors, "Annotations", maximumNumberOfLines)
+  calcPlotLegendForImage(annoLabels, annoColors, "Loadings", maximumNumberOfLines)
+  #calcPlotLegendForImage(annoLabels, annoColors, "Annotations", maximumNumberOfLines)
 }
-calcPlotScoresGroupsLegendForImage <- function(groups, colors, maximumNumberOfLines=20){
+
+calcPlotScoresGroupsLegendForImage <- function(groups, colors, maximumNumberOfLines=25){
   ## get and reorder annotations
-  calcPlotLegendForImage(groups, colors, "Scores", maximumNumberOfLines)
+  calcPlotLegendForImage1(groups, colors, "Scores", maximumNumberOfLines)
 }
+
+######replace annoColors and colors1
+calcPlotLegendForImage1 <- function(annoLabels,annoColors, title, maximumNumberOfLines){
+  ## layout
+  numberOfLines <- length(annoLabels) + 1
+  ySpacing <- 1 / maximumNumberOfLines
+  xSpacing <- 0.2
+  ### I am trying to see if the sorting works for the label ...to be removed later
+  labels <- c(paste(title, ":", sep = ""), annoLabels)
+  ### changing this from -0.05 to -0.02
+  xPositions <- c(-0.05, rep(x = xSpacing, times = length(annoLabels)))
+  #yPositions <- seq(from = 1, to = 0, by = 1/(-length(xPositions)))
+  yPositions <- seq(from = 1 - ySpacing, to = ySpacing, length.out = maximumNumberOfLines)
+  yPositions <- yPositions[seq_len(numberOfLines)]
+  #### changing this to 0.75 from 0.85
+  symbolXPositions <- rep(x = xSpacing * 0.95, times = length(annoLabels))
+  ### changing from 2 to 2.02
+  symbolYPositions <- yPositions[2.02:length(yPositions)]
+  symbolYPositions <- symbolYPositions[seq_len(length(symbolXPositions))]
+  
+  if(numberOfLines > maximumNumberOfLines){
+    #### I am adding the sort function to the label.. will remove late if it dont work
+    labels <- labels[seq_len(maximumNumberOfLines)]
+    annoColors <- annoColors[seq_len((maximumNumberOfLines - 1))]
+    xPositions <- xPositions[seq_len(maximumNumberOfLines)]
+    yPositions <- yPositions[seq_len(maximumNumberOfLines)]
+    
+    labels[length(labels)] <- paste("...", (numberOfLines - maximumNumberOfLines + 1), " more", sep = "")
+    annoColors <- annoColors[seq_len(length(annoColors) - 1)]
+    symbolXPositions <- symbolXPositions[seq_len(length(symbolXPositions) - 1)]
+    symbolYPositions <- symbolYPositions[seq_len(length(symbolYPositions) - 1)]
+  }
+  
+  ##################################################################################################
+  ## plot
+  plotLegendWithBalls1(labels, xPositions, yPositions, symbolXPositions, symbolYPositions, annoColors, xSpacing*0.19)
+  #plotLegendWithBalls(labels, xPositions, yPositions, symbolXPositions, symbolYPositions, annoColors, xSpacing*0.075)
+}
+
+
+
 calcPlotLegendForImage <- function(annoLabels, annoColors, title, maximumNumberOfLines){
   ## layout
   numberOfLines <- length(annoLabels) + 1
@@ -1569,6 +1647,8 @@ calcPlotLegendForImage <- function(annoLabels, annoColors, title, maximumNumberO
   ## plot
   plotLegendWithBalls(labels, xPositions, yPositions, symbolXPositions, symbolYPositions, annoColors, xSpacing*0.075)
 }
+
+
 plotLegendWithBalls <- function(labels, xPositions, yPositions, circleXPositions, circleYPositions, annoColors, radius){
   par(mar=c(0,0,0,0), mgp = c(3, 1, 0))  ## c(bottom, left, top, right)
   plot.new()
@@ -1581,6 +1661,28 @@ plotLegendWithBalls <- function(labels, xPositions, yPositions, circleXPositions
   ## labels
   graphics::text(x = xPositions, y = yPositions, labels = labels, pos = 4)
 }
+
+### I AAM adding this new line plotLegenedWithBalls
+plotLegendWithBalls1 <- function(labels, xPositions, yPositions, circleXPositions, circleYPositions,annoColors, radius){
+  #plotLegendWithBalls1 <- function(labels, xPositions, yPositions, circleXPositions, circleYPositions, annoColors, radius){
+  par(mar=c(0,0,0,0), mgp = c(3, 1, 0))  ## c(bottom, left, top, right)
+  plot.new()
+  plot.window(xlim = c(0, 1), ylim = c(0, 1))
+  
+  ## circles
+  for(i in seq_len(length(annoColors)))
+    ### This is a blind check
+    draw.circle(x = circleXPositions[[i]], y = circleYPositions[[i]], radius = radius, nv=70, border=annoColors[[i]], col = annoColors[[i]], lty=1, lwd=6)
+  #draw.circle(x = circleXPositions[[i]], y = circleYPositions[[i]], radius = radius, nv=50, border=annoColors[[i]], col = annoColors[[i]], lty=1, lwd=5)
+  #draw.circle(x = ´], y = circleYPositions[[i]], radius = radius, nv=50, border=annoColors[[i]], col = annoColors[[i]], lty=1, lwd=5)
+  
+  ## labels
+  graphics::text(x = xPositions, y = yPositions, labels = labels, pos = 4)
+}
+
+
+
+
 calcPlotMS2Legend <- function(dataList){
   ####################
   ## heatmap legend
