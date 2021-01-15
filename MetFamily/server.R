@@ -69,7 +69,7 @@ getFile <- function(files){
 
 #####################################################################################################
 ## source code
-getSourceFileNames <- function(){
+:diffg BA  getSourceFileNames <- function(){
   return(c(
     "FragmentMatrixFunctions.R",
     "DataProcessing.R",
@@ -128,6 +128,7 @@ shinyServer(
     ExportMatrixName <- NULL
     
     ## GUI constants
+<<<<<<< HEAD
     ### I am changing RightColumnWidth 12 to 11
     runRightColumnWidthFull <- 11
     ## changing the legend column width from 2 to 1.8
@@ -138,6 +139,14 @@ shinyServer(
     legendColumnWidthPart <- 1.08
     ### change the anno legend height to 18
     annoLegendEntryHeight <- 18
+=======
+    runRightColumnWidthFull <- 12
+    legendColumnWidthFull <- 2
+    runRightColumnWidthPart <- 8
+    legendColumnWidthPart <- 2
+    ### change the anno legend height to 17.5
+    annoLegendEntryHeight <- 17.5
+>>>>>>> plot optimization PCA and HCA
     maximumNumberOfTableEntries <- 50
     
     ##############################################

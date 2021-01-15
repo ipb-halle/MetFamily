@@ -1,5 +1,29 @@
+:diffg BA  
+##############################################################################################################
+<<<<<<< HEAD
+=======
+## GUI
+#install.packages("shiny")
+library("shiny")
+#devtools::install_github("rstudio/htmltools")
+library("htmltools")
+#install.packages("shinyjs")
+library("shinyjs")
+#install.packages("DT")
+library("DT")
+#install.packages("colourpicker")
+library("colourpicker")
+#install.packages("shinyBS")
+library("shinyBS")
+#install.packages("shinybusy")
+library("shinybusy")
+#### adding this new packages
+#install.packages("remotes")
+library(remotes)
+
 
 ##############################################################################################################
+>>>>>>> plot optimization PCA and HCA
 ## mass spectrometry
 #sudo apt-get install libnetcdf-dev
 #source("https://bioconductor.org/biocLite.R")
@@ -7,9 +31,17 @@
 library("mzR")
 #biocLite("xmcs")
 library("xcms")
+<<<<<<< HEAD
 ##### I am adding this dependency
 #install.packages('gtools')
 library(gtools)
+=======
+### Installing this new package 
+#install.packages("devtools")
+library(devtools)
+#devtools::install_github("aoles/EBImage")
+library(EBImage)
+>>>>>>> plot optimization PCA and HCA
 ##############################################################################################################
 ## MS1 analyses
 #install.packages("FactoMineR")

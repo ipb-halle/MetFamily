@@ -185,6 +185,23 @@ drawPcaScoresPlotImpl <- function(){
     yInterval = pcaScoresPlotRange$yInterval
   )
 }
+#### I am adding this new 
+drawPcaScoresPlotImpl1 <- function(){
+  #resultObj <- calcPlotPCAscores(
+  resultObj <- calcPlotPCAscores1(
+    pcaObj = pcaDataList$pcaObj, 
+    dataList = dataList, 
+    filterObj = filterPca, 
+    pcaDimensionOne = pcaDataList$dimensionOne, 
+    pcaDimensionTwo = pcaDataList$dimensionTwo, 
+    showScoresLabels = state_tabPca$showScoresLabels, 
+    xInterval = pcaScoresPlotRange$xInterval, 
+    yInterval = pcaScoresPlotRange$yInterval
+  )
+}
+
+
+
 drawPcaLoadingsPlotImpl <- function(){
   resultObj <- calcPlotPCAloadings(
     pcaObj = pcaDataList$pcaObj, 
@@ -212,7 +229,8 @@ drawAnnotationLegendPCAimpl <- function(){
   calcPlotAnnoLegend(state_tabPca$annotationsPca$setOfAnnotations, state_tabPca$annotationsPca$setOfColors)
 }
 drawAnnotationLegendForImagePCAimpl <- function(){
-  calcPlotAnnoLegendForImage(state_tabPca$annotationsPca$setOfAnnotations, state_tabPca$annotationsPca$setOfColors)
+  #### testing this with 1
+  calcPlotAnnoLegendForImage1(state_tabPca$annotationsPca$setOfAnnotations, state_tabPca$annotationsPca$setOfColors)
 }
 drawScoresGroupsLegendImpl <- function(){
   calcPlotScoresGroupsLegend(scoresGroups$groups, scoresGroups$colors)

@@ -1,4 +1,4 @@
-
+:diffg BA  
 scoresGroupsLegendEntryHeight <- 20
 
 pcaDataList <- NULL
@@ -17,8 +17,12 @@ pcaLoadingsPlotRange <- reactiveValues(
 
 state_tabPca <- reactiveValues(
   ## plot controls
+<<<<<<< HEAD
   ## I am commenting this to FALSE from TRUE
   #showScoresLabels = TRUE,
+=======
+  ### changing the showScoresLabels from TRUE to FALSE
+>>>>>>> plot optimization PCA and HCA
   showScoresLabels = FALSE,
   loadingsLabels = "None",
   showLoadingsFeaturesAnnotated = TRUE, 
@@ -35,8 +39,12 @@ state_tabPca <- reactiveValues(
 resetWorkspaceFunctions <- c(resetWorkspaceFunctions, function(){
   print("Reset tabPca state")
   ## plot controls
+<<<<<<< HEAD
   ### I am commenting this from TRUE to FALSE
   #state_tabPca$showScoresLabels <<- TRUE
+=======
+  ### changing the Scores Labels TRUE to FALSE
+>>>>>>> plot optimization PCA and HCA
   state_tabPca$showScoresLabels <<- FALSE
   state_tabPca$loadingsLabels   <<- "None"
   state_tabPca$showLoadingsFeaturesAnnotated   <<- TRUE 
@@ -198,6 +206,7 @@ drawPcaPlots <- function(consoleInfo = NULL){
 drawPcaScoresPlot <- function(consoleInfo = NULL){
   output$plotPcaScores <- renderPlot({
     print(paste("### psp ###", consoleInfo))
+    #### I am changing this temporary to change 
     drawPcaScoresPlotImpl()
   })
 }
