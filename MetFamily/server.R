@@ -71,6 +71,7 @@ getFile <- function(files){
 ## source code
 getSourceFileNames <- function(){
   return(c(
+    "R_packages.R",
     "FragmentMatrixFunctions.R",
     "DataProcessing.R",
     "TreeAlgorithms.R",
@@ -110,7 +111,6 @@ sourceTheCode()
 shinyServer(
   func = function(input, output, session) {
     show_modal_spinner(spin = "self-building-square", text="Loading libraries")
-    source(getFile("R_packages.R"))
     #########################################################################################
     #########################################################################################
     ## global variables per user
@@ -128,15 +128,15 @@ shinyServer(
     ExportMatrixName <- NULL
     
     ## GUI constants
-    ### I am changing RightColumnWidth 12 to 11
+    ### I am changing RightColumnWidth 12 to 15
     runRightColumnWidthFull <- 11
-    ## changing the legend column width from 2 to 1.8
-    legendColumnWidthFull <- 1.08
-    ### changing this from 8 to 8.5
-    runRightColumnWidthPart <- 8.5
-    ## changing the legend column width from 2 to 1.8
-    legendColumnWidthPart <- 1.08
-    ### change the anno legend height to 18
+    ##runRightColumnWidthFull <- 12
+    ### changing the legendcolumn width part 2 to 1.8
+    legendColumnWidthFull <- 1.8
+    runRightColumnWidthPart <- 8
+    ### changing the legendcolumn width part 2 to 1.8
+    legendColumnWidthPart <- 1.8
+    ### change the anno legend height ... 20 to 18
     annoLegendEntryHeight <- 18
     maximumNumberOfTableEntries <- 50
     

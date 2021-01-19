@@ -364,9 +364,9 @@ plotHCA <- function(file, fileType, plotMS2 = TRUE){
   ##widthInInch     <- 10
   ##heigthInInch    <- ifelse(test = plotMS2, yes = 7.5, no = (5.2-1.5)/5.2 * 7.5)  
   ##resolutionInDPI <- 600
-  widthInInch  <- 11
-  heigthInInch <- ifelse(test = plotMS2, yes = 
-                           7.05, no = (5.2-1.5)/5.2 * 7.05)
+  ### changing resolution DPI to 650
+  widthInInch     <- 10
+  heigthInInch    <- ifelse(test = plotMS2, yes = 7.5, no = (5.2-1.5)/5.2 * 7.5)
   resolutionInDPI <- 650
   widthInPixel    <- widthInInch  * resolutionInDPI
   heightInPixel   <- heigthInInch * resolutionInDPI
@@ -385,48 +385,50 @@ plotHCA <- function(file, fileType, plotMS2 = TRUE){
   )
   
   if(plotMS2){
+  
+    ########################
     graphics::layout(
       mat = matrix(
-        ### Just commenting this..This is Original
-        # data = c(1, 1, 1, 1, 2, 3,
-        #        4, 5, 6, 7, 8, 8), 
-        # ### for now changing this from 6 ..2 to 4 ... 3
-        # nrow = 6, ncol = 2), 
-      data = c(1, 1, 1, 1, 2, 3,4, 5, 6, 6,7, 8), nrow = 6, ncol = 2),
-      #data = c(1, 1, 1, 1, 2,2,2, 3, 4, 5, 6, 6, 7, 8), nrow = 7, ncol = 2),
-      widths = c(4.5, 1.5), 
-      ### heights original heights= c(0.6,0.8,0.6,0.5,0.5)
-      heights = c(0.002, 0.001, 0.002, 0.002, 0.003, 0.000001)
+        ### Just commenting this
+        ##data = c(1, 1, 1, 1, 2, 3,
+        ##         4, 5, 6, 7, 8, 8),
+        #data = c(1, 1, 1, 1, 2, 3),
+        #nrow = 6, ncol = 2),
+       data = c(1, 1, 1, 1, 2, 2,3, 4, 5, 5,5, 5), nrow = 6, ncol = 2),
+       widths = c(4.58, 1.59), # this is working good
+       ### This is original
+       #heights = c(0.002, 0.001, 0.002, 0.0012, 0.0013, 0.0001)
+       #heights = c(0.2, 0.1, 0.2, 0.2, 0.013, 0.11) # this working good
+       #heights = c(0.0052, 0.011, 0.01112, 0.01112, 0.001113, 0.0011)
+       ##heights = c(0.0052, 0.011, 0.01112, 0.0112, 0.0113, 0.011) # this is working well
+       ###
+       heights = c(0.0052, 0.011, 0.01112, 0.01112,0.001111, 0.0111) # this is working well
+      
     )
+     ################################
+      
+    
   } else {
     graphics::layout(
       mat = matrix(
         data = c(1, 1, 1, 1, 2, 
                  3, 4, 5, 6, 6), 
-        nrow = 4, ncol = 2), 
+        nrow = 5, ncol = 2), 
       widths = c(4, 1), 
       heights = c(0.6, 1.4, 0.6, 1.2, 0.5)
     )
   }
   
-  ### changing this from 0.4 to 0.2
-  #### Checking to see what will happen 
-  drawDendrogramPlotImpl()
-  drawHeatmapPlotImpl()
-  drawDendrogramLegendImpl() # may be need to remove ...
-  drawHeatmapLegendImpl()
-  drawFragmentDiscriminativityLegendImpl()
-  drawAnnotationLegendForImageHCAimpl()
-  ######## commenting the original section 
+  ### i am changing the cex to 0.4 to 0.3
   #cex <- par("cex")
-  #par(cex = 0.4)
+  #par(cex = 0.3)
   ## 1
   #drawDendrogramPlotImpl()
   #par(cex = cex)
   ## 2
   #drawHeatmapPlotImpl() ## out for plotly and adapt layout
   ## 3
- # if(plotMS2)  drawMS2PlotImpl()
+  #if(plotMS2)  drawMS2PlotImpl()
   ## 4
   #drawDendrogramLegendImpl()
   ## 5
@@ -438,6 +440,17 @@ plotHCA <- function(file, fileType, plotMS2 = TRUE){
   ## 8
   #drawAnnotationLegendForImageHCAimpl()
   #drawAnnotationLegendImpl()
+  ###############################
+  drawDendrogramPlotImpl() #1
+  drawHeatmapPlotImpl() # 2
+  
+  drawFragmentDiscriminativityLegendImpl() #4
+  drawHeatmapLegendImpl() #3
+  
+  
+  drawAnnotationLegendForImageHCAimpl() #5
+  
+  ####################
   
   dev.off()
 }
@@ -452,8 +465,6 @@ output$downloadPcaImage <- downloadHandler(
   }#,
   #contentType = 'image/png'
 )
-
-
 plotPCA <- function(file, fileType, plotMS2 = TRUE){
   ## 1 score  ## 2 loadings
   ## 3 ms2    ## 4 l anno
@@ -468,11 +479,9 @@ plotPCA <- function(file, fileType, plotMS2 = TRUE){
   ## 
   
   ## parameters
-  ### changing the widthInInch from 10 to 11
-  widthInInch     <- 11
+  widthInInch     <- 10
   #widthInInch     <- 10 * 4 / 5
-  ## changing the yes from 6 to 7.05
-  heigthInInch    <- ifelse(test = plotMS2, yes = 7.25, no = (5.2-1.5)/5.2 * 7.25)  
+  heigthInInch    <- ifelse(test = plotMS2, yes = 6, no = (5.2-1.5)/5.2 * 6)  
   #heigthInInch    <- 6 * 4 / 5
   resolutionInDPI <- 650
   widthInPixel    <- widthInInch  * resolutionInDPI
@@ -494,45 +503,30 @@ plotPCA <- function(file, fileType, plotMS2 = TRUE){
   if(plotMS2){
     graphics::layout(
       mat = matrix(
-        ###################
-       # data = c(1, 1, 1, 1, 1, 3,
-        #         2, 2, 2, 2, 2, 3, 
-         #        4, 5, 6, 7, 8, 8), 
-        #### changing from 6, 3 to 9 to 2
-        #nrow = 3, ncol = 6), 
-       ########## perfectly working
-       #data = c(1, 1, 1, 1, 1, 8,
-        #        2, 2, 2, 2, 2, 7, 
-         #       4, 3, 3, 5, 5, 6), 
-       #nrow = 3, ncol = 6), 
-       #################### changing 5 to 3 
-       ### again changing the data numbers
-       #data = c(1, 1, 1, 1, 1, 8,
-                #2, 2, 2, 2, 2, 7, 
-                #4, 3, 3, 5, 5, 6), 
-       #nrow = 3, ncol = 6),
-       #widths = c(1.0012, 1.001, 1.084), 
-       #heights = c(0.123, 0.22, 0.24, 0.19, 0.20, 0.015)
-      data=c(1,1,2,2,2,2,2,2,3,3,3,3,3,3,4,4,4,4,4,4,5,6,7,8),nrow=2,ncol=12),
-      widths = c(1.0012, 1.084),
-      heights = c(0.123, 0.22, 0.24, 0.19, 0.20, 0.015,0.24,0.19,0.26)
-      #heights = c(0.7, 0.6, 0.6, 0.6, 1.2, 1.5)
-      #######################################
-      ### changing the width from 2,2,1 to 3,2,1.5
-      #widths = c(2.5, 2.8, -2.012), 
-      ### heights = c(0.002, 0.001, 0.002, 0.0012, 0.0013, 0.000001) ## This is HCA heights
-      #heights = c(0.538, 0.6, 0.6, 0.6, 1.2, 1.5)
-      #widths = c(3.19, 4.25, -2.9912)
-      #heights = c(0.998, 0.6, 0.6, 0.6, 1.2, 1.5)
-      #########
-      #widths = c(2.9, 2.25, -2.1912), 
-      #heights = c(1.0998, 0.6, 0.6, 0.6, 1.2, 1.5)
-      ##########
-      #widths = c(-2.8, 2.6, 2.9912), 
-      #heights = c(0.00998, 0.006, 0.006, 0.006, 1.2, 1.5)
-      ###########################
-      
-      
+        ############
+        # data = c(1, 1, 1, 1, 1, 3,
+        #          2, 2, 2, 2, 2, 3, 
+        #          4, 5, 6, 7, 8, 8), 
+        # #### I am changing from 6 to 3 to 3 to 6
+        # nrow = 3, ncol = 6), 
+      ###########
+      #data = c(1,1,2,2,1,1,2,2,3,3,4,4,3,3,4,4),nrow=4,ncol=4)
+      data = c(1,1,2,2,1,1,2,2,3,3,4,4,3,3,4,4),nrow=4,ncol=4),
+      #data = c(1,2,3,4,1,2,3,4),nrow=2,ncol=4),
+      #### this is working  
+      #widths = c(1.4, 0.6), 
+      #heights = c(0.6, 0.010, 0.6, 0.8)
+      ###########
+      #widths = c(1.32, 1.29), 
+      #heights = c(0.2, 0, 0.2, 0.001)
+      #####
+      #widths = c(0.32, 1.9), 
+      #heights = c(1.1, 0.000010, 1.1, 0.01)
+      #####
+      ########
+      widths = c(0.12, 2.1), 
+      heights = c(0.039000, 0.0000000010, 0.03179, 0.01)
+      ##############
     )
   } else {
     graphics::layout(
@@ -546,44 +540,35 @@ plotPCA <- function(file, fileType, plotMS2 = TRUE){
     )
   }
   
-  ### this are original settings I am changing them now
-  calcPlotScoresGroupsLegendForImage(scoresGroups$groups, scoresGroups$colors, 30)
-  drawPcaScoresPlotImpl()
-  drawPcaLoadingsPlotImpl()
-  drawAnnotationLegendForImagePCAimpl()
-  #drawPcaScoresPlotImpl()
-  #drawPcaLoadingsPlotImpl()
-  #calcPlotScoresGroupsLegendForImage(scoresGroups$groups, scoresGroups$colors, 25)
-  #drawDendrogramLegendImpl()
-  #drawAnnotationLegendForImagePCAimpl()
-  ###################
-  #drawPcaScoresPlotImpl()
-  #drawPcaLoadingsPlotImpl()
-  #drawAnnotationLegendForImagePCAimpl()
-  #drawDendrogramLegendImpl()
-  #calcPlotScoresGroupsLegendForImage(scoresGroups$groups, scoresGroups$colors, 25)
+  ############################################
   ## 1
-  #drawPcaScoresPlotImpl()
+ # drawPcaScoresPlotImpl()
   ## 2
   #drawPcaLoadingsPlotImpl()
-  ## 3 .. This is not important 
+  ## 3
   #if(plotMS2)  drawMS2PlotImpl()
   ## 4
-  ### I am changing this from 5 to 25
-  #calcPlotScoresGroupsLegendForImage(scoresGroups$groups, scoresGroups$colors, 25)
+  #calcPlotScoresGroupsLegendForImage(scoresGroups$groups, scoresGroups$colors, 5)
   #calcPlotScoresGroupsLegendForImage(c("Glandular trichomes", "Trichome-free leaves"), scoresGroups$colors, 5)
   ## 5
   #drawDendrogramLegendImpl()
-  ## 6 ... This is not important 
+  ## 6
   #if(plotMS2)  drawMS2LegendImpl()
-  ## 7 ... This is not important 
+  ## 7
   #if(plotMS2)  drawFragmentDiscriminativityLegendImpl()
   ## 8
   #drawAnnotationLegendForImagePCAimpl()
   #drawAnnotationLegendImpl()
-  
+  #############################
+  drawPcaScoresPlotImpl1()
+  calcPlotScoresGroupsLegendForImage1(scoresGroups$groups, scoresGroups$colors, 30)
+  drawPcaLoadingsPlotImpl()
+  #calcPlotScoresGroupsLegendForImage1(scoresGroups$groups, scoresGroups$colors, 30)
+  drawAnnotationLegendForImagePCAimpl()
+  ####################
   dev.off()
 }
+
 output$downloadDistanceMatrix <- downloadHandler(
   filename = function() {
     createExportDistanceMatrixName(currentDistanceMatrixObj$distanceMeasure)

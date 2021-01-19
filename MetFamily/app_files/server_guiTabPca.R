@@ -17,8 +17,7 @@ pcaLoadingsPlotRange <- reactiveValues(
 
 state_tabPca <- reactiveValues(
   ## plot controls
-  ## I am commenting this to FALSE from TRUE
-  #showScoresLabels = TRUE,
+  ## changing showScoresLabels = TRUE to FALSE
   showScoresLabels = FALSE,
   loadingsLabels = "None",
   showLoadingsFeaturesAnnotated = TRUE, 
@@ -35,8 +34,7 @@ state_tabPca <- reactiveValues(
 resetWorkspaceFunctions <- c(resetWorkspaceFunctions, function(){
   print("Reset tabPca state")
   ## plot controls
-  ### I am commenting this from TRUE to FALSE
-  #state_tabPca$showScoresLabels <<- TRUE
+  ###showScoresLabels from TRUE to FALSE
   state_tabPca$showScoresLabels <<- FALSE
   state_tabPca$loadingsLabels   <<- "None"
   state_tabPca$showLoadingsFeaturesAnnotated   <<- TRUE 

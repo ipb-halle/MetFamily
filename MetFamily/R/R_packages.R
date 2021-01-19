@@ -1,5 +1,25 @@
 
 ##############################################################################################################
+## GUI
+#install.packages("shiny")
+library("shiny")
+#devtools::install_github("rstudio/htmltools")
+library("htmltools")
+#install.packages("shinyjs")
+library("shinyjs")
+#install.packages("DT")
+library("DT")
+#install.packages("colourpicker")
+library("colourpicker")
+#install.packages("shinyBS")
+library("shinyBS")
+#install.packages("shinybusy")
+library("shinybusy")
+#install.packages("egg")
+library(egg)
+#install.packages("cowplot")
+library(cowplot)
+##############################################################################################################
 ## mass spectrometry
 #sudo apt-get install libnetcdf-dev
 #source("https://bioconductor.org/biocLite.R")
@@ -7,9 +27,8 @@
 library("mzR")
 #biocLite("xmcs")
 library("xcms")
-##### I am adding this dependency
-#install.packages('gtools')
-library(gtools)
+
+
 ##############################################################################################################
 ## MS1 analyses
 #install.packages("FactoMineR")
@@ -21,7 +40,11 @@ library("mixOmics")
 library("pcaMethods")
 #install.packages("caret")
 #library("caret")
-
+###################
+#install_github( "decisionpatterns/searchable" )
+library(searchable)
+#install.packages("gdata")
+library(gdata)
 ##############################################################################################################
 ## tools
 #install.packages("matrixStats")

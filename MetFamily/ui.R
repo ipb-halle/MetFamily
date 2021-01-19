@@ -4,9 +4,6 @@ library(shiny)
 library(shinyBS)
 library(shinyjs)
 library(DT)
-library(colourpicker)
-library(shinybusy)
-
 
 ipbfooter <- HTML(readLines("www/ipbfooter.html"))
 
