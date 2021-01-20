@@ -5,7 +5,7 @@ MAINTAINER Kristian Peters <kpeters@ipb-halle.de>
 LABEL Description="MetFamily Base Image with dependencies."
 
 RUN apt-get -y update && apt-get -y install \
-  netcdf-bin libnetcdf-dev libdigest-sha-perl \
+  netcdf-bin libnetcdf-dev libdigest-sha-perl libigraph0-dev \
   xorg-dev libglu1-mesa-dev freeglut3-dev libgomp1 libxml2-dev gcc g++ libcurl4-gnutls-dev libssl-dev gdebi-core
 
 ENV NETCDF_INCLUDE=/usr/include
