@@ -4,12 +4,19 @@ library("devtools")
 install.packages("BiocManager")
 
 install.packages("shiny")
+
 devtools::install_github("rstudio/htmltools")
+devtools::install_github("decisionpatterns/searchable")
+
 install.packages("shinyjs")
 install.packages("shinybusy")
 install.packages("DT")
 install.packages("colourpicker")
 install.packages("shinyBS")
+install.packages("egg")
+install.packages("cowplot")
+install.packages("searchable")
+install.packages("gdata")
 
 BiocManager::install("mzR")
 BiocManager::install("xcms")
@@ -27,3 +34,4 @@ install.packages("squash")
 install.packages("plotrix")
 install.packages("RColorBrewer")
 install.packages("plotly")
+
