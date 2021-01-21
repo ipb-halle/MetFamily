@@ -1,0 +1,23 @@
+FROM sneumann/metfamily-base:latest
+
+MAINTAINER Steffen Neumann <sneumann@ipb-halle.de>
+
+LABEL Description="Add rstudio server on top of MetFamily, esp. for debugging"
+
+WORKDIR /tmp
+
+RUN wget https://download2.rstudio.org/server/bionic/amd64/rstudio-server-1.4.1103-amd64.deb
+RUN apt -y install psmisc libapparmor1 libclang-dev libpq5 git
+RUN dpkg -i rstudio-server-1.4.1103-amd64.deb
+
+RUN apt -y install supervisor
+COPY supervisord-rstudio.conf /etc/supervisor/conf.d/supervisord.conf
+
+RUN useradd -p $(openssl passwd -crypt rstudio) rstudio ; mkdir /home/rstudio ; chown rstudio /home/rstudio
+
+WORKDIR /home/rstudio
+#RUN git clone https://github.com/ipb-halle/MetFamily.git
+
+CMD ["/usr/bin/supervisord", "-c", "/etc/supervisor/conf.d/supervisord.conf"]
+
+
