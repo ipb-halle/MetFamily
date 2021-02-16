@@ -2,7 +2,7 @@ test_that("trivial", {
     expect_equal(1, 1)
 })
 
-test_test("exampledata", {
+test_that("exampledata", {
 
     data <- parsePeakAbundanceMatrix(filePeakMatrix, doPrecursorDeisotoping, 
 	mzDeviationInPPM_precursorDeisotoping, mzDeviationAbsolute_precursorDeisotoping, 
@@ -14,7 +14,7 @@ test_test("exampledata", {
 
 })
 
-test_test("MS-Dial 4.X", {
+test_that("MS-Dial 4.X", {
 
     data <- parsePeakAbundanceMatrix(filePeakMatrix, doPrecursorDeisotoping, 
 	mzDeviationInPPM_precursorDeisotoping, mzDeviationAbsolute_precursorDeisotoping, 
