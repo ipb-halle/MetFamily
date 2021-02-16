@@ -4,6 +4,7 @@ library("devtools")
 install.packages("BiocManager")
 
 install.packages("shiny")
+install.packages("testthat")
 
 devtools::install_github("rstudio/htmltools")
 devtools::install_github("decisionpatterns/searchable")
