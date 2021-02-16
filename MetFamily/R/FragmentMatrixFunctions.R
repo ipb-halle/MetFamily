@@ -185,31 +185,31 @@ parsePeakAbundanceMatrix <- function(filePeakMatrix, doPrecursorDeisotoping, mzD
   oldFormat <- max(which(dataFrameAll[1:5, 1] == "")) == 3
   header_rowNumber <- ifelse(test = oldFormat, yes = 4, no = 5)
   dataFrameHeader <- dataFrameAll[1:header_rowNumber, ]
-  dataFrameHeader1 <-dataFrameHeader[keepI,]
+  dataFrameHeader1 <-dataFrameHeader[keepI]
   ##############
   dataFrame <- dataFrameAll[(header_rowNumber + 1):nrow(dataFrameAll), ]
-  dataFrame1 <- dataFrame[keepI,]
+  dataFrame1 <- dataFrame[keepI]
   #########
   colnames(dataFrame) <- dataFrameHeader[header_rowNumber, ]
-  colnames(dataFrame1) <- dataFrameHeader[header_rowNumber, ]
+  colnames(dataFrame1) <- dataFrameHeader1[header_rowNumber, ]
   ###########
   numberOfPrecursors <- nrow(dataFrame1)
   numberOfPrecursorsPrior <- numberOfPrecursors
   ###########
   commaNumbers <- sum(grepl(x = dataFrame1$"Average Mz", pattern = "^(\\d+,\\d+$)|(^\\d+$)"))
-  decimalSeparatorIsComma <- commaNumbers == nrow(dataFrame)
+  decimalSeparatorIsComma <- commaNumbers == nrow(dataFrame1)
   if(decimalSeparatorIsComma){
     if(!is.null(dataFrame1$"Average Rt(min)"))     dataFrame1$"Average Rt(min)"     <- gsub(x = gsub(x = dataFrame1$"Average Rt(min)", pattern = "\\.", replacement = ""), pattern = ",", replacement = ".")
     #if(!is.null(dataFrame$"Average.Rt.min."))     dataFrame$"Average.Rt.min."     <- gsub(x = gsub(x = dataFrame$"Average.Rt.min.", pattern = "\\.", replacement = ""), pattern = ",", replacement = ".")
-    if(!is.null(dataFrame1$"Average Mz"))          dataFrame$"Average Mz"          <- gsub(x = gsub(x = dataFrame1$"Average Mz", pattern = "\\.", replacement = ""), pattern = ",", replacement = ".")
+    if(!is.null(dataFrame1$"Average Mz"))          dataFrame1$"Average Mz"          <- gsub(x = gsub(x = dataFrame1$"Average Mz", pattern = "\\.", replacement = ""), pattern = ",", replacement = ".")
     #if(!is.null(dataFrame$"Average.Mz"))          dataFrame$"Average.Mz"          <- gsub(x = gsub(x = dataFrame$"Average.Mz", pattern = "\\.", replacement = ""), pattern = ",", replacement = ".")
-    if(!is.null(dataFrame1$"Fill %"))              dataFrame$"Fill %"              <- gsub(x = gsub(x = dataFrame1$"Fill %", pattern = "\\.", replacement = ""), pattern = ",", replacement = ".")
+    if(!is.null(dataFrame1$"Fill %"))              dataFrame1$"Fill %"              <- gsub(x = gsub(x = dataFrame1$"Fill %", pattern = "\\.", replacement = ""), pattern = ",", replacement = ".")
     #if(!is.null(dataFrame$"Fill.."))              dataFrame$"Fill.."              <- gsub(x = gsub(x = dataFrame$"Fill..", pattern = "\\.", replacement = ""), pattern = ",", replacement = ".")
-    if(!is.null(dataFrame1$"Dot product"))         dataFrame$"Dot product"         <- gsub(x = gsub(x = dataFrame1$"Dot product", pattern = "\\.", replacement = ""), pattern = ",", replacement = ".")
+    if(!is.null(dataFrame1$"Dot product"))         dataFrame1$"Dot product"         <- gsub(x = gsub(x = dataFrame1$"Dot product", pattern = "\\.", replacement = ""), pattern = ",", replacement = ".")
     #if(!is.null(dataFrame$"Dot.product"))         dataFrame$"Dot.product"         <- gsub(x = gsub(x = dataFrame$"Dot.product", pattern = "\\.", replacement = ""), pattern = ",", replacement = ".")
-    if(!is.null(dataFrame1$"Reverse dot product")) dataFrame$"Reverse dot product" <- gsub(x = gsub(x = dataFrame1$"Reverse dot product", pattern = "\\.", replacement = ""), pattern = ",", replacement = ".")
+    if(!is.null(dataFrame1$"Reverse dot product")) dataFrame1$"Reverse dot product" <- gsub(x = gsub(x = dataFrame1$"Reverse dot product", pattern = "\\.", replacement = ""), pattern = ",", replacement = ".")
     #if(!is.null(dataFrame$"Reverse.dot.product")) dataFrame$"Reverse.dot.product" <- gsub(x = gsub(x = dataFrame$"Reverse.dot.product", pattern = "\\.", replacement = ""), pattern = ",", replacement = ".")
-    if(!is.null(dataFrame1$"Fragment presence %")) dataFrame$"Fragment presence %" <- gsub(x = gsub(x = dataFrame1$"Fragment presence %", pattern = "\\.", replacement = ""), pattern = ",", replacement = ".")
+    if(!is.null(dataFrame1$"Fragment presence %")) dataFrame1$"Fragment presence %" <- gsub(x = gsub(x = dataFrame1$"Fragment presence %", pattern = "\\.", replacement = ""), pattern = ",", replacement = ".")
     #if(!is.null(dataFrame$"Fragment.presence.%")) dataFrame$"Fragment.presence.%" <- gsub(x = gsub(x = dataFrame$"Fragment.presence.%", pattern = "\\.", replacement = ""), pattern = ",", replacement = ".")
     
     ## replace -1 by 0
