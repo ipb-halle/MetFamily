@@ -172,6 +172,7 @@ parsePeakAbundanceMatrix <- function(filePeakMatrix, doPrecursorDeisotoping, mzD
   dataFrameAll1 <- read.table(filePeakMatrix, header=TRUE, sep = "\t", as.is=TRUE, quote = "\"", check.names = FALSE, comment.char = "")
   #####
   CDF<-dataFrameAll1[3,]
+  `%notin%` <- Negate(`%in%`)
   CDF1<-unname(CDF) %notin% c("Average","Stdev")
   CDF2<-which(CDF1)
   ####
