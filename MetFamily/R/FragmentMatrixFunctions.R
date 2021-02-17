@@ -1,4 +1,4 @@
-
+#print("entering the .. FragmentMatrixFunction.R")
 #library("xcms")
 library("Matrix")
 library("stringr")
@@ -170,25 +170,29 @@ parsePeakAbundanceMatrix <- function(filePeakMatrix, doPrecursorDeisotoping, mzD
   if(!is.na(progress))  if(progress)  incProgress(amount = 0.1, detail = paste("Parsing MS1 file content...", sep = "")) else print(paste("Parsing MS1 file content...", sep = ""))
   dataFrameAll <- read.table(filePeakMatrix, header=FALSE, sep = "\t", as.is=TRUE, quote = "\"", check.names = FALSE, comment.char = "")
   dataFrameAll1 <- read.table(filePeakMatrix, header=TRUE, sep = "\t", as.is=TRUE, quote = "\"", check.names = FALSE, comment.char = "")
-  #####
-  CDF<-dataFrameAll1[3,]
-  `%notin%` <- Negate(`%in%`)
-  CDF1<-unname(CDF) %notin% c("Average","Stdev")
-  CDF2<-which(CDF1)
-  ####
-  CDF6<-dataFrameAll1[4,]
-  CDF7<-as.character(unname(CDF6))
-  CDF8<-CDF7 %notin% c("Reference RT","Reference m/z","Comment","Manually modified for quantification","Total score","RT similarity")
-  CDF9<-which(CDF8)
-  keepI<-intersect(CDF2,CDF9)
+  ####################
+  # CDF<-dataFrameAll1[3,]
+  # `%notin%` <- Negate(`%in%`)
+  # CDF1<-unname(CDF) %notin% c("Average","Stdev")
+  # CDF2<-which(CDF1)
+  # ####
+  # CDF6<-dataFrameAll1[4,]
+  # CDF7<-as.character(unname(CDF6))
+  # CDF8<-CDF7 %notin% c("Reference RT","Reference m/z","Comment","Manually modified for quantification","Total score","RT similarity")
+  # CDF9<-which(CDF8)
+  # keepI<-intersect(CDF2,CDF9)
   ########
   oldFormat <- max(which(dataFrameAll[1:5, 1] == "")) == 3
   header_rowNumber <- ifelse(test = oldFormat, yes = 4, no = 5)
   dataFrameHeader <- dataFrameAll[1:header_rowNumber, ]
-  dataFrameHeader1 <-dataFrameHeader[keepI]
+  ####################
+  `%notin%` <- Negate(`%in%`)
+  TR<- c("Reference RT","Reference m/z","Comment","Manually modified for quantification","Total score","RT similarity","Average","Stdev")
+  IN2<-which(unname(dataFrameHeader[4,]) %notin% TR)
+  dataFrameHeader1 <-dataFrameHeader[IN2]
   ##############
   dataFrame <- dataFrameAll[(header_rowNumber + 1):nrow(dataFrameAll), ]
-  dataFrame1 <- dataFrame[keepI]
+  dataFrame1 <- dataFrame[IN2]
   #########
   colnames(dataFrame) <- dataFrameHeader[header_rowNumber, ]
   colnames(dataFrame1) <- dataFrameHeader1[header_rowNumber, ]
@@ -199,6 +203,7 @@ parsePeakAbundanceMatrix <- function(filePeakMatrix, doPrecursorDeisotoping, mzD
   commaNumbers <- sum(grepl(x = dataFrame1$"Average Mz", pattern = "^(\\d+,\\d+$)|(^\\d+$)"))
   decimalSeparatorIsComma <- commaNumbers == nrow(dataFrame1)
   if(decimalSeparatorIsComma){
+    #print("entering the line..206")
     if(!is.null(dataFrame1$"Average Rt(min)"))     dataFrame1$"Average Rt(min)"     <- gsub(x = gsub(x = dataFrame1$"Average Rt(min)", pattern = "\\.", replacement = ""), pattern = ",", replacement = ".")
     #if(!is.null(dataFrame$"Average.Rt.min."))     dataFrame$"Average.Rt.min."     <- gsub(x = gsub(x = dataFrame$"Average.Rt.min.", pattern = "\\.", replacement = ""), pattern = ",", replacement = ".")
     if(!is.null(dataFrame1$"Average Mz"))          dataFrame1$"Average Mz"          <- gsub(x = gsub(x = dataFrame1$"Average Mz", pattern = "\\.", replacement = ""), pattern = ",", replacement = ".")
@@ -214,6 +219,7 @@ parsePeakAbundanceMatrix <- function(filePeakMatrix, doPrecursorDeisotoping, mzD
     
     ## replace -1 by 0
     if(numberOfDataColumns > 0){
+      
       for(colIdx in dataColumnStartEndIndeces[[1]]:dataColumnStartEndIndeces[[2]]){
         dataFrame1[ , colIdx] <- gsub(x = gsub(x = dataFrame1[ , colIdx], pattern = "\\.", replacement = ""), pattern = ",", replacement = ".")
       }
@@ -310,8 +316,9 @@ parsePeakAbundanceMatrix <- function(filePeakMatrix, doPrecursorDeisotoping, mzD
   returnObj$numberOfRemovedIsotopePeaks <- numberOfRemovedIsotopePeaks
   
   return (returnObj)
+  #print(returnObj)
 }
-
+#print("entering the line ...318")
 ####################################################################################
 ## parse MS/MS spectra
 parseMSP <- function(fileSpectra, minimumIntensityOfMaximalMS2peak, minimumProportionOfMS2peaks, neutralLossesPrecursorToFragments, neutralLossesFragmentsToFragments, progress = FALSE){
@@ -3058,6 +3065,9 @@ convertToProjectFile <- function(filePeakMatrix, fileSpectra, parameterSet, prog
     parameterSet = parameterSet, 
     progress = progress
   )
+  print("entering the line ...3065")
+  #print(returnObj)
+  
   returnObj$numberOfSpectraOriginal <- numberOfSpectraOriginal
   returnObj$numberOfMS2PeaksOriginal <- numberOfMS2PeaksOriginal
   returnObj$numberOfMS2PeaksWithNeutralLosses <- numberOfMS2PeaksWithNeutralLosses
@@ -3073,11 +3083,14 @@ convertToProjectFile <- function(filePeakMatrix, fileSpectra, parameterSet, prog
 ## metaboliteFamilies <- rep(x = "", times = numberOfSpectra)
 ## uniqueMetaboliteFamilies <- NULL
 ## metaboliteFamilyColors <- NULL
+
 convertToProjectFile2 <- function(filePeakMatrix, spectraList, precursorMz, precursorRt, metaboliteFamilies, uniqueMetaboliteFamilies, metaboliteFamilyColors, furtherProperties = list(), parameterSet, progress = FALSE){
   numberOfSpectraParsed <- length(spectraList)
   
   ####################################################################################
   ## metabolite profile
+  print("enetring the parameter set")
+  print(parameterSet)
   if(!is.na(progress))  if(progress)  incProgress(amount = 0.1, detail = paste("Parsing MS1 file...", sep = "")) else print(paste("Parsing MS1 file...", sep = ""))
   
   if(!is.null(filePeakMatrix)){
@@ -3089,6 +3102,9 @@ convertToProjectFile2 <- function(filePeakMatrix, spectraList, precursorMz, prec
       maximumRtDifference = parameterSet$maximumRtDifference,
       progress = progress
     )
+    #########
+    
+    ########
     dataFrame <- returnObj$dataFrame
     oldFormat <- returnObj$oldFormat
     numberOfPrecursors <- returnObj$numberOfPrecursors
