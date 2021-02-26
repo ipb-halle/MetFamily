@@ -21,7 +21,7 @@ test_that("MS-Dial 4.X", {
 	maximumRtDifference, 
 	progress=FALSE)
 
-    expect_equal(nrow(data), 17)
+    expect_equal(ncol(data$dataFrame), 41)
 })
 
 

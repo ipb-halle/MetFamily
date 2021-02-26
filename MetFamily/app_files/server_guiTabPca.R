@@ -111,7 +111,20 @@ calculatePca <- function(ms1AnalysisMethod, pcaScaling, pcaLogTransform, pcaDime
   #################################################
   ## calc PCA
   pca <- calculatePCA(dataList = dataList, filterObj = filterPca, ms1AnalysisMethod = ms1AnalysisMethod, scaling = pcaScaling, logTransform = pcaLogTransform)
-  
+  print("enter the line ...line number 114")
+  #print(pca)
+  #print(colnames(as.data.frame(dataList$dataFrameInfos)))
+  #print(table(as.data.frame(dataList$dataFrameInfos)$"m/z"))
+  #print(table(as.data.frame(dataList$dataFrameInfos)$"RT"))
+  #print(table(as.data.frame(dataList$dataFrameInfos)$"Annotation"))
+  #print(table(as.data.frame(dataList$dataFrameInfos)$"Average Rt(min)"))
+  #print(table(as.data.frame(dataList$dataFrameInfos)$"Average Mz"))
+  #print(table(as.data.frame(dataList$dataFrameInfos)$"Metabolite name"))
+  #print(table(as.data.frame(dataList$dataFrameInfos)$"Adduct ion name"))
+  #print(table(as.data.frame(dataList$dataFrameInfos)$"MySample"))
+  ########
+  #print(as.data.frame(table(unlist(dataList))))
+  #########################################
   pcaDataList <<- list()
   pcaDataList$pcaObj <<- pca
   pcaDataList$pcaScoresX <<- pca$scores[, pcaDimensionOne]

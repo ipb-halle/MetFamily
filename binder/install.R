@@ -35,4 +35,5 @@ install.packages("squash")
 install.packages("plotrix")
 install.packages("RColorBrewer")
 install.packages("plotly")
+install.packages("rlang")
 
