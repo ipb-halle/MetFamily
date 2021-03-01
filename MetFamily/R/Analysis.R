@@ -8,7 +8,7 @@ filterData <- function(dataList, groups, sampleSet, filterBySamples, filter_aver
   
   ## filter_average
   if(!is.null(filter_average)){
-    print("this is entering the line 11")
+    #print("this is entering the line 11")
     #if(filterBySamples){
     #  filter <- filter & apply(X = as.data.frame(dataList$dataFrameMeasurements[, sapply(X = as.vector(groups), FUN = dataList$dataMeanColumnNameFunctionFromName)]), MARGIN = 1, FUN = mean) >= filter_average
     #} else {

@@ -677,6 +677,10 @@ obsHeatmaphover <- observeEvent(input$plotHeatmap_hover, {
   })
 })
 }  ## not finished
+
+#print("entering the line ..line 680")
+#print(columnsOfInterestForHeatmap)
+
 output$plotHeatmap_hover_info <- renderUI({
   hover <- input$plotHeatmap_hover
   hoverX <- hover$x
@@ -700,12 +704,21 @@ output$plotHeatmap_hover_info <- renderUI({
   
   ## differentiate heatmap content: LFC, samples, groups
   columnOfInterest <- columnsOfInterest[[ceiling(hoverY)]]
+  #print("entering the line ...line 707")
+  #print(columnOfInterest)
   #columnOfInterest <- rev(columnsOfInterest)[[round(hoverY)]]
-  
-  if(startsWith(x = columnOfInterest, prefix = "LFC_")){
+  #####################
+  #if(startsWith(x = columnOfInterest, prefix = "LFC_")){
+  if(startsWith(columnOfInterest, "LFC_")){
     ####################################
     ## lcf
+    #print("enter the line ...line 714")
+    ########
     groups <- dataList$lfcColumnNameFunctionFromString(columnOfInterest)
+    #######
+    #print(columnOfInterest)
+    #print(groups)
+    #######
     groupOne <- groups[[1]]
     groupTwo <- groups[[2]]
     #msg[[length(msg) + 1]] <- paste("log-fold-change = log_2( mean(group ", groupOne, ") / mean(group ", groupTwo, ") )", sep = "")
@@ -736,10 +749,14 @@ output$plotHeatmap_hover_info <- renderUI({
       #"<b>Sample abundances: ", "</b>", paste(vals, collapse = ", "),
       sep = ""
     )
-  } else {
-    if(endsWith(x = columnOfInterest, suffix = "_mean")){
+  } #else if(startsWith(x = columnOfInterest, prefix = "HBR")){}
+  else {
+    #if(endsWith(x = columnOfInterest, suffix = "_mean")){
+    if(endsWith(columnOfInterest, "_mean")){
       #####################################
       ## group
+      #print("enter the line 750")
+      #####
       groupHere <- dataList$dataMeanColumnNameFunctionFromString(columnOfInterest)
       
       #msg[[length(msg) + 1]] <- paste("Mean abundance of group ", groupHere, ": ", sep = "")
@@ -776,7 +793,7 @@ output$plotHeatmap_hover_info <- renderUI({
       )
     }
   }
-  
+ #################################### 
   #output$information <- renderText({
   #  print(paste("update output$information heatmap hover", sep = ""))
   #  paste(msg, collapse = "")
