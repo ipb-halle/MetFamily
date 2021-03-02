@@ -22,6 +22,7 @@ test_that("MS-Dial 4.X", {
 	progress=FALSE)
 
     expect_equal(ncol(data$dataFrame), 41)
+    #expect_equal(ncol(data), 41)
 })
 
 

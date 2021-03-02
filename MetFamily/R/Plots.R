@@ -2525,13 +2525,17 @@ calcPlotPCAloadings <- function(
   TNF2<-names(TNF1)[unname(TNF1)]
   TNF3<-trimws(TNF2)
   TNF4<-str_squish(TNF3)
+  print("entering the line ...2528")
+  #print(TNF4)
+  #print(typeof(TNF4))
   ################################
   T1NF<-dataList$colorMatrixDataFrame
   T1NF1<-rownames(T1NF)
   T1NF2<-trimws(T1NF1)
   T1NF3<-str_squish(T1NF2)
   ###### addding this new
-  if(rlang::is_empty(TNF4) || rlang::is_empty(TNF4))
+  #if(rlang::is_empty(TNF4) || rlang::is_empty(TNF4))
+  if(rlang::is_empty(TNF4))
   {
     #print(TNF4)
     #print("need to induce old code here")
