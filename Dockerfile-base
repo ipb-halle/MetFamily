@@ -1,4 +1,5 @@
-FROM rocker/shiny:3.6.3
+FROM rocker/shiny:4.0.4
+#FROM rocker/shiny:3.6.3
 
 MAINTAINER Kristian Peters <kpeters@ipb-halle.de>
 

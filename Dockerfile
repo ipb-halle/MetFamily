@@ -1,4 +1,5 @@
-FROM sneumann/metfamily-base:latest
+FROM sneumann/metfamily-base:404
+#FROM sneumann/metfamily-base:latest
 
 MAINTAINER Kristian Peters <kpeters@ipb-halle.de>
 
