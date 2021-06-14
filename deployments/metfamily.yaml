@@ -5,7 +5,7 @@ metadata:
   labels:
     app: metfamily
 spec:
-  replicas: 1 
+  replicas: 1
   selector:
     matchLabels:
       app: metfamily
@@ -26,6 +26,14 @@ spec:
           requests:
             cpu: "2"
             memory: 8G
+        volumeMounts:
+        - name: thoms-vol
+          mountPath: /srv/shiny-server/inst/data/classifier/
+      volumes:
+      - name: thoms-vol
+        nfs:
+          server: 192.168.0.20
+          path: /vol/R/shiny/srv/shiny-server/MetFam/MetFamily/inst/data/classifier/
 
 ---
 
@@ -52,13 +60,18 @@ metadata:
   annotations:
      nginx.ingress.kubernetes.io/affinity: cookie
      nginx.ingress.kubernetes.io/proxy-body-size: "500m"
-     
+     nginx.ingress.kubernetes.io/session-cookie-path: "/MetFamily/"
+     nginx.ingress.kubernetes.io/affinity: "cookie"
+     nginx.ingress.kubernetes.io/proxy-connect-timeout: "600"
+     nginx.ingress.kubernetes.io/proxy-write-timeout: "600"
+     nginx.ingress.kubernetes.io/rewrite-target: /$2
+
 spec:
   rules:
-  - host: metfamily.10.22.12.12.nip.io
+  - host: "msbi.ipb-halle.de"
     http:
       paths:
       - backend:
           serviceName: metfamily-service
           servicePort: 80
-        path: /
+        path: /MetFamily(/|$)(.*)
