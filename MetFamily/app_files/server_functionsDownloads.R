@@ -394,8 +394,10 @@ plotHCA <- function(file, fileType, plotMS2 = TRUE){
         ##         4, 5, 6, 7, 8, 8),
         #data = c(1, 1, 1, 1, 2, 3),
         #nrow = 6, ncol = 2),
+        ############################
        data = c(1, 1, 1, 1, 2, 2,3, 4, 5, 5,5, 5), nrow = 6, ncol = 2),
        widths = c(4.58, 1.59), # this is working good
+       #####################
        ### This is original
        #heights = c(0.002, 0.001, 0.002, 0.0012, 0.0013, 0.0001)
        #heights = c(0.2, 0.1, 0.2, 0.2, 0.013, 0.11) # this working good
@@ -501,33 +503,16 @@ plotPCA <- function(file, fileType, plotMS2 = TRUE){
   )
   
   if(plotMS2){
+    #############################
     graphics::layout(
-      mat = matrix(
-        ############
-        # data = c(1, 1, 1, 1, 1, 3,
-        #          2, 2, 2, 2, 2, 3, 
-        #          4, 5, 6, 7, 8, 8), 
-        # #### I am changing from 6 to 3 to 3 to 6
-        # nrow = 3, ncol = 6), 
-      ###########
-      #data = c(1,1,2,2,1,1,2,2,3,3,4,4,3,3,4,4),nrow=4,ncol=4)
-      data = c(1,1,2,2,1,1,2,2,3,3,4,4,3,3,4,4),nrow=4,ncol=4),
-      #data = c(1,2,3,4,1,2,3,4),nrow=2,ncol=4),
-      #### this is working  
-      #widths = c(1.4, 0.6), 
-      #heights = c(0.6, 0.010, 0.6, 0.8)
-      ###########
-      #widths = c(1.32, 1.29), 
-      #heights = c(0.2, 0, 0.2, 0.001)
-      #####
-      #widths = c(0.32, 1.9), 
-      #heights = c(1.1, 0.000010, 1.1, 0.01)
-      #####
-      ########
-      widths = c(0.12, 2.1), 
-      heights = c(0.039000, 0.0000000010, 0.03179, 0.01)
-      ##############
-    )
+    	mat = matrix(
+		################################
+		data = c(1,1,2,2,1,1,2,2,3,3,4,4,3,3,4,4,5,5,5,5,6,6,6,6,7,7,7,7),nrow=4,ncol=7),
+		widths =  c(0.85, 1.15),
+		heights = c(1.02,1.01)
+		########################
+		)
+  ######################################### 
   } else {
     graphics::layout(
       mat = matrix(
@@ -538,37 +523,21 @@ plotPCA <- function(file, fileType, plotMS2 = TRUE){
       widths = c(2, 2, 1), 
       heights = c(0.7, 0.6, 2.4)
     )
+  ########## Adding this new
+  ############################
   }
   
   ############################################
-  ## 1
- # drawPcaScoresPlotImpl()
-  ## 2
-  #drawPcaLoadingsPlotImpl()
-  ## 3
-  #if(plotMS2)  drawMS2PlotImpl()
-  ## 4
-  #calcPlotScoresGroupsLegendForImage(scoresGroups$groups, scoresGroups$colors, 5)
-  #calcPlotScoresGroupsLegendForImage(c("Glandular trichomes", "Trichome-free leaves"), scoresGroups$colors, 5)
-  ## 5
-  #drawDendrogramLegendImpl()
-  ## 6
-  #if(plotMS2)  drawMS2LegendImpl()
-  ## 7
-  #if(plotMS2)  drawFragmentDiscriminativityLegendImpl()
-  ## 8
-  #drawAnnotationLegendForImagePCAimpl()
-  #drawAnnotationLegendImpl()
-  #############################
   drawPcaScoresPlotImpl1()
   calcPlotScoresGroupsLegendForImage1(scoresGroups$groups, scoresGroups$colors, 30)
   drawPcaLoadingsPlotImpl()
-  #calcPlotScoresGroupsLegendForImage1(scoresGroups$groups, scoresGroups$colors, 30)
   drawAnnotationLegendForImagePCAimpl()
+  ##plot.new()
   ####################
+  #################### This is the end #######
   dev.off()
 }
-
+##############################################
 output$downloadDistanceMatrix <- downloadHandler(
   filename = function() {
     createExportDistanceMatrixName(currentDistanceMatrixObj$distanceMeasure)
