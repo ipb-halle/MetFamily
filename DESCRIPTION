@@ -24,7 +24,8 @@ Depends:
     xcms,
     mzR,
     matrixStats,
-    plotrix
+    plotrix,
+    egg
 Suggests:
     knitr,
     testthat
