@@ -24,7 +24,8 @@ Depends:
     xcms,
     mzR,
     matrixStats,
-    plotrix
+    plotrix,
+    egg
 Suggests:
     knitr,
     testthat
@@ -41,4 +42,5 @@ Collate:
     'Analysis.R'
     'TreeAlgorithms.R'
     'Plots.R'
-RoxygenNote: 6.0.1
+RoxygenNote: 7.2.3
+Encoding: UTF-8
