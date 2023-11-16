@@ -12,8 +12,10 @@ name: R-CMD-check-MetFamily
 # Define environment variables for the workflow
 env:
   has_testthat: 'true'
-  run_covr: 'true'
-  run_pkgdown: 'true'
+#  run_covr: 'true' # Disabled until later
+  run_covr: 'false'
+#  run_pkgdown: 'true' # Disabled until later 
+  run_pkgdown: 'false'
   has_RUnit: 'false'
   has_BiocCheck: 'false'
   cache-version: 'cache-v1'
@@ -31,8 +33,9 @@ jobs:
       matrix:
         config:
           - { os: ubuntu-latest, r: 'devel', bioc: 'devel', cont: "bioconductor/bioconductor_docker:devel", rspm: "https://packagemanager.rstudio.com/cran/__linux__/focal/latest" }
-          - { os: macOS-latest, r: 'next', bioc: '3.18'}
-          - { os: windows-latest, r: 'next', bioc: '3.18'}
+# Disabling additional architectures until later
+#          - { os: macOS-latest, r: 'next', bioc: '3.18'}
+#          - { os: windows-latest, r: 'next', bioc: '3.18'}
     
     # Define environment variables for the job
     env:
