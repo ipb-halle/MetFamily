@@ -3,14 +3,8 @@
 \name{startMetFamily}
 \alias{startMetFamily}
 \title{Start the web app in browser}
-\usage{
-startMetFamily()
-}
 \description{
 Start the web app in browser
-}
-\examples{
-startMetFamily()
 }
 \author{
 Hendrik Treutler
