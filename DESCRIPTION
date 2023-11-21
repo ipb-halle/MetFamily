@@ -19,13 +19,19 @@ Depends:
     mixOmics,
     pcaMethods,
     cba,
+    cowplot,
+    gdata,
+    searchable, 
     tools,
     stringr,
     xcms,
     mzR,
     matrixStats,
     plotrix,
+    slam,
+    plotly,
     egg
+Remotes: decisionpatterns/searchable
 Suggests:
     knitr,
     testthat
@@ -35,6 +41,8 @@ Description: We present a novel approach for the untargeted discovery of metabol
 License: GPL (>= 2)
 biocViews: Software, Visualization
 Collate:
+    'Annotation.R'
+    'Classifiers.R'
     'StartApp.R'
     'R_packages.R'
     'FragmentMatrixFunctions.R'
