@@ -34,6 +34,14 @@ of `rstudio:rstudio`. Do not use in Production !
 You can also pass a local directory with checked out MetFamily git tree 
 via the `docker run -v` argument.
 
+## Running locally with MetFamily R Package
+
+After installing the `MetFamily` R package and its dependencies, you can 
+```
+library(MetFamily)
+runApp(system.file("MetFamily", package="MetFamily"))
+```
+
 ## Running through Kubernetes
 
 At IPB we are running MetFamily inside a Kubernetes cluster. 
