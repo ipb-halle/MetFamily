@@ -11,4 +11,4 @@ RUN rm -rf *
 #ADD MetFamily /srv/shiny-server/
 ADD inst/MetFamily /srv/shiny-server/
 ADD R /srv/shiny-server/R
-
+ADD inst /srv/shiny-server/inst
