@@ -8,6 +8,5 @@ WORKDIR /srv/shiny-server
 
 RUN rm -rf *
 
-ADD MetFamily /srv/shiny-server/
-
-
+#ADD MetFamily /srv/shiny-server/
+ADD inst/MetFamily /srv/shiny-server/
