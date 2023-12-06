@@ -1,6 +1,9 @@
-FROM sneumann/metfamily-base:latest
+#FROM sneumann/metfamily-base:latest
+FROM sneumann/metfamily-base:4.3.2
+#FROM sneumann/metfamily-base:4.0.5
+#FROM sneumann/metfamily-base:3.6.3
 
-MAINTAINER Kristian Peters <kpeters@ipb-halle.de>
+MAINTAINER Steffen Neumann <sneumann@ipb-halle.de>
 
 LABEL Description="MetFamily helps identifying metabolites and groups them into metabolite clusters (a.k.a. families)."
 
