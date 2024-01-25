@@ -14,7 +14,7 @@ env:
   has_testthat: 'true'
 #  run_covr: 'true' # Disabled until later
   run_covr: 'false'
-#  run_pkgdown: 'true' # Disabled until later 
+#  run_pkgdown: 'true' # Disabled until later
   run_pkgdown: 'false'
   has_RUnit: 'false'
   has_BiocCheck: 'false'
@@ -26,7 +26,7 @@ jobs:
     runs-on: ${{ matrix.config.os }}
     name: ${{ matrix.config.os }} (${{ matrix.config.r }})
     container: ${{ matrix.config.cont }}
-    
+
     # Define the matrix for different configurations
     strategy:
       fail-fast: false
@@ -37,7 +37,7 @@ jobs:
 # Disabling additional architectures until later
 #          - { os: macOS-latest, r: 'next', bioc: '3.18'}
 #          - { os: windows-latest, r: 'next', bioc: '3.18'}
-    
+
     # Define environment variables for the job
     env:
       R_REMOTES_NO_ERRORS_FROM_WARNINGS: true
@@ -276,7 +276,13 @@ jobs:
         if: github.ref == 'refs/heads/devel' && env.run_pkgdown == 'true' && runner.os == 'Linux'
         run: R CMD INSTALL .
 
-      # Step 25: Deploy package
+      # Step 25: Test Shiny App in package
+      - name: Test Shiny App
+        uses: rstudio/shinytest2/actions/test-app@actions/v1
+        with:
+          app-dir: "inst/MetFamily"
+
+      # Step 26: Deploy package
       - name: Deploy package
         if: github.ref == 'refs/heads/devel' && env.run_pkgdown == 'true' && runner.os == 'Linux'
         run: |
@@ -290,7 +296,7 @@ jobs:
         ## branch (erasing anything you haven't version controlled!) and
         ## makes the git history recognizable by pkgdown.
 
-      # Step 26: Upload check results
+      # Step 27: Upload check results
       - name: Upload check results
         if: failure()
         uses: actions/upload-artifact@master
