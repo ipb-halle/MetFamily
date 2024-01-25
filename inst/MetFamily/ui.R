@@ -130,7 +130,11 @@ shinyUI(
                 conditionalPanel(
                   condition = 'input.fileInputSelection == "Import data"',
                   bsTooltip(id = "projectName", title = "Please type the name of the project", placement = "bottom", trigger = "hover"),
-                  textInput(inputId = "projectName", label = "Project name", value = paste("MetFamily project (created ", gsub(" ", "_", gsub(":", ".", Sys.time())), ")", sep = "")),
+                  # Temporarily use const date under testing, see https://github.com/rstudio/shinytest2/issues/300#issuecomment-1908500601
+                  textInput(inputId = "projectName", label = "Project name", 
+                            value = paste("MetFamily project (created ", gsub(" ", "_", gsub(":", ".", 
+                                                                                             ifelse(isFALSE(getOption("shiny.testmode")), Sys.time(), "2022-02-22_12.34.56.789")
+                                                                                             )), ")", sep = "")),
                   bsTooltip(id = "projectDescription", title = "Please type a description of this project as free text", placement = "bottom", trigger = "hover"),
                   tags$style(type="text/css", "textarea {width:100%}"),
                   tags$textarea(id = 'projectDescription', placeholder = 'Comments here', rows = 3, ""),
