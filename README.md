@@ -1,4 +1,4 @@
-[![build](https://github.com/ipb-halle/MetFamily/workflows/build/badge.svg)](https://github.com/ipb-halle/MetFamily/actions?query=workflow%3Abuild)
+[![build](https://github.com/ipb-halle/MetFamily/actions/workflows/build.yml/badge.svg)](https://github.com/ipb-halle/MetFamily/actions/workflows/build.yml)
 
 # MetFamily
 Understanding metabolism is fundamental in biomedical and plant research and the identification and quantification of thousands of metabolites by mass spectrometry in modern metabolomics is a prerequisite for elucidating this area. However, the identification of metabolites is a major bottleneck in traditional approaches hampering advances. Here, we present a novel approach for the untargeted discovery of metabolite families offering a bird's eye view of metabolic regulation in comparative metabolomics. We implemented the presented methodology in the easy-to-use web application MetFamily to enable the analysis of comprehensive metabolomics studies for all researchers worldwide.  MetFamily is available under http://msbi.ipb-halle.de/MetFamily/.
