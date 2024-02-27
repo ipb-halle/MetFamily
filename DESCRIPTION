@@ -44,7 +44,7 @@ biocViews: Software, Visualization
 Collate:
     'Annotation.R'
     'Classifiers.R'
-    'StartApp.R'
+    'runMetFamily.R'
     'R_packages.R'
     'FragmentMatrixFunctions.R'
     'DataProcessing.R'
