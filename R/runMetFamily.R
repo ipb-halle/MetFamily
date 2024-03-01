@@ -1,12 +1,14 @@
 
-##' Start the web app in browser
+##' Run the web app in browser
 ##'
 ##' @title Start the web app in browser
 ##' @export
-##' @author Hendrik Treutler
+##' @author Hendrik Treutler, Steffen Neumann
 ##' @examples
-##' startMetFamily()
-startMetFamily <- function(){
+##' runMetFamily()
+runMetFamily <- function(){
   shiny::runApp(appDir = system.file("MetFamily", package = "MetFamily"), 
   launch.browser = TRUE)
 }
+
+startMetFamily <- runMetFamily
