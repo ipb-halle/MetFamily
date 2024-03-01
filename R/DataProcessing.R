@@ -379,33 +379,33 @@ readProjectData <- function(fileLines, progress = FALSE){
   sampleColumns <- which(sampleColumns)
   sampleColumnsStartEnd <- c(min(sampleColumns), max(sampleColumns))
   
-  groups <- unique(tagsSector[sampleColumns])
-  numberOfGroups <- length(groups)
+  grouXXXps <- unique(tagsSector[sampleColumns])
+  numberOfGroups <- length(grouXXXps)
   
   sampleNamesToExclude <- NULL
   
   
   dataColumnIndecesFunctionFromGroupIndex <- function(groupIdx, sampleNamesToExclude = NULL){
-    which(tagsSector == groups[[groupIdx]] & !(metaboliteProfileColumnNames %in% sampleNamesToExclude))
+    which(tagsSector == grouXXXps[[groupIdx]] & !(metaboliteProfileColumnNames %in% sampleNamesToExclude))
   }
   dataColumnsNameFunctionFromGroupIndex <- function(groupIdx, sampleNamesToExclude = NULL){
-    #sampleNames = paste(groups[[groupIdx]], "_", metaboliteProfileColumnNames[dataColumnIndecesFunctionFromGroupIndex(groupIdx = groupIdx, sampleNamesToExclude = sampleNamesToExclude)], sep = "")
+    #sampleNames = paste(grouXXXps[[groupIdx]], "_", metaboliteProfileColumnNames[dataColumnIndecesFunctionFromGroupIndex(groupIdx = groupIdx, sampleNamesToExclude = sampleNamesToExclude)], sep = "")
     sampleNames = metaboliteProfileColumnNames[dataColumnIndecesFunctionFromGroupIndex(groupIdx = groupIdx, sampleNamesToExclude = sampleNamesToExclude)]
     #sampleNames = sampleNames[!(sampleNames %in% sampleNamesToExclude)]
     return(sampleNames)
   }
   dataColumnsNameFunctionFromGroupName <- function(group, sampleNamesToExclude = NULL){
-    dataColumnsNameFunctionFromGroupIndex(groupIdx = match(x = group, table = groups), sampleNamesToExclude = sampleNamesToExclude)
+    dataColumnsNameFunctionFromGroupIndex(groupIdx = match(x = group, table = grouXXXps), sampleNamesToExclude = sampleNamesToExclude)
   }
-  dataColumnsNameFunctionFromGroupNames <- function(groups, sampleNamesToExclude = NULL){
-    unlist(lapply(X = groups, FUN = function(x){dataColumnsNameFunctionFromGroupName(group = x, sampleNamesToExclude = sampleNamesToExclude)}))
+  dataColumnsNameFunctionFromGroupNames <- function(grouXXXps, sampleNamesToExclude = NULL){
+    unlist(lapply(X = grouXXXps, FUN = function(x){dataColumnsNameFunctionFromGroupName(group = x, sampleNamesToExclude = sampleNamesToExclude)}))
   }
   groupNameFunctionFromDataColumnName <- function(dataColumnName, sampleNamesToExclude = NULL){
-    groupIdx <- which(unlist(lapply(X = groups, FUN = function(x){
+    groupIdx <- which(unlist(lapply(X = grouXXXps, FUN = function(x){
       dataColumnNames <- dataColumnsNameFunctionFromGroupName(group = x, sampleNamesToExclude = sampleNamesToExclude)
       any(dataColumnNames == dataColumnName)
     })))
-    groups[[groupIdx]]
+    grouXXXps[[groupIdx]]
   }
   lfcColumnNameFunctionFromString <- function(columnName){
     tokens <- strsplit(x = columnName, split = "_vs_")[[1]]
@@ -437,7 +437,7 @@ readProjectData <- function(fileLines, progress = FALSE){
   
   returnObj <- processMS1data(
     sampleNamesToExclude=sampleNamesToExclude, numberOfMS1features=numberOfMS1features, precursorLabels=precursorLabels, 
-    groups=groups, metaboliteProfileColumnNames=metaboliteProfileColumnNames, tagsSector = tagsSector, 
+    grouXXXps=grouXXXps, metaboliteProfileColumnNames=metaboliteProfileColumnNames, tagsSector = tagsSector, 
     dataColumnIndecesFunctionFromGroupIndex=dataColumnIndecesFunctionFromGroupIndex, dataColumnsNameFunctionFromGroupIndex=dataColumnsNameFunctionFromGroupIndex, dataColumnsNameFunctionFromGroupName=dataColumnsNameFunctionFromGroupName, dataColumnsNameFunctionFromGroupNames=dataColumnsNameFunctionFromGroupNames, groupNameFunctionFromDataColumnName=groupNameFunctionFromDataColumnName,
     metaboliteProfile=metaboliteProfile, progress=progress
   )
@@ -561,7 +561,7 @@ readProjectData <- function(fileLines, progress = FALSE){
   dataList$importParameterSet <- importParameterSet
   dataList$numberOfPrecursors <- numberOfMS1features
   dataList$numberOfDuplicatedPrecursors <- numberOfDuplicated
-  dataList$groups <- groups
+  dataList$grouXXXps <- grouXXXps
   dataList$columnGroupLabels <- columnGroupLabels
   dataList$groupSampleDataFrame <- groupSampleDataFrame
   dataList$metaboliteProfileColumnNames <- metaboliteProfileColumnNames
@@ -621,32 +621,32 @@ readProjectData <- function(fileLines, progress = FALSE){
   
   ## redefine MS1 column functions
   dataColumnIndecesFunctionFromGroupIndex <- function(groupIdx, sampleNamesToExclude){
-    which(dataList$tagsSector == dataList$groups[[groupIdx]] & !(dataList$metaboliteProfileColumnNames %in% sampleNamesToExclude))
+    which(dataList$tagsSector == dataList$grouXXXps[[groupIdx]] & !(dataList$metaboliteProfileColumnNames %in% sampleNamesToExclude))
   }
   dataList$dataColumnIndecesFunctionFromGroupIndex <- dataColumnIndecesFunctionFromGroupIndex
   dataColumnsNameFunctionFromGroupIndex <- function(groupIdx, sampleNamesToExclude){
-    #sampleNames = paste(dataList$groups[[groupIdx]], "_", metaboliteProfileColumnNames[dataColumnIndecesFunctionFromGroupIndex(groupIdx = groupIdx, sampleNamesToExclude = sampleNamesToExclude)], sep = "")
+    #sampleNames = paste(dataList$grouXXXps[[groupIdx]], "_", metaboliteProfileColumnNames[dataColumnIndecesFunctionFromGroupIndex(groupIdx = groupIdx, sampleNamesToExclude = sampleNamesToExclude)], sep = "")
     dataList$metaboliteProfileColumnNames[dataList$dataColumnIndecesFunctionFromGroupIndex(groupIdx = groupIdx, sampleNamesToExclude = sampleNamesToExclude)]
     #sampleNames = sampleNames[!(sampleNames %in% sampleNamesToExclude)]
     #return(sampleNames)
   }
   dataList$dataColumnsNameFunctionFromGroupIndex <- dataColumnsNameFunctionFromGroupIndex
   dataColumnsNameFunctionFromGroupName <- function(group, sampleNamesToExclude){
-    dataColumns <- dataList$dataColumnsNameFunctionFromGroupIndex(groupIdx = match(x = group, table = dataList$groups), sampleNamesToExclude = sampleNamesToExclude)
+    dataColumns <- dataList$dataColumnsNameFunctionFromGroupIndex(groupIdx = match(x = group, table = dataList$grouXXXps), sampleNamesToExclude = sampleNamesToExclude)
   }
   dataList$dataColumnsNameFunctionFromGroupName <- dataColumnsNameFunctionFromGroupName
-  dataColumnsNameFunctionFromGroupNames <- function(groups, sampleNamesToExclude){
-    unlist(lapply(X = groups, FUN = function(x){
+  dataColumnsNameFunctionFromGroupNames <- function(grouXXXps, sampleNamesToExclude){
+    unlist(lapply(X = grouXXXps, FUN = function(x){
       dataList$dataColumnsNameFunctionFromGroupName(group = x, sampleNamesToExclude = sampleNamesToExclude)
     }))
   }
   dataList$dataColumnsNameFunctionFromGroupNames <- dataColumnsNameFunctionFromGroupNames
   groupNameFunctionFromDataColumnName <- function(dataColumnName, sampleNamesToExclude){
-    groupIdx <- which(unlist(lapply(X = dataList$groups, FUN = function(x){
+    groupIdx <- which(unlist(lapply(X = dataList$grouXXXps, FUN = function(x){
       dataColumnNames <- dataList$dataColumnsNameFunctionFromGroupName(group = x, sampleNamesToExclude = sampleNamesToExclude)
       any(dataColumnNames == dataColumnName)
     })))
-    dataList$groups[[groupIdx]]
+    dataList$grouXXXps[[groupIdx]]
   }
   dataList$groupNameFunctionFromDataColumnName <- groupNameFunctionFromDataColumnName
   
@@ -660,19 +660,19 @@ readProjectData <- function(fileLines, progress = FALSE){
   dataList$orderColumnNames <- orderColumnNames
   
   ## define sample in-/exclusion functions
-  excludedSamples <- function(groupSampleDataFrame, groups = dataList$groups){
+  excludedSamples <- function(groupSampleDataFrame, grouXXXps = dataList$grouXXXps){
     #dataList$groupSampleDataFrame[, "Sample"][ dataList$groupSampleDataFrame[, "Exclude"]]
     samples    =  groupSampleDataFrame[, "Sample"]
     isExcluded =  groupSampleDataFrame[, "Exclude"]
-    isGroup    =  groupSampleDataFrame[, "Group"] %in% groups
+    isGroup    =  groupSampleDataFrame[, "Group"] %in% grouXXXps
     return(samples[isExcluded & isGroup])
   }
   dataList$excludedSamples <- excludedSamples
-  includedSamples <- function(groupSampleDataFrame, groups = dataList$groups){
+  includedSamples <- function(groupSampleDataFrame, grouXXXps = dataList$grouXXXps){
     #dataList$groupSampleDataFrame[, "Sample"][!dataList$groupSampleDataFrame[, "Exclude"]]
     samples    =  groupSampleDataFrame[, "Sample"]
     isIncluded = !groupSampleDataFrame[, "Exclude"]
-    isGroup    =  groupSampleDataFrame[, "Group"] %in% groups
+    isGroup    =  groupSampleDataFrame[, "Group"] %in% grouXXXps
     return(samples[isIncluded & isGroup])
   }
   dataList$includedSamples <- includedSamples
@@ -684,7 +684,7 @@ readProjectData <- function(fileLines, progress = FALSE){
   }
   dataList$includedGroups <- includedGroups
   excludedGroups <- function(groupSampleDataFrame, samples = dataList$groupSampleDataFrame[, "Sample"]){
-    setdiff(dataList$groups, dataList$includedGroups(groupSampleDataFrame, samples)) 
+    setdiff(dataList$grouXXXps, dataList$includedGroups(groupSampleDataFrame, samples)) 
   }
   dataList$excludedGroups <- excludedGroups
   
@@ -705,11 +705,11 @@ readProjectData <- function(fileLines, progress = FALSE){
 ## dataList$dataFrameInfos <- metaboliteProfile
 processMS1data <- function(
   sampleNamesToExclude, numberOfMS1features, precursorLabels, 
-  groups, metaboliteProfileColumnNames, 
+  grouXXXps, metaboliteProfileColumnNames, 
   dataColumnIndecesFunctionFromGroupIndex, dataColumnsNameFunctionFromGroupIndex, dataColumnsNameFunctionFromGroupName, dataColumnsNameFunctionFromGroupNames, groupNameFunctionFromDataColumnName,
   tagsSector, metaboliteProfile, progress
 ){
-  numberOfGroups <- length(groups)
+  numberOfGroups <- length(grouXXXps)
   
   ####################
   ## MS1 measurement data: mean and LFC
@@ -722,7 +722,7 @@ processMS1data <- function(
   ## column name functions
   if(!is.na(progress))  if(progress)  incProgress(amount = 0, detail = "Coloring naming functions") else print("Coloring naming functions")
   
-  ## store data of groups
+  ## store data of grouXXXps
   dataColumnNames <- list()
   for(groupIdx in seq_len(numberOfGroups)){
     dataColumnNamesHere <- dataColumnsNameFunctionFromGroupIndex(groupIdx = groupIdx, sampleNamesToExclude = sampleNamesToExclude)
@@ -735,21 +735,21 @@ processMS1data <- function(
     return(paste(group, "_mean", sep = ""))
   }
   dataMeanColumnNameFunctionFromIndex  <- function(groupIdx){
-    return(dataMeanColumnNameFunctionFromName(groups[[groupIdx]]))
+    return(dataMeanColumnNameFunctionFromName(grouXXXps[[groupIdx]]))
   }
   
   lfcColumnNameFunctionFromName <- function(groupOne, groupTwo){
     return(paste("LFC", groupOne, "vs", groupTwo, sep = "_"))
   }
   lfcColumnNameFunctionFromIndex <- function(groupIdxOne, groupIdxTwo){
-    lfcColumnNameFunctionFromName(groups[[groupIdxOne]], groups[[groupIdxTwo]])
+    lfcColumnNameFunctionFromName(grouXXXps[[groupIdxOne]], grouXXXps[[groupIdxTwo]])
   }
   
   groupNameFromGroupIndex <- function(groupIdx){
-    return(groups[[groupIdx]])
+    return(grouXXXps[[groupIdx]])
   }
   groupIdxFromGroupName <- function(group){
-    return(match(x = group, table = groups))
+    return(match(x = group, table = grouXXXps))
   }
   
   if(!is.na(progress))  if(progress)  incProgress(amount = 0, detail = "Coloring gather data") else print("Coloring gather data")
@@ -779,7 +779,7 @@ processMS1data <- function(
   if(meanAllMax != 0)
     dataFrameMeasurements[, "meanAllNormed"] <- dataFrameMeasurements[, "meanAllNormed"] / meanAllMax
   
-  ## log fold change between groups
+  ## log fold change between grouXXXps
   lfcColumnNames <- list()
   for(groupIdx1 in seq_len(numberOfGroups))
     for(groupIdx2 in seq_len(numberOfGroups)){
@@ -816,7 +816,7 @@ processMS1data <- function(
   logAbsMin <- min(0, min(matrixDataFrame[, dataMeanColumnNames]))
   #logAbsMax <- max(matrixDataFrame[, dataMeanColumnNames])
   logAbsMax <- max(matrixDataFrame[, c(dataColumnNames, dataMeanColumnNames)])
-  #logAbsMax <- max(matrixDataFrame[, dataColumnsNameFunctionFromGroupNames(groups = groups)])
+  #logAbsMax <- max(matrixDataFrame[, dataColumnsNameFunctionFromGroupNames(grouXXXps = grouXXXps)])
   logFoldChangeMinMax <- c(min(matrixDataFrame[, lfcColumnNames]), max(matrixDataFrame[, lfcColumnNames]))
   logFoldChangeMax <- max(abs(logFoldChangeMinMax))
   if(logFoldChangeMax < 1)
@@ -833,7 +833,7 @@ processMS1data <- function(
     colFn = colorRampPalette(c('blue', 'white', 'red'))
   )
   
-  columnGroupLabels <- sapply(X = groups, FUN = function(x){ rep(x = x, times = length(dataColumnsNameFunctionFromGroupName(group = x, sampleNamesToExclude = sampleNamesToExclude))) })
+  columnGroupLabels <- sapply(X = grouXXXps, FUN = function(x){ rep(x = x, times = length(dataColumnsNameFunctionFromGroupName(group = x, sampleNamesToExclude = sampleNamesToExclude))) })
   
   ## translate and box colors
   if(!is.na(progress))  if(progress)  incProgress(amount = 0, detail = "Coloring box") else print("Coloring box")
@@ -1366,7 +1366,7 @@ getTableFromPrecursorSet <- function(dataList, precursorSet){
   numberOfPrecursors <- length(precursorSet)
   
   ## measurements
-  columnNames <- unlist(lapply(X = dataList$groups, FUN = dataList$dataMeanColumnNameFunctionFromName))
+  columnNames <- unlist(lapply(X = dataList$grouXXXps, FUN = dataList$dataMeanColumnNameFunctionFromName))
   dataFrameMeasurements     <- data.frame(dataList$dataFrameMeasurements[precursorSet, columnNames, drop=FALSE])
   colnames(dataFrameMeasurements) <- columnNames
   rownames(dataFrameMeasurements) <- dataList$precursorLabels[precursorSet]

@@ -1,7 +1,7 @@
 
 #########################################################################################
 ## constants
-filterData <- function(dataList, groups, sampleSet, filterBySamples, filter_average, filter_lfc, filterList_ms2_masses, filter_ms2_ppm, filter_ms1_masses, filter_ms1_ppm, includeIgnoredPrecursors, progress = FALSE){
+filterData <- function(dataList, grouXXXps, sampleSet, filterBySamples, filter_average, filter_lfc, filterList_ms2_masses, filter_ms2_ppm, filter_ms1_masses, filter_ms1_ppm, includeIgnoredPrecursors, progress = FALSE){
   ##########################################
   ## filter
   filter <- rep(x = TRUE, times = dataList$numberOfPrecursors)
@@ -10,9 +10,9 @@ filterData <- function(dataList, groups, sampleSet, filterBySamples, filter_aver
   if(!is.null(filter_average)){
     #print("this is entering the line 11")
     #if(filterBySamples){
-    #  filter <- filter & apply(X = as.data.frame(dataList$dataFrameMeasurements[, sapply(X = as.vector(groups), FUN = dataList$dataMeanColumnNameFunctionFromName)]), MARGIN = 1, FUN = mean) >= filter_average
+    #  filter <- filter & apply(X = as.data.frame(dataList$dataFrameMeasurements[, sapply(X = as.vector(grouXXXps), FUN = dataList$dataMeanColumnNameFunctionFromName)]), MARGIN = 1, FUN = mean) >= filter_average
     #} else {
-      filter <- filter & apply(X = as.data.frame(dataList$dataFrameMeasurements[, sapply(X = as.vector(groups), FUN = dataList$dataMeanColumnNameFunctionFromName)]), MARGIN = 1, FUN = mean) >= filter_average
+      filter <- filter & apply(X = as.data.frame(dataList$dataFrameMeasurements[, sapply(X = as.vector(grouXXXps), FUN = dataList$dataMeanColumnNameFunctionFromName)]), MARGIN = 1, FUN = mean) >= filter_average
       #print(filter)
       #print(names(filter)[unname(filter)])
     #}
@@ -21,11 +21,11 @@ filterData <- function(dataList, groups, sampleSet, filterBySamples, filter_aver
   ## filter_lfc
   if(!is.null(filter_lfc)){
     if(filter_lfc != 0){
-      if(length(groups) != 2){  stop("The number of groups for LFC is not equal to two!") }
+      if(length(grouXXXps) != 2){  stop("The number of grouXXXps for LFC is not equal to two!") }
       if(filter_lfc > 0)
-        filter <- filter & dataList$dataFrameMeasurements[, dataList$lfcColumnNameFunctionFromName(groups[[1]], groups[[2]])] >= filter_lfc
+        filter <- filter & dataList$dataFrameMeasurements[, dataList$lfcColumnNameFunctionFromName(grouXXXps[[1]], grouXXXps[[2]])] >= filter_lfc
       else
-        filter <- filter & dataList$dataFrameMeasurements[, dataList$lfcColumnNameFunctionFromName(groups[[1]], groups[[2]])] <= filter_lfc
+        filter <- filter & dataList$dataFrameMeasurements[, dataList$lfcColumnNameFunctionFromName(grouXXXps[[1]], grouXXXps[[2]])] <= filter_lfc
     }
   }
   
@@ -80,16 +80,16 @@ filterData <- function(dataList, groups, sampleSet, filterBySamples, filter_aver
   resultObj$filter <- filter
   resultObj$numberOfPrecursors <- dataList$numberOfPrecursors
   resultObj$numberOfPrecursorsFiltered <- length(filter)
-  if(is.null(groups)){
-    resultObj$groups    <- list()
+  if(is.null(grouXXXps)){
+    resultObj$grouXXXps    <- list()
     resultObj$sampleSet <- list()
     resultObj$filterBySamples <- NA
   } else {
-    resultObj$groups    <- groups
+    resultObj$grouXXXps    <- grouXXXps
     resultObj$sampleSet <- sampleSet
     resultObj$filterBySamples <- filterBySamples
   }
-  #resultObj$groups                   <- ifelse(test = is.null(groups),                   yes = NA, no = groups)
+  #resultObj$grouXXXps                   <- ifelse(test = is.null(grouXXXps),                   yes = NA, no = grouXXXps)
   resultObj$filter_average           <- ifelse(test = is.null(filter_average),           yes = 0, no = filter_average)
   resultObj$filter_lfc               <- ifelse(test = is.null(filter_lfc),               yes = 0, no = filter_lfc)
   if(is.null(filterList_ms2_masses)){
@@ -974,7 +974,7 @@ performPca <- function(dataList, dataFrame2, ms1AnalysisMethod){
   #.. ..$ : chr [1:5] "Dim.1" "Dim.2" "Dim.3" "Dim.4" ...
   #$ variance: num [1:18] 35.96 21.67 11.66 8.15 4.56 ...
   #
-  ## artificial data two groups
+  ## artificial data two grouXXXps
   #$ scores  : num [1:2, 1] 0 0
   #..- attr(*, "dimnames")=List of 2
   #.. ..$ : chr [1:2] "A_1" "B_2"
@@ -1054,7 +1054,7 @@ calculatePCA <- function(dataList, filterObj, ms1AnalysisMethod, scaling, logTra
   if(filterObj$filterBySamples){
     dataFrame <- dataList$dataFrameMeasurements[filterObj$filter, filterObj$sampleSet]
   } else {
-    dataFrame <- dataList$dataFrameMeasurements[filterObj$filter, dataList$dataColumnsNameFunctionFromGroupNames(groups = filterObj$groups, sampleNamesToExclude = dataList$excludedSamples(dataList$groupSampleDataFrame))]
+    dataFrame <- dataList$dataFrameMeasurements[filterObj$filter, dataList$dataColumnsNameFunctionFromGroupNames(grouXXXps = filterObj$grouXXXps, sampleNamesToExclude = dataList$excludedSamples(dataList$groupSampleDataFrame))]
   }
   dataFrame <- t(dataFrame)
   
