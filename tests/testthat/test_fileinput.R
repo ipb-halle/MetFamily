@@ -3,7 +3,7 @@ test_that("trivial", {
 })
 
 test_that("exampledata", {
-  filePeakMatrix <- system.file("data/showcase/Metabolite_profile_showcase.txt", package = "MetFamily")
+  filePeakMatrix <- system.file("extdata/showcase/Metabolite_profile_showcase.txt", package = "MetFamily")
   data <- parsePeakAbundanceMatrix(filePeakMatrix, doPrecursorDeisotoping=TRUE,
                                    mzDeviationInPPM_precursorDeisotoping=10, mzDeviationAbsolute_precursorDeisotoping=0.01,
                                    maximumRtDifference=0.05,
@@ -19,7 +19,7 @@ test_that("exampledata", {
 })
 
 test_that("MS-Dial 4.X", {
-#   filePeakMatrix <- system.file("data/showcase/Metabolite_profile_showcase.txt", package = "MetFamily")
+#   filePeakMatrix <- system.file("extdata/showcase/Metabolite_profile_showcase.txt", package = "MetFamily")
 #     data <- parsePeakAbundanceMatrix(filePeakMatrix, doPrecursorDeisotoping, 
 # 	mzDeviationInPPM_precursorDeisotoping, mzDeviationAbsolute_precursorDeisotoping, 
 # 	maximumRtDifference, 
