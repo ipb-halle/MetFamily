@@ -1,4 +1,18 @@
 
+# Custom data.matrix function to maintain old behavior
+data.numericmatrix <- function(x) {
+  # Convert character columns to numeric
+  # without converting to factors first
+  # matching behaviour of pre-4.0.0 data.matrix function()
+  for (i in 1:ncol(x)) {
+    if (is.character(x[, i])) {
+      x[, i] <- as.numeric(as.character(x[, i]))
+    }
+  }
+  as.matrix(x)
+}
+
+
 #########################################################################################
 ## annotate and process matrix
 sparseMatrixToString <- function(matrixRows, matrixCols, matrixVals, parameterSet){
@@ -727,7 +741,7 @@ processMS1data <- function(
   for(groupIdx in seq_len(numberOfGroups)){
     dataColumnNamesHere <- dataColumnsNameFunctionFromGroupIndex(groupIdx = groupIdx, sampleNamesToExclude = sampleNamesToExclude)
     dataColumnNames <- c(dataColumnNames, dataColumnNamesHere)
-    dataFrameMeasurements[, dataColumnNamesHere] <- data.matrix(metaboliteProfile[, dataColumnIndecesFunctionFromGroupIndex(groupIdx = groupIdx, sampleNamesToExclude = sampleNamesToExclude), drop = FALSE])
+    dataFrameMeasurements[, dataColumnNamesHere] <- data.numericmatrix(metaboliteProfile[, dataColumnIndecesFunctionFromGroupIndex(groupIdx = groupIdx, sampleNamesToExclude = sampleNamesToExclude), drop = FALSE])
   }
   dataColumnNames <- unlist(dataColumnNames)
   
@@ -762,14 +776,14 @@ processMS1data <- function(
       for(colIdx in dataColumnIndecesFunctionFromGroupIndex(groupIdx = groupIdx, sampleNamesToExclude = sampleNamesToExclude))
         metaboliteProfile[, colIdx] <- as.numeric(metaboliteProfile[, colIdx])
     
-    dataFrameMeasurements[, dataMeanColumnName] <- apply(X = data.matrix(metaboliteProfile[, dataColumnIndecesFunctionFromGroupIndex(groupIdx = groupIdx, sampleNamesToExclude = sampleNamesToExclude), drop=FALSE]), MARGIN = 1, FUN = mean)
+    dataFrameMeasurements[, dataMeanColumnName] <- apply(X = data.numericmatrix(metaboliteProfile[, dataColumnIndecesFunctionFromGroupIndex(groupIdx = groupIdx, sampleNamesToExclude = sampleNamesToExclude), drop=FALSE]), MARGIN = 1, FUN = mean)
     dataFrameMeasurements[is.na(dataFrameMeasurements[, dataMeanColumnName]), dataMeanColumnName] <- 0
   }
   dataMeanColumnNames <- unlist(dataMeanColumnNames)
   
   ## all replicates mean
   dataFrameMeasurements[, "meanAllNormed"] <- apply(
-    X = data.matrix(metaboliteProfile[, 
+    X = data.numericmatrix(metaboliteProfile[, 
                                       unlist(lapply(X = seq_len(numberOfGroups), FUN = function(x) {dataColumnIndecesFunctionFromGroupIndex(groupIdx = x, sampleNamesToExclude = sampleNamesToExclude)})),
                                       drop=FALSE]), 
     MARGIN = 1, FUN = mean
@@ -801,7 +815,7 @@ processMS1data <- function(
   ## MS1 measurement data to colors
   if(!is.na(progress))  if(progress)  incProgress(amount = 0, detail = "Coloring matrix") else print("Coloring matrix")
   
-  matrixDataFrame <- data.matrix(dataFrameMeasurements)
+  matrixDataFrame <- data.numericmatrix(dataFrameMeasurements)
   
   matrixDataFrame[, dataColumnNames    ][matrixDataFrame[, dataColumnNames    ] < 1] <- 1
   matrixDataFrame[, dataMeanColumnNames][matrixDataFrame[, dataMeanColumnNames] < 1] <- 1
@@ -1273,9 +1287,9 @@ getMS2spectrumInfoForCluster <- function(dataList, clusterDataList, treeLabel){
   featuresIntersection <- clusterDataList$innerNodeFeaturesIntersection[[clusterIndex]]
   featuresUnion <- clusterDataList$innerNodeFeaturesUnion[[clusterIndex]]
   #fragmentsX <- dataList$fragmentMasses[featuresIntersection]
-  #fragmentsY <- apply(X = data.matrix(dataList$featureMatrix[clusterMembersPrecursors, featuresIntersection]), MARGIN = 2, FUN = mean)
+  #fragmentsY <- apply(X = data.numericmatrix(dataList$featureMatrix[clusterMembersPrecursors, featuresIntersection]), MARGIN = 2, FUN = mean)
   fragmentsX <- dataList$fragmentMasses[featuresUnion]
-  fragmentsY <- apply(X = data.matrix(dataList$featureMatrix[clusterMembersPrecursors, featuresUnion]), MARGIN = 2, FUN = mean)
+  fragmentsY <- apply(X = data.numericmatrix(dataList$featureMatrix[clusterMembersPrecursors, featuresUnion]), MARGIN = 2, FUN = mean)
   
   selectedPositive <- clusterDataList$innerNodeFeaturesCountsMatrix[clusterIndex, featuresUnion]
   coverageSelected <- selectedPositive / numberOfClusterMembers

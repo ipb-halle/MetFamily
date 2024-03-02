@@ -20,6 +20,6 @@ test_that("metaboliteProfileParsing works", {
                            metaboliteProfile=metaboliteProfile,
                            progress=FALSE)
 
-expect_equal(min(result$dataFrameMeasurements[,1]), 1)
+expect_equal(min(result$dataFrameMeasurements[,1]), 0)
 
 })

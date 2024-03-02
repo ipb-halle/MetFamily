@@ -1,7 +1,7 @@
 Package: MetFamily
 Type: Package
 Title: MetFamily: Discovering Regulated Metabolite Families in Untargeted Metabolomics Studies
-Version: 0.99.2
+Version: 0.99.3
 Date: 2024-03-02
 Author: c( person("Hendrik", "Treutler, role = c("aut"), email = "hendrik.treutler@ipb-halle.de"),
            person("Khabat", "Vahabi, role = c("aut"), email = "khabat.vahabi@ipb-halle.de"),
