@@ -1,9 +1,19 @@
-
-# Custom data.matrix function to maintain old behavior
+#' Convert data.frame columns to numeric
+#'
+#' The data.numericmatrix() function works similar to base::data.matrix()
+#' before R-4.0.0 converting character columns to numeric without converting 
+#' to factor first, thus returning the actual numeric values.
+#' 
+#' @param x The data.frame to convert
+#'
+#' @return A matrix with all columns converted to numeric
+#' @export
+#'
+#' @examples
+#' data.numericmatrix(data.frame(a = c("1", "2", "3"), 
+#'                               b = c("4", "5", "6")))
+#' 
 data.numericmatrix <- function(x) {
-  # Convert character columns to numeric
-  # without converting to factors first
-  # matching behaviour of pre-4.0.0 data.matrix function()
   for (i in 1:ncol(x)) {
     if (is.character(x[, i])) {
       x[, i] <- as.numeric(as.character(x[, i]))
@@ -715,39 +725,85 @@ readProjectData <- function(fileLines, progress = FALSE){
   return(dataList)
 }
 
-## tagsSector <- dataFrameMS1Header[2, ]
-## dataList$dataFrameInfos <- metaboliteProfile
-processMS1data <- function(
-  sampleNamesToExclude, numberOfMS1features, precursorLabels, 
-  grouXXXps, metaboliteProfileColumnNames, 
-  dataColumnIndecesFunctionFromGroupIndex, dataColumnsNameFunctionFromGroupIndex, dataColumnsNameFunctionFromGroupName, dataColumnsNameFunctionFromGroupNames, groupNameFunctionFromDataColumnName,
-  tagsSector, metaboliteProfile, progress
-){
+#' Process MS-Dial-like MS1 data.frame
+#' 
+#' Processing of MS-Dial-like MS1 data.frame. Includes calculation 
+#' of MS1 data mean and log-fold-change (LFC) data
+#'
+#' @param sampleNamesToExclude 
+#' @param numberOfMS1features 
+#' @param precursorLabels 
+#' @param grouXXXps 
+#' @param metaboliteProfileColumnNames 
+#' @param dataColumnIndecesFunctionFromGroupIndex 
+#' @param dataColumnsNameFunctionFromGroupIndex 
+#' @param dataColumnsNameFunctionFromGroupName 
+#' @param dataColumnsNameFunctionFromGroupNames 
+#' @param groupNameFunctionFromDataColumnName 
+#' @param tagsSector 
+#' @param metaboliteProfile 
+#' @param progress 
+#'
+#' @return
+#' @export
+#'
+#' @examples
+processMS1data <- function(sampleNamesToExclude, 
+                           numberOfMS1features, 
+                           precursorLabels, 
+                           grouXXXps, 
+                           metaboliteProfileColumnNames, 
+                           dataColumnIndecesFunctionFromGroupIndex, 
+                           dataColumnsNameFunctionFromGroupIndex, 
+                           dataColumnsNameFunctionFromGroupName, 
+                           dataColumnsNameFunctionFromGroupNames, 
+                           groupNameFunctionFromDataColumnName,
+                           tagsSector, 
+                           metaboliteProfile, 
+                           progress=FALSE)
+{
   numberOfGroups <- length(grouXXXps)
   
   ####################
   ## MS1 measurement data: mean and LFC
-  if(!is.na(progress))  if(progress)  incProgress(amount = 0.1, detail = "Coloring") else print("Coloring")
-  if(!is.na(progress))  if(progress)  incProgress(amount = 0, detail = "Coloring init") else print("Coloring init")
+  if(!is.na(progress))  
+    if(progress)  
+      incProgress(amount = 0.1, detail = "Coloring") 
+  else 
+    print("Coloring")
+
+  if(!is.na(progress))  
+    if(progress)  
+      incProgress(amount = 0, detail = "Coloring init") 
+  else 
+    print("Coloring init")
   
   dataFrameMeasurements <- data.frame(matrix(nrow = numberOfMS1features, ncol = 0))
   rownames(dataFrameMeasurements) <- precursorLabels
   
   ## column name functions
-  if(!is.na(progress))  if(progress)  incProgress(amount = 0, detail = "Coloring naming functions") else print("Coloring naming functions")
+  if(!is.na(progress))  
+    if(progress)  
+      incProgress(amount = 0, detail = "Coloring naming functions") 
+  else 
+    print("Coloring naming functions")
   
   ## store data of grouXXXps
   dataColumnNames <- list()
   for(groupIdx in seq_len(numberOfGroups)){
-    dataColumnNamesHere <- dataColumnsNameFunctionFromGroupIndex(groupIdx = groupIdx, sampleNamesToExclude = sampleNamesToExclude)
+    dataColumnNamesHere <- dataColumnsNameFunctionFromGroupIndex(groupIdx = groupIdx, 
+                                                                 sampleNamesToExclude = sampleNamesToExclude)
     dataColumnNames <- c(dataColumnNames, dataColumnNamesHere)
-    dataFrameMeasurements[, dataColumnNamesHere] <- data.numericmatrix(metaboliteProfile[, dataColumnIndecesFunctionFromGroupIndex(groupIdx = groupIdx, sampleNamesToExclude = sampleNamesToExclude), drop = FALSE])
+    dataFrameMeasurements[, dataColumnNamesHere] <- data.numericmatrix(metaboliteProfile[, dataColumnIndecesFunctionFromGroupIndex(groupIdx = groupIdx, 
+                                                                                                                                   sampleNamesToExclude = sampleNamesToExclude), 
+                                                                                         drop = FALSE])
   }
   dataColumnNames <- unlist(dataColumnNames)
   
   dataMeanColumnNameFunctionFromName  <- function(group){
     return(paste(group, "_mean", sep = ""))
   }
+  
   dataMeanColumnNameFunctionFromIndex  <- function(groupIdx){
     return(dataMeanColumnNameFunctionFromName(grouXXXps[[groupIdx]]))
   }
@@ -755,6 +811,7 @@ processMS1data <- function(
   lfcColumnNameFunctionFromName <- function(groupOne, groupTwo){
     return(paste("LFC", groupOne, "vs", groupTwo, sep = "_"))
   }
+  
   lfcColumnNameFunctionFromIndex <- function(groupIdxOne, groupIdxTwo){
     lfcColumnNameFunctionFromName(grouXXXps[[groupIdxOne]], grouXXXps[[groupIdxTwo]])
   }
@@ -762,11 +819,16 @@ processMS1data <- function(
   groupNameFromGroupIndex <- function(groupIdx){
     return(grouXXXps[[groupIdx]])
   }
+  
   groupIdxFromGroupName <- function(group){
     return(match(x = group, table = grouXXXps))
   }
   
-  if(!is.na(progress))  if(progress)  incProgress(amount = 0, detail = "Coloring gather data") else print("Coloring gather data")
+  if(!is.na(progress))  
+    if(progress)  incProgress(amount = 0, detail = "Coloring gather data") 
+  else 
+    print("Coloring gather data")
+  
   ## mean data columns
   dataMeanColumnNames <- list()
   for(groupIdx in seq_len(numberOfGroups)){
@@ -784,8 +846,8 @@ processMS1data <- function(
   ## all replicates mean
   dataFrameMeasurements[, "meanAllNormed"] <- apply(
     X = data.numericmatrix(metaboliteProfile[, 
-                                      unlist(lapply(X = seq_len(numberOfGroups), FUN = function(x) {dataColumnIndecesFunctionFromGroupIndex(groupIdx = x, sampleNamesToExclude = sampleNamesToExclude)})),
-                                      drop=FALSE]), 
+                                             unlist(lapply(X = seq_len(numberOfGroups), FUN = function(x) {dataColumnIndecesFunctionFromGroupIndex(groupIdx = x, sampleNamesToExclude = sampleNamesToExclude)})),
+                                             drop=FALSE]), 
     MARGIN = 1, FUN = mean
   )
   
@@ -813,24 +875,24 @@ processMS1data <- function(
   
   #########################################################################################
   ## MS1 measurement data to colors
-  if(!is.na(progress))  if(progress)  incProgress(amount = 0, detail = "Coloring matrix") else print("Coloring matrix")
+  if(!is.na(progress))  
+    if(progress)  
+      incProgress(amount = 0, detail = "Coloring matrix") 
+  else 
+    print("Coloring matrix")
   
   matrixDataFrame <- data.numericmatrix(dataFrameMeasurements)
   
   matrixDataFrame[, dataColumnNames    ][matrixDataFrame[, dataColumnNames    ] < 1] <- 1
   matrixDataFrame[, dataMeanColumnNames][matrixDataFrame[, dataMeanColumnNames] < 1] <- 1
-  #matrixDataFrame[matrixDataFrame[, dataMeanColumnNames] < 1] <- 1
-  
+
   matrixDataFrame[, dataColumnNames]     <- log10(matrixDataFrame[, dataColumnNames])
   matrixDataFrame[, dataMeanColumnNames] <- log10(matrixDataFrame[, dataMeanColumnNames])
   matrixDataFrame[is.infinite(matrixDataFrame)] <- 0
-  #matrixDataFrame[matrixDataFrame < 0] <- 0
-  
+
   ## min / max
   logAbsMin <- min(0, min(matrixDataFrame[, dataMeanColumnNames]))
-  #logAbsMax <- max(matrixDataFrame[, dataMeanColumnNames])
   logAbsMax <- max(matrixDataFrame[, c(dataColumnNames, dataMeanColumnNames)])
-  #logAbsMax <- max(matrixDataFrame[, dataColumnsNameFunctionFromGroupNames(grouXXXps = grouXXXps)])
   logFoldChangeMinMax <- c(min(matrixDataFrame[, lfcColumnNames]), max(matrixDataFrame[, lfcColumnNames]))
   logFoldChangeMax <- max(abs(logFoldChangeMinMax))
   if(logFoldChangeMax < 1)
@@ -839,7 +901,6 @@ processMS1data <- function(
   ## maps
   colorMapAbsoluteData  <- makecmap(
     x = c(logAbsMin, logAbsMax), n = 100, 
-    #colFn = colorRampPalette(c('white', 'black'))
     colFn = colorRampPalette(rainbow(18)[10:1])
   )
   colorMapLogFoldChange <- makecmap(
@@ -847,10 +908,20 @@ processMS1data <- function(
     colFn = colorRampPalette(c('blue', 'white', 'red'))
   )
   
-  columnGroupLabels <- sapply(X = grouXXXps, FUN = function(x){ rep(x = x, times = length(dataColumnsNameFunctionFromGroupName(group = x, sampleNamesToExclude = sampleNamesToExclude))) })
+  columnGroupLabels <- sapply(X = grouXXXps, 
+                              FUN = function(x){ 
+                                rep(x = x, 
+                                    times = length(dataColumnsNameFunctionFromGroupName(group = x, 
+                                                                                        sampleNamesToExclude = sampleNamesToExclude))) 
+                              })
   
   ## translate and box colors
-  if(!is.na(progress))  if(progress)  incProgress(amount = 0, detail = "Coloring box") else print("Coloring box")
+  if(!is.na(progress))  
+    if(progress)  
+      incProgress(amount = 0, detail = "Coloring box") 
+  else 
+    print("Coloring box")
+  
   colorDataFrame <- dataFrameMeasurements
   colorDataFrame[, dataColumnNames    ] <- cmap(x = matrixDataFrame[, dataColumnNames    ], map = colorMapAbsoluteData)
   colorDataFrame[, dataMeanColumnNames] <- cmap(x = matrixDataFrame[, dataMeanColumnNames], map = colorMapAbsoluteData)
@@ -859,10 +930,6 @@ processMS1data <- function(
   
   returnObj <- list(
     ## name functions
-    #dataColumnsNameFunctionFromGroupIndex=dataColumnsNameFunctionFromGroupIndex,
-    #dataColumnsNameFunctionFromGroupName=dataColumnsNameFunctionFromGroupName,
-    #dataColumnsNameFunctionFromGroupNames=dataColumnsNameFunctionFromGroupNames,
-    #groupNameFunctionFromDataColumnName=groupNameFunctionFromDataColumnName,
     dataMeanColumnNameFunctionFromIndex=dataMeanColumnNameFunctionFromIndex,
     dataMeanColumnNameFunctionFromName=dataMeanColumnNameFunctionFromName,
     lfcColumnNameFunctionFromIndex=lfcColumnNameFunctionFromIndex,
@@ -871,11 +938,8 @@ processMS1data <- function(
     groupIdxFromGroupName=groupIdxFromGroupName,
     ## data and names
     dataFrameMeasurements=dataFrameMeasurements,
-    #dataMeanColumnNames=dataMeanColumnNames,
-    #lfcColumnNames=lfcColumnNames,
     ## colors
     colorMatrixDataFrame=colorMatrixDataFrame,
-    #matrixDataFrame=matrixDataFrame,
     colorMapAbsoluteData=colorMapAbsoluteData,
     colorMapLogFoldChange=colorMapLogFoldChange,
     columnGroupLabels=columnGroupLabels,
