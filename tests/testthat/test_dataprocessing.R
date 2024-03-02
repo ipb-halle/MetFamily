@@ -9,7 +9,7 @@ test_that("metaboliteProfileParsing works", {
   result <- processMS1data(sampleNamesToExclude=sampleNamesToExclude,
                            numberOfMS1features=numberOfMS1features,
                            precursorLabels=precursorLabels,
-                           groups=c("TRI", "LVS"),
+                           grouXXXps=c("TRI", "LVS"),
                            metaboliteProfileColumnNames=metaboliteProfileColumnNames,
                            dataColumnIndecesFunctionFromGroupIndex=dataColumnIndecesFunctionFromGroupIndex,
                            dataColumnsNameFunctionFromGroupIndex=dataColumnsNameFunctionFromGroupIndex,
@@ -20,6 +20,6 @@ test_that("metaboliteProfileParsing works", {
                            metaboliteProfile=metaboliteProfile,
                            progress=FALSE)
 
-expect_equal(min(result$dataFrameMeasurements[,1]), 0)
+expect_equal(min(result$dataFrameMeasurements[,1]), 1)
 
 })

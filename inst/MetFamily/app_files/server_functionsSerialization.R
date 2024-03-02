@@ -93,10 +93,10 @@ deserialization <- function(serialization){
   ## update parameter fields
   
   #updateTextInput(session = session, inputId = "globalFilter_ms2_masses1", value = "")
-  #updateRadioButtons(session = session, inputId = "hcaFilterGroupOne", choices = dataList$groups, selected = selectedOne)
+  #updateRadioButtons(session = session, inputId = "hcaFilterGroupOne", choices = dataList$grouXXXps, selected = selectedOne)
   #updateCheckboxInput(session = session, inputId = "hcaFilterIncludeIgnoredPrecursors", value = FALSE)
   #updateSelectInput(session = session, inputId = "presentAnnotationValue", choices = c("[init]"), selected = lalala)
-  #updateCheckboxGroupInput(session = session, inputId = "pcaGroups",   choices = dataList$groups, selected = dataList$groups)
+  #updateCheckboxGroupInput(session = session, inputId = "pcaGroups",   choices = dataList$grouXXXps, selected = dataList$grouXXXps)
   
   ## global MS2 filter
   updateTextInput(         session = session, inputId = "globalFilter_ms2_masses1",          value = paramsList$globalFilter_ms2_masses1)
@@ -162,7 +162,7 @@ deserialization <- function(serialization){
   filter_ms2_masses3  <- paramsList$globalFilter_ms2_masses3
   filter_ms2_ppm      <- paramsList$globalFilter_ms2_ppm
   
-  groupSet        <- dataList$groups
+  groupSet        <- dataList$grouXXXps
   sampleSet       <- dataList$groupSampleDataFrame[, "Sample"][!dataList$groupSampleDataFrame[, "Exclude"]]
   filterBySamples <- TRUE
   filter_average  <- NULL
@@ -278,9 +278,9 @@ deserialization <- function(serialization){
   
   filter_lfc      <- NULL
   filter_average  <- NULL
-  groupSet        <- dataList$groups
+  groupSet        <- dataList$grouXXXps
   sampleSet       <- dataList$includedSamples(dataList$groupSampleDataFrame)
-  #sampleSet       <- dataList$dataColumnsNameFunctionFromGroupNames(groups = groupSet, sampleNamesToExclude = dataList$excludedSamples(dataList$groupSampleDataFrame))
+  #sampleSet       <- dataList$dataColumnsNameFunctionFromGroupNames(grouXXXps = groupSet, sampleNamesToExclude = dataList$excludedSamples(dataList$groupSampleDataFrame))
   filterBySamples <- TRUE
   includeIgnoredPrecursors  <- paramsListsearchIncludeIgnoredPrecursors
   
