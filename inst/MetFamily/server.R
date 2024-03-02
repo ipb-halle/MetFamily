@@ -443,16 +443,12 @@ shinyServer(
     ## about page
     output$rInfo <- renderText({
       print(paste("init rInfo"))
-      #paste(R.Version()$version.string, "\nwd: ", getwd(), sep = "")
       paste(
         R.Version()$version.string, 
-        "\nMetFamily build: ", metFamilyBuilt, "-", system(command = "hostname", intern = TRUE),
+        "\nMetFamily build: ", metFamilyAppVersion, "-", system(command = "hostname", intern = TRUE),
         "\nMetFamily package: ", packageVersion,
-        #"\n", getwd(),
-        #"\n", paste(list.files(path = getwd(), all.files = F, full.names = F, recursive = T, include.dirs = F), collapse = "\n"),
         sep = ""
       )
-      #R.Version()$version.string
     })
     output$ipbImage <- renderImage({
       file <- getFile("logo_ipb_en.png")

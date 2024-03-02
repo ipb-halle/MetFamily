@@ -1,11 +1,14 @@
 Package: MetFamily
 Type: Package
 Title: MetFamily: Discovering Regulated Metabolite Families in Untargeted Metabolomics Studies
-Version: 0.99.1
-Date: 2016-07-24
-Author: c( person("Hendrik", "Treutler, role = c("aut", "cre"), email = "hendrik.treutler@ipb-halle.de") )
+Version: 0.99.2
+Date: 2024-03-02
+Author: c( person("Hendrik", "Treutler, role = c("aut"), email = "hendrik.treutler@ipb-halle.de"),
+           person("Khabat", "Vahabi, role = c("aut"), email = "khabat.vahabi@ipb-halle.de"),
+           person(given = "Steffen", family = "Neumann", email = "sneumann@ipb-halle.de",
+           role = c("aut", "cre"), comment = c(ORCID = "0000-0002-7899-7192")) )
 Depends:
-    R (>= 3.2.2),
+    R (>= 3.5.0),
     htmltools,
     shiny,
     shinyBS,
@@ -33,8 +36,7 @@ Depends:
 Remotes: decisionpatterns/searchable
 Suggests:
     knitr,
-    testthat,
-    shinytest2
+    testthat
 VignetteBuilder: knitr
 Maintainer: Hendrik Treutler<hendrik.treutler@ipb-halle.de>
 Description: We present a novel approach for the untargeted discovery of metabolite families offering a bird's eye view of metabolic regulation in comparative metabolomics. We implemented the presented methodology in the easy-to-use web application MetFamily to enable the analysis of comprehensive metabolomics studies for all researchers worldwide.
