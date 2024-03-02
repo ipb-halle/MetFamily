@@ -742,6 +742,7 @@ readProjectData <- function(fileLines, progress = FALSE)
 #'
 #' @return
 #' @export
+#' @importFrom grDevices colorRampPalette rainbow
 #'
 #' @examples
 processMS1data <- function(sampleNamesToExclude, 
@@ -830,7 +831,7 @@ processMS1data <- function(sampleNamesToExclude,
   for(groupIdx in seq_len(numberOfGroups)){
     dataMeanColumnName <- dataMeanColumnNameFunctionFromIndex(groupIdx)
     dataMeanColumnNames[[groupIdx]] <- dataMeanColumnName
-    if(class(unlist(metaboliteProfile[, dataColumnIndecesFunctionFromGroupIndex(groupIdx = groupIdx, sampleNamesToExclude = sampleNamesToExclude)])) == "character")
+    if(is(unlist(metaboliteProfile[, dataColumnIndecesFunctionFromGroupIndex(groupIdx = groupIdx, sampleNamesToExclude = sampleNamesToExclude)]),"character"))
       for(colIdx in dataColumnIndecesFunctionFromGroupIndex(groupIdx = groupIdx, sampleNamesToExclude = sampleNamesToExclude))
         metaboliteProfile[, colIdx] <- as.numeric(metaboliteProfile[, colIdx])
     

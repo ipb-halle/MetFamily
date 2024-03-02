@@ -6,15 +6,13 @@ options(shiny.sanitize.errors = FALSE)
 ## libraries and functions
 
 sourceFolder <- getwd()
-#isDevelopment <- TRUE
-isDevelopment <- grepl(pattern = "htreutle", x = sourceFolder) | grepl(pattern = "Treutler", x = sourceFolder)
+isDevelopment <- FALSE
 errorHunting <- FALSE
 hcaHeatMapNew <- TRUE
 
 #####################################################################################################
 ## handling of errors and warnings
 if(errorHunting){
-  #options(warn = 2)
   options(warn = 2, shiny.error = recover)
   options(shiny.trace=TRUE)
   options(shiny.fullstacktrace=TRUE)
@@ -26,84 +24,10 @@ if(errorHunting){
   options(shiny.testmode=FALSE)
 }
 
-#####################################################################################################
-## file paths
-getFile <- function(files){
-  isPackage <- "MetFamily" %in% rownames(installed.packages())
-  #isPackage <- FALSE
-  
-  resultFiles <- vector(mode = "character", length = length(files))
-  for(idx in seq_along(files)){
-    switch(files[[idx]], 
-           "logo_ipb_en.png"={                                file <- ifelse(test = isPackage, yes = system.file("www/logo_ipb_en.png",                                           package = "MetFamily", lib.loc=.libPaths()), no = paste(sourceFolder, "www/logo_ipb_en.png",                                          sep = "/"))},
-           
-           "MetFamily_Input_Specification.pdf"={              file <- ifelse(test = isPackage, yes = system.file("doc/MetFamily_Input_Specification.pdf",                         package = "MetFamily", lib.loc=.libPaths()), no = paste(sourceFolder, "inst/doc/MetFamily_Input_Specification.pdf",                        sep = "/"))},
-           "MetFamily_user_guide.pdf"={                       file <- ifelse(test = isPackage, yes = system.file("doc/MetFamily_user_guide.pdf",                                  package = "MetFamily", lib.loc=.libPaths()), no = paste(sourceFolder, "inst/doc/MetFamily_user_guide.pdf",                                 sep = "/"))},
-           "MetFamily_Showcase_protocol.pdf"={                file <- ifelse(test = isPackage, yes = system.file("doc/MetFamily_Showcase_protocol.pdf",                           package = "MetFamily", lib.loc=.libPaths()), no = paste(sourceFolder, "inst/doc/MetFamily_Showcase_protocol.pdf",                          sep = "/"))},
-           "Fragment_matrix_showcase.csv"={                   file <- ifelse(test = isPackage, yes = system.file("extdata/showcase/Fragment_matrix_showcase.csv",                    package = "MetFamily", lib.loc=.libPaths()), no = paste(sourceFolder, "inst/extdata/showcase/Fragment_matrix_showcase.csv",                   sep = "/"))},
-           "Metabolite_profile_showcase.txt"={                file <- ifelse(test = isPackage, yes = system.file("extdata/showcase/Metabolite_profile_showcase.txt",                 package = "MetFamily", lib.loc=.libPaths()), no = paste(sourceFolder, "inst/extdata/showcase/Metabolite_profile_showcase.txt",                sep = "/"))},
-           "MSMS_library_showcase.msp"={                      file <- ifelse(test = isPackage, yes = system.file("extdata/showcase/MSMS_library_showcase.msp",                       package = "MetFamily", lib.loc=.libPaths()), no = paste(sourceFolder, "inst/extdata/showcase/MSMS_library_showcase.msp",                      sep = "/"))},
-           "Project_file_showcase_annotated.csv.gz"={         file <- ifelse(test = isPackage, yes = system.file("extdata/showcase/Project_file_showcase_annotated.csv.gz",          package = "MetFamily", lib.loc=.libPaths()), no = paste(sourceFolder, "inst/extdata/showcase/Project_file_showcase_annotated.csv.gz",         sep = "/"))},
-           "Project_file_showcase_annotated_reduced.csv.gz"={ file <- ifelse(test = isPackage, yes = system.file("extdata/showcase/Project_file_showcase_annotated_reduced.csv.gz",  package = "MetFamily", lib.loc=.libPaths()), no = paste(sourceFolder, "inst/extdata/showcase/Project_file_showcase_annotated_reduced.csv.gz", sep = "/"))},
-           "Project_file_showcase_reduced.csv.gz"={           file <- ifelse(test = isPackage, yes = system.file("extdata/showcase/Project_file_showcase_reduced.csv.gz",            package = "MetFamily", lib.loc=.libPaths()), no = paste(sourceFolder, "inst/extdata/showcase/Project_file_showcase_reduced.csv.gz",           sep = "/"))},
-           
-           "Classifiers"={                                    file <- ifelse(test = isPackage, yes = system.file("data/classifier/",                                              package = "MetFamily", lib.loc=.libPaths()), no = paste(sourceFolder, "inst/data/classifier/",                                             sep = "/"))},
-           
-           "Analysis.R"={                                     file <- ifelse(test = isPackage, yes = "", no = paste("R/Analysis.R",                sep = "/"))},
-           "DataProcessing.R"={                               file <- ifelse(test = isPackage, yes = "", no = paste("R/DataProcessing.R",          sep = "/"))},
-           "FragmentMatrixFunctions.R"={                      file <- ifelse(test = isPackage, yes = "", no = paste("R/FragmentMatrixFunctions.R", sep = "/"))},
-           "Plots.R"={                                        file <- ifelse(test = isPackage, yes = "", no = paste("R/Plots.R",                   sep = "/"))},
-           "R_packages.R"={                                   file <- ifelse(test = isPackage, yes = "", no = paste("R/R_packages.R",              sep = "/"))},
-           "StartApp.R"={                                     file <- ifelse(test = isPackage, yes = "", no = paste("R/StartApp.R",                sep = "/"))},
-           "Annotation.R"={                                   file <- ifelse(test = isPackage, yes = "", no = paste("R/Annotation.R",              sep = "/"))},
-           "Classifiers.R"={                                  file <- ifelse(test = isPackage, yes = "", no = paste("R/Classifiers.R",             sep = "/"))},
-           "TreeAlgorithms.R"={                               file <- ifelse(test = isPackage, yes = "", no = paste("R/TreeAlgorithms.R",          sep = "/"))},
-           {## unknown state
-             stop(paste("Unknown file", file))
-           }
-    )
-    resultFiles[[idx]] <- file
-  }
-  return(resultFiles)
-}
-
-#####################################################################################################
-## source code
-getSourceFileNames <- function(){
-  return(c(
-    "R_packages.R",
-    "FragmentMatrixFunctions.R",
-    "DataProcessing.R",
-    "TreeAlgorithms.R",
-    "Analysis.R",
-    "Annotation.R",
-    "Classifiers.R",
-    "Plots.R"
-  ))
-}
-getSourceFiles <- function(){
-  return(getFile(getSourceFileNames()))
-}
-sourceTheCode <- function(){
-  print("Testing whether files must be sourced")
-  isPackage <- "MetFamily" %in% rownames(installed.packages())
-  
-  if(!isPackage){
-    sourceFiles <- getSourceFiles()
-    print(paste("Sourcing", length(sourceFiles), "files"))
-    
-    for(sourceFile in sourceFiles)
-      source(sourceFile)
-  } else {
-    library("MetFamily")
-  }
-}
-sourceTheCode()
-
-#########################################################################################
-#########################################################################################
-## global variables
-# none
+##
+## Load dependency libraries. Formerly in sourceTheCode()
+##
+load_metfamily_dependencies()
 
 #########################################################################################
 #########################################################################################
@@ -128,14 +52,15 @@ shinyServer(
     ExportMatrixName <- NULL
     
     ## GUI constants
-    ### I am changing RightColumnWidth 12 to 15
     runRightColumnWidthFull <- 11
-    ##runRightColumnWidthFull <- 12
+
     ### changing the legendcolumn width part 2 to 1.8
     legendColumnWidthFull <- 1.8
     runRightColumnWidthPart <- 8
+    
     ### changing the legendcolumn width part 2 to 1.8
     legendColumnWidthPart <- 1.8
+    
     ### change the anno legend height ... 20 to 18
     annoLegendEntryHeight <- 18
     maximumNumberOfTableEntries <- 50
@@ -193,9 +118,7 @@ shinyServer(
     source(file = "app_files/server_guiTabExport.R", local = TRUE)$value
     source(file = "app_files/server_guiPlotControls.R", local = TRUE)$value
     source(file = "app_files/server_guiMs2plot.R", local = TRUE)$value
-    ## ui generation
-    #source(file = "app_files/ui_rightColumn.R", local = TRUE)
-    
+
     ## Parse the input file
     resetWorkspace <- function(){
       print(paste("resetWorkspace"))
@@ -215,6 +138,7 @@ shinyServer(
       
       state$analysisType <<- "HCA"
       state$anyPlotDrawn <<- FALSE
+      
       ## plot controls
       showPlotControls <<- FALSE
     }
@@ -270,14 +194,7 @@ shinyServer(
       if(tabId == "Input" & !initialGuiUpdatePerformed){
         print(paste("update GUI initially", tabId))
         
-        #shinyjs::disable("importMs1Ms2Data")
-        #shinyjs::disable("importMs2Data")
-        #shinyjs::disable("loadProjectData")
-        
-        ## annotation classifier selection
-        #session$sendCustomMessage("disableButton", "doAnnotation")
-        
-        filePath <- getFile("Classifiers")
+        filePath <- system.file("extdata/classifier/", package = "MetFamily")
         resultObj <- getAvailableClassifiers(filePath)
         availableClassifiersDf           <<- resultObj$availableClassifiersDf
         availableClassifiersDfProperties <<- resultObj$availableClassifiersDfProperties
@@ -299,15 +216,8 @@ shinyServer(
               preDrawCallback = JS('function() { Shiny.unbindAll(this.api().table().node()); }'),
               drawCallback    = JS('function() { Shiny.bindAll(  this.api().table().node()); }'),
               iDisplayLength=nrow(availableClassifiersDf),       # initial number of records
-              #aLengthMenu = c(5,10),    # records/page options
-              #bLengthChange =0,        # show/hide records per page dropdown
-              #bFilter = 0,              # global search box on/off
-              #bInfo = 0,                # information on/off (how many records filtered, etc)
-              #bAutoWidth = 0,           # automatic column width calculation, disable if passing column width via aoColumnDefs
-              #aoColumnDefs = list(list(sWidth="300px", aTargets=c(list(0),list(1))))    # custom column size
               ordering = F,              # row ordering
               sDom  = 't'
-              #sDom  = '<"top">rt<"bottom">ip'
             )
           )
         }
@@ -398,16 +308,11 @@ shinyServer(
         ifelse(test = state_tabPca$showLoadingsFeaturesSelected,    yes = "Selected",      no = NULL),
         ifelse(test = state_tabPca$showLoadingsFeaturesUnselected,  yes = "Not Selected",  no = NULL)
       ))
-      #updateRadioButtons( session = session, inputId = "showLoadingsFeaturesAnnotated",    selected = state_tabPca$showLoadingsFeaturesAnnotated)
-      #updateRadioButtons( session = session, inputId = "showLoadingsFeaturesUnannotated",  selected = state_tabPca$showLoadingsFeaturesUnannotated)
-      #updateRadioButtons( session = session, inputId = "showLoadingsFeaturesSelected",     selected = state_tabPca$showLoadingsFeaturesSelected)
-      #updateRadioButtons( session = session, inputId = "showLoadingsFeaturesUnselected",   selected = state_tabPca$showLoadingsFeaturesUnselected)
       updateCheckboxInput(session = session, inputId = "showLoadingsAbundance", value    = state_tabPca$showLoadingsAbundance)
     })
     
     ## display of tabs
     observe({
-      #toggle(condition = !is.null(state_tabInput$importedOrLoadedFile_s_), selector = "#runTabs li a[data-value='Filter']")
       toggle(condition = !is.null(state_tabInput$importedOrLoadedFile_s_), selector = "#runTabs li a[data-value='MS/MS filter']")
       toggle(condition = !is.null(state_tabInput$importedOrLoadedFile_s_), selector = "#runTabs li a[data-value='Sample filter']")
       toggle(condition = !is.null(state_tabInput$importedOrLoadedFile_s_), selector = "#runTabs li a[data-value='PCA']")
@@ -451,7 +356,7 @@ shinyServer(
       )
     })
     output$ipbImage <- renderImage({
-      file <- getFile("logo_ipb_en.png")
+      file <- system.file("MetFamily/www/logo_ipb_en.png", package = "MetFamily")
       
       list(src = file,
            alt = "IPB Halle"
@@ -512,11 +417,7 @@ shinyServer(
       print(paste("reactive update plotAnnotationShown", state$plotAnnotationShown))
       return(state$plotAnnotationShown)
     })
-    #output$putativeAnnotationsTableFromAnalysisRowSelected <- reactive({
-    #  print(paste("reactive update putativeAnnotationsTableFromAnalysisRowSelected", state$putativeAnnotationsTableFromAnalysisRowSelected))
-    #  return(state$putativeAnnotationsTableFromAnalysisRowSelected)
-    #})
-    
+
     updateChangePlotRadioButton <- function(){
       if((sum(c(state$showHCAplotPanel, state$showPCAplotPanel, state$showAnnotationplotPanel)) > 1) & !is.null(state$analysisType)){
         if(state$analysisType == "HCA")
@@ -552,6 +453,5 @@ shinyServer(
     outputOptions(output, 'plotHcaShown',            suspendWhenHidden=FALSE)
     outputOptions(output, 'plotPcaShown',            suspendWhenHidden=FALSE)
     outputOptions(output, 'plotAnnotationShown',     suspendWhenHidden=FALSE)
-    #outputOptions(output, 'putativeAnnotationsTableFromAnalysisRowSelected',  suspendWhenHidden=FALSE)
   }## function(input, output, session)
 )## shinyServer

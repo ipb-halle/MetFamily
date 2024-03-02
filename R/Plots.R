@@ -311,14 +311,35 @@ calcPlotDendrogram <- function(dataList, filter, clusterDataList, annoPresentAnn
 }
 
 
+#' Title
+#'
+#' @param dataList 
+#' @param filterObj 
+#' @param clusterDataList 
+#' @param distanceMeasure 
+#' @param showClusterLabels 
+#' @param hcaPrecursorLabels 
+#' @param selectionFragmentTreeNodeSet 
+#' @param selectionAnalysisTreeNodeSet 
+#' @param selectionSearchTreeNodeSet 
+#' @param selectedSelection 
+#' @param heatmapContent 
+#' @param heatmapOrdering 
+#' @param heatmapProportion 
+#'
+#' @return
+#' @importFrom grDevices colorRampPalette rainbow rgb
+#' @export
+#'
+#' @examples
 calcPlotDendrogram_plotly <- function(
   dataList, filterObj, clusterDataList, 
   #annoPresentAnnotationsList, annoPresentColorsList, 
   distanceMeasure, 
   showClusterLabels, hcaPrecursorLabels, 
   selectionFragmentTreeNodeSet = NULL, selectionAnalysisTreeNodeSet = NULL, selectionSearchTreeNodeSet = NULL, 
-  selectedSelection, heatmapContent, heatmapOrdering, heatmapProportion
-){
+  selectedSelection, heatmapContent, heatmapOrdering, heatmapProportion)
+  {
   
   if(FALSE){
     dataList_ <<- dataList
@@ -1894,6 +1915,16 @@ calcPlotDiscriminativityLegend <- function(){
   #graphics::text(x = xPositions[2:length(xPositions)], y = yPositions[2:length(yPositions)], labels = labels[2:length(labels)], pos = 4, adj = 1)
 }
 
+
+#' Title
+#'
+#' @param dataList 
+#'
+#' @return
+#' @export
+#' @importsFrom grDevices as.raster
+#'
+#' @examples
 calcPlotHeatmapLegend <- function(dataList){
   ####################
   ## heatmap legend

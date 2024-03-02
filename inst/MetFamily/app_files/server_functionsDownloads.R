@@ -397,7 +397,8 @@ output$downloadMsData <- downloadHandler(
   },
   content = function(file) {
     ## copy data for download
-    file.copy(getFile("Metabolite_profile_showcase.txt"), file)
+    file.copy(system.file("extdata/showcase/Metabolite_profile_showcase.txt", package = "MetFamily"),
+              file)
   },
   contentType = "application/zip"
 )
@@ -409,7 +410,8 @@ output$downloadMsMsData <- downloadHandler(
   },
   content = function(file) {
     ## copy data for download
-    file.copy(getFile("MSMS_library_showcase.msp"), file)
+    file.copy(system.file("extdata/showcase/Metabolite_profile_showcase.txt", package = "MetFamily"),
+              file)
   },
   contentType = "application/zip"
 )
@@ -421,7 +423,8 @@ output$downloadFragmentMatrix <- downloadHandler(
   },
   content = function(file) {
     ## copy data for download
-    file.copy(getFile("Fragment_matrix_showcase.csv"), file)
+    file.copy(system.file("Fragment_matrix_showcase.csv", package = "MetFamily"),
+      file)
   },
   contentType = "application/zip"
 )
@@ -432,7 +435,8 @@ output$downloadDocShowcaseProtocol <- downloadHandler(
   },
   content = function(file) {
     ## copy data for download
-    file.copy(getFile("MetFamily_Showcase_protocol.pdf"), file)
+    file.copy(system.file("extdata/showcase/MetFamily_Showcase_protocol.pdf", package = "MetFamily"),
+      file)
   },
   contentType = "application/pdf"
 )
@@ -443,7 +447,8 @@ output$downloadDocUserGuide <- downloadHandler(
   },
   content = function(file) {
     ## copy data for download
-    file.copy(getFile("MetFamily_user_guide.pdf"), file)
+    file.copy(system.file("extdata/showcase/MetFamily_user_guide.pdf", package = "MetFamily"), 
+              file)
   },
   contentType = "application/pdf"
 )
@@ -454,7 +459,8 @@ output$downloadDocInputSpecification <- downloadHandler(
   },
   content = function(file) {
     ## copy data for download
-    file.copy(getFile("MetFamily_Input_Specification.pdf"), file)
+    file.copy(system.file("extdata/showcase/MetFamily_Input_Specification.pdf", package = "MetFamily"), 
+      file)
   },
   contentType = "application/pdf"
 )
