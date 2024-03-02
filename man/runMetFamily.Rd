@@ -10,7 +10,9 @@ runMetFamily()
 Run the web app in browser
 }
 \examples{
+\dontrun{
 runMetFamily()
+}
 }
 \author{
 Hendrik Treutler, Steffen Neumann

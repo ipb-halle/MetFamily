@@ -5,7 +5,9 @@
 ##' @export
 ##' @author Hendrik Treutler, Steffen Neumann
 ##' @examples
+##' \dontrun{
 ##' runMetFamily()
+##' }
 runMetFamily <- function(){
   shiny::runApp(appDir = system.file("MetFamily", package = "MetFamily"), 
   launch.browser = TRUE)
