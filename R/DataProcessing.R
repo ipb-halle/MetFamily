@@ -946,7 +946,8 @@ processMS1data <- function(sampleNamesToExclude,
   )
 }
 
-serializeSampleSelectionAndOrder <- function(groupSampleDataFrame){
+serializeSampleSelectionAndOrder <- function(groupSampleDataFrame)
+{
   ## wrap columns
   columnsSerialized <- sapply(X = seq_len(ncol(groupSampleDataFrame)), FUN = function(colIdx){
     cellContent <- paste(groupSampleDataFrame[, colIdx], collapse = "; ")
@@ -959,6 +960,7 @@ serializeSampleSelectionAndOrder <- function(groupSampleDataFrame){
   
   return(groupSampleDataFrameFieldValue)
 }
+
 deserializeSampleSelectionAndOrder <- function(groupSampleDataFrameFieldValue){
   ## unbox
   groupSampleDataFrameName <- "SampleSelectionAndOrder"
@@ -1005,6 +1007,7 @@ serializeParameterSetFile <- function(importParameterSet, toolName, toolVersion)
   importParametersFileValue <- paste(comment, importParametersValue, sep = "\n")
   return(importParametersFileValue)
 }
+
 deserializeParameterSetFile <- function(importParametersFileContent){
   ## remove comments
   importParametersValuePairs <- importParametersFileContent[-grep(pattern = "#.*", x = importParametersFileContent)]
@@ -1012,6 +1015,7 @@ deserializeParameterSetFile <- function(importParametersFileContent){
   importParameterSet <- deserializeParameterSetKeyValuePairs(importParametersValuePairs)
   return(importParameterSet)
 }
+
 serializeParameterSet <- function(importParameterSet){
   ## wrap
   importParametersValue <- paste(names(importParameterSet), importParameterSet, sep = "=", collapse = "; ")
@@ -1020,6 +1024,7 @@ serializeParameterSet <- function(importParameterSet){
   importParametersFieldValue <- paste(importParametersName, "={", importParametersValue, "}", sep = "")
   return(importParametersFieldValue)
 }
+
 deserializeParameterSet <- function(importParametersFieldValue){
   ## unbox
   importParametersName <- "ImportParameters"
@@ -1034,6 +1039,7 @@ deserializeParameterSet <- function(importParametersFieldValue){
   importParameterSet <- deserializeParameterSetKeyValuePairs(importParametersValuePairs)
   return(importParameterSet)
 }
+
 deserializeParameterSetKeyValuePairs <- function(importParametersValuePairs){
   ## unwrap
   importParametersValuePairsList <- strsplit(x = importParametersValuePairs, split = "=")
@@ -1056,6 +1062,20 @@ deserializeParameterSetKeyValuePairs <- function(importParametersValuePairs){
     importParameterSet <- castListEntries(importParameterSet)
     return(importParameterSet)
 }
+
+#' Cast logical's and numeric's in a list or data.frame
+#'
+#' Tries to cast a list entry (or column in a data.frame) to logical's, 
+#' if that does not create any missing values, it is assumed 
+#' to be a logical will be replaced by `as.logical()` conversion.
+#' Similarly for numeric entries (or columns). Everything else remains strings
+#' 
+#' @param list 
+#'
+#' @return list of the same lenght with logical's and numeric's casted
+#' @export
+#'
+#' @examples
 castListEntries <- function(list){
   ## cast logical's and numeric's
   suppressWarnings(
