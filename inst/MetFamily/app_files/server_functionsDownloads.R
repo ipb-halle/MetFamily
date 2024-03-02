@@ -295,7 +295,7 @@ observeEvent(input$prepareAllPrecursors, {
   writeTable(precursorSet = precursorSet, file = file.path(tempdir(),ExportMatrixName))
   showModal(modalDialog(title = "Download", footer = NULL, size="s", fluidRow(column(12, p("Your download is ready."))), 
                         fluidRow(column(3,downloadButton(outputId = "downloadAllpreparedPrecursors", label = "Download project"))),
-))
+  ))
 })
 #Serving the modal with the download button to download the project
 output$downloadAllpreparedPrecursors <- downloadHandler(
@@ -385,7 +385,7 @@ plotHCA <- function(file, fileType, plotMS2 = TRUE){
   )
   
   if(plotMS2){
-  
+    
     ########################
     graphics::layout(
       mat = matrix(
@@ -395,20 +395,20 @@ plotHCA <- function(file, fileType, plotMS2 = TRUE){
         #data = c(1, 1, 1, 1, 2, 3),
         #nrow = 6, ncol = 2),
         ############################
-       data = c(1, 1, 1, 1, 2, 2,3, 4, 5, 5,5, 5), nrow = 6, ncol = 2),
-       widths = c(4.58, 1.59), # this is working good
-       #####################
-       ### This is original
-       #heights = c(0.002, 0.001, 0.002, 0.0012, 0.0013, 0.0001)
-       #heights = c(0.2, 0.1, 0.2, 0.2, 0.013, 0.11) # this working good
-       #heights = c(0.0052, 0.011, 0.01112, 0.01112, 0.001113, 0.0011)
-       ##heights = c(0.0052, 0.011, 0.01112, 0.0112, 0.0113, 0.011) # this is working well
-       ###
-       heights = c(0.0052, 0.011, 0.01112, 0.01112,0.001111, 0.0111) # this is working well
+        data = c(1, 1, 1, 1, 2, 2,3, 4, 5, 5,5, 5), nrow = 6, ncol = 2),
+      widths = c(4.58, 1.59), # this is working good
+      #####################
+      ### This is original
+      #heights = c(0.002, 0.001, 0.002, 0.0012, 0.0013, 0.0001)
+      #heights = c(0.2, 0.1, 0.2, 0.2, 0.013, 0.11) # this working good
+      #heights = c(0.0052, 0.011, 0.01112, 0.01112, 0.001113, 0.0011)
+      ##heights = c(0.0052, 0.011, 0.01112, 0.0112, 0.0113, 0.011) # this is working well
+      ###
+      heights = c(0.0052, 0.011, 0.01112, 0.01112,0.001111, 0.0111) # this is working well
       
     )
-     ################################
-      
+    ################################
+    
     
   } else {
     graphics::layout(
@@ -505,14 +505,14 @@ plotPCA <- function(file, fileType, plotMS2 = TRUE){
   if(plotMS2){
     #############################
     graphics::layout(
-    	mat = matrix(
-		################################
-		data = c(1,1,2,2,1,1,2,2,3,3,4,4,3,3,4,4,5,5,5,5,6,6,6,6,7,7,7,7),nrow=4,ncol=7),
-		widths =  c(0.85, 1.15),
-		heights = c(1.02,1.01)
-		########################
-		)
-  ######################################### 
+      mat = matrix(
+        ################################
+        data = c(1,1,2,2,1,1,2,2,3,3,4,4,3,3,4,4,5,5,5,5,6,6,6,6,7,7,7,7),nrow=4,ncol=7),
+      widths =  c(0.85, 1.15),
+      heights = c(1.02,1.01)
+      ########################
+    )
+    ######################################### 
   } else {
     graphics::layout(
       mat = matrix(
@@ -523,8 +523,8 @@ plotPCA <- function(file, fileType, plotMS2 = TRUE){
       widths = c(2, 2, 1), 
       heights = c(0.7, 0.6, 2.4)
     )
-  ########## Adding this new
-  ############################
+    ########## Adding this new
+    ############################
   }
   
   ############################################
