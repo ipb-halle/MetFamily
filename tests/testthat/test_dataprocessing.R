@@ -1,5 +1,5 @@
 test_that("metaboliteProfileParsing works", {
-  load(system.file("data/testdata/processMS1data.Rdata", package = "MetFamily"))
+  load(system.file("extdata/testdata/processMS1data.Rdata", package = "MetFamily"))
 
   d <- dataColumnsNameFunctionFromGroupIndex(groupIdx = 2, sampleNamesToExclude = NA)
   

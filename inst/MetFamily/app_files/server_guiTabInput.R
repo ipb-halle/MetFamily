@@ -73,7 +73,8 @@ obsLoadExampleData <- observeEvent(input$loadExampleData, {
   
   #################################################
   ## files
-  filePath <- getFile("Project_file_showcase_annotated.csv.gz")
+  filePath <- system.file("extdata/showcase/Project_file_showcase_annotated.csv.gz", package = "MetFamily")
+  
   loadProjectFile(filePath = filePath)
   enableLoadButtons()
 })
