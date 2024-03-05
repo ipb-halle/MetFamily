@@ -3161,32 +3161,32 @@ mzClustGeneric <- function(p, sampclass=NULL, mzppm = 20, mzabs = 0, minsamp = 1
         stop(paste("Too many fragments for clustering:", ppm_error, mzabs, length(p[binC,1]), length(unique(p[binC,1]))))
       }
       
-      #groups <- xcms:::mzClust_hclust(p[binC,1],ppm_error,mzabs)
+      #mzFragmentGroups <- xcms:::mzClust_hclust(p[binC,1],ppm_error,mzabs)
       
       bin <- p[binC,1]
       uniqueBin <- unique(bin)
-      groups <- xcms:::mzClust_hclust(uniqueBin,ppm_error,mzabs)
-      groups2 <- vector(mode = "integer", length = length(bin))
+      mzFragmentGroups <- xcms:::mzClust_hclust(uniqueBin,ppm_error,mzabs)
+      mzFragmentGroups2 <- vector(mode = "integer", length = length(bin))
       for(idx in seq_along(uniqueBin))
-        groups2[bin==uniqueBin[[idx]]] <- groups[[idx]]
+        mzFragmentGroups2[bin==uniqueBin[[idx]]] <- mzFragmentGroups[[idx]]
       
-      groups <- groups2
+      mzFragmentGroups <- mzFragmentGroups2
       
-      last_group <- groups[which.max(p[binC,1])]
-      binA <- binC[which(groups == last_group)]
+      last_group <- mzFragmentGroups[which.max(p[binC,1])]
+      binA <- binC[which(mzFragmentGroups == last_group)]
       
-      ## bug fix where there were not enough empty rows in the matrix (in case of more than four new groups)
+      ## bug fix where there were not enough empty rows in the matrix (in case of more than four new mzFragmentGroups)
       if(binNumber + last_group > nrow(groupmat)){
         groupmat <- rbind(groupmat, matrix(nrow = nrow(groupmat), ncol = ncol(groupmat)))
         groupindex <- c(groupindex, vector("list", length(groupindex)))
       }
       
-      if(max(groups) >1){
-        for(c in 1:max(groups)){
+      if(max(mzFragmentGroups) >1){
+        for(c in 1:max(mzFragmentGroups)){
           if(c == last_group){
             next
           }
-          tmp_grp <- which(groups == c)
+          tmp_grp <- which(mzFragmentGroups == c)
           tmp_c <- binC[tmp_grp]
           out <- bin2output(tmp_c)
           if(length(out) != 0){
@@ -3493,7 +3493,7 @@ convertToProjectFile2 <- function(filePeakMatrix, spectraList, precursorMz, prec
   #print("")
   #print("building matrix...")
   
-  if(!is.na(progress))  if(progress)  incProgress(amount = 0.01, detail = paste("Building fragment groups...", sep = "")) else print(paste("Building fragment groups...", sep = ""))
+  if(!is.na(progress))  if(progress)  incProgress(amount = 0.01, detail = paste("Building fragment mzFragmentGroups...", sep = "")) else print(paste("Building fragment mzFragmentGroups...", sep = ""))
   if(isGC){
     #####################################
     ## round GC mzs to integer
@@ -3517,7 +3517,7 @@ convertToProjectFile2 <- function(filePeakMatrix, spectraList, precursorMz, prec
   fragmentMasses <- returnObj$fragmentMasses
   numberOfMS2PeakGroups <- returnObj$numberOfMS2PeakGroups
   
-  if(!is.na(progress))  if(progress)  incProgress(amount = 0.01, detail = paste("Building fragment groups ready", sep = "")) else print(paste("Building fragment groups ready", sep = ""))
+  if(!is.na(progress))  if(progress)  incProgress(amount = 0.01, detail = paste("Building fragment mzFragmentGroups ready", sep = "")) else print(paste("Building fragment mzFragmentGroups ready", sep = ""))
   
   orderTempCol <- order(fragmentMasses)
   matrix <- matrix[, orderTempCol]
@@ -3529,13 +3529,13 @@ convertToProjectFile2 <- function(filePeakMatrix, spectraList, precursorMz, prec
   #print(paste("Number of collisions within MS2 spectra:", returnObj$numberOfCollisions, "/", returnObj$numberOfMS2Peaks, "=", round(x = returnObj$numberOfCollisions / returnObj$numberOfMS2Peaks * 100, digits = 1), "%"))
   #if(parameterSet$doMs2PeakGroupDeisotoping){
   #  print(paste("Number of removed MS2 peaks:", returnObj$numberOfRemovedMS2IsotopePeaks, "/", returnObj$numberOfMS2PeaksPrior, "=", round(x = returnObj$numberOfRemovedMS2IsotopePeaks / returnObj$numberOfMS2PeaksPrior * 100, digits = 1), "%"))
-  #  print(paste("Number of completely removed MS2 peak groups:", returnObj$numberOfRemovedMS2PeakGroupIsotopeColumns, "/", returnObj$numberOfMS2PeakGroupsPrior, "=", round(x = returnObj$numberOfRemovedMS2PeakGroupIsotopeColumns / returnObj$numberOfMS2PeakGroupsPrior * 100, digits = 1), "%"))
+  #  print(paste("Number of completely removed MS2 peak mzFragmentGroups:", returnObj$numberOfRemovedMS2PeakGroupIsotopeColumns, "/", returnObj$numberOfMS2PeakGroupsPrior, "=", round(x = returnObj$numberOfRemovedMS2PeakGroupIsotopeColumns / returnObj$numberOfMS2PeakGroupsPrior * 100, digits = 1), "%"))
   #}
   
   rm(returnObj)
   
   ########################################
-  ## filter empty fragment groups
+  ## filter empty fragment mzFragmentGroups
   numberOfFragments <- length(fragmentMasses)
   fragmentGroupNonEmpty <- vector(mode = "logical", length = numberOfFragments)
   for(colIdx in seq_len(numberOfFragments))
