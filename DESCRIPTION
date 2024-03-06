@@ -42,6 +42,7 @@ Imports:
 Remotes: decisionpatterns/searchable
 Suggests:
     knitr,
+    BiocStyle,
     testthat
 VignetteBuilder: knitr
 Maintainer: Hendrik Treutler<hendrik.treutler@ipb-halle.de>
