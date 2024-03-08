@@ -311,14 +311,35 @@ calcPlotDendrogram <- function(dataList, filter, clusterDataList, annoPresentAnn
 }
 
 
+#' Title
+#'
+#' @param dataList 
+#' @param filterObj 
+#' @param clusterDataList 
+#' @param distanceMeasure 
+#' @param showClusterLabels 
+#' @param hcaPrecursorLabels 
+#' @param selectionFragmentTreeNodeSet 
+#' @param selectionAnalysisTreeNodeSet 
+#' @param selectionSearchTreeNodeSet 
+#' @param selectedSelection 
+#' @param heatmapContent 
+#' @param heatmapOrdering 
+#' @param heatmapProportion 
+#'
+#' @return
+#' @importFrom grDevices colorRampPalette rainbow rgb
+#' @export
+#'
+#' @examples
 calcPlotDendrogram_plotly <- function(
   dataList, filterObj, clusterDataList, 
   #annoPresentAnnotationsList, annoPresentColorsList, 
   distanceMeasure, 
   showClusterLabels, hcaPrecursorLabels, 
   selectionFragmentTreeNodeSet = NULL, selectionAnalysisTreeNodeSet = NULL, selectionSearchTreeNodeSet = NULL, 
-  selectedSelection, heatmapContent, heatmapOrdering, heatmapProportion
-){
+  selectedSelection, heatmapContent, heatmapOrdering, heatmapProportion)
+  {
   
   if(FALSE){
     dataList_ <<- dataList
@@ -613,35 +634,35 @@ calcPlotDendrogram_plotly <- function(
   ## heatmap
   
   ## heatmap data
-  groups <- dataList$groups
-  print(groups)
+  grouXXXps <- dataList$grouXXXps
+  print(grouXXXps)
   print("enetring this area ...plots.r..line 611")
   switch(heatmapContent,
          "Log-fold-change"={## log-fold-change
            columnsOfInterest <- c(
-             dataList$dataMeanColumnNameFunctionFromName(filterObj$groups[[1]]), 
-             dataList$dataMeanColumnNameFunctionFromName(filterObj$groups[[2]]), 
-             dataList$lfcColumnNameFunctionFromName(filterObj$groups[[1]], filterObj$groups[[2]])
+             dataList$dataMeanColumnNameFunctionFromName(filterObj$grouXXXps[[1]]), 
+             dataList$dataMeanColumnNameFunctionFromName(filterObj$grouXXXps[[2]]), 
+             dataList$lfcColumnNameFunctionFromName(filterObj$grouXXXps[[1]], filterObj$grouXXXps[[2]])
            )
            columnsOfInterestAbs <- columnsOfInterest[1:2]
            columnsOfInterestLFC <- columnsOfInterest[3]
-           labels = c(filterObj$groups[[1]], filterObj$groups[[2]], "LFC")
+           labels = c(filterObj$grouXXXps[[1]], filterObj$grouXXXps[[2]], "LFC")
            labelsAbs <- labels[1:2]
            labelsLFC <- labels[3]
          },
-         "Abundance by group"={## groups
-           columnsOfInterest <- unlist(lapply(X = groups, FUN = function(x){
+         "Abundance by group"={## grouXXXps
+           columnsOfInterest <- unlist(lapply(X = grouXXXps, FUN = function(x){
              dataList$dataMeanColumnNameFunctionFromName(x)
            }))
            columnsOfInterest <- rev(columnsOfInterest) ## plot is bottom to top
            columnsOfInterestAbs <- columnsOfInterest
            columnsOfInterestLFC <- NULL
-           labels <- groups
+           labels <- grouXXXps
            labelsAbs <- labels[1:2]
            labelsLFC <- NULL
          },
          "Abundance by sample"={## samples
-           columnsOfInterest <- dataList$dataColumnsNameFunctionFromGroupNames(groups = groups, sampleNamesToExclude = dataList$excludedSamples(dataList$groupSampleDataFrame))
+           columnsOfInterest <- dataList$dataColumnsNameFunctionFromGroupNames(grouXXXps = grouXXXps, sampleNamesToExclude = dataList$excludedSamples(dataList$groupSampleDataFrame))
            columnsOfInterest <- dataList$orderColumnNames(groupSampleDataFrame = dataList$groupSampleDataFrame, columnNames = columnsOfInterest)
            columnsOfInterest <- rev(columnsOfInterest) ## plot is bottom to top
            columnsOfInterestAbs <- columnsOfInterest
@@ -1204,25 +1225,25 @@ calcPlotHeatmap <- function(dataList, filterObj, clusterDataList, selectedTreeNo
   
   ####################
   ## heatmap
-  groups <- dataList$groups
+  grouXXXps <- dataList$grouXXXps
   switch(heatmapContent,
          "Log-fold-change"={## log-fold-change
            columnsOfInterest <- c(
-             dataList$dataMeanColumnNameFunctionFromName(filterObj$groups[[1]]), 
-             dataList$dataMeanColumnNameFunctionFromName(filterObj$groups[[2]]), 
-             dataList$lfcColumnNameFunctionFromName(filterObj$groups[[1]], filterObj$groups[[2]])
+             dataList$dataMeanColumnNameFunctionFromName(filterObj$grouXXXps[[1]]), 
+             dataList$dataMeanColumnNameFunctionFromName(filterObj$grouXXXps[[2]]), 
+             dataList$lfcColumnNameFunctionFromName(filterObj$grouXXXps[[1]], filterObj$grouXXXps[[2]])
            )
-           labels = c(filterObj$groups[[1]], filterObj$groups[[2]], "LFC")
+           labels = c(filterObj$grouXXXps[[1]], filterObj$grouXXXps[[2]], "LFC")
          },
-         "Abundance by group"={## groups
-           columnsOfInterest <- unlist(lapply(X = groups, FUN = function(x){
+         "Abundance by group"={## grouXXXps
+           columnsOfInterest <- unlist(lapply(X = grouXXXps, FUN = function(x){
              dataList$dataMeanColumnNameFunctionFromName(x)
            }))
            #columnsOfInterest <- rev(columnsOfInterest) ## plot is bottom to top
-           labels <- groups
+           labels <- grouXXXps
          },
          "Abundance by sample"={## samples
-           columnsOfInterest <- dataList$dataColumnsNameFunctionFromGroupNames(groups = groups, sampleNamesToExclude = dataList$excludedSamples(dataList$groupSampleDataFrame))
+           columnsOfInterest <- dataList$dataColumnsNameFunctionFromGroupNames(grouXXXps = grouXXXps, sampleNamesToExclude = dataList$excludedSamples(dataList$groupSampleDataFrame))
            columnsOfInterest <- dataList$orderColumnNames(groupSampleDataFrame = dataList$groupSampleDataFrame, columnNames = columnsOfInterest)
            #columnsOfInterest <- rev(columnsOfInterest) ## plot is bottom to top
            ### this is original labels
@@ -1436,8 +1457,8 @@ calcPlotHeatmapOld <- function(dataList, filterObj, clusterDataList, xInterval =
   ####################
   ## heatmap
   columnsOfInterest <- c(
-    dataList$dataMeanColumnNameFunctionFromName(filterObj$groups[[1]]), dataList$dataMeanColumnNameFunctionFromName(filterObj$groups[[2]]), 
-    dataList$lfcColumnNameFunctionFromName(filterObj$groups[[1]], filterObj$groups[[2]])
+    dataList$dataMeanColumnNameFunctionFromName(filterObj$grouXXXps[[1]]), dataList$dataMeanColumnNameFunctionFromName(filterObj$grouXXXps[[2]]), 
+    dataList$lfcColumnNameFunctionFromName(filterObj$grouXXXps[[1]], filterObj$grouXXXps[[2]])
   )
   
   par(mar=c(0,4,0,0), mgp = c(3, 1, 0))  ## c(bottom, left, top, right) ## c(title, axis, label)
@@ -1464,7 +1485,7 @@ calcPlotHeatmapOld <- function(dataList, filterObj, clusterDataList, xInterval =
     #  rect(xleft = i - 0.5, xright = i + 0.5, ybottom = 1, ytop = 2, col = colorOne[[i]], border = NA)
     #  rect(xleft = i - 0.5, xright = i + 0.5, ybottom = 0, ytop = 1, col = colorTwo[[i]], border = NA)
     #}
-    axis(side = 2, at = c(0.5, 1.5, 2.5), labels = c(filterObj$groups[[2]], filterObj$groups[[1]], "LFC"), las = 2, tick = TRUE)
+    axis(side = 2, at = c(0.5, 1.5, 2.5), labels = c(filterObj$grouXXXps[[2]], filterObj$grouXXXps[[1]], "LFC"), las = 2, tick = TRUE)
   }
   
   return(columnsOfInterest)
@@ -1540,9 +1561,9 @@ calcPlotAnnoLegend1 <- function(annoLabels, annoColors){
 }
 
 
-calcPlotScoresGroupsLegend <- function(groups, colors){
+calcPlotScoresGroupsLegend <- function(grouXXXps, colors){
   ## get and reorder annotations
-  calcPlotLegend(groups, colors, "Scores")
+  calcPlotLegend(grouXXXps, colors, "Scores")
 }
 
 
@@ -1609,14 +1630,14 @@ calcPlotAnnoLegendForImage1 <- function(annoLabels, annoColors, maximumNumberOfL
 #################
 
 
-calcPlotScoresGroupsLegendForImage <- function(groups, colors, maximumNumberOfLines=20){
+calcPlotScoresGroupsLegendForImage <- function(grouXXXps, colors, maximumNumberOfLines=20){
   ## get and reorder annotations
-  calcPlotLegendForImage(groups, colors, "Scores", maximumNumberOfLines)
+  calcPlotLegendForImage(grouXXXps, colors, "Scores", maximumNumberOfLines)
 }
 #### I am adding this new 
-calcPlotScoresGroupsLegendForImage1 <- function(groups, colors, maximumNumberOfLines=30){
+calcPlotScoresGroupsLegendForImage1 <- function(grouXXXps, colors, maximumNumberOfLines=30){
   ## get and reorder annotations
-  calcPlotLegendForImage1(groups, colors, "Scores", maximumNumberOfLines)
+  calcPlotLegendForImage1(grouXXXps, colors, "Scores", maximumNumberOfLines)
 }
 
 ###########
@@ -1750,14 +1771,14 @@ plotLegendWithBalls1 <- function(labels, xPositions, yPositions, circleXPosition
   palette <- colorPaletteScores()
   
   # if(filterObj$filterBySamples){
-  #   colorsForReplicates <- palette[unlist(lapply(X = filterObj$groups, FUN = function(x){ 
+  #   colorsForReplicates <- palette[unlist(lapply(X = filterObj$grouXXXps, FUN = function(x){ 
   #     groupIdx <- dataList$groupIdxFromGroupName(x)
   #     samples <- dataList$dataColumnsNameFunctionFromGroupName(x, sampleNamesToExclude = dataList$excludedSamples(dataList$groupSampleDataFrame))
   #     samples <- intersect(samples, filterObj$sampleSet)
   #     rep(x = groupIdx, times = length(samples))
   #   }))]
   # } else {
-  #   colorsForReplicates <- palette[unlist(lapply(X = filterObj$groups, FUN = function(x){ 
+  #   colorsForReplicates <- palette[unlist(lapply(X = filterObj$grouXXXps, FUN = function(x){ 
   #     groupIdx <- dataList$groupIdxFromGroupName(x)
   #     rep(x = groupIdx, times = length(dataList$dataColumnsNameFunctionFromGroupName(x, sampleNamesToExclude = dataList$excludedSamples(dataList$groupSampleDataFrame))))
   #   }))]
@@ -1894,6 +1915,16 @@ calcPlotDiscriminativityLegend <- function(){
   #graphics::text(x = xPositions[2:length(xPositions)], y = yPositions[2:length(yPositions)], labels = labels[2:length(labels)], pos = 4, adj = 1)
 }
 
+
+#' Title
+#'
+#' @param dataList 
+#'
+#' @return
+#' @export
+#' @importsFrom grDevices as.raster
+#'
+#' @examples
 calcPlotHeatmapLegend <- function(dataList){
   ####################
   ## heatmap legend
@@ -2211,14 +2242,14 @@ calcPlotPCAscores <- function(pcaObj, dataList, filterObj, pcaDimensionOne, pcaD
   palette <- colorPaletteScores()
   
   if(filterObj$filterBySamples){
-    colorsForReplicates <- palette[unlist(lapply(X = filterObj$groups, FUN = function(x){ 
+    colorsForReplicates <- palette[unlist(lapply(X = filterObj$grouXXXps, FUN = function(x){ 
       groupIdx <- dataList$groupIdxFromGroupName(x)
       samples <- dataList$dataColumnsNameFunctionFromGroupName(x, sampleNamesToExclude = dataList$excludedSamples(dataList$groupSampleDataFrame))
       samples <- intersect(samples, filterObj$sampleSet)
       rep(x = groupIdx, times = length(samples))
     }))]
   } else {
-    colorsForReplicates <- palette[unlist(lapply(X = filterObj$groups, FUN = function(x){ 
+    colorsForReplicates <- palette[unlist(lapply(X = filterObj$grouXXXps, FUN = function(x){ 
       groupIdx <- dataList$groupIdxFromGroupName(x)
       rep(x = groupIdx, times = length(dataList$dataColumnsNameFunctionFromGroupName(x, sampleNamesToExclude = dataList$excludedSamples(dataList$groupSampleDataFrame))))
     }))]
@@ -2273,10 +2304,10 @@ calcPlotPCAscores <- function(pcaObj, dataList, filterObj, pcaDimensionOne, pcaD
   if(showScoresLabels){
     
     if(filterObj$filterBySamples){
-      labels <- dataList$dataColumnsNameFunctionFromGroupNames(filterObj$groups, sampleNamesToExclude = dataList$excludedSamples(dataList$groupSampleDataFrame))
+      labels <- dataList$dataColumnsNameFunctionFromGroupNames(filterObj$grouXXXps, sampleNamesToExclude = dataList$excludedSamples(dataList$groupSampleDataFrame))
       labels <- intersect(labels, filterObj$sampleSet)
     } else {
-      labels <- dataList$dataColumnsNameFunctionFromGroupNames(filterObj$groups, sampleNamesToExclude = dataList$excludedSamples(dataList$groupSampleDataFrame))
+      labels <- dataList$dataColumnsNameFunctionFromGroupNames(filterObj$grouXXXps, sampleNamesToExclude = dataList$excludedSamples(dataList$groupSampleDataFrame))
     }
     graphics::text(x = dataDimOne, y = dataDimTwo, labels = labels, pos = 4)
   }
@@ -2290,14 +2321,14 @@ calcPlotPCAscores1 <- function(pcaObj, dataList, filterObj, pcaDimensionOne, pca
   #### add this new line ########
   
   if(filterObj$filterBySamples){
-    colorsForReplicates <- palette[unlist(lapply(X = filterObj$groups, FUN = function(x){ 
+    colorsForReplicates <- palette[unlist(lapply(X = filterObj$grouXXXps, FUN = function(x){ 
       groupIdx <- dataList$groupIdxFromGroupName(x)
       samples <- dataList$dataColumnsNameFunctionFromGroupName(x, sampleNamesToExclude = dataList$excludedSamples(dataList$groupSampleDataFrame))
       samples <- intersect(samples, filterObj$sampleSet)
       rep(x = groupIdx, times = length(samples))
     }))]
     
-    symbolsforreplicates<-unlist(lapply(X = filterObj$groups, FUN = function(x){ 
+    symbolsforreplicates<-unlist(lapply(X = filterObj$grouXXXps, FUN = function(x){ 
       groupIdx <- dataList$groupIdxFromGroupName(x)
       samples <- dataList$dataColumnsNameFunctionFromGroupName(x, sampleNamesToExclude = dataList$excludedSamples(dataList$groupSampleDataFrame))
       samples <- intersect(samples, filterObj$sampleSet)
@@ -2305,12 +2336,12 @@ calcPlotPCAscores1 <- function(pcaObj, dataList, filterObj, pcaDimensionOne, pca
     }))
     
   } else {
-    colorsForReplicates <- palette[unlist(lapply(X = filterObj$groups, FUN = function(x){ 
+    colorsForReplicates <- palette[unlist(lapply(X = filterObj$grouXXXps, FUN = function(x){ 
       groupIdx <- dataList$groupIdxFromGroupName(x)
       rep(x = groupIdx, times = length(dataList$dataColumnsNameFunctionFromGroupName(x, sampleNamesToExclude = dataList$excludedSamples(dataList$groupSampleDataFrame))))
     }))]
     
-    symbolsforreplicates<-unlist(lapply(X = filterObj$groups, FUN = function(x){ 
+    symbolsforreplicates<-unlist(lapply(X = filterObj$grouXXXps, FUN = function(x){ 
       groupIdx <- dataList$groupIdxFromGroupName(x)
       rep(x = groupIdx, times = length(dataList$dataColumnsNameFunctionFromGroupName(x, sampleNamesToExclude = dataList$excludedSamples(dataList$groupSampleDataFrame))))
     }))
@@ -2367,10 +2398,10 @@ calcPlotPCAscores1 <- function(pcaObj, dataList, filterObj, pcaDimensionOne, pca
   if(showScoresLabels){
     
     if(filterObj$filterBySamples){
-      labels <- dataList$dataColumnsNameFunctionFromGroupNames(filterObj$groups, sampleNamesToExclude = dataList$excludedSamples(dataList$groupSampleDataFrame))
+      labels <- dataList$dataColumnsNameFunctionFromGroupNames(filterObj$grouXXXps, sampleNamesToExclude = dataList$excludedSamples(dataList$groupSampleDataFrame))
       labels <- intersect(labels, filterObj$sampleSet)
     } else {
-      labels <- dataList$dataColumnsNameFunctionFromGroupNames(filterObj$groups, sampleNamesToExclude = dataList$excludedSamples(dataList$groupSampleDataFrame))
+      labels <- dataList$dataColumnsNameFunctionFromGroupNames(filterObj$grouXXXps, sampleNamesToExclude = dataList$excludedSamples(dataList$groupSampleDataFrame))
     }
     ### changing the pos= 3 from 4 and will see what happens
     graphics::text(x = dataDimOne, y = dataDimTwo, labels = labels, pos = 2)
@@ -2383,14 +2414,14 @@ calcPlotPCAscores2 <- function(pcaObj, dataList, filterObj, pcaDimensionOne, pca
   palette <- colorPaletteScores()
   #dev.new(width=15,height=15)
   if(filterObj$filterBySamples){
-    colorsForReplicates <- palette[unlist(lapply(X = filterObj$groups, FUN = function(x){ 
+    colorsForReplicates <- palette[unlist(lapply(X = filterObj$grouXXXps, FUN = function(x){ 
       groupIdx <- dataList$groupIdxFromGroupName(x)
       samples <- dataList$dataColumnsNameFunctionFromGroupName(x, sampleNamesToExclude = dataList$excludedSamples(dataList$groupSampleDataFrame))
       samples <- intersect(samples, filterObj$sampleSet)
       rep(x = groupIdx, times = length(samples))
     }))]
   } else {
-    colorsForReplicates <- palette[unlist(lapply(X = filterObj$groups, FUN = function(x){ 
+    colorsForReplicates <- palette[unlist(lapply(X = filterObj$grouXXXps, FUN = function(x){ 
       groupIdx <- dataList$groupIdxFromGroupName(x)
       rep(x = groupIdx, times = length(dataList$dataColumnsNameFunctionFromGroupName(x, sampleNamesToExclude = dataList$excludedSamples(dataList$groupSampleDataFrame))))
     }))]
@@ -2438,10 +2469,10 @@ calcPlotPCAscores2 <- function(pcaObj, dataList, filterObj, pcaDimensionOne, pca
     xlim = xInterval, ylim = yInterval, 
     xlab = xAxisLabel, ylab = yAxisLabel, main = "Scores", 
     #### this is my blind test changing from 19 to 19:22
-    #ntemp<-length(filterObj$groups),
+    #ntemp<-length(filterObj$grouXXXps),
     #ntemp1<-sum(ntemp,1),
-    ### I am testing the filterObj$groups... This is fine .. will test the 
-    col = colorsForReplicates, pch=1:length(filterObj$groups),lty=1,lwd=2,cex=1.
+    ### I am testing the filterObj$grouXXXps... This is fine .. will test the 
+    col = colorsForReplicates, pch=1:length(filterObj$grouXXXps),lty=1,lwd=2,cex=1.
     ### checking the colorsForReplicates
     
   )
@@ -2463,10 +2494,10 @@ calcPlotPCAscores2 <- function(pcaObj, dataList, filterObj, pcaDimensionOne, pca
   if(showScoresLabels){
     
     if(filterObj$filterBySamples){
-      labels <- dataList$dataColumnsNameFunctionFromGroupNames(filterObj$groups, sampleNamesToExclude = dataList$excludedSamples(dataList$groupSampleDataFrame))
+      labels <- dataList$dataColumnsNameFunctionFromGroupNames(filterObj$grouXXXps, sampleNamesToExclude = dataList$excludedSamples(dataList$groupSampleDataFrame))
       labels <- intersect(labels, filterObj$sampleSet)
     } else {
-      labels <- dataList$dataColumnsNameFunctionFromGroupNames(filterObj$groups, sampleNamesToExclude = dataList$excludedSamples(dataList$groupSampleDataFrame))
+      labels <- dataList$dataColumnsNameFunctionFromGroupNames(filterObj$grouXXXps, sampleNamesToExclude = dataList$excludedSamples(dataList$groupSampleDataFrame))
     }
     graphics::text(x = dataDimOne, y = dataDimTwo, labels = labels, pos = 4)
   }
@@ -2521,7 +2552,7 @@ calcPlotPCAloadings <- function(
   ###################################################
   ########## this is new line I added################
   TNF<-pcaObj$filterObj$filter_averageOriginal
-  TNF1<-apply(as.data.frame(dataList$dataFrameMeasurements[, sapply(X = as.vector(pcaObj$filterObj$groups), FUN = dataList$dataMeanColumnNameFunctionFromName)]),MARGIN = 1,FUN = mean) >= as.double(TNF)
+  TNF1<-apply(as.data.frame(dataList$dataFrameMeasurements[, sapply(X = as.vector(pcaObj$filterObj$grouXXXps), FUN = dataList$dataMeanColumnNameFunctionFromName)]),MARGIN = 1,FUN = mean) >= as.double(TNF)
   TNF2<-names(TNF1)[unname(TNF1)]
   TNF3<-trimws(TNF2)
   TNF4<-str_squish(TNF3)
@@ -3058,7 +3089,7 @@ calcPlotPCAloadings <- function(
 #   ########## this is new line I added################
 #   TNF<-pcaObj$filterObj$filter_averageOriginal
 #   print("enter the line ...line 2524")
-#   TNF1<-apply(as.data.frame(dataList$dataFrameMeasurements[, sapply(X = as.vector(pcaObj$filterObj$groups), FUN = dataList$dataMeanColumnNameFunctionFromName)]),MARGIN = 1,FUN = mean) >= as.double(TNF)
+#   TNF1<-apply(as.data.frame(dataList$dataFrameMeasurements[, sapply(X = as.vector(pcaObj$filterObj$grouXXXps), FUN = dataList$dataMeanColumnNameFunctionFromName)]),MARGIN = 1,FUN = mean) >= as.double(TNF)
 #   TNF2<-names(TNF1)[unname(TNF1)]
 #   TNF3<-trimws(TNF2)
 #   TNF4<-str_squish(TNF3)
@@ -3575,7 +3606,7 @@ calcPlotPCAloadings <- function(
 #   ##############################
 #   ########## this is new line I added
 #   TNF<-pcaObj$filterObj$filter_averageOriginal
-#   TNF1<-apply(as.data.frame(dataList$dataFrameMeasurements[, sapply(X = as.vector(pcaObj$filterObj$groups), FUN = dataList$dataMeanColumnNameFunctionFromName)]),MARGIN = 1,FUN = mean) >= as.double(TNF)
+#   TNF1<-apply(as.data.frame(dataList$dataFrameMeasurements[, sapply(X = as.vector(pcaObj$filterObj$grouXXXps), FUN = dataList$dataMeanColumnNameFunctionFromName)]),MARGIN = 1,FUN = mean) >= as.double(TNF)
 #   TNF2<-names(TNF1)[unname(TNF1)]
 #   TNF3<-trimws(TNF2)
 #   TNF4<-str_squish(TNF3)
@@ -4505,7 +4536,7 @@ calcPlotPCAloadings2 <- function(
   par(mar=c(3 + 0.5125, 3+0.125, 2, 1), mgp = c(2, 1, 0))  ## c(bottom, left, top, right)
   #plot(x = dataDimOne, y = dataDimTwo, xlim = xInterval, ylim = yInterval, xlab = xAxisLabel, ylab = yAxisLabel, main = "Loadings", pch=19, cex=0.7, col = nodeColors)
   plot(x = NULL, y = NULL, xlim = xInterval, ylim = yInterval, xlab = xAxisLabel, ylab = yAxisLabel, main = "Loadings")
-  ### changing this to 22 and will see what happens...1:length(filterObj$groups),lty=1,lwd=2
+  ### changing this to 22 and will see what happens...1:length(filterObj$grouXXXps),lty=1,lwd=2
   points(x = poisXpoints, y = poisYpoints, col = pointColors, pch=19, cex=pointSizes)
   
   ## axis
@@ -4610,26 +4641,105 @@ colorPalette2 <- function(){
   
   #palette <- palette(c(
   palette <- c(
-    rgb(184, 88,184, maxColorValue=255),
-    rgb(102,178, 48, maxColorValue=255),
-    rgb(220, 64, 59, maxColorValue=255),
-    rgb( 78,167,149, maxColorValue=255),
-    rgb(117, 79, 33, maxColorValue=255),
-    rgb(131, 59, 93, maxColorValue=255),
-    rgb(116,159,202, maxColorValue=255),
-    rgb(176,158, 56, maxColorValue=255),
-    rgb(114,119,221, maxColorValue=255),
-    rgb(219,119, 40, maxColorValue=255),
-    rgb( 72,101, 46, maxColorValue=255),
-    rgb(213, 66,135, maxColorValue=255),
-    rgb( 70, 91,112, maxColorValue=255),
-    rgb(213,115,121, maxColorValue=255),
-    rgb( 91, 76,141, maxColorValue=255),
-    rgb(198,137,190, maxColorValue=255),
-    rgb( 98,175,100, maxColorValue=255),
-    rgb(146, 56, 45, maxColorValue=255),
-    rgb(207, 78,219, maxColorValue=255),
-    rgb(206,136, 82, maxColorValue=255)
+    rgb(150, 90, 180, maxColorValue=255),
+    rgb(190, 80, 190, maxColorValue=255),
+    rgb(170, 100, 180, maxColorValue=255),
+    rgb(180, 80, 200, maxColorValue=255),
+    rgb(160, 90, 190, maxColorValue=255),
+    rgb(200, 70, 180, maxColorValue=255),
+    rgb(140, 110, 170, maxColorValue=255),
+    rgb(210, 60, 190, maxColorValue=255),
+    rgb(130, 120, 160, maxColorValue=255),
+    rgb(220, 50, 200, maxColorValue=255),
+    rgb(120, 130, 150, maxColorValue=255),
+    rgb(230, 40, 190, maxColorValue=255),
+    rgb(110, 140, 140, maxColorValue=255),
+    rgb(240, 30, 180, maxColorValue=255),
+    rgb(100, 150, 130, maxColorValue=255),
+    rgb(250, 20, 170, maxColorValue=255),
+    rgb(90, 160, 120, maxColorValue=255),
+    rgb(260, 10, 160, maxColorValue=255),
+    rgb(80, 170, 110, maxColorValue=255),
+    rgb(270, 0, 150, maxColorValue=255),
+    rgb(70, 180, 100, maxColorValue=255),
+    rgb(280, 10, 140, maxColorValue=255),
+    rgb(60, 190, 90, maxColorValue=255),
+    rgb(290, 20, 130, maxColorValue=255),
+    rgb(50, 200, 80, maxColorValue=255),
+    rgb(300, 30, 120, maxColorValue=255),
+    rgb(40, 210, 70, maxColorValue=255),
+    rgb(310, 40, 110, maxColorValue=255),
+    rgb(30, 220, 60, maxColorValue=255),
+    rgb(320, 50, 100, maxColorValue=255),
+    rgb(20, 230, 50, maxColorValue=255),
+    rgb(330, 60, 90, maxColorValue=255),
+    rgb(10, 240, 40, maxColorValue=255),
+    rgb(340, 70, 80, maxColorValue=255),
+    rgb(0, 250, 30, maxColorValue=255),
+    rgb(350, 80, 70, maxColorValue=255),
+    rgb(0, 255, 20, maxColorValue=255),
+    rgb(360, 90, 60, maxColorValue=255),
+    rgb(10, 250, 10, maxColorValue=255),
+    rgb(350, 100, 70, maxColorValue=255),
+    rgb(20, 240, 0, maxColorValue=255),
+    rgb(340, 110, 80, maxColorValue=255),
+    rgb(30, 230, 10, maxColorValue=255),
+    rgb(330, 120, 90, maxColorValue=255),
+    rgb(40, 220, 20, maxColorValue=255),
+    rgb(320, 130, 100, maxColorValue=255),
+    rgb(50, 210, 30, maxColorValue=255),
+    rgb(310, 140, 110, maxColorValue=255),
+    rgb(60, 200, 40, maxColorValue=255),
+    rgb(300, 150, 120, maxColorValue=255),
+    rgb(70, 190, 50, maxColorValue=255),
+    rgb(290, 160, 130, maxColorValue=255),
+    rgb(80, 180, 60, maxColorValue=255),
+    rgb(280, 170, 140, maxColorValue=255),
+    rgb(90, 170, 70, maxColorValue=255),
+    rgb(270, 180, 150, maxColorValue=255),
+    rgb(100, 160, 80, maxColorValue=255),
+    rgb(260, 190, 160, maxColorValue=255),
+    rgb(110, 150, 90, maxColorValue=255),
+    rgb(250, 200, 170, maxColorValue=255),
+    rgb(120, 140, 100, maxColorValue=255),
+    rgb(240, 210, 180, maxColorValue=255),
+    rgb(130, 130, 110, maxColorValue=255),
+    rgb(230, 220, 190, maxColorValue=255),
+    rgb(140, 120, 120, maxColorValue=255),
+    rgb(220, 230, 200, maxColorValue=255),
+    rgb(150, 110, 130, maxColorValue=255),
+    rgb(210, 240, 210, maxColorValue=255),
+    rgb(160, 100, 140, maxColorValue=255),
+    rgb(200, 250, 220, maxColorValue=255),
+    rgb(170, 90, 150, maxColorValue=255),
+    rgb(190, 260, 230, maxColorValue=255),
+    rgb(180, 80, 160, maxColorValue=255),
+    rgb(180, 270, 240, maxColorValue=255),
+    rgb(190, 70, 170, maxColorValue=255),
+    rgb(170, 280, 250, maxColorValue=255),
+    rgb(200, 60, 180, maxColorValue=255),
+    rgb(160, 290, 260, maxColorValue=255),
+    rgb(210, 50, 190, maxColorValue=255),
+    rgb(150, 300, 270, maxColorValue=255),
+    rgb(220, 40, 200, maxColorValue=255),
+    rgb(140, 310, 280, maxColorValue=255),
+    rgb(230, 30, 190, maxColorValue=255),
+    rgb(130, 320, 290, maxColorValue=255),
+    rgb(240, 20, 180, maxColorValue=255),
+    rgb(120, 330, 300, maxColorValue=255),
+    rgb(250, 10, 170, maxColorValue=255),
+    rgb(110, 340, 310, maxColorValue=255),
+    rgb(260, 0, 160, maxColorValue=255),
+    rgb(100, 350, 320, maxColorValue=255),
+    rgb(270, 10, 150, maxColorValue=255),
+    rgb(90, 360, 330, maxColorValue=255),
+    rgb(280, 20, 140, maxColorValue=255),
+    rgb(80, 370, 340, maxColorValue=255),
+    rgb(290, 30, 130, maxColorValue=255),
+    rgb(70, 380, 350, maxColorValue=255),
+    rgb(300, 40, 120, maxColorValue=255),
+    rgb(60, 390, 360, maxColorValue=255),
+    rgb(310, 50, 110, maxColorValue=255)
   )
   #))
   return(palette)
@@ -4644,17 +4754,17 @@ colorPalette <- function(){
     "deepskyblue",
     "orange",
     "deeppink",
-    "aquamarine",##
-    "burlywood", 
+    "aquamarine",
+    "burlywood",
     "cadetblue",
     "coral",
     "cornflowerblue",
-    "cyan",##
+    "cyan",
     "darkblue",
     "firebrick",
     "goldenrod",
     "indianred",
-    "khaki",##
+    "khaki",
     "magenta",
     "maroon",
     "beige",
@@ -4662,12 +4772,115 @@ colorPalette <- function(){
     "olivedrab",
     "orangered",
     "orchid",
-    "paleturquoise3",##
+    "paleturquoise3",
     "rosybrown",
     "salmon",
     "seagreen3",
     "skyblue",
-    "steelblue"
+    "steelblue",
+    "darkgoldenrod",
+    "darkgreen",
+    "darkkhaki",
+    "darkmagenta",
+    "darkolivegreen",
+    "darkorange",
+    "darkorchid",
+    "darkred",
+    "darksalmon",
+    "darkseagreen",
+    "darkslateblue",
+    "darkslategray",
+    "darkturquoise",
+    "darkviolet",
+    "deepskyblue",
+    "dimgray",
+    "dodgerblue",
+    "firebrick",
+    "forestgreen",
+    "gold",
+    "goldenrod",
+    "gray",
+    "green",
+    "greenyellow",
+    "hotpink",
+    "indianred",
+    "khaki",
+    "lavender",
+    "lavenderblush",
+    "lawngreen",
+    "lemonchiffon",
+    "lightblue",
+    "lightcoral",
+    "lightcyan",
+    "lightgoldenrodyellow",
+    "lightgray",
+    "lightgreen",
+    "lightpink",
+    "lightsalmon",
+    "lightseagreen",
+    "lightskyblue",
+    "lightslategray",
+    "lightsteelblue",
+    "lightyellow",
+    "limegreen",
+    "linen",
+    "magenta",
+    "maroon",
+    "mediumaquamarine",
+    "mediumblue",
+    "mediumorchid",
+    "mediumpurple",
+    "mediumseagreen",
+    "mediumslateblue",
+    "mediumspringgreen",
+    "mediumturquoise",
+    "mediumvioletred",
+    "midnightblue",
+    "mintcream",
+    "mistyrose",
+    "moccasin",
+    "navajowhite",
+    "navy",
+    "oldlace",
+    "olivedrab",
+    "orange",
+    "orangered",
+    "orchid",
+    "palegoldenrod",
+    "palegreen",
+    "paleturquoise",
+    "palevioletred",
+    "papayawhip",
+    "peachpuff",
+    "peru",
+    "pink",
+    "plum",
+    "powderblue",
+    "purple",
+    "red",
+    "rosybrown",
+    "royalblue",
+    "saddlebrown",
+    "salmon",
+    "sandybrown",
+    "seagreen",
+    "sienna",
+    "skyblue",
+    "slateblue",
+    "slategray",
+    "snow",
+    "springgreen",
+    "steelblue",
+    "tan",
+    "thistle",
+    "tomato",
+    "turquoise",
+    "violet",
+    "wheat",
+    "white",
+    "whitesmoke",
+    "yellow",
+    "yellowgreen"
   )
   return(palette)
 }

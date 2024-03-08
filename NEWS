@@ -1,0 +1,17 @@
+CHANGES IN VERSION 0.99.2
+-------------------------
+
+BUG FIXES
+
+    o Now producing correct PCA on R-4.0.0+ by using a custom data.matrix() function with old R-3.6.3 behaviour
+
+CHANGES IN VERSION 0.99.2
+-------------------------
+
+NEW FEATURES
+
+    o More and better colors available for plotting (thanks @khabatv)
+    o improving package and app source organisation
+    o runMetFamily() function to launch the Shiny app
+    o Started testing infrastructure
+

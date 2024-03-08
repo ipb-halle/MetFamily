@@ -104,10 +104,10 @@ drawDendrogramPlotImpl_forPlotly <- function(){
            numberOfGroups <- 3
          },
          "Abundance by group"={## groups
-           numberOfGroups <- length(dataList$groups)
+           numberOfGroups <- length(dataList$grouXXXps)
          },
          "Abundance by sample"={## samples
-           numberOfGroups <- length(dataList$dataColumnsNameFunctionFromGroupNames(groups = groups, sampleNamesToExclude = dataList$excludedSamples(dataList$groupSampleDataFrame)))
+           numberOfGroups <- length(dataList$dataColumnsNameFunctionFromGroupNames(grouXXXps = grouXXXps, sampleNamesToExclude = dataList$excludedSamples(dataList$groupSampleDataFrame)))
          },
          {## unknown state
            stop(paste("Unknown heatmapContent value", heatmapContent))
@@ -637,8 +637,8 @@ obsHeatmaphover <- observeEvent(input$plotHeatmap_hover, {
   
   if(hoverY > 2){
     ## lcf
-    groupOne <- filterHca$groups[[1]]
-    groupTwo <- filterHca$groups[[2]]
+    groupOne <- filterHca$grouXXXps[[1]]
+    groupTwo <- filterHca$grouXXXps[[2]]
     msg[[length(msg) + 1]] <- paste("log-fold-change = log_2( mean(group ", groupOne, ") / mean(group ", groupTwo, ") )", sep = "")
     
     valMeanOne <- dataList$dataFrameMeasurements[precursorIndex, dataList$dataMeanColumnNameFunctionFromName(groupOne)]
@@ -654,17 +654,17 @@ obsHeatmaphover <- observeEvent(input$plotHeatmap_hover, {
   } else {
     if(hoverY > 1){
       ## group 1
-      groupHere <- filterHca$groups[[1]]
+      groupHere <- filterHca$grouXXXps[[1]]
     } else { ## hoverY <= 1
       ## group 2
-      groupHere <- filterHca$groups[[2]]
+      groupHere <- filterHca$grouXXXps[[2]]
     }
     msg[[length(msg) + 1]] <- paste("Mean abundance of group ", groupHere, ": ", sep = "")
     valMean <- dataList$dataFrameMeasurements[precursorIndex, dataList$dataMeanColumnNameFunctionFromName(groupHere)]
     msg[[length(msg) + 1]] <- as.numeric(format(x = valMean, digits = 2))
     msg[[length(msg) + 1]] <- " = mean("
     #columnNames <- dataList$dataColumnsNameFunctionFromGroupName(group = groupHere, sampleNamesToExclude = dataList$excludedSamples(dataList$groupSampleDataFrame))
-    columnNames <- dataList$dataColumnsNameFunctionFromGroupName(group = groupHere, sampleNamesToExclude = dataList$excludedSamples(groupSampleDataFrame = dataList$groupSampleDataFrame, groups = groupHere))
+    columnNames <- dataList$dataColumnsNameFunctionFromGroupName(group = groupHere, sampleNamesToExclude = dataList$excludedSamples(groupSampleDataFrame = dataList$groupSampleDataFrame, grouXXXps = groupHere))
     vals <- dataList$dataFrameMeasurements[precursorIndex, columnNames]
     vals <- as.numeric(format(x = vals, digits = 2))
     msg[[length(msg) + 1]] <- paste(vals, collapse = ", ")
@@ -702,7 +702,7 @@ output$plotHeatmap_hover_info <- renderUI({
   treeLeafIndex  <- clusterDataList$cluster$order[[treeLeafIndex2]]
   precursorIndex <- filterHca$filter[[treeLeafIndex]]
   
-  ## differentiate heatmap content: LFC, samples, groups
+  ## differentiate heatmap content: LFC, samples, grouXXXps
   columnOfInterest <- columnsOfInterest[[ceiling(hoverY)]]
   #print("entering the line ...line 707")
   #print(columnOfInterest)
@@ -714,13 +714,13 @@ output$plotHeatmap_hover_info <- renderUI({
     ## lcf
     #print("enter the line ...line 714")
     ########
-    groups <- dataList$lfcColumnNameFunctionFromString(columnOfInterest)
+    grouXXXps <- dataList$lfcColumnNameFunctionFromString(columnOfInterest)
     #######
     #print(columnOfInterest)
-    #print(groups)
+    #print(grouXXXps)
     #######
-    groupOne <- groups[[1]]
-    groupTwo <- groups[[2]]
+    groupOne <- grouXXXps[[1]]
+    groupTwo <- grouXXXps[[2]]
     #msg[[length(msg) + 1]] <- paste("log-fold-change = log_2( mean(group ", groupOne, ") / mean(group ", groupTwo, ") )", sep = "")
     
     valMeanOne <- dataList$dataFrameMeasurements[precursorIndex, dataList$dataMeanColumnNameFunctionFromName(groupOne)]
@@ -737,8 +737,8 @@ output$plotHeatmap_hover_info <- renderUI({
     lfc <- format(x = lfc, digits = 2)
     #msg[[length(msg) + 1]] <- lfc
     
-    #samplesOne <- dataList$dataColumnsNameFunctionFromGroupName(group = groupOne, sampleNamesToExclude = dataList$excludedSamples(groupSampleDataFrame = dataList$groupSampleDataFrame, groups = groupOne))
-    #samplesTwo <- dataList$dataColumnsNameFunctionFromGroupName(group = groupTwo, sampleNamesToExclude = dataList$excludedSamples(groupSampleDataFrame = dataList$groupSampleDataFrame, groups = groupTwo))
+    #samplesOne <- dataList$dataColumnsNameFunctionFromGroupName(group = groupOne, sampleNamesToExclude = dataList$excludedSamples(groupSampleDataFrame = dataList$groupSampleDataFrame, grouXXXps = groupOne))
+    #samplesTwo <- dataList$dataColumnsNameFunctionFromGroupName(group = groupTwo, sampleNamesToExclude = dataList$excludedSamples(groupSampleDataFrame = dataList$groupSampleDataFrame, grouXXXps = groupTwo))
     
     info <- paste(
       "<b>MS\u00B9 feature: ", "</b>", dataList$precursorLabels[[precursorIndex]], "<br>",
@@ -765,7 +765,7 @@ output$plotHeatmap_hover_info <- renderUI({
       #msg[[length(msg) + 1]] <- valMean
       #msg[[length(msg) + 1]] <- " = mean("
       #columnNames <- dataList$dataColumnsNameFunctionFromGroupName(group = groupHere, sampleNamesToExclude = dataList$excludedSamples(dataList$groupSampleDataFrame))
-      columnNames <- dataList$dataColumnsNameFunctionFromGroupName(group = groupHere, sampleNamesToExclude = dataList$excludedSamples(groupSampleDataFrame = dataList$groupSampleDataFrame, groups = groupHere))
+      columnNames <- dataList$dataColumnsNameFunctionFromGroupName(group = groupHere, sampleNamesToExclude = dataList$excludedSamples(groupSampleDataFrame = dataList$groupSampleDataFrame, grouXXXps = groupHere))
       vals <- dataList$dataFrameMeasurements[precursorIndex, columnNames]
       vals <- format(x = vals, digits = 2)
       #msg[[length(msg) + 1]] <- paste(vals, collapse = ", ")

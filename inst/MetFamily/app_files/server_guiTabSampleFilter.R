@@ -81,7 +81,7 @@ updateSampleOrderAndExclusion <- function(){
   sampleNamesToExclude <- dataList$groupSampleDataFrame[sampleExclusion_tmp, "Sample"]
   
   returnObj <- processMS1data(sampleNamesToExclude=sampleNamesToExclude, numberOfMS1features=dataList$numberOfPrecursors, precursorLabels=dataList$precursorLabels, 
-                              groups=dataList$groups, metaboliteProfileColumnNames=dataList$metaboliteProfileColumnNames, tagsSector = dataList$tagsSector, 
+                              grouXXXps=dataList$grouXXXps, metaboliteProfileColumnNames=dataList$metaboliteProfileColumnNames, tagsSector = dataList$tagsSector, 
                               dataColumnIndecesFunctionFromGroupIndex=dataList$dataColumnIndecesFunctionFromGroupIndex, dataColumnsNameFunctionFromGroupIndex=dataList$dataColumnsNameFunctionFromGroupIndex, dataColumnsNameFunctionFromGroupName=dataList$dataColumnsNameFunctionFromGroupName, dataColumnsNameFunctionFromGroupNames=dataList$dataColumnsNameFunctionFromGroupNames, groupNameFunctionFromDataColumnName=dataList$groupNameFunctionFromDataColumnName,
                               metaboliteProfile=dataList$dataFrameInfos, progress=FALSE)
   

@@ -1,0 +1,90 @@
+---
+title: "Discovering regulated Metabolite Families"
+author:
+- name: Khabat Vahabi
+  affiliation: Leibniz Institute of Plant Biochemistry
+- name: Steffen Neumann
+  affiliation: Leibniz Institute of Plant Biochemistry
+  email: sneumann@ipb-halle.de
+package: MetFamily
+output:
+  BiocStyle::html_document:
+    toc_float: true
+abstract: |
+  Description of the MetFamily R package
+vignette: |
+  %\VignetteIndexEntry{Discovering regulated Metabolite Families with MetFamily}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+bibliography: references.bib
+csl: biomed-central.csl
+---
+
+```{r setup, include=FALSE, echo=FALSE}
+library(MetFamily)
+```
+
+# Introduction
+
+Some text about the scenario, data and MTBLS297.
+
+Cool paper [@Treutler16DiscoveringRegulatedMetabolite].
+ 
+Cool R package: `r Githubpkg("ipb-halle/MetFamily")`
+
+
+
+# Loading the data
+
+First, we load the data and summarise it
+
+```{r load-data}
+
+fileName <- system.file("extdata/showcase/Project_file_showcase_annotated.csv.gz", package = "MetFamily")
+
+project <- readClusterDataFromProjectFile(file = fileName)
+
+```
+
+# Filtering data
+
+We can filter the data to remove low quality data points
+
+```{r filter-data}
+
+# todo...
+
+```
+
+
+# PCA
+
+PCA on MS1 in Figure \@ref(fig:pca). 
+
+```{r pca, fig.cap="PCA of MS1.", echo=FALSE}
+plot(cars)
+```
+
+# HCA
+
+HCA on MS2 in Figure \@ref(fig:hca). 
+
+```{r hca, fig.cap="HCA on MS2.", echo=FALSE}
+
+# Something with calcPlotDendrogram_plotly() 
+
+plot(cars)
+```
+
+# References {.unnumbered}
+
+<div id="refs"></div>
+
+# (APPENDIX) Appendix {-} 
+
+## Session info
+
+```{r sessionInfo, echo=FALSE}
+sessionInfo()
+```
+
