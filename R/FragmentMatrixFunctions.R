@@ -3498,7 +3498,7 @@ convertToProjectFile2 <- function(filePeakMatrix, spectraList, precursorMz, prec
     #####################################
     ## round GC mzs to integer
     for(spectrumIdx in seq_len(length(spectraList))){
-      spectraList[[spectrumIdx]]$ms2Peaks_mz <- round(x = spectraList[[spectrumIdx]]$ms2Peaks_mz, digits = 0)
+      spectraList[[spectrumIdx]]$ms2Peaks_mz <- round(x = spectraList[[spectrumIdx]]$ms2Peaks_mz, digits = 1)
     }
   }
   

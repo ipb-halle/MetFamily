@@ -1382,7 +1382,7 @@ getTableFromPrecursorSet <- function(dataList, precursorSet){
   featureMatrix <- data.frame(as.matrix(dataList$featureMatrix[precursorSet, featureIndeces, drop = FALSE]))
   rownames(featureMatrix) <- dataList$precursorLabels[precursorSet]
   colnames(featureMatrix) <- colnames(dataList$featureMatrix)[featureIndeces]
-  featureMatrix <- format(x = featureMatrix, digits = 0, nsmall = 4)
+  featureMatrix <- format(x = featureMatrix, digits = 1, nsmall = 4)
   if(length(featureIndeces) > 0){
     featureMatrix[featureMatrix=="0.0000"] <- "-"
     featureMatrix[featureMatrix=="1.0000"] <- "1"

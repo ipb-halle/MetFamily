@@ -2123,7 +2123,7 @@ calcPlotMS2 <- function(dataList, fragmentsX = NULL, fragmentsY = NULL, fragment
   if(length(dataX) > 0){
     ## axis with the individual fragment m/z's (ticks, labels)
     axis(side = 1, at = dataX, labels = FALSE, las = 2)
-    axis(side = 1, at = tickPositions, labels = format(x = dataX, digits = 0, nsmall = 4), las = 2, tick = FALSE)
+    axis(side = 1, at = tickPositions, labels = format(x = dataX, digits = 1, nsmall = 4), las = 2, tick = FALSE)
     
     ## sticks
     points(x = dataX, y = dataY, col = nodeColors, type = "h", lwd=4)
@@ -4748,7 +4748,7 @@ plotFragments <- function(masses, numberOfFragments, colors = NULL, numberOfPrec
   #axis(side = 1, at = dataList$ms2_masses, labels = dataList$ms2_masses, las = 2, tick = TRUE, col = colors)
   #for(i in 1:length(dataList$ms2_masses))
   for(i in dataOrder)
-    axis(side = 1, at = masses[[i]], labels = format(x = masses[[i]], digits = 0, nsmall = 4), las = 2, tick = TRUE, col.axis = colors[[i]])
+    axis(side = 1, at = masses[[i]], labels = format(x = masses[[i]], digits = 1, nsmall = 4), las = 2, tick = TRUE, col.axis = colors[[i]])
   
   points(x = masses[dataOrder], y = numberOfFragments[dataOrder], col = colors[dataOrder], type = "h", lwd=4)
   #points(x = masses[dataOrder], y = numberOfFragments[dataOrder], col = colors[dataOrder], pch=19, cex=1.)
@@ -4827,7 +4827,7 @@ plotFragments2 <- function(masses, numberOfFragments, numberOfPrecursors, xInter
   #axis(side = 1, at = masses, labels = masses, las = 2, tick = TRUE, col = colors)
   #for(i in 1:length(masses))
   for(i in dataOrder)
-    axis(side = 1, at = masses[[i]], labels = format(x = masses[[i]], digits = 0, nsmall = 4), las = 2, tick = TRUE, col.axis = colors[[i]])
+    axis(side = 1, at = masses[[i]], labels = format(x = masses[[i]], digits = 1, nsmall = 4), las = 2, tick = TRUE, col.axis = colors[[i]])
   
   points(x = masses[dataOrder], y = numberOfFragments[dataOrder], col = colors[dataOrder], type = "h", lwd=4)
   #points(x = masses[dataOrder], y = numberOfFragments[dataOrder], col = colors[dataOrder], pch=19, cex=1.)
@@ -4948,12 +4948,12 @@ calcPlotSpectrumVsClass_big <- function(masses_spec, intensity_spec, colors_spec
   
   ## axis with the individual fragment m/z's (ticks, labels)
   axis(side = 1, at = masses_spec, labels = FALSE, las = 2)
-  axis(side = 1, at = masses_spec[-these], labels = format(x = masses_spec[-these], digits = 0, nsmall = 4), las = 2, tick = FALSE, col.axis = "grey")
+  axis(side = 1, at = masses_spec[-these], labels = format(x = masses_spec[-these], digits = 1, nsmall = 4), las = 2, tick = FALSE, col.axis = "grey")
   if(length(these) == 1){
     if(these != length(masses_spec)+1)
-      axis(side = 1, at = masses_spec[ these], labels = format(x = masses_spec[ these], digits = 0, nsmall = 4), las = 2, tick = FALSE, col.axis = "black")
+      axis(side = 1, at = masses_spec[ these], labels = format(x = masses_spec[ these], digits = 1, nsmall = 4), las = 2, tick = FALSE, col.axis = "black")
   } else {
-    axis(side = 1, at = masses_spec[ these], labels = format(x = masses_spec[ these], digits = 0, nsmall = 4), las = 2, tick = FALSE, col.axis = "black")
+    axis(side = 1, at = masses_spec[ these], labels = format(x = masses_spec[ these], digits = 1, nsmall = 4), las = 2, tick = FALSE, col.axis = "black")
   }
   
   ## sticks
