@@ -626,7 +626,7 @@ obsHeatmaphover <- observeEvent(input$plotHeatmap_hover, {
   
   #################################################
   ## info
-  treeLeafIndex2 <- as.numeric(format(x = hoverX, digits = 0))
+  treeLeafIndex2 <- as.numeric(format(x = hoverX, digits = 1))
   treeLeafIndex  <- clusterDataList$cluster$order[[treeLeafIndex2]]
   precursorIndex <- filterHca$filter[[treeLeafIndex]]
   
@@ -698,7 +698,7 @@ output$plotHeatmap_hover_info <- renderUI({
     return(NULL)
   
   #################################################
-  treeLeafIndex2 <- as.numeric(format(x = hoverX, digits = 0))
+  treeLeafIndex2 <- as.numeric(format(x = hoverX, digits = 1))
   treeLeafIndex  <- clusterDataList$cluster$order[[treeLeafIndex2]]
   precursorIndex <- filterHca$filter[[treeLeafIndex]]
   

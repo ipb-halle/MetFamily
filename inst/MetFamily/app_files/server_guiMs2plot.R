@@ -92,7 +92,7 @@ obsMS2hover <- observeEvent(input$plotMS2_hover, {
       print(paste("update output$information"))
       paste(
         "Fragment with m/z = ", ms2PlotValues$fragmentListClicked$fragmentMasses[[minimumIndex]], 
-        " and (average) abundance = ", format(x = ms2PlotValues$fragmentListClicked$fragmentAbundances[[minimumIndex]], digits = 0, nsmall = 4), 
+        " and (average) abundance = ", format(x = ms2PlotValues$fragmentListClicked$fragmentAbundances[[minimumIndex]], digits = 1, nsmall = 4), 
         " is present in ", numberOfPrecursors, " MS/MS spectra",
         "\nand has a cluster-discriminating power of ", format(x = ms2PlotValues$fragmentListClicked$fragmentDiscriminativity[[minimumIndex]]*100, digits = 3, nsmall = 2), "%.", 
         sep = ""
@@ -164,7 +164,7 @@ output$plotMS2_hover_info <- renderUI({
   #  print(paste("update output$information"))
   #  paste(
   #    "Fragment with m/z = ", ms2PlotValues$fragmentListClicked$fragmentMasses[[minimumIndex]], 
-  #    " and (average) abundance = ", format(x = ms2PlotValues$fragmentListClicked$fragmentAbundances[[minimumIndex]], digits = 0, nsmall = 4), 
+  #    " and (average) abundance = ", format(x = ms2PlotValues$fragmentListClicked$fragmentAbundances[[minimumIndex]], digits = 1, nsmall = 4), 
   #    " is present in ", numberOfPrecursors, " MS/MS spectra",
   #    "\nand has a cluster-discriminating power of ", format(x = ms2PlotValues$fragmentListClicked$fragmentDiscriminativity[[minimumIndex]]*100, digits = 3, nsmall = 2), "%.", 
   #    sep = ""
@@ -173,7 +173,7 @@ output$plotMS2_hover_info <- renderUI({
   
   fragmentMz <- ms2PlotValues$fragmentListClicked$fragmentMasses[[minimumIndex]]
   fragmentMzS <- format(x = fragmentMz, nsmall = 4)
-  intensityS <- format(x = ms2PlotValues$fragmentListClicked$fragmentAbundances[[minimumIndex]], digits = 0, nsmall = 4)
+  intensityS <- format(x = ms2PlotValues$fragmentListClicked$fragmentAbundances[[minimumIndex]], digits = 1, nsmall = 4)
   cdpS <- format(x = ms2PlotValues$fragmentListClicked$fragmentDiscriminativity[[minimumIndex]]*100, digits = 3, nsmall = 2)
   
   info <- paste(
