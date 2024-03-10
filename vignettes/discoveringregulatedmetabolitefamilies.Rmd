@@ -62,7 +62,51 @@ We can filter the data to remove low quality data points
 PCA on MS1 in Figure \@ref(fig:pca). 
 
 ```{r pca, fig.cap="PCA of MS1.", echo=FALSE}
-plot(cars)
+  load("/home/sneumann/src/MetFamily/inst/extdata/testdata/filterObj.Rdata")
+
+pca <- calculatePCA(dataList=project, 
+                         filterObj=filterObj, 
+                         ms1AnalysisMethod="PCA (Principal Component Analysis)", 
+                         scaling="None", 
+                    logTransform=FALSE)
+
+## Need to be global variables because they are not 
+## passed to getPcaPerformanceIndicator() as parameters. 
+pcaDimensionOne <<- 1
+pcaDimensionTwo <<- 2
+
+  resultObj <- calcPlotPCAscores(
+    pcaObj = pca, 
+    dataList = project, 
+    filterObj = filterObj,
+    pcaDimensionOne = pcaDimensionOne, 
+    pcaDimensionTwo = pcaDimensionTwo, 
+    showScoresLabels = FALSE, 
+    xInterval = NULL, 
+    yInterval = NULL
+)
+
+  resultObj <- calcPlotPCAloadings(
+    pcaObj = pca, 
+    dataList = project, 
+    filter = filterObj, 
+    pcaDimensionOne = pcaDimensionOne, 
+    pcaDimensionTwo = pcaDimensionTwo, 
+    selectionFragmentPcaLoadingSet = NULL,
+    selectionAnalysisPcaLoadingSet = NULL,
+    selectionSearchPcaLoadingSet   = NULL,
+    xInterval = NULL, 
+    yInterval = NULL,
+    loadingsLabels = "None", 
+    showLoadingsAbundance = FALSE, 
+    showLoadingsFeaturesAnnotated   = TRUE,
+    showLoadingsFeaturesUnannotated = TRUE,
+    showLoadingsFeaturesSelected    = TRUE,
+    showLoadingsFeaturesUnselected  = TRUE
+  )
+
+    
+    
 ```
 
 # HCA
@@ -71,9 +115,38 @@ HCA on MS2 in Figure \@ref(fig:hca).
 
 ```{r hca, fig.cap="HCA on MS2.", echo=FALSE}
 
-# Something with calcPlotDendrogram_plotly() 
+if (FALSE) {
+p <- calcPlotDendrogram_plotly(dataList=project, 
+                               filterObj=filterObj, 
+                               clusterDataList=project, 
+  distanceMeasure = "Jaccard", 
+  showClusterLabels=FALSE, 
+  hcaPrecursorLabels="m/z / RT", 
+  selectionFragmentTreeNodeSet = NULL, 
+  selectionAnalysisTreeNodeSet = NULL, 
+  selectionSearchTreeNodeSet = NULL, 
+  selectedSelection, 
+  heatmapContent, 
+  heatmapOrdering, 
+  heatmapProportion)
+}
 
-plot(cars)
+load("/home/sneumann/src/MetFamily/inst/extdata/testdata/clusterDataList.Rdata")
+load("/home/sneumann/src/MetFamily/inst/extdata/testdata/hcaFilter.Rdata")
+returnObj <- calcPlotDendrogram(dataList=project, 
+                                filter=filter, 
+                                clusterDataList=clusterDataList, 
+                                annoPresentAnnotationsList = annoPresentAnnotationsList ,
+                                annoPresentColorsList = annoPresentColorsList,
+                                distanceMeasure="Jaccard (intensity-weighted)", 
+                                selectionFragmentTreeNodeSet = NULL, 
+                                selectionAnalysisTreeNodeSet = NULL, 
+                                selectionSearchTreeNodeSet = NULL, 
+                                showClusterLabels = TRUE, 
+                                hcaPrecursorLabels = "m/z / RT", 
+                                xInterval = c(1,219))
+
+  
 ```
 
 # References {.unnumbered}
