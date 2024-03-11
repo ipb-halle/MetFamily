@@ -62,7 +62,8 @@ We can filter the data to remove low quality data points
 PCA on MS1 in Figure \@ref(fig:pca). 
 
 ```{r pca, fig.cap="PCA of MS1.", echo=FALSE}
-  load("/home/sneumann/src/MetFamily/inst/extdata/testdata/filterObj.Rdata")
+fileName <- system.file("extdata/testdata/filterObj.Rdata", package = "MetFamily")
+load(fileName) 
 
 pca <- calculatePCA(dataList=project, 
                          filterObj=filterObj, 
@@ -131,8 +132,11 @@ p <- calcPlotDendrogram_plotly(dataList=project,
   heatmapProportion)
 }
 
-load("/home/sneumann/src/MetFamily/inst/extdata/testdata/clusterDataList.Rdata")
-load("/home/sneumann/src/MetFamily/inst/extdata/testdata/hcaFilter.Rdata")
+fileName <- system.file("extdata/testdata/clusterDataList.Rdata", package = "MetFamily")
+load(fileName) 
+fileName <- system.file("extdata/testdata/hcaFilter.Rdata", package = "MetFamily")
+load(fileName) 
+
 returnObj <- calcPlotDendrogram(dataList=project, 
                                 filter=filter, 
                                 clusterDataList=clusterDataList, 
