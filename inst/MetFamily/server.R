@@ -27,6 +27,7 @@ if(errorHunting){
 ##
 ## Load dependency libraries. Formerly in sourceTheCode()
 ##
+library(MetFamily)
 load_metfamily_dependencies()
 
 #########################################################################################
