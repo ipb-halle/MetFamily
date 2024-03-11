@@ -157,7 +157,7 @@ returnObj <- calcPlotDendrogram(dataList=project,
 
 <div id="refs"></div>
 
-# (APPENDIX) Appendix {-} 
+# Appendix {.unnumbered}
 
 ## Session info
 
