@@ -197,63 +197,65 @@ readProjectData <- function(fileLines, progress = FALSE)
   listMatrixCols <- NULL
 
   ################################################################################
-  #inserted for importing sirius annotation
-
-  
+  #Start of importing  annotation part1 from two
   # Display the message and give the user the option to choose whether to upload the annotation file or not. 
-  #If Y shows selection windo for annotation file. if N ignors annotatin process
+  #If Y shows selection window for annotation file. if N ignores annotation process
   message("Do you want to upload the annotation file? (Y/N)")
   user_choice <- readline()
   
   if (toupper(user_choice) == "Y") {
-    # Snippet 1 - Importing Sirius annotation
-    ##############################################################################
-    #inserted for importing sirius annotation
     
-    # Read the canopus_summary file (if needed)
-    canopus_summary <- read.delim(file.choose(), header = TRUE, check.names = FALSE) # select interactively
+
+    # Read the annotation_file file (if needed)
+    annotation_file <- read.delim(file.choose(), header = TRUE, check.names = FALSE) # select interactively
     
-    
-    
-    # Display the available columns in canopus_summary
-    message("Available columns in canopus_summary:")
-    available_columns <- colnames(canopus_summary)
+    # Display the available columns in annotation_file
+    message("Available columns in annotation_file:")
+    available_columns <- colnames(annotation_file)
     for (i in 1:length(available_columns)) {
       message(paste(i, "-", available_columns[i]))
     }
     
-    # Prompt the user to select the column to use
-    message("Enter the number corresponding to the column you want to use:")
-    selected_column_index <- as.integer(readline())
+    # Prompt the user to select the column containing IDs
+    message("Enter the number corresponding to the column containing IDs:")
+    selected_column_id <- as.integer(readline())
     
     # Check if the selected column index is valid
-    if (selected_column_index >= 1 && selected_column_index <= length(available_columns)) {
-      selected_column <- available_columns[selected_column_index]
+    if (selected_column_id >= 1 && selected_column_id <= length(available_columns)) {
+      id_column <- available_columns[selected_column_id]
       
-      # Iterate through all values in the "Annotation" column of metaboliteProfile, excluding first row
-      for (i in 1:nrow(metaboliteProfile)) {
-        # Perform the lookup based on metaboliteProfile's "Annotation" column and canopus_summary's selected column
-        matching_indices <- which(canopus_summary$featureId == metaboliteProfile$'Alignment ID'[i])
+      # Prompt the user to select the Annotation column to use
+      message("Enter the number corresponding to the annotation column:")
+      selected_column_annot <- as.integer(readline())
+      
+      # Check if the selected column index is valid
+      if (selected_column_annot >= 1 && selected_column_annot <= length(available_columns)) {
+        selected_column <- available_columns[selected_column_annot]
         
-        # Check data types and unique values of featureId column in canopus_summary
-        
-        # Check if any matches were found
-        if (length(matching_indices) > 0) {
-          # Update the specified column (Annotation) in metaboliteProfile with the corresponding value from canopus_summary
-          metaboliteProfile[i, "Annotation"] <- canopus_summary[matching_indices[1], selected_column]
-        } else {
-          # Handle the case where no match was found (you can add custom logic here)
-          warning(paste("No match found for row", i, "in metaboliteProfile"))
+        # Iterate through all values in the "Annotation" column of metaboliteProfile, excluding first row
+        for (i in 1:nrow(metaboliteProfile)) {
+          # Perform the lookup based on metaboliteProfile's "Alignment ID" column and annotation_file's selected ID column
+          matching_indices <- which(annotation_file[[id_column]] == metaboliteProfile$'Alignment ID'[i])
+          
+          # Check data types and unique values of IDs column in annotation_file
+          
+          # Check if any matches were found
+          if (length(matching_indices) > 0) {
+            # Update the specified column (Annotation) in metaboliteProfile with the corresponding value from annotation_file
+            metaboliteProfile[i, "Annotation"] <- annotation_file[matching_indices[1], selected_column]
+          } else {
+            # Handle the case where no match was found (you can add custom logic here)
+            warning(paste("No match found for row", i, "in metaboliteProfile"))
+          }
         }
+      } else {
+        message("Invalid column selection. Skipping annotation step.")
       }
-    } else {
-      message("Invalid column selection. Skipping annotation step.")
     }
-    
   }
   
   #####################################################################################################################################
-  #end of inserted for importing sirius annotation
+  #end of importing  annotation part1 from two
   
   listMatrixVals <- NULL
   
@@ -312,14 +314,11 @@ readProjectData <- function(fileLines, progress = FALSE)
     dataFrameHeader[3, target + 1] <- annotationColumnName
   }
 
+  #Start of importing annotation part2 from two
   ################################################################################
-  # ###adding HEX color codes from external annotations like Sirius to the annotationColorsMapInitValue of dataFrameHeader
-  #### asking for adding the annotation. Y  activates select and N ignors the adding annotation
-  # Snippet 2 - Adding HEX color codes from external annotations
+   #adding HEX color codes from external annotations to the annotationColorsMapInitValue of dataFrameHeader
   if (toupper(user_choice) == "Y") {
-    ##############################################################################
-    ###adding HEX color codes from external annotations like Sirius to the annotationColorsMapInitValue of dataFrameHeader
-    # Copy the selected column by user, Remove duplicates and exclude the first row
+      # Copy the selected column by user, Remove duplicates and exclude the first row
     uniqueAnnotations <- unique(unlist(strsplit(metaboliteProfile$Annotation, ",")))
     uniqueAnnotations <- paste0(uniqueAnnotations, "=")
     # Add a random string from the hex color list to each element of uniqueAnnotions
@@ -334,9 +333,10 @@ readProjectData <- function(fileLines, progress = FALSE)
     # Assuming dataFrameHeader is your data frame
     dataFrameHeader$Annotation[2] <- uniqueAnnotationsHexs
   }
-      ###end of adding HEX color codes from external annotations like Sirius to the annotationColorsMapInitValue of dataFrameHeader
-
-    annotationColumnIndex <- which(metaboliteProfileColumnNames == annotationColumnName)
+################################################################################
+#End of importing  annotation part2 from two
+  
+  annotationColumnIndex <- which(metaboliteProfileColumnNames == annotationColumnName)
   annotationColorsValue <- dataFrameHeader[2, annotationColumnIndex]
   
   dataFrameMS1Header <- dataFrameHeader[, seq_len(numberOfMetaboliteProfileColumns)]
