@@ -42,6 +42,17 @@ First, we load the data and summarise it
 
 fileName <- system.file("extdata/showcase/Project_file_showcase_annotated.csv.gz", package = "MetFamily")
 
+#qfeatures <- readMSDial()
+
+# f <- system.file("extdata", "minimona.msp", package = "MsBackendMsp") ## Change to MetFamily example files
+# spectra <- readMsp(f)
+
+#convertQfeaturesSpectraToProjectFile <- function(qfeatures, 
+#                                 spectra, 
+#                                 parameterSet, 
+#                                 progress = FALSE)
+
+
 project <- readClusterDataFromProjectFile(file = fileName)
 
 ```
