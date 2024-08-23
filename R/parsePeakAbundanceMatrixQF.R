@@ -42,10 +42,8 @@ parsePeakAbundanceMatrixQF <- function(qfeatures,
   
 
   
-  if(nrow(colData(qfeatures))>0){
-    
-    dataColumnStartEndIndeces <- 1
-    numberOfDataColumns   <- nrow(colData(qfeatures))
+  if(ncol(assay(qfeatures))>0){
+    numberOfDataColumns   <- ncol(assay(qf))
     sampleClass           <- colData(qfeatures)$Class
     sampleType            <- colData(qfeatures)$Type
     sampleInjectionOrder  <- colData(qfeatures)$"Injection order"
@@ -74,7 +72,7 @@ parsePeakAbundanceMatrixQF <- function(qfeatures,
     
     ## replace -1 by 0
     if(numberOfDataColumns > 0) {
-      for(colIdx in dataColumnStartEndIndeces[[1]]:dataColumnStartEndIndeces[[2]]){
+      for(colIdx in ncol(rowData(qf)[[1]]):ncol(dataFrame)){
         dataFrame[ , colIdx] <- gsub(x = gsub(x = dataFrame[ , colIdx], pattern = "\\.", replacement = ""), pattern = ",", replacement = ".")
       }
     }
@@ -97,7 +95,7 @@ parsePeakAbundanceMatrixQF <- function(qfeatures,
   
   ## replace -1 by 0
   if(numberOfDataColumns > 0){
-    for(colIdx in dataColumnStartEndIndeces[[1]]:dataColumnStartEndIndeces[[2]]){
+    for(colIdx in ncol(rowData(qf)[[1]]):ncol(dataFrame)){
       dataFrame[ , colIdx] <- as.numeric(dataFrame[ , colIdx])
       if(!is.na(sum(dataFrame[,colIdx] == -1)))
         dataFrame[(dataFrame[,colIdx] == -1),colIdx] <- 0
@@ -114,7 +112,7 @@ parsePeakAbundanceMatrixQF <- function(qfeatures,
     precursorsToRemove <- vector(mode = "logical", length = numberOfPrecursors)
     
     if(numberOfDataColumns > 0){
-      intensities <- dataFrame[ , dataColumnStartEndIndeces[[1]]:dataColumnStartEndIndeces[[2]]]
+      intensities <- dataFrame[ , ncol(rowData(qf)[[1]]):ncol(dataFrame)]
       medians <- apply(X = as.matrix(intensities), MARGIN = 1, FUN = median)
     }
     
@@ -140,6 +138,9 @@ parsePeakAbundanceMatrixQF <- function(qfeatures,
         validPrecursorsInIntensity <- TRUE
       }
       
+      #print(paste("validPrecursorsInRt", validPrecursorsInRt))
+      #print(paste("validPrecursorsInIntensity", validPrecursorsInIntensity))
+      #print(paste("validPrecursorsInMz", validPrecursorsInMz))
       if(any(validPrecursorsInRt & validPrecursorsInMz & validPrecursorsInIntensity))
         precursorsToRemove[[precursorIdx]] <- TRUE
     }
