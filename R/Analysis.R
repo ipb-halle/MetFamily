@@ -132,16 +132,12 @@ calculateDistanceMatrix <- function(dataList, filter, distanceMeasure = "Jaccard
                lastPrecursor <- i
                if(!is.na(progress))  if(progress)  incProgress(amount = precursorProgress,     detail = paste("Distance ", i, " / ", numberOfPrecursors, sep = "")) else print(paste("Distance ", i, " / ", numberOfPrecursors, sep = ""))
              }
-             #if(numberOfPrecursors >= 10 & ((i %% (as.integer(numberOfPrecursors/10))) == 0))
-             #  if(progress)  incProgress(amount = 1 / 10, detail = paste("Distances ", i, " / ", numberOfPrecursors, sep = ""))
+             
              for(j in seq_len(numberOfPrecursors)){
                if(i == j){
                  distanceMatrix[i, j] <- 0
                  next
                }
-               
-               #distanceMatrix[i, j] <- 1 - length(which(featureMatrixBinary[i, ] & featureMatrixBinary[j, ])) / length(which(featureMatrixBinary[i, ] | featureMatrixBinary[j, ]))
-               #distanceMatrix[i, j] <- 1 - sum(featureMatrixBinary[i, ] & featureMatrixBinary[j, ]) / sum(featureMatrixBinary[i, ] | featureMatrixBinary[j, ])
                
                intersectionCount <- sum(featureIndeces[[i]] %in% featureIndeces[[j]])
                distanceMatrix[i, j] <- 1 - intersectionCount / (length(featureIndeces[[i]]) + length(featureIndeces[[j]]) - intersectionCount)
