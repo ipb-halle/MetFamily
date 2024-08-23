@@ -5,6 +5,7 @@ exportPattern("^[^\\.]")
 import(egg)
 importFrom("grDevices", "as.raster", "rainbow", "rgb")
 importFrom("methods", "as")
+importFrom("foreach", "foreach", "%do%", "%dopar%")
 importFrom("graphics", "axis", "mtext", "par", "plot.new",
            "plot.window", "points", "rasterImage", "rect", "segments",
            "title")

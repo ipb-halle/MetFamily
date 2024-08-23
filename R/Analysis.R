@@ -123,26 +123,24 @@ calculateDistanceMatrix <- function(dataList, filter, distanceMeasure = "Jaccard
          "Jaccard"={
            featureIndeces <- dataList$featureIndeces[filter]
            
-           distanceMatrix <- matrix(nrow = numberOfPrecursors, ncol = numberOfPrecursors)
-           for(i in seq_len(numberOfPrecursors)){
-             time <- proc.time()["user.self"]
-             if(time - lastOut > 1){
-               lastOut <- time
-               precursorProgress <- (i - lastPrecursor) / numberOfPrecursors
-               lastPrecursor <- i
-               if(!is.na(progress))  if(progress)  incProgress(amount = precursorProgress,     detail = paste("Distance ", i, " / ", numberOfPrecursors, sep = "")) else print(paste("Distance ", i, " / ", numberOfPrecursors, sep = ""))
-             }
-             
-             for(j in seq_len(numberOfPrecursors)){
-               if(i == j){
-                 distanceMatrix[i, j] <- 0
-                 next
-               }
+           distanceMatrix <- do.call(rbind, parallel::mclapply(featureIndeces, function(x) {
+             # Convert vectors to sets
+             set1 <- unique(x)
+
+             row <- sapply(featureIndeces, function(y) {
+               # Convert vectors to sets
+               set2 <- unique(y)
                
-               intersectionCount <- sum(featureIndeces[[i]] %in% featureIndeces[[j]])
-               distanceMatrix[i, j] <- 1 - intersectionCount / (length(featureIndeces[[i]]) + length(featureIndeces[[j]]) - intersectionCount)
-             }
-           }
+               # Calculate the intersection and union of the two sets
+               intersection <- length(intersect(set1, set2))
+               union <- length(union(set1, set2))
+               
+               # Calculate the Jaccard index
+               jaccard <- 1- intersection / union
+               jaccard
+             })
+             row
+           }))
          },
          "Jaccard (intensity-weighted pure)"={
            featureIndeces <- dataList$featureIndeces[filter]
