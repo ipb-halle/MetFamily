@@ -19,7 +19,6 @@ parsePeakAbundanceMatrixQF <- function(qfeatures,
                                      progress=FALSE)
 {
   ## read file
-  
   if(!is.na(progress)) {
     if(progress) {
       incProgress(amount = 0.1, detail = paste("Parsing MS1 file content...", sep = ""))
@@ -44,9 +43,7 @@ parsePeakAbundanceMatrixQF <- function(qfeatures,
   dataColumnStartEndIndeces <- c(numRowDataCols+1,ncol(dataFrame))
   numberOfPrecursors <- nrow(dataFrame)
   numberOfPrecursorsPrior <- numberOfPrecursors 
-  
 
-  
   if(ncol(assay(qfeatures))>0){
     numberOfDataColumns   <- ncol(assay(qfeatures))
     sampleClass           <- colData(qfeatures)$Class
@@ -120,7 +117,6 @@ parsePeakAbundanceMatrixQF <- function(qfeatures,
       intensities <- dataFrame[ , (numRowDataCols+1):ncol(dataFrame)]
       medians <- apply(X = as.matrix(intensities), MARGIN = 1, FUN = median)
     }
-    save(dataFrame, intensities, medians, file="IntMedDf.Rdata")
     
     for(precursorIdx in seq_len(numberOfPrecursors)){
       if((precursorIdx %% (as.integer(numberOfPrecursors/10))) == 0)
@@ -143,19 +139,10 @@ parsePeakAbundanceMatrixQF <- function(qfeatures,
       } else {
         validPrecursorsInIntensity <- TRUE
       }
-      
-      #print(paste("validPrecursorsInRt", validPrecursorsInRt))
-      #print(paste("validPrecursorsInIntensity", validPrecursorsInIntensity))
-      #print(paste("validPrecursorsInMz", validPrecursorsInMz))
+
       if(any(validPrecursorsInRt & validPrecursorsInMz & validPrecursorsInIntensity))
         precursorsToRemove[[precursorIdx]] <- TRUE
-      
-      if (is.na(validPrecursorsInRt[precursorIdx]) && 
-            is.na(validPrecursorsInMz[precursorIdx]) && 
-            is.na(validPrecursorsInIntensity[precursorIdx])) {
-        print(paste("Precursor index with all NAs:", precursorIdx))
-      }
-    }  
+    }
     
     ## remove isotopes
     dataFrame <- dataFrame[!precursorsToRemove, ]
