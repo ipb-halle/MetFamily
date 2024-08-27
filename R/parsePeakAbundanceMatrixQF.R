@@ -38,8 +38,10 @@ parsePeakAbundanceMatrixQF <- function(qfeatures,
   cols_to_keep <- which(!colnames(rowData(qfeatures))[[1]] %in% cols_to_exclude)
 
   dataFrame <- cbind(rowData(qfeatures)[[1]][,cols_to_keep] ,assay(qfeatures))
-
-  numRowDataCols <- ncol(rowData(qfeatures)[[1]]) 
+  dataFrame <- as.data.frame(dataFrame)
+  oldFormat <- ncol(colData(qfeatures))==3
+  numRowDataCols <- ncol(rowData(qfeatures)[[1]])
+  dataColumnStartEndIndeces <- c(numRowDataCols+1,ncol(dataFrame))
   numberOfPrecursors <- nrow(dataFrame)
   numberOfPrecursorsPrior <- numberOfPrecursors 
   

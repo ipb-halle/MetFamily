@@ -8,12 +8,12 @@ test_that("exampledata", {
                                    progress=FALSE)
   
   ## Test dimensions  
-  expect_equal(nrow(data$dataFrame1), 5403)
-  expect_equal(ncol(data$dataFrame1),   20)
+  expect_equal(nrow(data$dataFrame), 5403)
+  expect_equal(ncol(data$dataFrame),   20)
   
   ## Test some values
-  expect_true(all(summary(t(data$dataFrame1[1,c("TRI03", "TRI02", "TRI01", "LVS03", "LVS02", "LVS01")])) == c("Min.   : 236.0  ", "1st Qu.: 306.2  ", "Median : 357.5  ", "Mean   : 501.0  ", "3rd Qu.: 554.2  ", "Max.   :1146.0  ")))
-  expect_true(all(round(summary(data$dataFrame1[, "TRI01"])) == c(0,     809,    1537,    9818,    3207, 4407926)))
+  expect_true(all(summary(t(data$dataFrame[1,c("TRI03", "TRI02", "TRI01", "LVS03", "LVS02", "LVS01")])) == c("Min.   : 236.0  ", "1st Qu.: 306.2  ", "Median : 357.5  ", "Mean   : 501.0  ", "3rd Qu.: 554.2  ", "Max.   :1146.0  ")))
+  expect_true(all(round(summary(data$dataFrame[, "TRI01"])) == c(0,     809,    1537,    9818,    3207, 4407926)))
 })
 
 
