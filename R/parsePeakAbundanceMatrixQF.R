@@ -39,7 +39,7 @@ parsePeakAbundanceMatrixQF <- function(qfeatures,
 
   dataFrame <- cbind(rowData(qfeatures)[[1]][,cols_to_keep] ,assay(qfeatures))
 
-  ncol(rowData(qfeatures)[[1]]) 
+  numRowDataCols <- ncol(rowData(qfeatures)[[1]]) 
   numberOfPrecursors <- nrow(dataFrame)
   numberOfPrecursorsPrior <- numberOfPrecursors 
   
@@ -75,7 +75,7 @@ parsePeakAbundanceMatrixQF <- function(qfeatures,
     
     ## replace -1 by 0
     if(numberOfDataColumns > 0) {
-      for(colIdx in ncol(rowData(qfeatures)[[1]]):ncol(dataFrame)){
+      for(colIdx in (numRowDataCols+1):ncol(dataFrame)){
         dataFrame[ , colIdx] <- gsub(x = gsub(x = dataFrame[ , colIdx], pattern = "\\.", replacement = ""), pattern = ",", replacement = ".")
       }
     }
@@ -98,7 +98,7 @@ parsePeakAbundanceMatrixQF <- function(qfeatures,
   
   ## replace -1 by 0
   if(numberOfDataColumns > 0){
-    for(colIdx in ncol(rowData(qfeatures)[[1]]):ncol(dataFrame)){
+    for(colIdx in (numRowDataCols+1):ncol(dataFrame)){
       dataFrame[ , colIdx] <- as.numeric(dataFrame[ , colIdx])
       if(!is.na(sum(dataFrame[,colIdx] == -1)))
         dataFrame[(dataFrame[,colIdx] == -1),colIdx] <- 0
@@ -115,7 +115,7 @@ parsePeakAbundanceMatrixQF <- function(qfeatures,
     precursorsToRemove <- vector(mode = "logical", length = numberOfPrecursors)
     
     if(numberOfDataColumns > 0){
-      intensities <- dataFrame[ , ncol(rowData(qfeatures[[1]])):ncol(dataFrame)]
+      intensities <- dataFrame[ , (numRowDataCols+1):ncol(dataFrame)]
       medians <- apply(X = as.matrix(intensities), MARGIN = 1, FUN = median)
     }
     save(dataFrame, intensities, medians, file="IntMedDf.Rdata")
