@@ -19,7 +19,7 @@ parsePeakAbundanceMatrixQF <- function(qfeatures,
                                      progress=FALSE)
 {
   ## read file
-
+  
   if(!is.na(progress)) {
     if(progress) {
       incProgress(amount = 0.1, detail = paste("Parsing MS1 file content...", sep = ""))
@@ -27,6 +27,9 @@ parsePeakAbundanceMatrixQF <- function(qfeatures,
       print(paste("Parsing MS1 file content...", sep = ""))
     } 
   }
+
+
+  
   
   cols_to_exclude <- c("Reference RT","Reference m/z","Comment",
                        "Manually modified for quantification",
@@ -43,7 +46,7 @@ parsePeakAbundanceMatrixQF <- function(qfeatures,
 
   
   if(ncol(assay(qfeatures))>0){
-    numberOfDataColumns   <- ncol(assay(qf))
+    numberOfDataColumns   <- ncol(assay(qfeatures))
     sampleClass           <- colData(qfeatures)$Class
     sampleType            <- colData(qfeatures)$Type
     sampleInjectionOrder  <- colData(qfeatures)$"Injection order"
@@ -72,7 +75,7 @@ parsePeakAbundanceMatrixQF <- function(qfeatures,
     
     ## replace -1 by 0
     if(numberOfDataColumns > 0) {
-      for(colIdx in ncol(rowData(qf)[[1]]):ncol(dataFrame)){
+      for(colIdx in ncol(rowData(qfeatures)[[1]]):ncol(dataFrame)){
         dataFrame[ , colIdx] <- gsub(x = gsub(x = dataFrame[ , colIdx], pattern = "\\.", replacement = ""), pattern = ",", replacement = ".")
       }
     }
@@ -95,7 +98,7 @@ parsePeakAbundanceMatrixQF <- function(qfeatures,
   
   ## replace -1 by 0
   if(numberOfDataColumns > 0){
-    for(colIdx in ncol(rowData(qf)[[1]]):ncol(dataFrame)){
+    for(colIdx in ncol(rowData(qfeatures)[[1]]):ncol(dataFrame)){
       dataFrame[ , colIdx] <- as.numeric(dataFrame[ , colIdx])
       if(!is.na(sum(dataFrame[,colIdx] == -1)))
         dataFrame[(dataFrame[,colIdx] == -1),colIdx] <- 0
@@ -112,9 +115,10 @@ parsePeakAbundanceMatrixQF <- function(qfeatures,
     precursorsToRemove <- vector(mode = "logical", length = numberOfPrecursors)
     
     if(numberOfDataColumns > 0){
-      intensities <- dataFrame[ , ncol(rowData(qf)[[1]]):ncol(dataFrame)]
+      intensities <- dataFrame[ , ncol(rowData(qfeatures[[1]])):ncol(dataFrame)]
       medians <- apply(X = as.matrix(intensities), MARGIN = 1, FUN = median)
     }
+    save(dataFrame, intensities, medians, file="IntMedDf.Rdata")
     
     for(precursorIdx in seq_len(numberOfPrecursors)){
       if((precursorIdx %% (as.integer(numberOfPrecursors/10))) == 0)
@@ -143,7 +147,13 @@ parsePeakAbundanceMatrixQF <- function(qfeatures,
       #print(paste("validPrecursorsInMz", validPrecursorsInMz))
       if(any(validPrecursorsInRt & validPrecursorsInMz & validPrecursorsInIntensity))
         precursorsToRemove[[precursorIdx]] <- TRUE
-    }
+      
+      if (is.na(validPrecursorsInRt[precursorIdx]) && 
+            is.na(validPrecursorsInMz[precursorIdx]) && 
+            is.na(validPrecursorsInIntensity[precursorIdx])) {
+        print(paste("Precursor index with all NAs:", precursorIdx))
+      }
+    }  
     
     ## remove isotopes
     dataFrame <- dataFrame[!precursorsToRemove, ]
