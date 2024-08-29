@@ -69,12 +69,12 @@ readMSDial <- function(file, version){
     rownames(counts) <- ids
     
     # Ensure row names of colData match counts column names
-    colData <- DataFrame(t(colDataRaw[-nrow(colDataRaw), -1]))
+    colData <- data.frame(t(colDataRaw[-nrow(colDataRaw), -1]))
     rownames(colData) <- as.character(colDataRaw[nrow(colDataRaw), -1])
     colnames(colData) <- as.character(colDataRaw[-nrow(colDataRaw), 1])
 
     # Ensure row names of rowData match counts row names
-    rowData <- DataFrame(rowDataRaw[-1, ], row.names = ids)
+    rowData <- data.frame(rowDataRaw[-1, ], row.names = ids)
     colnames(rowData) <- as.character(rowDataRaw[1,])
 
     # Create SummarizedExperiment object

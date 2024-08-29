@@ -1585,6 +1585,10 @@ convertToProjectFile2 <- function(filePeakMatrixQF,
   metaboliteFamilies <- metaboliteFamilies[orderMS1features]
   furtherProperties <- lapply(X = furtherProperties, FUN = function(props){props[orderMS1features]})
   
+  #TODO: resolve ?
+  #temporary fix
+  #filePeakMatrix <- NULL
+  
   if(!is.null(filePeakMatrix)){
     ## allHits: dataFrame$"Average Mz" --> precursorMz; allHits indexes the spectraList
     diffAll <- abs(outer(X = precursorMz, Y = dataFrame$"Average Mz", FUN = function(x, y){abs(x-y)}))

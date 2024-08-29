@@ -11,6 +11,7 @@
 #' @export
 #'
 #' @examples
+
 parsePeakAbundanceMatrixQF <- function(qfeatures, 
                                      doPrecursorDeisotoping, 
                                      mzDeviationInPPM_precursorDeisotoping, 
@@ -19,7 +20,6 @@ parsePeakAbundanceMatrixQF <- function(qfeatures,
                                      progress=FALSE)
 {
   ## read file
-
   if(!is.na(progress)) {
     if(progress) {
       incProgress(amount = 0.1, detail = paste("Parsing MS1 file content...", sep = ""))
@@ -27,25 +27,29 @@ parsePeakAbundanceMatrixQF <- function(qfeatures,
       print(paste("Parsing MS1 file content...", sep = ""))
     } 
   }
+
+
+  
   
   cols_to_exclude <- c("Reference RT","Reference m/z","Comment",
                        "Manually modified for quantification",
                        "Total score","RT similarity","Average","Stdev") 
   
   cols_to_keep <- which(!colnames(rowData(qfeatures))[[1]] %in% cols_to_exclude)
-
+ 
   dataFrame <- cbind(rowData(qfeatures)[[1]][,cols_to_keep] ,assay(qfeatures))
-
-  ncol(rowData(qfeatures)[[1]]) 
+  #workaround for avoiding change in colnames during coercion
+  cnames <- colnames(dataFrame)
+  dataFrame <- as.data.frame(dataFrame)
+  colnames(dataFrame) <- cnames
+  oldFormat <- ncol(colData(qfeatures))==3
+  numRowDataCols <- ncol(rowData(qfeatures)[[1]])
+  dataColumnStartEndIndeces <- c(numRowDataCols+1,ncol(dataFrame))
   numberOfPrecursors <- nrow(dataFrame)
   numberOfPrecursorsPrior <- numberOfPrecursors 
-  
 
-  
-  if(nrow(colData(qfeatures))>0){
-    
-    dataColumnStartEndIndeces <- 1
-    numberOfDataColumns   <- nrow(colData(qfeatures))
+  if(ncol(assay(qfeatures))>0){
+    numberOfDataColumns   <- ncol(assay(qfeatures))
     sampleClass           <- colData(qfeatures)$Class
     sampleType            <- colData(qfeatures)$Type
     sampleInjectionOrder  <- colData(qfeatures)$"Injection order"
@@ -74,7 +78,7 @@ parsePeakAbundanceMatrixQF <- function(qfeatures,
     
     ## replace -1 by 0
     if(numberOfDataColumns > 0) {
-      for(colIdx in dataColumnStartEndIndeces[[1]]:dataColumnStartEndIndeces[[2]]){
+      for(colIdx in (numRowDataCols+1):ncol(dataFrame)){
         dataFrame[ , colIdx] <- gsub(x = gsub(x = dataFrame[ , colIdx], pattern = "\\.", replacement = ""), pattern = ",", replacement = ".")
       }
     }
@@ -97,13 +101,13 @@ parsePeakAbundanceMatrixQF <- function(qfeatures,
   
   ## replace -1 by 0
   if(numberOfDataColumns > 0){
-    for(colIdx in dataColumnStartEndIndeces[[1]]:dataColumnStartEndIndeces[[2]]){
+    for(colIdx in (numRowDataCols+1):ncol(dataFrame)){
       dataFrame[ , colIdx] <- as.numeric(dataFrame[ , colIdx])
       if(!is.na(sum(dataFrame[,colIdx] == -1)))
         dataFrame[(dataFrame[,colIdx] == -1),colIdx] <- 0
     }
   }
-  
+  vals <- NULL
   ## deisotoping
   numberOfRemovedIsotopePeaks <- 0
   if(doPrecursorDeisotoping & !is.null(dataFrame$"Average Mz")){
@@ -114,7 +118,7 @@ parsePeakAbundanceMatrixQF <- function(qfeatures,
     precursorsToRemove <- vector(mode = "logical", length = numberOfPrecursors)
     
     if(numberOfDataColumns > 0){
-      intensities <- dataFrame[ , dataColumnStartEndIndeces[[1]]:dataColumnStartEndIndeces[[2]]]
+      intensities <- dataFrame[ , (numRowDataCols+1):ncol(dataFrame)]
       medians <- apply(X = as.matrix(intensities), MARGIN = 1, FUN = median)
     }
     
@@ -139,21 +143,23 @@ parsePeakAbundanceMatrixQF <- function(qfeatures,
       } else {
         validPrecursorsInIntensity <- TRUE
       }
-      
+
       if(any(validPrecursorsInRt & validPrecursorsInMz & validPrecursorsInIntensity))
         precursorsToRemove[[precursorIdx]] <- TRUE
-    }
     
+    }
+   
     ## remove isotopes
     dataFrame <- dataFrame[!precursorsToRemove, ]
     
     numberOfRemovedIsotopePeaks <- sum(precursorsToRemove)
     numberOfPrecursors <- nrow(dataFrame)
   }
-  
+
   if(!is.na(progress))  if(progress)  incProgress(amount = 0, detail = paste("Boxing...", sep = "")) else print(paste("Boxing...", sep = ""))
   returnObj <- list()
   returnObj$dataFrame <- dataFrame
+  returnObj$vals <- vals
   
   ## meta
   returnObj$oldFormat <- oldFormat
