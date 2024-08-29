@@ -44,7 +44,8 @@ Remotes:
 Suggests:
     knitr,
     BiocStyle,
-    testthat
+    testthat,
+shinytest2
 VignetteBuilder: knitr
 Maintainer: Hendrik Treutler<hendrik.treutler@ipb-halle.de>
 Description: We present a novel approach for the untargeted discovery 
