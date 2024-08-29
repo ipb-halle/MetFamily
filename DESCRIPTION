@@ -40,8 +40,7 @@ Imports:
     stats,
     utils
 Remotes: 
-    decisionpatterns/searchable,
-    r-universe::JanMarvin/openxlsx2
+    decisionpatterns/searchable
 Suggests:
     knitr,
     BiocStyle,
