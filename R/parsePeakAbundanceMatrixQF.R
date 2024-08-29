@@ -36,9 +36,12 @@ parsePeakAbundanceMatrixQF <- function(qfeatures,
                        "Total score","RT similarity","Average","Stdev") 
   
   cols_to_keep <- which(!colnames(rowData(qfeatures))[[1]] %in% cols_to_exclude)
-
+ 
   dataFrame <- cbind(rowData(qfeatures)[[1]][,cols_to_keep] ,assay(qfeatures))
-  dataFrame <- as.data.frame(dataFrame, make.names = FALSE)
+  #workaround for avoiding change in colnames during coercion
+  cnames <- colnames(dataFrame)
+  dataFrame <- as.data.frame(dataFrame)
+  colnames(dataFrame) <- cnames
   oldFormat <- ncol(colData(qfeatures))==3
   numRowDataCols <- ncol(rowData(qfeatures)[[1]])
   dataColumnStartEndIndeces <- c(numRowDataCols+1,ncol(dataFrame))
@@ -63,11 +66,11 @@ parsePeakAbundanceMatrixQF <- function(qfeatures,
     batchID              <- NULL
   }
   
-  commaNumbers <- sum(grepl(x = dataFrame$Average.Mz, pattern = "^(\\d+,\\d+$)|(^\\d+$)"))
+  commaNumbers <- sum(grepl(x = dataFrame$"Average Mz", pattern = "^(\\d+,\\d+$)|(^\\d+$)"))
   decimalSeparatorIsComma <- commaNumbers == nrow(dataFrame)
   if(decimalSeparatorIsComma){
-    if(!is.null(dataFrame$Average.Rt.min.))     dataFrame$Average.Rt.min.     <- gsub(x = gsub(x = dataFrame$Average.Rt.min., pattern = "\\.", replacement = ""), pattern = ",", replacement = ".")
-    if(!is.null(dataFrame$Average.Mz))          dataFrame$Average.Mz          <- gsub(x = gsub(x = dataFrame$Average.Mz, pattern = "\\.", replacement = ""), pattern = ",", replacement = ".")
+    if(!is.null(dataFrame$"Average Rt(min)"))     dataFrame$"Average Rt(min)"     <- gsub(x = gsub(x = dataFrame$"Average Rt(min)", pattern = "\\.", replacement = ""), pattern = ",", replacement = ".")
+    if(!is.null(dataFrame$"Average Mz"))          dataFrame$"Average Mz"          <- gsub(x = gsub(x = dataFrame$"Average Mz", pattern = "\\.", replacement = ""), pattern = ",", replacement = ".")
     if(!is.null(dataFrame$"Fill %"))              dataFrame$"Fill %"              <- gsub(x = gsub(x = dataFrame$"Fill %", pattern = "\\.", replacement = ""), pattern = ",", replacement = ".")
     if(!is.null(dataFrame$"Dot product"))         dataFrame$"Dot product"         <- gsub(x = gsub(x = dataFrame$"Dot product", pattern = "\\.", replacement = ""), pattern = ",", replacement = ".")
     if(!is.null(dataFrame$"Reverse dot product")) dataFrame$"Reverse dot product" <- gsub(x = gsub(x = dataFrame$"Reverse dot product", pattern = "\\.", replacement = ""), pattern = ",", replacement = ".")
@@ -83,8 +86,8 @@ parsePeakAbundanceMatrixQF <- function(qfeatures,
   
   ###################
   ## column formats
-  if(!is.null(dataFrame$Average.Rt.min.))     dataFrame$Average.Rt.min.     <- as.numeric(dataFrame$Average.Rt.min.)
-  if(!is.null(dataFrame$Average.Mz))          dataFrame$Average.Mz          <- as.numeric(dataFrame$Average.Mz)
+  if(!is.null(dataFrame$"Average Rt(min)"))     dataFrame$"Average Rt(min)"     <- as.numeric(dataFrame$"Average Rt(min)")
+  if(!is.null(dataFrame$"Average Mz"))          dataFrame$"Average Mz"          <- as.numeric(dataFrame$"Average Mz")
   if(!is.null(dataFrame$"Fill %"))              dataFrame$"Fill %"              <- as.numeric(dataFrame$"Fill %")
   if(!is.null(dataFrame$"MS/MS included"))      dataFrame$"MS/MS included"      <- as.logical(dataFrame$"MS/MS included")
   if(!is.null(dataFrame$"Dot product"))         dataFrame$"Dot product"         <- as.numeric(dataFrame$"Dot product")
@@ -93,8 +96,8 @@ parsePeakAbundanceMatrixQF <- function(qfeatures,
   
   #####################
   ## sorted by m/z (needed for deisotoping)
-  if(!is.null(dataFrame$Average.Mz))
-    dataFrame <- dataFrame[order(dataFrame$Average.Mz), ]
+  if(!is.null(dataFrame$"Average Mz"))
+    dataFrame <- dataFrame[order(dataFrame$"Average Mz"), ]
   
   ## replace -1 by 0
   if(numberOfDataColumns > 0){
@@ -107,7 +110,7 @@ parsePeakAbundanceMatrixQF <- function(qfeatures,
   vals <- NULL
   ## deisotoping
   numberOfRemovedIsotopePeaks <- 0
-  if(doPrecursorDeisotoping & !is.null(dataFrame$Average.Mz)){
+  if(doPrecursorDeisotoping & !is.null(dataFrame$"Average Mz")){
     if(!is.na(progress))  if(progress)  incProgress(amount = 0, detail = paste("Precursor deisotoping...", sep = "")) else print(paste("Precursor deisotoping...", sep = ""))
     distance13Cminus12C <- 1.0033548378
     
@@ -123,15 +126,15 @@ parsePeakAbundanceMatrixQF <- function(qfeatures,
       if((precursorIdx %% (as.integer(numberOfPrecursors/10))) == 0)
         if(!is.na(progress))  if(progress)  incProgress(amount = 0.0, detail = paste("Precursor deisotoping ", precursorIdx, " / ", numberOfPrecursors, sep = "")) else print(paste("Precursor deisotoping ", precursorIdx, " / ", numberOfPrecursors, sep = ""))
       
-      mzError <- dataFrame$Average.Mz[[precursorIdx]] * mzDeviationInPPM_precursorDeisotoping / 1000000
+      mzError <- dataFrame$"Average Mz"[[precursorIdx]] * mzDeviationInPPM_precursorDeisotoping / 1000000
       mzError <- max(mzError, mzDeviationAbsolute_precursorDeisotoping)
       
       ## RT difference <= maximumRtDifference
-      validPrecursorsInRt <- abs(dataFrame$Average.Rt.min.[[precursorIdx]] - dataFrame$Average.Rt.min.[-precursorIdx]) <= maximumRtDifference
+      validPrecursorsInRt <- abs(dataFrame$"Average Rt(min)"[[precursorIdx]] - dataFrame$"Average Rt(min)"[-precursorIdx]) <= maximumRtDifference
       
       ## MZ difference around 1.0033548378 (first isotope) or 1.0033548378 * 2 (second isotope)
-      validPrecursorsInMz1 <- abs((dataFrame$Average.Mz[[precursorIdx]] - distance13Cminus12C * 1) - dataFrame$Average.Mz[-precursorIdx]) <= mzError
-      validPrecursorsInMz2 <- abs((dataFrame$Average.Mz[[precursorIdx]] - distance13Cminus12C * 2) - dataFrame$Average.Mz[-precursorIdx]) <= mzError
+      validPrecursorsInMz1 <- abs((dataFrame$"Average Mz"[[precursorIdx]] - distance13Cminus12C * 1) - dataFrame$"Average Mz"[-precursorIdx]) <= mzError
+      validPrecursorsInMz2 <- abs((dataFrame$"Average Mz"[[precursorIdx]] - distance13Cminus12C * 2) - dataFrame$"Average Mz"[-precursorIdx]) <= mzError
       validPrecursorsInMz <- validPrecursorsInMz1 | validPrecursorsInMz2
       
       ## intensity gets smaller in the isotope spectrum
