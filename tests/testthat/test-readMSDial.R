@@ -7,6 +7,7 @@ test_that("exampledata", {
                                    maximumRtDifference=0.05,
                                    progress=FALSE)
   
+  
   ## Test dimensions  
   expect_equal(nrow(data$dataFrame), 5403)
   expect_equal(ncol(data$dataFrame),   20)
@@ -35,5 +36,6 @@ test_that("Number of Rows and Columns are correct", {
   expect_equal(as.integer(ncolQf), 20)
   
 })
+
 
 
