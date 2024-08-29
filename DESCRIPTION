@@ -45,7 +45,7 @@ Suggests:
     knitr,
     BiocStyle,
     testthat,
-shinytest2
+    shinytest2
 VignetteBuilder: knitr
 Maintainer: Hendrik Treutler<hendrik.treutler@ipb-halle.de>
 Description: We present a novel approach for the untargeted discovery 
