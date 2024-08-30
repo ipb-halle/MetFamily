@@ -1,8 +1,7 @@
 # syntax=docker/dockerfile:1.3-labs
 FROM rocker/shiny:4.3.2
 
-MAINTAINER Steffen Neumann <sneumann@ipb-halle.de>
-
+LABEL maintainer="Steffen Neumann <sneumann@ipb-halle.de>"
 LABEL Description="MetFamily Base Image with dependencies."
 
 ## Older base images might need libigraph0-dev instead of libigraph-dev 
