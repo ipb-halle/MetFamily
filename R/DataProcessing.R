@@ -196,6 +196,8 @@ readProjectData <- function(fileLines, progress = FALSE)
   listMatrixRows <- NULL
   listMatrixCols <- NULL
 
+  ## Disable command line reading of answer
+  if (FALSE) {
   ################################################################################
   #Start of importing  annotation part1 from two
   # Display the message and give the user the option to choose whether to upload the annotation file or not. 
@@ -256,6 +258,7 @@ readProjectData <- function(fileLines, progress = FALSE)
   
   #####################################################################################################################################
   #end of importing  annotation part1 from two
+  }
   
   listMatrixVals <- NULL
   
@@ -314,6 +317,8 @@ readProjectData <- function(fileLines, progress = FALSE)
     dataFrameHeader[3, target + 1] <- annotationColumnName
   }
 
+  ## STN: Disabled. 
+  if (FALSE) {
   #Start of importing annotation part2 from two
   ################################################################################
    #adding HEX color codes from external annotations to the annotationColorsMapInitValue of dataFrameHeader
@@ -335,6 +340,7 @@ readProjectData <- function(fileLines, progress = FALSE)
   }
 ################################################################################
 #End of importing  annotation part2 from two
+  }
   
   annotationColumnIndex <- which(metaboliteProfileColumnNames == annotationColumnName)
   annotationColorsValue <- dataFrameHeader[2, annotationColumnIndex]
