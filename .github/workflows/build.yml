@@ -109,7 +109,7 @@ jobs:
       # Steps 9 and 10 (macOS and Windows dependencies) removed
       - uses: r-lib/actions/setup-r-dependencies@v2
         with:
-          extra-packages: any::rcmdcheck, testthat, PEcAnRTM, rjags
+          extra-packages: any::rcmdcheck, testthat, openxlsx2
           needs: check
           dependencies: '"hard"'
   
