@@ -4,7 +4,7 @@ Title: MetFamily: Discovering Regulated Metabolite Families in Untargeted Metabo
 Version: 0.99.4
 Date: 2024-08-22
 Author: c( person("Hendrik", "Treutler, role = c("aut"), email = "hendrik.treutler@ipb-halle.de"),
-           person("Khabat", "Vahabi, role = c("aut"), email = "khabat.vahabi@ipb-halle.de"),
+           person("Khabat", "Vahabi", role = c("aut"), email = "khabat.vahabi@ipb-halle.de"),
            person("Norman", "Storz", role = c("aut"), email = "nstorz@ipb-halle.de"),
            person(given = "Steffen", family = "Neumann", email = "sneumann@ipb-halle.de",
            role = c("aut", "cre"), comment = c(ORCID = "0000-0002-7899-7192")) )
@@ -41,14 +41,16 @@ Imports:
     QFeatures,
     stats,
     utils
-Remotes: decisionpatterns/searchable
+Remotes: 
+    decisionpatterns/searchable
 Suggests:
     knitr,
     BiocStyle,
-    testthat
+    testthat,
+    shinytest2
 VignetteBuilder: knitr
-Maintainer: Hendrik Treutler<hendrik.treutler@ipb-halle.de>
-Description: We present a novel approach for the untargeted discovery 
+Maintainer: Steffen Neumann <sneumann@ipb-halle.de>
+Description: Untargeted discovery 
   of metabolite families offering a bird's eye view of metabolic regulation 
   in comparative metabolomics. We implemented the presented methodology 
   in the easy-to-use web application MetFamily to enable the analysis 
