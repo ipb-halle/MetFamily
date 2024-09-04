@@ -40,7 +40,10 @@ Imports:
     methods,
     QFeatures,
     stats,
-    utils
+    utils,
+    S4Vectors, 
+    SummarizedExperiment,
+    openxlsx2
 Remotes: 
     decisionpatterns/searchable
 Suggests:
