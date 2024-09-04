@@ -202,8 +202,9 @@ readProjectData <- function(fileLines, progress = FALSE)
   #Start of importing  annotation part1 from two
   # Display the message and give the user the option to choose whether to upload the annotation file or not. 
   #If Y shows selection window for annotation file. if N ignores annotation process
-  message("Do you want to upload the annotation file? (Y/N)")
-  user_choice <- readline()
+  #message("Do you want to upload the annotation file? (Y/N)")
+  #user_choice <- readline()
+  user_choice <- "N"
   
   if (toupper(user_choice) == "Y") {
     

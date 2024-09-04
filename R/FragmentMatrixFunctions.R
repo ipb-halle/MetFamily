@@ -1396,7 +1396,7 @@ mzClustGeneric <- function(p,
   return(list(mat=groupmat,idx=groupindex))
 }
 
-convertToProjectFile <- function(filePeakMatrix, 
+convertToProjectFile <- function(filePeakMatrixPath, 
                                  fileSpectra, 
                                  parameterSet, 
                                  progress = FALSE){
@@ -1434,8 +1434,11 @@ convertToProjectFile <- function(filePeakMatrix,
   
   rm(returnObj)
   
+  
+  filePeakMatrixQF <- readMSDial(filePeakMatrixPath)
+  
   returnObj <- convertToProjectFile2(
-    filePeakMatrix = filePeakMatrix, 
+    filePeakMatrixQF = filePeakMatrixQF, 
     spectraList = spectraList, precursorMz = precursorMz, precursorRt = precursorRt, 
     metaboliteFamilies = rep(x = "", times = numberOfSpectra), uniqueMetaboliteFamilies = NULL, metaboliteFamilyColors = NULL, 
     parameterSet = parameterSet, 
@@ -1454,7 +1457,7 @@ convertToProjectFile <- function(filePeakMatrix,
   return(returnObj)
 }
 
-convertToProjectFile2 <- function(filePeakMatrix, 
+convertToProjectFile2 <- function(filePeakMatrixQF, 
                                   spectraList, 
                                   precursorMz, 
                                   precursorRt, 
@@ -1471,9 +1474,9 @@ convertToProjectFile2 <- function(filePeakMatrix,
   ## metabolite profile
   if(!is.na(progress))  if(progress)  incProgress(amount = 0.1, detail = paste("Parsing MS1 file...", sep = "")) else print(paste("Parsing MS1 file...", sep = ""))
   
-  if(!is.null(filePeakMatrix)){
-    returnObj <- parsePeakAbundanceMatrix(
-      filePeakMatrix = filePeakMatrix, 
+  if(!is.null(filePeakMatrixQF)){
+    returnObj <- parsePeakAbundanceMatrixQF(
+      qfeatures = filePeakMatrixQF, 
       doPrecursorDeisotoping = parameterSet$doPrecursorDeisotoping, 
       mzDeviationInPPM_precursorDeisotoping = parameterSet$mzDeviationInPPM_precursorDeisotoping, 
       mzDeviationAbsolute_precursorDeisotoping = parameterSet$mzDeviationAbsolute_precursorDeisotoping, 
@@ -1581,6 +1584,10 @@ convertToProjectFile2 <- function(filePeakMatrix,
   spectraList <- spectraList[orderMS1features]
   metaboliteFamilies <- metaboliteFamilies[orderMS1features]
   furtherProperties <- lapply(X = furtherProperties, FUN = function(props){props[orderMS1features]})
+  
+  #TODO: resolve ?
+  #temporary fix
+  #filePeakMatrix <- NULL
   
   if(!is.null(filePeakMatrix)){
     ## allHits: dataFrame$"Average Mz" --> precursorMz; allHits indexes the spectraList

@@ -2,10 +2,10 @@ Package: MetFamily
 Type: Package
 Title: MetFamily: Discovering Regulated Metabolite Families in Untargeted Metabolomics Studies
 Version: 0.99.4
-Date: 2024-08-30
+Date: 2024-08-22
 Author: c( person("Hendrik", "Treutler, role = c("aut"), email = "hendrik.treutler@ipb-halle.de"),
-           person("Khabat", "Vahabi, role = c("aut"), email = "khabat.vahabi@ipb-halle.de"),
-           person("Norman", "Storz, role = c("aut"), email = "nstorz@ipb-halle.de"),
+           person("Khabat", "Vahabi", role = c("aut"), email = "khabat.vahabi@ipb-halle.de"),
+           person("Norman", "Storz", role = c("aut"), email = "nstorz@ipb-halle.de"),
            person(given = "Steffen", family = "Neumann", email = "sneumann@ipb-halle.de",
            role = c("aut", "cre"), comment = c(ORCID = "0000-0002-7899-7192")) )
 Depends:
@@ -38,6 +38,7 @@ Imports:
     graphics,
     grDevices,
     methods,
+    QFeatures,
     stats,
     utils
 Remotes: 
@@ -66,5 +67,8 @@ Collate:
     'TreeAlgorithms.R'
     'Plots.R'
     'R_packages.R'
+    parsePeakAbundanceMatrixQF.R
+    readMSDial.R
+    readMetaboScape.R
 RoxygenNote: 7.2.3
 Encoding: UTF-8
