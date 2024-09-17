@@ -1397,7 +1397,8 @@ mzClustGeneric <- function(p,
 }
 
 convertToProjectFile <- function(filePeakMatrixPath, 
-                                 fileSpectra, 
+                                 fileSpectra,
+                                 fileAnnotation,
                                  parameterSet, 
                                  progress = FALSE){
   ####################################################################################
@@ -1436,6 +1437,9 @@ convertToProjectFile <- function(filePeakMatrixPath,
   
   
   filePeakMatrixQF <- readMSDial(filePeakMatrixPath)
+  if (!is.null(fileAnnotation)){
+    addSiriusAnnotations(filePeakMatrixQF,fileAnnotation)
+  }
   
   returnObj <- convertToProjectFile2(
     filePeakMatrixQF = filePeakMatrixQF, 

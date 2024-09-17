@@ -40,9 +40,9 @@ parsePeakAbundanceMatrixQF <- function(qfeatures,
   dataFrame <- cbind(rowData(qfeatures)[[1]][,cols_to_keep] ,assay(qfeatures))
   #workaround for avoiding change in colnames during coercion
   cnames <- colnames(dataFrame)
-  dataFrame <- as.data.frame(dataFrame)
+  dataFrame <- as.data.frame(dataFrame, check.names = FALSE)
   colnames(dataFrame) <- cnames
-  oldFormat <- ncol(colData(qfeatures))==3
+  datoldFormat <- ncol(colData(qfeatures))==3
   numRowDataCols <- ncol(rowData(qfeatures)[[1]])
   dataColumnStartEndIndeces <- c(numRowDataCols+1,ncol(dataFrame))
   numberOfPrecursors <- nrow(dataFrame)
@@ -179,3 +179,68 @@ parsePeakAbundanceMatrixQF <- function(qfeatures,
   
   return (returnObj)
 }
+
+#qfeatures <- readMSDial("inst/extdata/showcase/Metabolite_profile_showcase.txt")
+#siriusFile <- "inst/extdata/testdata/canopus/canopusShort.txt"
+#' Title
+#'
+#' @param qfeatures 
+#' @param siriusFile 
+#' @param featureID 
+#' @param siriusID 
+#'
+#' @return
+#' @export
+#'
+#' @examples
+addSiriusAnnotations <- function(qfeatures,
+                                 siriusFile,
+                                 rowData_col = NULL,
+                                 sirius_col =NULL) {
+  
+  annotation <- read.delim(siriusFile)
+ 
+  rowData <- rowData(qfeatures[[1]])
+  
+  if (is.null(sirius_col)) {
+    sirius_col <- grep("Alignment ID|featureId|ID", colnames(annotation), value = TRUE)
+  }
+  
+  if (is.null(rowData_col)) {
+    rowData_col <- grep("featureId|Alignment ID|ID", colnames(rowData), value = TRUE)
+  }
+  
+  # Check if the identified columns exist and are unique
+  if (length(sirius_col) != 1) {
+    stop("Could not uniquely identify the annotation column.")
+  }
+  if (length(rowData_col) != 1) {
+    stop("Could not uniquely identify the rowData column.")
+  }
+  
+  # Print for debugging
+  print(paste("Merging by:", sirius_col, "and", rowData_col))
+  
+  # Merge the data frames
+  annotatedRowData <- merge(annotation, rowData,
+                            by.x = sirius_col, by.y = rowData_col, all.y = TRUE)
+ # annotatedRowData <- merge(annotation, rowData, by.x = "Alignment ID", by.y = "featureId", all.y = TRUE)
+ #annotatedRowData <- merge(annotation, rowData, by.x = siriusID, by.y =featureID,  all.y = TRUE)
+  
+  annotation_cols <- colnames(annotation)[colnames(annotation) != featureID]
+  rowData_cols <- colnames(rowData)
+  
+  for (col in colnames(annotatedRowData)) {
+    if (col %in% annotation_cols) {
+      attr(annotatedRowData[[col]], "source") <- "sirius"
+    } else if (col %in% rowData_cols) {
+      attr(annotatedRowData[[col]], "source") <- "data"
+    }
+  }
+  
+  # Update the row data in qfeatures
+  rowData(qfeatures[[1]]) <- annotatedRowData
+  
+  return(qfeatures)
+}
+#annotation_cols <- names(which(sapply(rowData, function(x) attr(x, "source") == "sirius")))

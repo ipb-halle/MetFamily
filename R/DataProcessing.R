@@ -208,53 +208,10 @@ readProjectData <- function(fileLines, progress = FALSE)
   
   if (toupper(user_choice) == "Y") {
     
-
-    # Read the annotation_file file (if needed)
-    annotation_file <- read.delim(file.choose(), header = TRUE, check.names = FALSE) # select interactively
-    
-    # Display the available columns in annotation_file
-    message("Available columns in annotation_file:")
-    available_columns <- colnames(annotation_file)
-    for (i in 1:length(available_columns)) {
-      message(paste(i, "-", available_columns[i]))
-    }
-    
-    # Prompt the user to select the column containing IDs
-    message("Enter the number corresponding to the column containing IDs:")
-    selected_column_id <- as.integer(readline())
-    
-    # Check if the selected column index is valid
-    if (selected_column_id >= 1 && selected_column_id <= length(available_columns)) {
-      id_column <- available_columns[selected_column_id]
-      
-      # Prompt the user to select the Annotation column to use
-      message("Enter the number corresponding to the annotation column:")
-      selected_column_annot <- as.integer(readline())
-      
-      # Check if the selected column index is valid
-      if (selected_column_annot >= 1 && selected_column_annot <= length(available_columns)) {
-        selected_column <- available_columns[selected_column_annot]
-        
-        # Iterate through all values in the "Annotation" column of metaboliteProfile, excluding first row
-        for (i in 1:nrow(metaboliteProfile)) {
-          # Perform the lookup based on metaboliteProfile's "Alignment ID" column and annotation_file's selected ID column
-          matching_indices <- which(annotation_file[[id_column]] == metaboliteProfile$'Alignment ID'[i])
-          
-          # Check data types and unique values of IDs column in annotation_file
-          
-          # Check if any matches were found
-          if (length(matching_indices) > 0) {
-            # Update the specified column (Annotation) in metaboliteProfile with the corresponding value from annotation_file
-            metaboliteProfile[i, "Annotation"] <- annotation_file[matching_indices[1], selected_column]
-          } else {
-            # Handle the case where no match was found (you can add custom logic here)
-            warning(paste("No match found for row", i, "in metaboliteProfile"))
-          }
-        }
-      } else {
-        message("Invalid column selection. Skipping annotation step.")
-      }
-    }
+    #  column_annot <- attr(rowData(qfeatures[[1]]), "annotation column")
+    #  metaboliteProfile["Annotation"] <- column_annot 
+    #  selected_column <- available_columns[selected_column_annot]
+  
   }
   
   #####################################################################################################################################
