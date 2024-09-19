@@ -1438,6 +1438,7 @@ convertToProjectFile <- function(filePeakMatrixPath,
   
   filePeakMatrixQF <- readMSDial(filePeakMatrixPath)
   if (!is.null(fileAnnotation)){
+    # TODO: determine colums to merge by
     addSiriusAnnotations(filePeakMatrixQF,fileAnnotation)
   }
   
@@ -1593,7 +1594,7 @@ convertToProjectFile2 <- function(filePeakMatrixQF,
   #temporary fix
   #filePeakMatrix <- NULL
   
-  if(!is.null(filePeakMatrix)){
+  if(!is.null(filePeakMatrixQF)){
     ## allHits: dataFrame$"Average Mz" --> precursorMz; allHits indexes the spectraList
     diffAll <- abs(outer(X = precursorMz, Y = dataFrame$"Average Mz", FUN = function(x, y){abs(x-y)}))
     allHits <- apply(X = diffAll, MARGIN = 2, FUN = function(x){which(x == min(x[x < parameterSet$mzDeviationAbsolute_mapping], Inf))})
