@@ -218,6 +218,10 @@ addSiriusAnnotations <- function(qfeatures,
       attr(annotatedRowData[[col]], "source") <- "data"
     }
   }
+  
+  # Set the annotation column
+  attr(annotatedRowData, "annotation column") <- "ClassyFire.subclass"
+  
   rowData(qfeatures[[1]]) <- annotatedRowData
   return(qfeatures)
 }

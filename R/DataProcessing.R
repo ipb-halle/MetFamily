@@ -196,27 +196,29 @@ readProjectData <- function(fileLines, progress = FALSE)
   listMatrixRows <- NULL
   listMatrixCols <- NULL
 
-  ## Disable command line reading of answer
-  if (FALSE) {
+  
   ################################################################################
   #Start of importing  annotation part1 from two
   # Display the message and give the user the option to choose whether to upload the annotation file or not. 
   #If Y shows selection window for annotation file. if N ignores annotation process
   #message("Do you want to upload the annotation file? (Y/N)")
   #user_choice <- readline()
-  user_choice <- "N"
-  
-  if (toupper(user_choice) == "Y") {
+  if (!is.null(attr(rowData(qfeatures[[1]]), "annotation column"))) {
     
-    #  column_annot <- attr(rowData(qfeatures[[1]]), "annotation column")
-    #  metaboliteProfile["Annotation"] <- column_annot 
-    #  selected_column <- available_columns[selected_column_annot]
-  
+    # Extract the relevant data: Alignment ID and the annotation column from qfeatures
+    annot_colname <- attr(rowData(qfeatures[[1]]), "annotation column")
+    annotation_data <- rowData(qfeatures[[1]])[[annot_colname]]
+    alignment_ids <- rowData(qfeatures[[1]])[["Alignment ID"]]
+    
+    # Find the matching indices between metaboliteProfile and annotation_data
+    matching_indices <- match(metaboliteProfile[["Alignment_ID"]], alignment_ids)
+    
+    metaboliteProfile$Annotation[!is.na(matching_indices)] <- annotation_data[matching_indices[!is.na(matching_indices)]] 
+   
   }
   
   #####################################################################################################################################
   #end of importing  annotation part1 from two
-  }
   
   listMatrixVals <- NULL
   
@@ -276,11 +278,11 @@ readProjectData <- function(fileLines, progress = FALSE)
   }
 
   ## STN: Disabled. 
-  if (FALSE) {
+  if (!is.null(attr(rowData(qfeatures[[1]]), "annotation column"))) {
   #Start of importing annotation part2 from two
   ################################################################################
    #adding HEX color codes from external annotations to the annotationColorsMapInitValue of dataFrameHeader
-  if (toupper(user_choice) == "Y") {
+
       # Copy the selected column by user, Remove duplicates and exclude the first row
     uniqueAnnotations <- unique(unlist(strsplit(metaboliteProfile$Annotation, ",")))
     uniqueAnnotations <- paste0(uniqueAnnotations, "=")
@@ -295,7 +297,7 @@ readProjectData <- function(fileLines, progress = FALSE)
     uniqueAnnotationsHexs <- gsub("AnnotationColors=\\{\\s+", "AnnotationColors={", paste("AnnotationColors={", paste(uniqueAnnotations1, collapse = ","), "}"))
     # Assuming dataFrameHeader is your data frame
     dataFrameHeader$Annotation[2] <- uniqueAnnotationsHexs
-  }
+  
 ################################################################################
 #End of importing  annotation part2 from two
   }

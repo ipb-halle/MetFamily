@@ -1439,7 +1439,7 @@ convertToProjectFile <- function(filePeakMatrixPath,
   filePeakMatrixQF <- readMSDial(filePeakMatrixPath)
   if (!is.null(fileAnnotation)){
     # TODO: determine colums to merge by
-    addSiriusAnnotations(filePeakMatrixQF,fileAnnotation)
+    filePeakMatrixQF <- addSiriusAnnotations(filePeakMatrixQF,fileAnnotation)
   }
   
   returnObj <- convertToProjectFile2(
