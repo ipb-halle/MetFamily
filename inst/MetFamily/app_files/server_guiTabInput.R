@@ -199,6 +199,8 @@ importData <- function(importMS1andMS2data){
   }
   fileMs2Path <- input$ms2DataFile$datapath
   fileMs2Name <- input$ms2DataFile$name
+  fileAnnotPath <- input$annotationFile$datapath
+  fileAnnotName <- input$annotationFile$name
   
   #################################################
   ## params
@@ -356,6 +358,7 @@ importData <- function(importMS1andMS2data){
         convertToProjectFile(
           filePeakMatrix = fileMs1Path, 
           fileSpectra = fileMs2Path, 
+          fileAnnotation = fileAnnotPath,
           parameterSet = parameterSet, 
           progress = TRUE
         )
@@ -388,7 +391,7 @@ importData <- function(importMS1andMS2data){
   error <- NULL
   withProgress(message = 'Processing matrix...', value = 0, {
     lines <- sparseMatrixToString(matrixRows = resultObj$matrixRows, matrixCols = resultObj$matrixCols, matrixVals = resultObj$matrixVals, parameterSet = parameterSet)
-    
+    qfeatures <- resultObj$qfeatures
     #################################################
     ## process project file
     
