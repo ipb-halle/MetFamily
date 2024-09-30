@@ -161,6 +161,8 @@ parsePeakAbundanceMatrixQF <- function(qfeatures,
   returnObj$dataFrame <- dataFrame
   returnObj$vals <- vals
   
+  ## qfeatures
+  returnObj$qfeatures <- qfeatures
   ## meta
   returnObj$oldFormat <- oldFormat
   returnObj$numberOfPrecursors <- numberOfPrecursors
