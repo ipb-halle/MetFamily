@@ -1458,7 +1458,7 @@ convertToProjectFile <- function(filePeakMatrixPath,
   returnObj$numberOfSpectraDiscardedDueToNoPeaks <- numberOfSpectraDiscardedDueToNoPeaks
   returnObj$numberOfSpectraDiscardedDueToMaxIntensity <- numberOfSpectraDiscardedDueToMaxIntensity
   returnObj$numberOfSpectraDiscardedDueToTooHeavy <- numberOfSpectraDiscardedDueToTooHeavy
-  
+  returnObj$qfeatures <- qfeatures
   return(returnObj)
 }
 
@@ -1855,7 +1855,8 @@ convertToProjectFile2 <- function(filePeakMatrixQF,
     numberOfUnmappedSpectra = numberOfUnmappedSpectra,
     numberOfUnmappedPrecursors = numberOfUnmappedPrecursors,
     numberOfUnmappedPrecursorsMz = numberOfUnmappedPrecursorsMz,
-    numberOfUnmappedPrecursorsRt = numberOfUnmappedPrecursorsRt
+    numberOfUnmappedPrecursorsRt = numberOfUnmappedPrecursorsRt,
+    qfeatures <- qfeatures
   )
   
   if(!is.na(progress))  if(progress)  setProgress(1) else print("Ready")
