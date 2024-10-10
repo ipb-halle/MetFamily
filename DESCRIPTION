@@ -32,7 +32,8 @@ Depends:
     matrixStats,
     plotrix,
     slam,
-    plotly
+    plotly,
+    xcms
 Imports:
     egg,
     graphics,
