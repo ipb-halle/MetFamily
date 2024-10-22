@@ -79,8 +79,8 @@ readClusterDataFromProjectFile <- function(file, progress = FALSE)
     fileLines <- readLines(con = file)
   )
   base::close(con = file)
-  
-  dataList <- readProjectData(fileLines = fileLines, progress = progress)
+
+  dataList <- readProjectData(fileLines = fileLines, progress = progress, qfeatures = qfeatures)
   fileLines <- NULL
   
   return(dataList)
@@ -98,7 +98,7 @@ readClusterDataFromProjectFile <- function(file, progress = FALSE)
 #' @export
 #'
 #' @examples
-readProjectData <- function(fileLines, progress = FALSE)
+readProjectData <- function(fileLines, progress = FALSE, qfeatures = NULL)
 {
   allowedTags <- c("ID")
   allowedTagPrefixes <- c("AnnotationColors=")
@@ -203,6 +203,19 @@ readProjectData <- function(fileLines, progress = FALSE)
   #If Y shows selection window for annotation file. if N ignores annotation process
   #message("Do you want to upload the annotation file? (Y/N)")
   #user_choice <- readline()
+  
+  ######debugging
+  tryCatch(
+    {
+      rowData(qfeatures)
+    },
+    error = function(e) {
+      message("Error: ", e$message)
+      traceback()
+    }
+  )
+  ######debugging
+ 
   if (!is.null(attr(rowData(qfeatures[[1]]), "annotation column"))) {
     
     # Extract the relevant data: Alignment ID and the annotation column from qfeatures
@@ -211,10 +224,11 @@ readProjectData <- function(fileLines, progress = FALSE)
     alignment_ids <- rowData(qfeatures[[1]])[["Alignment ID"]]
     
     # Find the matching indices between metaboliteProfile and annotation_data
-    matching_indices <- match(metaboliteProfile[["Alignment_ID"]], alignment_ids)
+    matching_indices <- match(metaboliteProfile[["Alignment ID"]], alignment_ids)
     
     metaboliteProfile$Annotation[!is.na(matching_indices)] <- annotation_data[matching_indices[!is.na(matching_indices)]] 
-   
+    #eliminate NAs replace by "" so nchar(annoVals[[i]]) > 0 works in l. 597
+    metaboliteProfile$Annotation[is.na(metaboliteProfile$Annotation)] <- "" 
   }
   
   #####################################################################################################################################
@@ -285,6 +299,10 @@ readProjectData <- function(fileLines, progress = FALSE)
 
       # Copy the selected column by user, Remove duplicates and exclude the first row
     uniqueAnnotations <- unique(unlist(strsplit(metaboliteProfile$Annotation, ",")))
+    ###Debug
+    print("Unique Annotations Before Filtering:")
+    print(uniqueAnnotations)
+    ###/Debug
     uniqueAnnotations <- paste0(uniqueAnnotations, "=")
     # Add a random string from the hex color list to each element of uniqueAnnotions
     # strings_list <- c("#000000", "#FFFFFF", "#FF0000", "#00FF00", "#0000FF", "#FFFF00", "#FF00FF", "#00FFFF", "#800000", "#008000", "#000080", "#808000", "#800080", "#008080", "#808080", "#C0C0C0", "#FFA500", "#FFC0CB", "#FFD700", "#A52A2A")
@@ -571,9 +589,11 @@ readProjectData <- function(fileLines, progress = FALSE)
   annotationValueIgnore <- "Ignore"
   annotationColorIgnore <- "red"
   
+  
   ## present annotations
   annotations    <- vector(mode='list', length=numberOfMS1features)
   annoVals <- metaboliteProfile[, annotationColumnName]
+  
   for(i in seq_len(numberOfMS1features)){
     if(nchar(annoVals[[i]]) > 0){
       annotations[[i]] <- as.list(unlist(strsplit(x = annoVals[[i]], split = ", ")))

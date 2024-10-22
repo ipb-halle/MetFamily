@@ -34,6 +34,7 @@ disableLoadButtons <- function(){
   shinyjs::disable("importMs1Ms2Data")
   shinyjs::disable("importMs2Data")
 }
+
 obsFile <- observeEvent(input$matrixFile$datapath, {
   filePath <- input$matrixFile$datapath
   fileName <- input$matrixFile$name
@@ -43,6 +44,8 @@ obsFile <- observeEvent(input$matrixFile$datapath, {
   
   updateFileInputInfo()
 })
+
+
 obsLoadProjectData <- observeEvent(input$loadProjectData, {
   disableLoadButtons()
   loadProjectData <- as.numeric(input$loadProjectData)
@@ -60,6 +63,8 @@ obsLoadProjectData <- observeEvent(input$loadProjectData, {
   loadProjectFile(filePath = filePath)
   enableLoadButtons()
 })
+
+
 obsLoadExampleData <- observeEvent(input$loadExampleData, {
   disableLoadButtons()
   loadExampleData <- as.numeric(input$loadExampleData)
@@ -78,10 +83,24 @@ obsLoadExampleData <- observeEvent(input$loadExampleData, {
   loadProjectFile(filePath = filePath)
   enableLoadButtons()
 })
+
+
+
 loadProjectFile <- function(filePath){
   fileName <- basename(filePath)
   #########################################################################################
   ## read data
+  
+  #######dirty fix readClusterData.. calls readProjectData whic needs qfeatures for annotations
+  fileMs1Path <- input$ms1DataFile$datapath
+  filePeakMatrixQF <- readMSDial(fileMs1Path)
+  fileAnnotation <- input$annotationFile$datapath
+  if (!is.null(fileAnnotation)){
+    # TODO: determine colums to merge by
+    filePeakMatrixQF <- addSiriusAnnotations(filePeakMatrixQF,fileAnnotation)
+  }
+  #######dirty fix
+  
   
   error <<- NULL
   withProgress(message = 'Reading file...', value = 0, {
@@ -121,6 +140,7 @@ loadProjectFile <- function(filePath){
   state_tabInput$importedOrLoadedFile_s_ <<- fileName
   updateFileInputInfo()
 }
+
 obsImportMs1DataFile <- observeEvent(input$ms1DataFile$datapath, {
   fileMs1Path <- input$ms1DataFile$datapath
   fileMs1Name <- input$ms1DataFile$name
@@ -138,6 +158,7 @@ obsImportMs1DataFile <- observeEvent(input$ms1DataFile$datapath, {
 obsImportMs2DataFile <- observeEvent(input$ms2DataFile$datapath, {
   setImportState()
 })
+
 setImportState <- function(){
   fileMs1Path <- input$ms1DataFile$datapath
   fileMs1Name <- input$ms1DataFile$name
@@ -187,6 +208,7 @@ obsImportMs2Data <- observeEvent(input$importMs2Data, {
   importData(FALSE)
   disableLoadButtons()
 })
+
 importData <- function(importMS1andMS2data){
   #################################################
   ## files
@@ -199,6 +221,7 @@ importData <- function(importMS1andMS2data){
   }
   fileMs2Path <- input$ms2DataFile$datapath
   fileMs2Name <- input$ms2DataFile$name
+  
   fileAnnotPath <- input$annotationFile$datapath
   fileAnnotName <- input$annotationFile$name
   
@@ -396,7 +419,7 @@ importData <- function(importMS1andMS2data){
     ## process project file
     
     dataList <<- tryCatch({
-        readProjectData(fileLines = lines, progress = TRUE)
+        readProjectData(fileLines = lines, progress = TRUE, qfeatures = qfeatures)
       }, error = function(e) {
         error <<- e
       }

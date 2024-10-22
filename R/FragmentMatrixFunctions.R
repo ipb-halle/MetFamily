@@ -1458,7 +1458,7 @@ convertToProjectFile <- function(filePeakMatrixPath,
   returnObj$numberOfSpectraDiscardedDueToNoPeaks <- numberOfSpectraDiscardedDueToNoPeaks
   returnObj$numberOfSpectraDiscardedDueToMaxIntensity <- numberOfSpectraDiscardedDueToMaxIntensity
   returnObj$numberOfSpectraDiscardedDueToTooHeavy <- numberOfSpectraDiscardedDueToTooHeavy
-  returnObj$qfeatures <- qfeatures
+  returnObj$qfeatures <- filePeakMatrixQF
   return(returnObj)
 }
 
@@ -1502,6 +1502,7 @@ convertToProjectFile2 <- function(filePeakMatrixQF,
     numberOfParsedMs1Features <- returnObj$numberOfPrecursorsPrior
     numberOfRemovedPrecursorIsotopePeaks <- returnObj$numberOfRemovedIsotopePeaks
     
+    qfeatures <- returnObj$qfeatures
     rm(returnObj)
   } else {
     propList <- list(
