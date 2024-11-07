@@ -253,6 +253,13 @@ shinyUI(
                     label = NULL, #label = 'Choose fragment matrix file',
                     accept = c('text/comma-separated-values', 'text/plain', 'text/tab-separated-values')
                   ),
+                  p("Please choose sirius annotation file"),
+                  fileInput(
+                    multiple = FALSE,
+                    inputId = 'annotationFile', 
+                    label = NULL,
+                    accept = c('text/tab-separated-values', 'text/plain')
+                  ),
                   p("Please choose spectral library (MS/MS, .msp)"),
                   bsTooltip(id = "ms2DataFile", title = "Press to choose a MS/MS library", placement = "bottom", trigger = "hover"),
                   fileInput(
