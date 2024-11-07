@@ -91,17 +91,6 @@ loadProjectFile <- function(filePath){
   #########################################################################################
   ## read data
   
-  #######dirty fix readClusterData.. calls readProjectData whic needs qfeatures for annotations
-  fileMs1Path <- input$ms1DataFile$datapath
-  filePeakMatrixQF <- readMSDial(fileMs1Path)
-  fileAnnotation <- input$annotationFile$datapath
-  if (!is.null(fileAnnotation)){
-    # TODO: determine colums to merge by
-    filePeakMatrixQF <- addSiriusAnnotations(filePeakMatrixQF,fileAnnotation)
-  }
-  #######dirty fix
-  
-  
   error <<- NULL
   withProgress(message = 'Reading file...', value = 0, {
     dataList <<- tryCatch(

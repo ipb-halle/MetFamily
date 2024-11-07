@@ -1857,7 +1857,7 @@ convertToProjectFile2 <- function(filePeakMatrixQF,
     numberOfUnmappedPrecursors = numberOfUnmappedPrecursors,
     numberOfUnmappedPrecursorsMz = numberOfUnmappedPrecursorsMz,
     numberOfUnmappedPrecursorsRt = numberOfUnmappedPrecursorsRt,
-    qfeatures <- qfeatures
+    qfeatures = qfeatures
   )
   
   if(!is.na(progress))  if(progress)  setProgress(1) else print("Ready")
