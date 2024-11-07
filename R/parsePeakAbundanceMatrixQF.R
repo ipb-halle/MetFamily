@@ -40,7 +40,7 @@ parsePeakAbundanceMatrixQF <- function(qfeatures,
   dataFrame <- cbind(rowData(qfeatures)[[1]][,cols_to_keep] ,assay(qfeatures))
   #workaround for avoiding change in colnames during coercion
   cnames <- colnames(dataFrame)
-  dataFrame <- as.data.frame(dataFrame)
+  dataFrame <- as.data.frame(dataFrame, check.names = FALSE)
   colnames(dataFrame) <- cnames
   oldFormat <- ncol(colData(qfeatures))==3
   numRowDataCols <- ncol(rowData(qfeatures)[[1]])
@@ -161,6 +161,9 @@ parsePeakAbundanceMatrixQF <- function(qfeatures,
   returnObj$dataFrame <- dataFrame
   returnObj$vals <- vals
   
+  ## qfeatures
+  returnObj$qfeatures <- qfeatures
+  
   ## meta
   returnObj$oldFormat <- oldFormat
   returnObj$numberOfPrecursors <- numberOfPrecursors
@@ -178,4 +181,50 @@ parsePeakAbundanceMatrixQF <- function(qfeatures,
   returnObj$numberOfRemovedIsotopePeaks <- numberOfRemovedIsotopePeaks
   
   return (returnObj)
+}
+
+#' Title
+#'
+#' @param qfeatures 
+#' @param siriusFile 
+#' @param featureID 
+#' @param siriusID 
+#'
+#' @return
+#' @export
+#'
+#' @examples
+addSiriusAnnotations <- function(qfeatures,
+                                 siriusFile,
+                                 rowData_col = "Alignment ID",
+                                 sirius_col = "featureId") {
+  #TODO: specify more parameters in read delim
+  annotation <- read.delim(siriusFile)
+ 
+  rowData <- rowData(qfeatures[[1]])
+  
+  # Print for debugging
+  print(paste("Merging by:", sirius_col, "and", rowData_col))
+  
+  # Merge the data frames
+  annotatedRowData <- S4Vectors::merge( rowData, annotation,
+                             by.x = rowData_col, by.y = sirius_col,  all.x = TRUE)
+
+  #TODO: ? check for duplicate columns ?
+  annotation_cols <- colnames(annotation)[colnames(annotation) != rowData_col]
+  rowData_cols <- colnames(rowData)
+  
+  for (col in colnames(annotatedRowData)) {
+    if (col %in% annotation_cols) {
+      attr(annotatedRowData[[col]], "source") <- "sirius"
+    } else if (col %in% rowData_cols) {
+      attr(annotatedRowData[[col]], "source") <- "data"
+    }
+  }
+  
+  # Set the annotation column
+  attr(annotatedRowData, "annotation column") <- "ClassyFire.subclass"
+  
+  rowData(qfeatures[[1]]) <- annotatedRowData
+  return(qfeatures)
 }

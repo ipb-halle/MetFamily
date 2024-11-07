@@ -1397,7 +1397,8 @@ mzClustGeneric <- function(p,
 }
 
 convertToProjectFile <- function(filePeakMatrixPath, 
-                                 fileSpectra, 
+                                 fileSpectra,
+                                 fileAnnotation,
                                  parameterSet, 
                                  progress = FALSE){
   ####################################################################################
@@ -1436,6 +1437,10 @@ convertToProjectFile <- function(filePeakMatrixPath,
   
   
   filePeakMatrixQF <- readMSDial(filePeakMatrixPath)
+  if (!is.null(fileAnnotation)){
+    # TODO: determine colums to merge by
+    filePeakMatrixQF <- addSiriusAnnotations(filePeakMatrixQF,fileAnnotation)
+  }
   
   returnObj <- convertToProjectFile2(
     filePeakMatrixQF = filePeakMatrixQF, 
@@ -1453,7 +1458,7 @@ convertToProjectFile <- function(filePeakMatrixPath,
   returnObj$numberOfSpectraDiscardedDueToNoPeaks <- numberOfSpectraDiscardedDueToNoPeaks
   returnObj$numberOfSpectraDiscardedDueToMaxIntensity <- numberOfSpectraDiscardedDueToMaxIntensity
   returnObj$numberOfSpectraDiscardedDueToTooHeavy <- numberOfSpectraDiscardedDueToTooHeavy
-  
+  returnObj$qfeatures <- filePeakMatrixQF
   return(returnObj)
 }
 
@@ -1497,6 +1502,7 @@ convertToProjectFile2 <- function(filePeakMatrixQF,
     numberOfParsedMs1Features <- returnObj$numberOfPrecursorsPrior
     numberOfRemovedPrecursorIsotopePeaks <- returnObj$numberOfRemovedIsotopePeaks
     
+    qfeatures <- returnObj$qfeatures
     rm(returnObj)
   } else {
     propList <- list(
@@ -1589,7 +1595,7 @@ convertToProjectFile2 <- function(filePeakMatrixQF,
   #temporary fix
   #filePeakMatrix <- NULL
   
-  if(!is.null(filePeakMatrix)){
+  if(!is.null(filePeakMatrixQF)){
     ## allHits: dataFrame$"Average Mz" --> precursorMz; allHits indexes the spectraList
     diffAll <- abs(outer(X = precursorMz, Y = dataFrame$"Average Mz", FUN = function(x, y){abs(x-y)}))
     allHits <- apply(X = diffAll, MARGIN = 2, FUN = function(x){which(x == min(x[x < parameterSet$mzDeviationAbsolute_mapping], Inf))})
@@ -1850,7 +1856,8 @@ convertToProjectFile2 <- function(filePeakMatrixQF,
     numberOfUnmappedSpectra = numberOfUnmappedSpectra,
     numberOfUnmappedPrecursors = numberOfUnmappedPrecursors,
     numberOfUnmappedPrecursorsMz = numberOfUnmappedPrecursorsMz,
-    numberOfUnmappedPrecursorsRt = numberOfUnmappedPrecursorsRt
+    numberOfUnmappedPrecursorsRt = numberOfUnmappedPrecursorsRt,
+    qfeatures = qfeatures
   )
   
   if(!is.na(progress))  if(progress)  setProgress(1) else print("Ready")

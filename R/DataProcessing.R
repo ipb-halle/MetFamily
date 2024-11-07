@@ -79,8 +79,8 @@ readClusterDataFromProjectFile <- function(file, progress = FALSE)
     fileLines <- readLines(con = file)
   )
   base::close(con = file)
-  
-  dataList <- readProjectData(fileLines = fileLines, progress = progress)
+
+  dataList <- readProjectData(fileLines = fileLines, progress = progress, qfeatures = qfeatures)
   fileLines <- NULL
   
   return(dataList)
@@ -98,7 +98,7 @@ readClusterDataFromProjectFile <- function(file, progress = FALSE)
 #' @export
 #'
 #' @examples
-readProjectData <- function(fileLines, progress = FALSE)
+readProjectData <- function(fileLines, progress = FALSE, qfeatures = NULL)
 {
   allowedTags <- c("ID")
   allowedTagPrefixes <- c("AnnotationColors=")
@@ -196,70 +196,43 @@ readProjectData <- function(fileLines, progress = FALSE)
   listMatrixRows <- NULL
   listMatrixCols <- NULL
 
-  ## Disable command line reading of answer
-  if (FALSE) {
+  
   ################################################################################
   #Start of importing  annotation part1 from two
   # Display the message and give the user the option to choose whether to upload the annotation file or not. 
   #If Y shows selection window for annotation file. if N ignores annotation process
   #message("Do you want to upload the annotation file? (Y/N)")
   #user_choice <- readline()
-  user_choice <- "N"
   
-  if (toupper(user_choice) == "Y") {
-    
-
-    # Read the annotation_file file (if needed)
-    annotation_file <- read.delim(file.choose(), header = TRUE, check.names = FALSE) # select interactively
-    
-    # Display the available columns in annotation_file
-    message("Available columns in annotation_file:")
-    available_columns <- colnames(annotation_file)
-    for (i in 1:length(available_columns)) {
-      message(paste(i, "-", available_columns[i]))
+  ######debugging
+  tryCatch(
+    {
+      rowData(qfeatures)
+    },
+    error = function(e) {
+      message("Error: ", e$message)
+      traceback()
     }
+  )
+  ######debugging
+ 
+  if (!is.null(attr(rowData(qfeatures[[1]]), "annotation column"))) {
     
-    # Prompt the user to select the column containing IDs
-    message("Enter the number corresponding to the column containing IDs:")
-    selected_column_id <- as.integer(readline())
+    # Extract the relevant data: Alignment ID and the annotation column from qfeatures
+    annot_colname <- attr(rowData(qfeatures[[1]]), "annotation column")
+    annotation_data <- rowData(qfeatures[[1]])[[annot_colname]]
+    alignment_ids <- rowData(qfeatures[[1]])[["Alignment ID"]]
     
-    # Check if the selected column index is valid
-    if (selected_column_id >= 1 && selected_column_id <= length(available_columns)) {
-      id_column <- available_columns[selected_column_id]
-      
-      # Prompt the user to select the Annotation column to use
-      message("Enter the number corresponding to the annotation column:")
-      selected_column_annot <- as.integer(readline())
-      
-      # Check if the selected column index is valid
-      if (selected_column_annot >= 1 && selected_column_annot <= length(available_columns)) {
-        selected_column <- available_columns[selected_column_annot]
-        
-        # Iterate through all values in the "Annotation" column of metaboliteProfile, excluding first row
-        for (i in 1:nrow(metaboliteProfile)) {
-          # Perform the lookup based on metaboliteProfile's "Alignment ID" column and annotation_file's selected ID column
-          matching_indices <- which(annotation_file[[id_column]] == metaboliteProfile$'Alignment ID'[i])
-          
-          # Check data types and unique values of IDs column in annotation_file
-          
-          # Check if any matches were found
-          if (length(matching_indices) > 0) {
-            # Update the specified column (Annotation) in metaboliteProfile with the corresponding value from annotation_file
-            metaboliteProfile[i, "Annotation"] <- annotation_file[matching_indices[1], selected_column]
-          } else {
-            # Handle the case where no match was found (you can add custom logic here)
-            warning(paste("No match found for row", i, "in metaboliteProfile"))
-          }
-        }
-      } else {
-        message("Invalid column selection. Skipping annotation step.")
-      }
-    }
+    # Find the matching indices between metaboliteProfile and annotation_data
+    matching_indices <- match(metaboliteProfile[["Alignment ID"]], alignment_ids)
+    
+    metaboliteProfile$Annotation[!is.na(matching_indices)] <- annotation_data[matching_indices[!is.na(matching_indices)]] 
+    #eliminate NAs replace by "" so nchar(annoVals[[i]]) > 0 works in l. 597
+    metaboliteProfile$Annotation[is.na(metaboliteProfile$Annotation)] <- "" 
   }
   
   #####################################################################################################################################
   #end of importing  annotation part1 from two
-  }
   
   listMatrixVals <- NULL
   
@@ -319,13 +292,17 @@ readProjectData <- function(fileLines, progress = FALSE)
   }
 
   ## STN: Disabled. 
-  if (FALSE) {
+  if (!is.null(attr(rowData(qfeatures[[1]]), "annotation column"))) {
   #Start of importing annotation part2 from two
   ################################################################################
    #adding HEX color codes from external annotations to the annotationColorsMapInitValue of dataFrameHeader
-  if (toupper(user_choice) == "Y") {
+
       # Copy the selected column by user, Remove duplicates and exclude the first row
     uniqueAnnotations <- unique(unlist(strsplit(metaboliteProfile$Annotation, ",")))
+    ###Debug
+    print("Unique Annotations Before Filtering:")
+    print(uniqueAnnotations)
+    ###/Debug
     uniqueAnnotations <- paste0(uniqueAnnotations, "=")
     # Add a random string from the hex color list to each element of uniqueAnnotions
     # strings_list <- c("#000000", "#FFFFFF", "#FF0000", "#00FF00", "#0000FF", "#FFFF00", "#FF00FF", "#00FFFF", "#800000", "#008000", "#000080", "#808000", "#800080", "#008080", "#808080", "#C0C0C0", "#FFA500", "#FFC0CB", "#FFD700", "#A52A2A")
@@ -338,7 +315,7 @@ readProjectData <- function(fileLines, progress = FALSE)
     uniqueAnnotationsHexs <- gsub("AnnotationColors=\\{\\s+", "AnnotationColors={", paste("AnnotationColors={", paste(uniqueAnnotations1, collapse = ","), "}"))
     # Assuming dataFrameHeader is your data frame
     dataFrameHeader$Annotation[2] <- uniqueAnnotationsHexs
-  }
+  
 ################################################################################
 #End of importing  annotation part2 from two
   }
@@ -612,9 +589,11 @@ readProjectData <- function(fileLines, progress = FALSE)
   annotationValueIgnore <- "Ignore"
   annotationColorIgnore <- "red"
   
+  
   ## present annotations
   annotations    <- vector(mode='list', length=numberOfMS1features)
   annoVals <- metaboliteProfile[, annotationColumnName]
+  
   for(i in seq_len(numberOfMS1features)){
     if(nchar(annoVals[[i]]) > 0){
       annotations[[i]] <- as.list(unlist(strsplit(x = annoVals[[i]], split = ", ")))
