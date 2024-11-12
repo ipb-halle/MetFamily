@@ -1440,7 +1440,8 @@ getMS2spectrumInfoForCluster <- function(dataList, clusterDataList, treeLabel){
   #fragmentsX <- dataList$fragmentMasses[featuresIntersection]
   #fragmentsY <- apply(X = data.numericmatrix(dataList$featureMatrix[clusterMembersPrecursors, featuresIntersection]), MARGIN = 2, FUN = mean)
   fragmentsX <- dataList$fragmentMasses[featuresUnion]
-  fragmentsY <- apply(X = data.numericmatrix(dataList$featureMatrix[clusterMembersPrecursors, featuresUnion]), MARGIN = 2, FUN = mean)
+  #fragmentsY <- apply(X = data.numericmatrix(dataList$featureMatrix[clusterMembersPrecursors, featuresUnion]), MARGIN = 2, FUN = mean)
+  fragmentsY <- apply( X = data.matrix(dataList$featureMatrix[clusterMembersPrecursors, featuresUnion, drop = FALSE]), MARGIN = 2, FUN = mean )
   
   selectedPositive <- clusterDataList$innerNodeFeaturesCountsMatrix[clusterIndex, featuresUnion]
   coverageSelected <- selectedPositive / numberOfClusterMembers

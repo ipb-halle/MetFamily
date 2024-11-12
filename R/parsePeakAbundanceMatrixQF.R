@@ -40,7 +40,7 @@ parsePeakAbundanceMatrixQF <- function(qfeatures,
   dataFrame <- cbind(rowData(qfeatures)[[1]][,cols_to_keep] ,assay(qfeatures))
   #workaround for avoiding change in colnames during coercion
   cnames <- colnames(dataFrame)
-  dataFrame <- as.data.frame(dataFrame, check.names = FALSE)
+  dataFrame <- as.data.frame(dataFrame)
   colnames(dataFrame) <- cnames
   oldFormat <- ncol(colData(qfeatures))==3
   numRowDataCols <- ncol(rowData(qfeatures)[[1]])
