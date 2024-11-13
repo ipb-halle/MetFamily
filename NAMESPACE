@@ -37,5 +37,5 @@ importFrom("utils", "flush.console", "read.table")
 
 
 importFrom(SummarizedExperiment,colData)
-importFrom(SummarizedExperiment,rowData)
+importFrom(SummarizedExperiment,rowData,rowData<-)
 importFrom(SummarizedExperiment,assay)
