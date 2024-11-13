@@ -225,32 +225,6 @@ drawPcaLoadingsPlotImpl <- function(){
   state_tabPca$annotationLegendHeightPca <<- annoLegendEntryHeight * (length(state_tabPca$annotationsPca$setOfAnnotations) + 1)
 }
 
-### I am adding this new 
-drawPcaLoadingsPlotImpl1 <- function(){
-  resultObj <- calcPlotPCAloadings1(
-    pcaObj = pcaDataList$pcaObj, 
-    dataList = dataList, 
-    filter = filterPca$filter, 
-    pcaDimensionOne = pcaDataList$dimensionOne, 
-    pcaDimensionTwo = pcaDataList$dimensionTwo, 
-    selectionFragmentPcaLoadingSet = selectionFragmentPcaLoadingSet,
-    selectionAnalysisPcaLoadingSet = selectionAnalysisPcaLoadingSet,
-    selectionSearchPcaLoadingSet   = selectionSearchPcaLoadingSet,
-    xInterval = pcaLoadingsPlotRange$xInterval, 
-    yInterval = pcaLoadingsPlotRange$yInterval,
-    loadingsLabels = state_tabPca$loadingsLabels, 
-    showLoadingsAbundance = state_tabPca$showLoadingsAbundance, 
-    showLoadingsFeaturesAnnotated   = state_tabPca$showLoadingsFeaturesAnnotated,
-    showLoadingsFeaturesUnannotated = state_tabPca$showLoadingsFeaturesUnannotated,
-    showLoadingsFeaturesSelected    = state_tabPca$showLoadingsFeaturesSelected,
-    showLoadingsFeaturesUnselected  = state_tabPca$showLoadingsFeaturesUnselected
-  )
-  
-  state_tabPca$annotationsPca <<- resultObj
-  state_tabPca$annotationLegendHeightPca <<- annoLegendEntryHeight * (length(state_tabPca$annotationsPca$setOfAnnotations) + 1)
-}
-######################
-
 drawAnnotationLegendPCAimpl <- function(){
   calcPlotAnnoLegend(state_tabPca$annotationsPca$setOfAnnotations, state_tabPca$annotationsPca$setOfColors)
 }
@@ -276,8 +250,6 @@ drawMS2PlotImpl <- function(){
     dendrogramFragmentStatistics = dendrogramFragmentStatistics
   )
 }
-
-####### This is one I comment 
 
 drawMS2LegendImpl <- function(){
   calcPlotMS2Legend(dataList = dataList)
