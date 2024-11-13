@@ -8,7 +8,6 @@ options(shiny.sanitize.errors = FALSE)
 sourceFolder <- getwd()
 isDevelopment <- FALSE
 errorHunting <- FALSE
-hcaHeatMapNew <- TRUE
 
 #####################################################################################################
 ## handling of errors and warnings

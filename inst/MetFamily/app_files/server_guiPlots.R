@@ -115,49 +115,36 @@ drawHeatmapPlotImpl <- function(consoleInfo = NULL){
     )## end switch
   }
   
-  if(hcaHeatMapNew){
-    #####################################################################################
-    ## new heatmap functionality
-    returnObj <- calcPlotHeatmap(
-      dataList = dataList, 
-      filterObj = filterHca, 
-      clusterDataList = clusterDataList, 
-      selectedTreeNodeSet = selectedTreeNodeSet, 
-      frameColor = frameColor,
-      heatmapContent = state_tabHca$heatmapContent,
-      heatmapOrdering = state_tabHca$heatmapOrdering,
-      xInterval = dendrogramPlotRange$xInterval
-    )
-    columnsOfInterest <- returnObj$columnsOfInterest
-    columnsOfInterestForHeatmap <<- columnsOfInterest
-    
-    ## heigth per row
-    heatmapHeightPerRow <- -1
-    if(length(columnsOfInterest) <= maximumheatmapHeightRowCount){
-      heatmapHeightPerRow <- maximumheatmapHeightPerRow
-    } else if(length(columnsOfInterest) >= minimumheatmapHeightRowCount){
-      heatmapHeightPerRow <- minimumheatmapHeightPerRow
-    } else {
-      heatmapHeightPerRow <- 
-        minimumheatmapHeightPerRow + 
-        (length(columnsOfInterest)    - maximumheatmapHeightRowCount) / 
-        (minimumheatmapHeightRowCount - maximumheatmapHeightRowCount) * 
-        (maximumheatmapHeightPerRow - minimumheatmapHeightPerRow)
-    }
-    
-    state_tabHca$heatmapHeight <<- heatmapHeightPerRow * length(columnsOfInterest)
+  #####################################################################################
+  ## new heatmap functionality
+  returnObj <- calcPlotHeatmap(
+    dataList = dataList, 
+    filterObj = filterHca, 
+    clusterDataList = clusterDataList, 
+    selectedTreeNodeSet = selectedTreeNodeSet, 
+    frameColor = frameColor,
+    heatmapContent = state_tabHca$heatmapContent,
+    heatmapOrdering = state_tabHca$heatmapOrdering,
+    xInterval = dendrogramPlotRange$xInterval
+  )
+  columnsOfInterest <- returnObj$columnsOfInterest
+  columnsOfInterestForHeatmap <<- columnsOfInterest
+
+  ## heigth per row
+  heatmapHeightPerRow <- -1
+  if(length(columnsOfInterest) <= maximumheatmapHeightRowCount){
+    heatmapHeightPerRow <- maximumheatmapHeightPerRow
+  } else if(length(columnsOfInterest) >= minimumheatmapHeightRowCount){
+    heatmapHeightPerRow <- minimumheatmapHeightPerRow
   } else {
-    #####################################################################################
-    ## old heatmap functionality
-    columnsOfInterest <- calcPlotHeatmapOld(
-      dataList = dataList, 
-      filterObj = filterHca, 
-      clusterDataList = clusterDataList, 
-      xInterval = dendrogramPlotRange$xInterval
-    )
-    columnsOfInterestForHeatmap <<- columnsOfInterest
-    state_tabHca$heatmapHeight <<- heatmapHeightPerRow * 3
+    heatmapHeightPerRow <- 
+      minimumheatmapHeightPerRow + 
+      (length(columnsOfInterest)    - maximumheatmapHeightRowCount) / 
+      (minimumheatmapHeightRowCount - maximumheatmapHeightRowCount) * 
+      (maximumheatmapHeightPerRow - minimumheatmapHeightPerRow)
   }
+
+  state_tabHca$heatmapHeight <<- heatmapHeightPerRow * length(columnsOfInterest)
 }
 drawHeatmapLegendImpl <- function(){
   calcPlotHeatmapLegend(dataList = dataList)
