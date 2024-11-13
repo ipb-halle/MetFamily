@@ -2237,88 +2237,12 @@ getPcaPerformanceIndicator <- function(pcaObj, isScores){
   return(resultObj)
 }
 
-###### this is original one
-calcPlotPCAscores <- function(pcaObj, dataList, filterObj, pcaDimensionOne, pcaDimensionTwo, showScoresLabels, xInterval = NULL, yInterval = NULL){
+calcPlotPCAscores <- function(pcaObj, dataList, filterObj, 
+                              pcaDimensionOne, pcaDimensionTwo, 
+                              showScoresLabels, 
+                              xInterval = NULL, yInterval = NULL,
+                              downloadLayout=FALSE){
   palette <- colorPaletteScores()
-  
-  if(filterObj$filterBySamples){
-    colorsForReplicates <- palette[unlist(lapply(X = filterObj$grouXXXps, FUN = function(x){ 
-      groupIdx <- dataList$groupIdxFromGroupName(x)
-      samples <- dataList$dataColumnsNameFunctionFromGroupName(x, sampleNamesToExclude = dataList$excludedSamples(dataList$groupSampleDataFrame))
-      samples <- intersect(samples, filterObj$sampleSet)
-      rep(x = groupIdx, times = length(samples))
-    }))]
-  } else {
-    colorsForReplicates <- palette[unlist(lapply(X = filterObj$grouXXXps, FUN = function(x){ 
-      groupIdx <- dataList$groupIdxFromGroupName(x)
-      rep(x = groupIdx, times = length(dataList$dataColumnsNameFunctionFromGroupName(x, sampleNamesToExclude = dataList$excludedSamples(dataList$groupSampleDataFrame))))
-    }))]
-  }
-  
-  ## data
-  dataDimOne <- pcaObj$scores[, pcaDimensionOne]
-  dataDimTwo <- pcaObj$scores[, pcaDimensionTwo]
-  
-  ## performance
-  resultObj <- getPcaPerformanceIndicator(pcaObj = pcaObj, isScores = TRUE)
-  xAxisLabel <- resultObj$xAxisLabel
-  yAxisLabel <- resultObj$yAxisLabel
-  
-  ## xlim / ylim
-  xMin <- min(dataDimOne)
-  xMax <- max(dataDimOne)
-  yMin <- min(dataDimTwo)
-  yMax <- max(dataDimTwo)
-  
-  if(any(is.na(c(xMin, xMax, yMin, yMax)))){
-    xMin <- -1
-    xMax <- 1
-    yMin <- -1
-    yMax <- 1
-  }
-  
-  if(is.null(xInterval))
-    xInterval <- c(xMin, xMax)
-  if(is.null(yInterval))
-    yInterval <- c(yMin, yMax)
-  
-  par(mar=c(3 + 0.35, 3, 2, 1), mgp = c(2, 1, 0))  ## c(bottom, left, top, right)
-  plot(
-    x = dataDimOne, y = dataDimTwo, 
-    xlim = xInterval, ylim = yInterval, 
-    xlab = xAxisLabel, ylab = yAxisLabel, main = "Scores", 
-    #### changing from cex=1. to 0.8
-    col = colorsForReplicates, pch=19, cex=1.
-  )
-  
-  ## axis
-  xInt <- xMax - xMin
-  yInt <- yMax - yMin
-  xl <- xMin - xInt
-  xr <- xMax + xInt
-  yl <- yMin - yInt
-  yr <- yMax + yInt
-  segments(x0 = xl, x1 = xr, y0 = 0, y1 = 0, col = "black", lwd = 1)
-  segments(x0 = 0, x1 = 0, y0 = yl, y1 = yr, col = "black", lwd = 1)
-  
-  if(showScoresLabels){
-    
-    if(filterObj$filterBySamples){
-      labels <- dataList$dataColumnsNameFunctionFromGroupNames(filterObj$grouXXXps, sampleNamesToExclude = dataList$excludedSamples(dataList$groupSampleDataFrame))
-      labels <- intersect(labels, filterObj$sampleSet)
-    } else {
-      labels <- dataList$dataColumnsNameFunctionFromGroupNames(filterObj$grouXXXps, sampleNamesToExclude = dataList$excludedSamples(dataList$groupSampleDataFrame))
-    }
-    graphics::text(x = dataDimOne, y = dataDimTwo, labels = labels, pos = 4)
-  }
-}
-
-#### I am adding this new line
-
-calcPlotPCAscores1 <- function(pcaObj, dataList, filterObj, pcaDimensionOne, pcaDimensionTwo, showScoresLabels, xInterval = NULL, yInterval = NULL){
-  palette <- colorPaletteScores()
-  
-  #### add this new line ########
   
   if(filterObj$filterBySamples){
     colorsForReplicates <- palette[unlist(lapply(X = filterObj$grouXXXps, FUN = function(x){ 
@@ -2375,9 +2299,16 @@ calcPlotPCAscores1 <- function(pcaObj, dataList, filterObj, pcaDimensionOne, pca
     xInterval <- c(xMin, xMax)
   if(is.null(yInterval))
     yInterval <- c(yMin, yMax)
-  ### commenting the original
-  ##par(mar=c(3 + 0.35, 3, 2, 1), mgp = c(2, 1, 0))  ## c(bottom, left, top, right)
-  par(mar=c(3+0.015 , 3, 2, 1), mgp = c(2.0, 1, 0))
+  
+  if (downloadLayout==FALSE) {
+    ## Shiny App
+    par(mar=c(3 + 0.35, 3, 2, 1), mgp = c(2, 1, 0))  ## c(bottom, left, top, right)
+  } else {
+    ## Saved when downloading
+    par(mar=c(3 +0.015, 3, 2, 1), mgp = c(2.0, 1, 0))
+  }
+  
+  
   plot(
     x = dataDimOne, y = dataDimTwo, 
     xlim = xInterval, ylim = yInterval, 
@@ -2403,8 +2334,14 @@ calcPlotPCAscores1 <- function(pcaObj, dataList, filterObj, pcaDimensionOne, pca
     } else {
       labels <- dataList$dataColumnsNameFunctionFromGroupNames(filterObj$grouXXXps, sampleNamesToExclude = dataList$excludedSamples(dataList$groupSampleDataFrame))
     }
-    ### changing the pos= 3 from 4 and will see what happens
-    graphics::text(x = dataDimOne, y = dataDimTwo, labels = labels, pos = 2)
+    
+    if (downloadLayout==FALSE) {
+      ## Shiny App
+      graphics::text(x = dataDimOne, y = dataDimTwo, labels = labels, pos = 4)
+    } else {
+      ## Saved when downloading
+      graphics::text(x = dataDimOne, y = dataDimTwo, labels = labels, pos = 2)  
+    }
   }
 }
 

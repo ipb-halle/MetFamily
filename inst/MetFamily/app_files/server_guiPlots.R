@@ -159,8 +159,7 @@ drawAnnotationLegendForImageHCAimpl <- function(){
   calcPlotAnnoLegendForImage(state_tabHca$annotationsHca$setOfAnnotations, state_tabHca$annotationsHca$setOfColors)
 }
 
-drawPcaScoresPlotImpl <- function(){
-  #resultObj <- calcPlotPCAscores(
+drawPcaScoresPlotImpl <- function(downloadLayout=FALSE){
   resultObj <- calcPlotPCAscores(
     pcaObj = pcaDataList$pcaObj, 
     dataList = dataList, 
@@ -169,24 +168,10 @@ drawPcaScoresPlotImpl <- function(){
     pcaDimensionTwo = pcaDataList$dimensionTwo, 
     showScoresLabels = state_tabPca$showScoresLabels, 
     xInterval = pcaScoresPlotRange$xInterval, 
-    yInterval = pcaScoresPlotRange$yInterval
+    yInterval = pcaScoresPlotRange$yInterval,
+    downloadLayout = downloadLayout
   )
 }
-#### I am adding this new 
-drawPcaScoresPlotImpl1 <- function(){
-  #resultObj <- calcPlotPCAscores(
-  resultObj <- calcPlotPCAscores1(
-    pcaObj = pcaDataList$pcaObj, 
-    dataList = dataList, 
-    filterObj = filterPca, 
-    pcaDimensionOne = pcaDataList$dimensionOne, 
-    pcaDimensionTwo = pcaDataList$dimensionTwo, 
-    showScoresLabels = state_tabPca$showScoresLabels, 
-    xInterval = pcaScoresPlotRange$xInterval, 
-    yInterval = pcaScoresPlotRange$yInterval
-  )
-}
-####################
 
 drawPcaLoadingsPlotImpl <- function(){
   resultObj <- calcPlotPCAloadings(
