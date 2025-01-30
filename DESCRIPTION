@@ -1,11 +1,11 @@
 Package: MetFamily
 Type: Package
 Title: MetFamily: Discovering Regulated Metabolite Families in Untargeted Metabolomics Studies
-Version: 0.99.4
-Date: 2024-08-22
-Author: c( person("Hendrik", "Treutler, role = c("aut"), email = "hendrik.treutler@ipb-halle.de"),
-           person("Khabat", "Vahabi", role = c("aut"), email = "khabat.vahabi@ipb-halle.de"),
-           person("Norman", "Storz", role = c("aut"), email = "nstorz@ipb-halle.de"),
+Version: 0.99.5
+Date: 2024-11-07
+Author: c( person(given = "Hendrik", family = "Treutler", role = c("aut"), email = "hendrik.treutler@ipb-halle.de"),
+           person(given = "Khabat", family = "Vahabi", role = c("ctb"), email = "khabat.vahabi@ipb-halle.de"),
+           person(given = "Norman", family = "Storz", role = c("ctb"), email = "nstorz@ipb-halle.de"),
            person(given = "Steffen", family = "Neumann", email = "sneumann@ipb-halle.de",
            role = c("aut", "cre"), comment = c(ORCID = "0000-0002-7899-7192")) )
 Depends:
@@ -32,7 +32,8 @@ Depends:
     matrixStats,
     plotrix,
     slam,
-    plotly
+    plotly,
+    xcms
 Imports:
     egg,
     graphics,

@@ -1,33 +1,34 @@
 
-options(shiny.sanitize.errors = FALSE)
-
 #########################################################################################
 #########################################################################################
 ## libraries and functions
 
 sourceFolder <- getwd()
 isDevelopment <- FALSE
-errorHunting <- FALSE
-
-#####################################################################################################
-## handling of errors and warnings
-if(errorHunting){
-  options(warn = 2, shiny.error = recover)
-  options(shiny.trace=TRUE)
-  options(shiny.fullstacktrace=TRUE)
-  options(shiny.testmode=TRUE)
-} else {
-  options(warn = 1, shiny.error = NULL)
-  options(shiny.trace=FALSE)
-  options(shiny.fullstacktrace=FALSE)
-  options(shiny.testmode=FALSE)
-}
+errorHunting <- TRUE
+hcaHeatMapNew <- TRUE
 
 ##
 ## Load dependency libraries. Formerly in sourceTheCode()
 ##
 library(MetFamily)
 load_metfamily_dependencies()
+
+#####################################################################################################
+## handling of errors and warnings
+if(errorHunting){
+  options(warn = 2, shiny.error = recover)
+  #options(shiny.trace=TRUE)
+  options(shiny.trace=FALSE)
+  options(shiny.fullstacktrace=TRUE)
+  options(shiny.testmode=TRUE)
+  options(shiny.sanitize.errors = FALSE)
+} else {
+  options(warn = 1, shiny.error = NULL)
+  options(shiny.trace=FALSE)
+  options(shiny.fullstacktrace=FALSE)
+  options(shiny.testmode=FALSE)
+}
 
 #########################################################################################
 #########################################################################################

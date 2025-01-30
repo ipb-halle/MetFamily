@@ -191,6 +191,8 @@ parsePeakAbundanceMatrixQF <- function(qfeatures,
 #' @param siriusID 
 #'
 #' @return
+#' @importFrom SummarizedExperiment rowData
+#' @importFrom SummarizedExperiment rowData<- 
 #' @export
 #' @importFrom SummarizedExperiment rowData<-
 #'
