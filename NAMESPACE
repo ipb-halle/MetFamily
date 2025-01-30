@@ -36,6 +36,6 @@ importFrom("stats", "as.dendrogram", "cor", "dendrapply", "dist",
 importFrom("utils", "flush.console", "read.table")
 
 
-importFrom("SummarizedExperiment","colData")
-importFrom("SummarizedExperiment","rowData", "rowData<-")
-importFrom("SummarizedExperiment","assay")
+importFrom(SummarizedExperiment,colData)
+importFrom("SummarizedExperiment","rowData","rowData<-")
+importFrom(SummarizedExperiment,assay)
