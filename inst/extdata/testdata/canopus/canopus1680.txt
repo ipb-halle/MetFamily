@@ -1,0 +1,1681 @@
+id	molecularFormula	adduct	precursorFormula	NPC#pathway	NPC#pathway Probability	NPC#superclass	NPC#superclass Probability	NPC#class	NPC#class Probability	ClassyFire#most specific class	ClassyFire#most specific class Probability	ClassyFire#level 5	ClassyFire#level 5 Probability	ClassyFire#subclass	ClassyFire#subclass Probability	ClassyFire#class	ClassyFire#class Probability	ClassyFire#superclass	ClassyFire#superclass probability	ClassyFire#all classifications	featureId
+2_Mat_2024_01_11_16_29_44_AlignmentResult_2023_09_1	C8H7N	[M - H]-	C8H7N	Alkaloids	0.8870120048522949	Tryptophan alkaloids	0.8561896681785583	Simple indole alkaloids	0.9452337026596069	Indoles	0.9903693795204163			Indoles	0.9903693795204163	Indoles and derivatives	0.9966350197792053	Organoheterocyclic compounds	0.9999942779541016	Organic compounds; Organoheterocyclic compounds; Pyrroles; Indoles and derivatives; Organonitrogen compounds; Benzenoids; Indoles; Azacyclic compounds; Heteroaromatic compounds; Hydrocarbon derivatives; Organopnictogen compounds; Organic nitrogen compounds; Chemical entities	13
+3_Mat_2024_01_11_16_29_44_AlignmentResult_2023_09_2	C7H6O2	[M - H]-	C7H6O2	Shikimates and Phenylpropanoids	0.9089521169662476	Phenolic acids (C6-C1)	0.7763683199882507	Shikimic acids and derivatives	0.8138447403907776	Hydroxybenzaldehydes	0.9279708862304688	Aldehydes	0.9308148622512817	Carbonyl compounds	0.9329900741577148	Organooxygen compounds	0.999996543	Organic oxygen compounds	0.9999943971633911	Organic compounds; Aldehydes; Phenols; Benzoyl derivatives; Organooxygen compounds; Benzaldehydes; Carbonyl compounds; Benzene and substituted derivatives; Benzenoids; Aryl-aldehydes; Organic oxides; Hydroxybenzaldehydes; Hydrocarbon derivatives; Organic oxygen compounds; 1-hydroxy-2-unsubstituted benzenoids; 1-hydroxy-4-unsubstituted benzenoids; Chemical entities	25
+6_Mat_2024_01_11_16_29_44_AlignmentResult_2023_09_5	C6H5NO3	[M - H]-	C6H5NO3	Shikimates and Phenylpropanoids	0.6992096900939941	Small peptides	0.25746241211891174	Simple phenolic acids	0.20999015867710114	Nitrophenols	0.6138470768928528			Nitrophenols	0.6138470768928528	Phenols	0.7342114448547363	Benzenoids	0.9993340373039246	"Organic compounds; Nitrobenzenes; Phenols; Nitrophenols; Organonitrogen compounds; Organooxygen compounds; Organic nitro compounds; Organic oxoazanium compounds; Benzene and substituted derivatives; Benzenoids; Organic 1,3-dipolar compounds; Allyl-type 1,3-dipolar organic compounds; Propargyl-type 1,3-dipolar organic compounds; Organic oxides; C-nitro compounds; Hydrocarbon derivatives; Organopnictogen compounds; Organic oxygen compounds; Nitroaromatic compounds; 1-hydroxy-2-unsubstituted benzenoids; Organic nitrogen compounds; Chemical entities"	31
+9_Mat_2024_01_11_16_29_44_AlignmentResult_2023_09_8	C9H7NO	[M - H]-	C9H7NO	Alkaloids	0.8406887650489807	Anthranilic acid alkaloids	0.643972635	Quinoline alkaloids	0.5645411014556885	8-hydroxyquinolines	0.5277678966522217			8-hydroxyquinolines	0.5277678966522217	Quinolines and derivatives	0.8031120300292969	Organoheterocyclic compounds	0.9993636012077332	Organic compounds; Organoheterocyclic compounds; Pyridines and derivatives; Organonitrogen compounds; Organooxygen compounds; Quinolines and derivatives; Benzenoids; Organic oxides; 8-hydroxyquinolines; Azacyclic compounds; Heteroaromatic compounds; Hydrocarbon derivatives; Organopnictogen compounds; Organic oxygen compounds; Organic nitrogen compounds; Chemical entities	34
+10_Mat_2024_01_11_16_29_44_AlignmentResult_2023_09_9	C9H7NO	[M - H]-	C9H7NO	Alkaloids	0.8518166542053223	Anthranilic acid alkaloids	0.6268395185470581	Quinoline alkaloids	0.6034289002418518	8-hydroxyquinolines	0.6585221886634827			8-hydroxyquinolines	0.6585221886634827	Quinolines and derivatives	0.8772664666175842	Organoheterocyclic compounds	0.9993895292282104	Organic compounds; Organoheterocyclic compounds; Pyridines and derivatives; Aldehydes; Organonitrogen compounds; Organooxygen compounds; Quinolines and derivatives; Benzenoids; Organic oxides; 8-hydroxyquinolines; Azacyclic compounds; Heteroaromatic compounds; Hydrocarbon derivatives; Organopnictogen compounds; Organic oxygen compounds; Organic nitrogen compounds; Chemical entities	46
+11_Mat_2024_01_11_16_29_44_AlignmentResult_2023_09_10	C9H7NO	[M - H]-	C9H7NO	Alkaloids	0.8298091292381287	Anthranilic acid alkaloids	0.6983190774917603	Quinoline alkaloids	0.5866319537162781	8-hydroxyquinolines	0.6664767265319824			8-hydroxyquinolines	0.6664767265319824	Quinolines and derivatives	0.7657358646392822	Organoheterocyclic compounds	0.995336115	Organic compounds; Organoheterocyclic compounds; Pyridines and derivatives; Phenols; Organonitrogen compounds; Organooxygen compounds; Quinolines and derivatives; Benzenoids; 8-hydroxyquinolines; Azacyclic compounds; Heteroaromatic compounds; Hydrocarbon derivatives; Organopnictogen compounds; Organic oxygen compounds; 1-hydroxy-2-unsubstituted benzenoids; Organic nitrogen compounds; Chemical entities	47
+12_Mat_2024_01_11_16_29_44_AlignmentResult_2023_09_11	C9H7NO	[M - H]-	C9H7NO	Alkaloids	0.8405388593673706	Anthranilic acid alkaloids	0.6495682597160339	Quinoline alkaloids	0.5869513750076294	8-hydroxyquinolines	0.5523830056190491			8-hydroxyquinolines	0.5523830056190491	Quinolines and derivatives	0.8367798924446106	Organoheterocyclic compounds	0.99951756	Organic compounds; Organoheterocyclic compounds; Pyridines and derivatives; Organonitrogen compounds; Organooxygen compounds; Quinolines and derivatives; Benzenoids; Organic oxides; 8-hydroxyquinolines; Azacyclic compounds; Heteroaromatic compounds; Hydrocarbon derivatives; Organopnictogen compounds; Organic oxygen compounds; Organic nitrogen compounds; Chemical entities	55
+15_Mat_2024_01_11_16_29_44_AlignmentResult_2023_09_14	C10H18O	[M - H]-	C10H18O	Terpenoids	0.8034495115280151	Monoterpenoids	0.8145368695259094	Acyclic monoterpenoids	0.7777722477912903	Acyclic monoterpenoids	0.9412819743156433	Acyclic monoterpenoids	0.9412819743156433	Monoterpenoids	0.8545339703559875	Prenol lipids	0.9324080944061279	Lipids and lipid-like molecules	0.8962463140487671	Organic compounds; Lipids and lipid-like molecules; Prenol lipids; Organooxygen compounds; Acyclic monoterpenoids; Monoterpenoids; Monocyclic monoterpenoids; Hydrocarbon derivatives; Organic oxygen compounds; Chemical entities	57
+16_Mat_2024_01_11_16_29_44_AlignmentResult_2023_09_15	C8H11O3	[M - H]-	C8H11O3	Shikimates and Phenylpropanoids	0.6457704305648804	Phenylpropanoids (C6-C3)	0.6647318601608276	Cinnamic acids and derivatives	0.6756095290184021	Methoxyphenols	0.8422438502311707			Methoxyphenols	0.8422438502311707	Phenols	0.8921443223953247	Benzenoids	0.9980195760726929	Organic compounds; Alkyl aryl ethers; Phenols; Anisoles; Methoxyphenols; Ethers; Organooxygen compounds; Benzene and substituted derivatives; Phenol ethers; Benzenoids; Methoxybenzenes; Hydrocarbon derivatives; Organic oxygen compounds; 1-hydroxy-2-unsubstituted benzenoids; Phenoxy compounds; Chemical entities	61
+17_Mat_2024_01_11_16_29_44_AlignmentResult_2023_09_16	C9H16O2	[M - H]-	C9H16O2	Fatty acids	0.720951259	Fatty Acids and Conjugates	0.6790105700492859	Unsaturated fatty acids	0.7485570311546326	Medium-chain fatty acids	0.5367127060890198	Medium-chain fatty acids	0.5367127060890198	Fatty acids and conjugates	0.8464160561561584	Fatty Acyls	0.8592597842216492	Lipids and lipid-like molecules	0.8309528827667236	Organic compounds; Lipids and lipid-like molecules; Fatty acids and conjugates; Organic acids and derivatives; Carboxylic acids and derivatives; Organooxygen compounds; Straight chain fatty acids; Branched fatty acids; Unsaturated fatty acids; Monocarboxylic acids and derivatives; Carboxylic acids; Carbonyl compounds; Medium-chain fatty acids; Fatty Acyls; Organic oxides; Hydrocarbon derivatives; Organic oxygen compounds; Chemical entities	70
+25_Mat_2024_01_11_16_29_44_AlignmentResult_2023_09_24	C9H7NO2	[M - H]-	C9H7NO2	Alkaloids	0.7424479126930237	Anthranilic acid alkaloids	0.6170629262924194	Quinoline alkaloids	0.6015840768814087	Hydroxyquinolines	0.5088233351707458			Hydroxyquinolines	0.5088233351707458	Quinolines and derivatives	0.6386516690254211	Organoheterocyclic compounds	0.9976720213890076	Organic compounds; Organoheterocyclic compounds; Hydroxyquinolines; Pyridines and derivatives; Phenols; Organonitrogen compounds; Organooxygen compounds; Quinolines and derivatives; Benzenoids; Organic oxides; Azacyclic compounds; Heteroaromatic compounds; Hydrocarbon derivatives; Organopnictogen compounds; Organic oxygen compounds; 1-hydroxy-2-unsubstituted benzenoids; Organic nitrogen compounds; Chemical entities	80
+27_Mat_2024_01_11_16_29_44_AlignmentResult_2023_09_26	C10H14O2	[M - H]-	C10H14O2	Polyketides	0.7549726366996765	Cyclic polyketides	0.9191012978553772	2-pyrone derivatives	0.9894086122512817	Phenylpropanes	0.6727377772331238			Phenylpropanes	0.6727377772331238	Benzene and substituted derivatives	0.22105622291564941	Benzenoids	0.22168365120887756	Organic compounds; Organoheterocyclic compounds; Lactones; Pyrans; Organooxygen compounds; Pyranones and derivatives; Phenylpropanes; Organic oxides; Oxacyclic compounds; Heteroaromatic compounds; Hydrocarbon derivatives; Organic oxygen compounds; Chemical entities	90
+28_Mat_2024_01_11_16_29_44_AlignmentResult_2023_09_27	C10H14O2	[M - H]-	C10H14O2	Terpenoids	0.6759486794471741	Sesquiterpenoids	0.6042890548706055	Menthane monoterpenoids	0.4190351366996765	Prenol lipids	0.5046707391738892					Prenol lipids	0.5046707391738892	Lipids and lipid-like molecules	0.47846662998199463	Organic compounds; Ketones; Prenol lipids; Organooxygen compounds; Carbonyl compounds; Organic oxides; Hydrocarbon derivatives; Organic oxygen compounds; Chemical entities	96
+29_Mat_2024_01_11_16_29_44_AlignmentResult_2023_09_28	C7H5NS2	[M - H]-	C7H5NS2	Alkaloids	0.8013603687286377	Anthranilic acid alkaloids	0.6669837832450867	Phenazine alkaloids	0.5377240180969238	Benzothiazoles	0.9811148047447205					Benzothiazoles	0.9811148047447205	Organoheterocyclic compounds	0.9992571473121643	Organic compounds; Organoheterocyclic compounds; Organosulfur compounds; Thiazoles; Organonitrogen compounds; Benzothiazoles; Azoles; Benzenoids; Azacyclic compounds; Heteroaromatic compounds; Hydrocarbon derivatives; Organopnictogen compounds; Organic nitrogen compounds; Chemical entities	99
+30_Mat_2024_01_11_16_29_44_AlignmentResult_2023_09_29	C7H5NS2	[M - H]-	C7H5NS2	Alkaloids	0.7858887314796448	Anthranilic acid alkaloids	0.643724799	Phenazine alkaloids	0.5309200286865234	Benzothiazoles	0.9850782155990601					Benzothiazoles	0.9850782155990601	Organoheterocyclic compounds	0.9987375140190125	Organic compounds; Organoheterocyclic compounds; Organosulfur compounds; Thiazoles; Organonitrogen compounds; Benzothiazoles; Azoles; Benzenoids; Azacyclic compounds; Heteroaromatic compounds; Hydrocarbon derivatives; Organopnictogen compounds; Organic nitrogen compounds; Chemical entities	100
+31_Mat_2024_01_11_16_29_44_AlignmentResult_2023_09_30	C7H5NS2	[M - H]-	C7H5NS2	Alkaloids	0.7934538722038269	Anthranilic acid alkaloids	0.664701521	Phenazine alkaloids	0.56084621	Benzothiazoles	0.9804218411445618					Benzothiazoles	0.9804218411445618	Organoheterocyclic compounds	0.9990732669830322	Organic compounds; Organoheterocyclic compounds; Organosulfur compounds; Thiazoles; Organonitrogen compounds; Benzothiazoles; Azoles; Benzenoids; Azacyclic compounds; Heteroaromatic compounds; Hydrocarbon derivatives; Organopnictogen compounds; Organic nitrogen compounds; Chemical entities	113
+32_Mat_2024_01_11_16_29_44_AlignmentResult_2023_09_31	C7H5NS2	[M - H]-	C7H5NS2	Alkaloids	0.801327646	Anthranilic acid alkaloids	0.664930522	Phenazine alkaloids	0.5239462852478027	Benzothiazoles	0.9760375022888184					Benzothiazoles	0.9760375022888184	Organoheterocyclic compounds	0.9990842342376709	Organic compounds; Organoheterocyclic compounds; Organosulfur compounds; Thiazoles; Organonitrogen compounds; Benzothiazoles; Azoles; Benzenoids; Azacyclic compounds; Heteroaromatic compounds; Hydrocarbon derivatives; Organopnictogen compounds; Organic nitrogen compounds; Chemical entities	124
+33_Mat_2024_01_11_16_29_44_AlignmentResult_2023_09_32	C9H12O3	[M - H]-	C9H12O3	Shikimates and Phenylpropanoids	0.5312291979789734	Phenolic acids (C6-C1)	0.4544844329357147	Simple phenolic acids	0.4630747437477112	Anisoles	0.5757791996002197			Anisoles	0.5757791996002197	Phenol ethers	0.6439514756202698	Benzenoids	0.9560070633888245	Organic compounds; Alkyl aryl ethers; Phenols; Anisoles; Ethers; Organooxygen compounds; Monocarboxylic acids and derivatives; Carbonyl compounds; Benzene and substituted derivatives; Phenol ethers; Benzenoids; Organic oxides; Methoxybenzenes; Hydrocarbon derivatives; Organic oxygen compounds; 1-hydroxy-2-unsubstituted benzenoids; Phenoxy compounds; Chemical entities	136
+34_Mat_2024_01_11_16_29_44_AlignmentResult_2023_09_33	C11H20O	[M - H]-	C11H20O	Terpenoids	0.7261099219322205	Monoterpenoids	0.6211363673210144	Menthane monoterpenoids	0.5690109729766846	Monocyclic monoterpenoids	0.5644896626472473	Monocyclic monoterpenoids	0.5644896626472473	Monoterpenoids	0.5383938550949097	Prenol lipids	0.6079021096229553	Lipids and lipid-like molecules	0.6724250912666321	Organic compounds; Lipids and lipid-like molecules; Prenol lipids; Organooxygen compounds; Menthane monoterpenoids; Monoterpenoids; Monocyclic monoterpenoids; Hydrocarbon derivatives; Organic oxygen compounds; Chemical entities	137
+37_Mat_2024_01_11_16_29_44_AlignmentResult_2023_09_36	C9H16O3	[M - H]-	C9H16O3	Fatty acids	0.668618917	Fatty Acids and Conjugates	0.823358417	Hydroxy fatty acids	0.7829201817512512	Medium-chain fatty acids	0.6778876781463623	Medium-chain fatty acids	0.6778876781463623	Fatty acids and conjugates	0.8463331460952759	Fatty Acyls	0.8144394159317017	Lipids and lipid-like molecules	0.8308684229850769	Organic compounds; Lipids and lipid-like molecules; Alcohols and polyols; Fatty acids and conjugates; Organic acids and derivatives; Carboxylic acids and derivatives; Organooxygen compounds; Hydroxy fatty acids; Hydroxy acids and derivatives; Monocarboxylic acids and derivatives; Carboxylic acids; Secondary alcohols; Carbonyl compounds; Medium-chain fatty acids; Fatty Acyls; Organic oxides; Hydrocarbon derivatives; Organic oxygen compounds; Chemical entities	140
+38_Mat_2024_01_11_16_29_44_AlignmentResult_2023_09_37	C9H16O3	[M - H]-	C9H16O3	Fatty acids	0.7796467542648315	Fatty Acids and Conjugates	0.864094079	Hydroxy fatty acids	0.8700553178787231	Medium-chain hydroxy acids and derivatives	0.5341746211051941			Medium-chain hydroxy acids and derivatives	0.5341746211051941	Hydroxy acids and derivatives	0.8258602023124695	Organic acids and derivatives	0.9995218515396118	Organic compounds; Lipids and lipid-like molecules; Alcohols and polyols; Fatty acids and conjugates; Organic acids and derivatives; Carboxylic acids and derivatives; Medium-chain hydroxy acids and derivatives; Organooxygen compounds; Hydroxy fatty acids; Hydroxy acids and derivatives; Monocarboxylic acids and derivatives; Carboxylic acids; Alpha hydroxy acids and derivatives; Monosaccharides; Secondary alcohols; Carbonyl compounds; Medium-chain fatty acids; Fatty Acyls; Organic oxides; Hydrocarbon derivatives; Organic oxygen compounds; Chemical entities	149
+39_Mat_2024_01_11_16_29_44_AlignmentResult_2023_09_38	C9H16O3	[M - H]-	C9H16O3	Fatty acids	0.8204443454742432	Fatty Acids and Conjugates	0.7957103252410889	Hydroxy fatty acids	0.7687160968780518	Medium-chain hydroxy acids and derivatives	0.5192998647689819			Medium-chain hydroxy acids and derivatives	0.5192998647689819	Hydroxy acids and derivatives	0.6319133043289185	Organic acids and derivatives	0.99985671	Organic compounds; Lipids and lipid-like molecules; Alcohols and polyols; Fatty acids and conjugates; Organic acids and derivatives; Carboxylic acids and derivatives; Medium-chain hydroxy acids and derivatives; Organooxygen compounds; Hydroxy fatty acids; Hydroxy acids and derivatives; Monocarboxylic acids and derivatives; Carboxylic acids; Secondary alcohols; Carbonyl compounds; Medium-chain fatty acids; Fatty Acyls; Organic oxides; Hydrocarbon derivatives; Organic oxygen compounds; Chemical entities	166
+40_Mat_2024_01_11_16_29_44_AlignmentResult_2023_09_39	C9H16O3	[M - H]-	C9H16O3	Fatty acids	0.808531642	Fatty Acids and Conjugates	0.6157884001731873	Hydroxy fatty acids	0.6436683535575867	Hydroxy fatty acids	0.7279983162879944	Hydroxy fatty acids	0.7279983162879944	Fatty acids and conjugates	0.9707725644111633	Fatty Acyls	0.9844663143157959	Lipids and lipid-like molecules	0.9800755977630615	Organic compounds; Lipids and lipid-like molecules; Alcohols and polyols; Fatty acids and conjugates; Organic acids and derivatives; Carboxylic acids and derivatives; Organooxygen compounds; Unsaturated fatty acids; Hydroxy fatty acids; Monocarboxylic acids and derivatives; Carboxylic acids; Secondary alcohols; Carbonyl compounds; Fatty Acyls; Organic oxides; Hydrocarbon derivatives; Organic oxygen compounds; Chemical entities	169
+42_Mat_2024_01_11_16_29_44_AlignmentResult_2023_09_41	C10H7NO2	[M - H]-	C10H7NO2	Alkaloids	0.7496562600135803	Tryptophan alkaloids	0.5836445689201355	Acridone alkaloids	0.32079535722732544	Pyridine carboxaldehydes	0.8560207486152649			Pyridine carboxaldehydes	0.8560207486152649	Pyridines and derivatives	0.6336367726325989	Organoheterocyclic compounds	0.9885104894638062	Organic compounds; Organoheterocyclic compounds; Pyridines and derivatives; Aldehydes; Organonitrogen compounds; Organooxygen compounds; Carbonyl compounds; Pyridine carboxaldehydes; Benzenoids; Aryl-aldehydes; Organic oxides; Azacyclic compounds; Heteroaromatic compounds; Hydrocarbon derivatives; Organopnictogen compounds; Organic oxygen compounds; Organic nitrogen compounds; Chemical entities	170
+43_Mat_2024_01_11_16_29_44_AlignmentResult_2023_09_42	C10H7NO2	[M - H]-	C10H7NO2	Alkaloids	0.7798218727111816	Tryptophan alkaloids	0.5687870979309082	Quinoline alkaloids	0.3912111222743988	8-hydroxyquinolines	0.556218147			8-hydroxyquinolines	0.556218147	Quinolines and derivatives	0.5734277963638306	Organoheterocyclic compounds	0.9932178854942322	Organic compounds; Organoheterocyclic compounds; Pyridines and derivatives; Aldehydes; Organonitrogen compounds; Organooxygen compounds; Quinolines and derivatives; Carbonyl compounds; Pyridine carboxaldehydes; Benzenoids; Aryl-aldehydes; Vinylogous amides; Organic oxides; 8-hydroxyquinolines; Azacyclic compounds; Heteroaromatic compounds; Hydrocarbon derivatives; Organopnictogen compounds; Organic oxygen compounds; Organic nitrogen compounds; Chemical entities	172
+44_Mat_2024_01_11_16_29_44_AlignmentResult_2023_09_43	C8H14O4	[M - H]-	C8H14O4	Fatty acids	0.8723903298377991	Fatty Acids and Conjugates	0.9557186365127563	Dicarboxylic acids	0.9797407388687134	Medium-chain fatty acids	0.9557482600212097	Medium-chain fatty acids	0.9557482600212097	Fatty acids and conjugates	0.973490298	Fatty Acyls	0.965102494	Lipids and lipid-like molecules	0.9735905528068542	Organic compounds; Lipids and lipid-like molecules; Fatty acids and conjugates; Organic acids and derivatives; Carboxylic acids and derivatives; Organooxygen compounds; Dicarboxylic acids and derivatives; Carboxylic acids; Carbonyl compounds; Medium-chain fatty acids; Fatty Acyls; Organic oxides; Hydrocarbon derivatives; Organic oxygen compounds; Chemical entities	174
+45_Mat_2024_01_11_16_29_44_AlignmentResult_2023_09_44	C9H18O3	[M - H]-	C9H18O3	Fatty acids	0.880431592	Fatty Acids and Conjugates	0.9331991076469421	Hydroxy fatty acids	0.9731936454772949	Medium-chain hydroxy acids and derivatives	0.796928346			Medium-chain hydroxy acids and derivatives	0.796928346	Hydroxy acids and derivatives	0.8838778734207153	Organic acids and derivatives	0.9999862909317017	Organic compounds; Lipids and lipid-like molecules; Alcohols and polyols; Fatty acids and conjugates; Organic acids and derivatives; Carboxylic acids and derivatives; Primary alcohols; Medium-chain hydroxy acids and derivatives; Organooxygen compounds; Hydroxy fatty acids; Hydroxy acids and derivatives; Monocarboxylic acids and derivatives; Carboxylic acids; Secondary alcohols; Carbonyl compounds; Medium-chain fatty acids; Fatty Acyls; Organic oxides; Hydrocarbon derivatives; Organic oxygen compounds; Chemical entities	175
+46_Mat_2024_01_11_16_29_44_AlignmentResult_2023_09_45	C10H9NO2	[M - H]-	C10H9NO2	Alkaloids	0.877193809	Tryptophan alkaloids	0.8303506374359131	Simple indole alkaloids	0.982344925	Indole-3-acetic acid derivatives	0.8086400032043457	Indole-3-acetic acid derivatives	0.8086400032043457	Indolyl carboxylic acids and derivatives	0.8935952186584473	Indoles and derivatives	0.9969990253448486	Organoheterocyclic compounds	0.999998927	Organic compounds; Organoheterocyclic compounds; Pyrroles; Indoles and derivatives; Organic acids and derivatives; Carboxylic acids and derivatives; Organonitrogen compounds; Organooxygen compounds; Carboxylic acid derivatives; Monocarboxylic acids and derivatives; Carboxylic acid esters; Indole-3-acetic acid derivatives; Indolyl carboxylic acids and derivatives; Carbonyl compounds; Substituted pyrroles; Benzenoids; Indoles; Methyl esters; Organic oxides; Azacyclic compounds; Heteroaromatic compounds; Hydrocarbon derivatives; 3-alkylindoles; Organopnictogen compounds; Organic oxygen compounds; Organic nitrogen compounds; Chemical entities	176
+47_Mat_2024_01_11_16_29_44_AlignmentResult_2023_09_46	C10H9NO2	[M - H]-	C10H9NO2	Alkaloids	0.8855299353599548	Tryptophan alkaloids	0.7237156629562378	Simple indole alkaloids	0.9128140807151794	Indolecarboxylic acids	0.6226110458374023	Indolecarboxylic acids	0.6226110458374023	Indolecarboxylic acids and derivatives	0.8385785222053528	Indoles and derivatives	0.9669934511184692	Organoheterocyclic compounds	0.9999772310256958	Organic compounds; Organoheterocyclic compounds; Pyrroles; Indoles and derivatives; Organic acids and derivatives; Carboxylic acids and derivatives; Organonitrogen compounds; Organooxygen compounds; Carboxylic acid derivatives; Monocarboxylic acids and derivatives; Carboxylic acid esters; Indolecarboxylic acids and derivatives; Substituted pyrroles; Indolecarboxylic acids; Benzenoids; Indoles; Pyrrole carboxylic acids and derivatives; Methyl esters; Organic oxides; Azacyclic compounds; Heteroaromatic compounds; Hydrocarbon derivatives; Organopnictogen compounds; Organic oxygen compounds; Organic nitrogen compounds; Chemical entities	179
+49_Mat_2024_01_11_16_29_44_AlignmentResult_2023_09_48	C11H14O2	[M - H]-	C11H14O2	Shikimates and Phenylpropanoids	0.6995818614959717	Phenolic acids (C6-C1)	0.5726957321166992	Simple phenolic acids	0.5382192730903625	Benzoic acids and derivatives	0.5645351409912109			Benzoic acids and derivatives	0.5645351409912109	Benzene and substituted derivatives	0.9909883141517639	Benzenoids	0.9978736639022827	Organic compounds; Phenols; Benzoic acids and derivatives; Organic acids and derivatives; Carboxylic acids and derivatives; Benzoyl derivatives; Organooxygen compounds; Benzene and substituted derivatives; Benzenoids; Phenylpropanes; Organic oxides; Hydrocarbon derivatives; Organic oxygen compounds; 1-hydroxy-2-unsubstituted benzenoids; Chemical entities	180
+50_Mat_2024_01_11_16_29_44_AlignmentResult_2023_09_49	C9H9NO3	[M - H]-	C9H9NO3	Alkaloids	0.5335946083068848	Naphthalenes	0.086644217	Simple oxindole alkaloids	0.056318286806344986	Lactams	0.5938990116119385					Lactams	0.5938990116119385	Organoheterocyclic compounds	0.7250092029571533	Organic compounds; Organoheterocyclic compounds; Ketones; Alcohols and polyols; Lactams; Organic acids and derivatives; Carboxylic acids and derivatives; Organonitrogen compounds; Organooxygen compounds; Carboxylic acid amides; Carboxylic acid derivatives; Secondary alcohols; Secondary carboxylic acid amides; Carbonyl compounds; Cyclic ketones; Organic oxides; Azacyclic compounds; Hydrocarbon derivatives; Organopnictogen compounds; Organic oxygen compounds; Organic nitrogen compounds; Chemical entities	183
+51_Mat_2024_01_11_16_29_44_AlignmentResult_2023_09_50	C11H16O2	[M - H]-	C11H16O2	Polyketides	0.6014358401298523	Aromatic polyketides	0.5536510944366455	Catechols with side chains	0.5778133273124695	Phenylpropanes	0.5352453589439392			Phenylpropanes	0.5352453589439392	Benzene and substituted derivatives	0.9997233748435974	Benzenoids	0.9999896287918091	Organic compounds; Phenols; Organooxygen compounds; Benzenediols; Benzene and substituted derivatives; Benzenoids; Phenylpropanes; Hydrocarbon derivatives; Organic oxygen compounds; 4-alkoxyphenols; 1-hydroxy-2-unsubstituted benzenoids; 1-hydroxy-4-unsubstituted benzenoids; Chemical entities	187
+52_Mat_2024_01_11_16_29_44_AlignmentResult_2023_09_51	C8H10N2O3	[M - H]-	C8H10N2O3	Alkaloids	0.5515344142913818	Small peptides	0.39784514904022217	Pyrrolidine alkaloids	0.2978222370147705	Alpha amino acids and derivatives	0.8631747961044312	Amino acids and derivatives	0.8861924409866333	"Amino acids, peptides, and analogues"	0.8856490254402161	Carboxylic acids and derivatives	0.9813234210014343	Organic acids and derivatives	0.9964479207992554	"Organic compounds; Organoheterocyclic compounds; Amino acids, peptides, and analogues; Alpha amino acids and derivatives; Lactams; Piperazines; Pyrrolidines; Organic acids and derivatives; Carboxylic acids and derivatives; Organonitrogen compounds; Organooxygen compounds; Amino acids and derivatives; Carboxylic acid amides; Carboxylic acid derivatives; Tertiary carboxylic acid amides; Dioxopiperazines; Carbonyl compounds; Diazinanes; N-alkylpiperazines; 2,5-dioxopiperazines; Organic oxides; Azacyclic compounds; Hydrocarbon derivatives; Organopnictogen compounds; Organic oxygen compounds; Organic nitrogen compounds; Chemical entities"	204
+55_Mat_2024_01_11_16_29_44_AlignmentResult_2023_09_54	C10H16O3	[M - H]-	C10H16O3	Fatty acids	0.6067494750022888	Fatty Acids and Conjugates	0.6811211705207825	Unsaturated fatty acids	0.3345373272895813	Medium-chain fatty acids	0.5186330080032349	Medium-chain fatty acids	0.5186330080032349	Fatty acids and conjugates	0.5983266234397888	Fatty Acyls	0.5552303194999695	Lipids and lipid-like molecules	0.6970973014831543	Organic compounds; Lipids and lipid-like molecules; Fatty acids and conjugates; Organic acids and derivatives; Carboxylic acids and derivatives; Organooxygen compounds; Branched fatty acids; Monocarboxylic acids and derivatives; Carboxylic acids; Carbonyl compounds; Medium-chain fatty acids; Fatty Acyls; Organic oxides; Hydrocarbon derivatives; Organic oxygen compounds; Chemical entities	207
+56_Mat_2024_01_11_16_29_44_AlignmentResult_2023_09_55	C10H16O3	[M - H]-	C10H16O3	Fatty acids	0.562591016	Fatty Acids and Conjugates	0.6058234572410583	Oxo fatty acids	0.32244715094566345	Fatty Acyls	0.5054129958152771					Fatty Acyls	0.5054129958152771	Lipids and lipid-like molecules	0.7004855871200562	Organic compounds; Lipids and lipid-like molecules; Organic acids and derivatives; Carboxylic acids and derivatives; Organooxygen compounds; Monocarboxylic acids and derivatives; Carboxylic acids; Carbonyl compounds; Fatty Acyls; Organic oxides; Hydrocarbon derivatives; Organic oxygen compounds; Chemical entities	213
+57_Mat_2024_01_11_16_29_44_AlignmentResult_2023_09_56	C11H20O2	[M - H]-	C11H20O2	Fatty acids	0.5476789474487305	Fatty Acids and Conjugates	0.6827322244644165	Unsaturated fatty acids	0.6522820591926575	Medium-chain fatty acids	0.5764241218566895	Medium-chain fatty acids	0.5764241218566895	Fatty acids and conjugates	0.8400757908821106	Fatty Acyls	0.882676899	Lipids and lipid-like molecules	0.9450534582138062	Organic compounds; Lipids and lipid-like molecules; Prenol lipids; Fatty acids and conjugates; Organic acids and derivatives; Carboxylic acids and derivatives; Organooxygen compounds; Branched fatty acids; Unsaturated fatty acids; Monocarboxylic acids and derivatives; Carboxylic acids; Carbonyl compounds; Medium-chain fatty acids; Methyl-branched fatty acids; Fatty Acyls; Organic oxides; Hydrocarbon derivatives; Organic oxygen compounds; Chemical entities	216
+58_Mat_2024_01_11_16_29_44_AlignmentResult_2023_09_57	C10H18O3	[M - H]-	C10H18O3	Fatty acids	0.7437865734100342	Fatty Acids and Conjugates	0.8702442646026611	Hydroxy fatty acids	0.9690773487091064	Medium-chain hydroxy acids and derivatives	0.6600038409233093			Medium-chain hydroxy acids and derivatives	0.6600038409233093	Hydroxy acids and derivatives	0.8375214338302612	Organic acids and derivatives	0.9993133544921875	Organic compounds; Lipids and lipid-like molecules; Alcohols and polyols; Fatty acids and conjugates; Organic acids and derivatives; Carboxylic acids and derivatives; Primary alcohols; Medium-chain hydroxy acids and derivatives; Organooxygen compounds; Branched fatty acids; Unsaturated fatty acids; Hydroxy fatty acids; Hydroxy acids and derivatives; Monocarboxylic acids and derivatives; Carboxylic acids; Carbonyl compounds; Medium-chain fatty acids; Fatty Acyls; Organic oxides; Hydrocarbon derivatives; Organic oxygen compounds; Chemical entities	229
+60_Mat_2024_01_11_16_29_44_AlignmentResult_2023_09_59	C9H17NO3	[M - H]-	C9H17NO3	Amino acids and Peptides	0.7645652294158936	Small peptides	0.8538362979888916	Aminoacids	0.799705446	Amino acids	0.984623373	Amino acids and derivatives	0.993316114	"Amino acids, peptides, and analogues"	0.9932891726493835	Carboxylic acids and derivatives	0.9993960857391357	Organic acids and derivatives	0.9997774958610535	"Organic compounds; Lipids and lipid-like molecules; Amino acids, peptides, and analogues; Ketones; Alpha-amino ketones; Fatty acids and conjugates; Organic acids and derivatives; Carboxylic acids and derivatives; Organonitrogen compounds; Organooxygen compounds; Branched fatty acids; Amino acids and derivatives; Keto acids and derivatives; Monoalkylamines; Amino fatty acids; Monocarboxylic acids and derivatives; Carboxylic acids; Carbonyl compounds; Amines; Primary amines; Medium-chain fatty acids; Fatty Acyls; Organic oxides; Hydrocarbon derivatives; Amino acids; Organopnictogen compounds; Organic oxygen compounds; Organic nitrogen compounds; Chemical entities"	230
+61_Mat_2024_01_11_16_29_44_AlignmentResult_2023_09_60	C9H17NO3	[M - H]-	C9H17NO3	Amino acids and Peptides	0.7932354807853699	Small peptides	0.8728511333465576	Aminoacids	0.8255884051322937	Alpha amino acids	0.8199374079704285	Amino acids and derivatives	0.9966620206832886	"Amino acids, peptides, and analogues"	0.9966807961463928	Carboxylic acids and derivatives	0.9997380375862122	Organic acids and derivatives	0.9999358654022217	"Organic compounds; Lipids and lipid-like molecules; Amino acids, peptides, and analogues; Alpha amino acids and derivatives; Ketones; Alpha-amino ketones; Fatty acids and conjugates; Organic acids and derivatives; Carboxylic acids and derivatives; Organonitrogen compounds; Organooxygen compounds; Branched fatty acids; Amino acids and derivatives; Keto acids and derivatives; Monoalkylamines; Amino fatty acids; Monocarboxylic acids and derivatives; Carboxylic acids; Carbonyl compounds; Alpha amino acids; Amines; Primary amines; Medium-chain fatty acids; Fatty Acyls; Organic oxides; Hydrocarbon derivatives; Amino acids; Organopnictogen compounds; Organic oxygen compounds; Organic nitrogen compounds; Chemical entities"	235
+62_Mat_2024_01_11_16_29_44_AlignmentResult_2023_09_61	C10H8N2O2	[M - H]-	C10H8N2O2	Alkaloids	0.8394519686698914	Anthranilic acid alkaloids	0.5625057220458984	Simple indole alkaloids	0.19845092296600342	Quinolines and derivatives	0.5210431218147278					Quinolines and derivatives	0.5210431218147278	Organoheterocyclic compounds	0.9995446801185608	Organic compounds; Organoheterocyclic compounds; Pyridines and derivatives; Pyrroles; Organic acids and derivatives; Carboxylic acids and derivatives; Organonitrogen compounds; Organooxygen compounds; Carboxylic acid amides; Carboxylic acid derivatives; Quinolines and derivatives; Pyridinecarboxylic acids and derivatives; Primary carboxylic acid amides; Benzenoids; Indoles; Organic oxides; Azacyclic compounds; Heteroaromatic compounds; Hydrocarbon derivatives; Organopnictogen compounds; Organic oxygen compounds; Organic nitrogen compounds; Chemical entities	258
+63_Mat_2024_01_11_16_29_44_AlignmentResult_2023_09_62	C9H16O4	[M - H]-	C9H16O4	Fatty acids	0.8877792954444885	Fatty Acids and Conjugates	0.9580230712890625	Dicarboxylic acids	0.9774971604347229	Medium-chain fatty acids	0.9445849657058716	Medium-chain fatty acids	0.9445849657058716	Fatty acids and conjugates	0.9794694185256958	Fatty Acyls	0.9746719002723694	Lipids and lipid-like molecules	0.9811938405036926	Organic compounds; Lipids and lipid-like molecules; Fatty acids and conjugates; Organic acids and derivatives; Carboxylic acids and derivatives; Organooxygen compounds; Dicarboxylic acids and derivatives; Carboxylic acids; Carbonyl compounds; Medium-chain fatty acids; Fatty Acyls; Organic oxides; Hydrocarbon derivatives; Organic oxygen compounds; Chemical entities	261
+64_Mat_2024_01_11_16_29_44_AlignmentResult_2023_09_63	C10H20O3	[M - H]-	C10H20O3	Fatty acids	0.8811952471733093	Fatty Acids and Conjugates	0.9279255867004395	Hydroxy fatty acids	0.9773107171058655	Medium-chain hydroxy acids and derivatives	0.7761923670768738			Medium-chain hydroxy acids and derivatives	0.7761923670768738	Hydroxy acids and derivatives	0.8814804553985596	Organic acids and derivatives	0.9999872446060181	Organic compounds; Lipids and lipid-like molecules; Alcohols and polyols; Fatty acids and conjugates; Organic acids and derivatives; Carboxylic acids and derivatives; Primary alcohols; Medium-chain hydroxy acids and derivatives; Organooxygen compounds; Hydroxy fatty acids; Hydroxy acids and derivatives; Monocarboxylic acids and derivatives; Carboxylic acids; Secondary alcohols; Carbonyl compounds; Medium-chain fatty acids; Fatty Acyls; Organic oxides; Hydrocarbon derivatives; Organic oxygen compounds; Chemical entities	262
+65_Mat_2024_01_11_16_29_44_AlignmentResult_2023_09_64	C10H8O4	[M - H]-	C10H8O4	Shikimates and Phenylpropanoids	0.6258007884025574	Coumarins	0.7211818695068359	Isocoumarins	0.7872475981712341	Isocoumarins and derivatives	0.9045735597610474					Isocoumarins and derivatives	0.9045735597610474	Phenylpropanoids and polyketides	0.7858816385269165	Organic compounds; Organoheterocyclic compounds; Lactones; Pyrans; Benzopyrans; Phenols; Phenylpropanoids and polyketides; Organooxygen compounds; Pyranones and derivatives; Isocoumarins and derivatives; Benzenoids; 1-benzopyrans; 2-benzopyrans; Vinylogous acids; Organic oxides; Oxacyclic compounds; Heteroaromatic compounds; Hydrocarbon derivatives; Organic oxygen compounds; 1-hydroxy-2-unsubstituted benzenoids; 1-hydroxy-4-unsubstituted benzenoids; Chemical entities	263
+66_Mat_2024_01_11_16_29_44_AlignmentResult_2023_09_65	C12H16O2	[M - H]-	C12H16O2	Terpenoids	0.5531399250030518	Monoterpenoids	0.2412237524986267	Catechols with side chains	0.42765507102012634	Alkyl-phenylketones	0.5908416509628296	Ketones	0.7303571701049805	Carbonyl compounds	0.8504664301872253	Organooxygen compounds	0.9999643564224243	Organic oxygen compounds	0.9999127388000488	Organic compounds; Ketones; Acetophenones; Phenols; Benzoyl derivatives; Organooxygen compounds; Carbonyl compounds; Benzene and substituted derivatives; Benzenoids; Phenylpropanes; Aryl ketones; Aryl alkyl ketones; Organic oxides; Hydrocarbon derivatives; Phenylketones; Alkyl-phenylketones; Organic oxygen compounds; 1-hydroxy-2-unsubstituted benzenoids; Chemical entities	277
+67_Mat_2024_01_11_16_29_44_AlignmentResult_2023_09_66	C12H20O2	[M - H]-	C12H20O2	Terpenoids	0.5433242917060852	Fatty acyls	0.4435396194458008	Fatty aldehydes	0.4664011001586914	Medium-chain aldehydes	0.6782073974609375	Aldehydes	0.8286449313163757	Carbonyl compounds	0.9927901029586792	Organooxygen compounds	0.999985933	Organic oxygen compounds	0.9999551773071289	Organic compounds; Lipids and lipid-like molecules; Aldehydes; Organooxygen compounds; Carbonyl compounds; Medium-chain aldehydes; Organic oxides; Hydrocarbon derivatives; Organic oxygen compounds; Chemical entities	294
+68_Mat_2024_01_11_16_29_44_AlignmentResult_2023_09_67	C11H18O3	[M - H]-	C11H18O3	Fatty acids	0.7206029295921326	Fatty Acids and Conjugates	0.7889301180839539	Unsaturated fatty acids	0.5571989417076111	Medium-chain fatty acids	0.7739066481590271	Medium-chain fatty acids	0.7739066481590271	Fatty acids and conjugates	0.932806671	Fatty Acyls	0.9041537046432495	Lipids and lipid-like molecules	0.91739583	Organic compounds; Lipids and lipid-like molecules; Fatty acids and conjugates; Organic acids and derivatives; Carboxylic acids and derivatives; Organooxygen compounds; Branched fatty acids; Unsaturated fatty acids; Monocarboxylic acids and derivatives; Carboxylic acids; Carbonyl compounds; Medium-chain fatty acids; Fatty Acyls; Organic oxides; Hydrocarbon derivatives; Organic oxygen compounds; Chemical entities	67
+69_Mat_2024_01_11_16_29_44_AlignmentResult_2023_09_68	C11H18O3	[M - H]-	C11H18O3	Fatty acids	0.6266816258430481	Fatty Acids and Conjugates	0.7047176361083984	Unsaturated fatty acids	0.5774021148681641	Medium-chain fatty acids	0.546290934	Medium-chain fatty acids	0.546290934	Fatty acids and conjugates	0.6202312707901001	Fatty Acyls	0.5609548687934875	Lipids and lipid-like molecules	0.6341654062271118	Organic compounds; Lipids and lipid-like molecules; Fatty acids and conjugates; Organic acids and derivatives; Carboxylic acids and derivatives; Organooxygen compounds; Monocarboxylic acids and derivatives; Carboxylic acids; Carbonyl compounds; Medium-chain fatty acids; Fatty Acyls; Organic oxides; Hydrocarbon derivatives; Organic oxygen compounds; Chemical entities	68
+70_Mat_2024_01_11_16_29_44_AlignmentResult_2023_09_69	C7H5NS3	[M - H]-	C7H5NS3	Alkaloids	0.8025895953178406	Anthranilic acid alkaloids	0.6534295082092285	Phenazine alkaloids	0.538439155	Benzothiazoles	0.9785536527633667					Benzothiazoles	0.9785536527633667	Organoheterocyclic compounds	0.9993894100189209	Organic compounds; Organoheterocyclic compounds; Organosulfur compounds; Thiazoles; Organonitrogen compounds; Benzothiazoles; Azoles; Benzenoids; Azacyclic compounds; Heteroaromatic compounds; Hydrocarbon derivatives; Organopnictogen compounds; Organic nitrogen compounds; Chemical entities	69
+73_Mat_2024_01_11_16_29_44_AlignmentResult_2023_09_72	C12H24O2	[M - H]-	C12H24O2	Fatty acids	0.8043327331542969	Fatty Acids and Conjugates	0.816906214	Unsaturated fatty acids	0.7840014100074768	Straight chain fatty acids	0.8411533832550049	Straight chain fatty acids	0.8411533832550049	Fatty acids and conjugates	0.9738175868988037	Fatty Acyls	0.9594621062278748	Lipids and lipid-like molecules	0.9707306623458862	Organic compounds; Lipids and lipid-like molecules; Fatty acids and conjugates; Organic acids and derivatives; Carboxylic acids and derivatives; Organooxygen compounds; Straight chain fatty acids; Monocarboxylic acids and derivatives; Carboxylic acids; Carbonyl compounds; Fatty Acyls; Organic oxides; Hydrocarbon derivatives; Organic oxygen compounds; Chemical entities	72
+74_Mat_2024_01_11_16_29_44_AlignmentResult_2023_09_73	C10H18O4	[M - H]-	C10H18O4	Fatty acids	0.8952174186706543	Fatty Acids and Conjugates	0.9609139561653137	Dicarboxylic acids	0.9798406958580017	Medium-chain fatty acids	0.9446649551391602	Medium-chain fatty acids	0.9446649551391602	Fatty acids and conjugates	0.9846808910369873	Fatty Acyls	0.9808278679847717	Lipids and lipid-like molecules	0.9860936403274536	Organic compounds; Lipids and lipid-like molecules; Fatty acids and conjugates; Organic acids and derivatives; Carboxylic acids and derivatives; Organooxygen compounds; Dicarboxylic acids and derivatives; Carboxylic acids; Carbonyl compounds; Medium-chain fatty acids; Fatty Acyls; Organic oxides; Hydrocarbon derivatives; Organic oxygen compounds; Chemical entities	73
+75_Mat_2024_01_11_16_29_44_AlignmentResult_2023_09_74	C11H12N2O2	[M - H]-	C11H12N2O2	Amino acids and Peptides	0.9778624773025513	Small peptides	0.9951568245887756	Aminoacids	0.9610999226570129	Alpha amino acids	0.9909479022026062	Amino acids and derivatives	0.9999969005584717	"Amino acids, peptides, and analogues"	0.9999971389770508	Carboxylic acids and derivatives	0.9999970197677612	Organic acids and derivatives	0.9999997615814209	"Organic compounds; Organoheterocyclic compounds; Amino acids, peptides, and analogues; Alpha amino acids and derivatives; Pyrroles; Indoles and derivatives; Organic acids and derivatives; Carboxylic acids and derivatives; Organonitrogen compounds; Organooxygen compounds; Amino acids and derivatives; Monoalkylamines; Monocarboxylic acids and derivatives; Carboxylic acids; Indolyl carboxylic acids and derivatives; Carbonyl compounds; Substituted pyrroles; Alpha amino acids; Benzenoids; Amines; Primary amines; Indoles; Aralkylamines; Organic oxides; Azacyclic compounds; Heteroaromatic compounds; Hydrocarbon derivatives; Amino acids; 3-alkylindoles; Organopnictogen compounds; Organic oxygen compounds; Organic nitrogen compounds; Chemical entities"	74
+76_Mat_2024_01_11_16_29_44_AlignmentResult_2023_09_75	C14H22O	[M - H]-	C14H22O	Terpenoids	0.849859357	Sesquiterpenoids	0.823835552	Bisabolane sesquiterpenoids	0.4012870192527771	Sesquiterpenoids	0.6071773171424866			Sesquiterpenoids	0.6071773171424866	Prenol lipids	0.7410750985145569	Lipids and lipid-like molecules	0.6791847348213196	Organic compounds; Lipids and lipid-like molecules; Phenols; Prenol lipids; Organooxygen compounds; Cresols; Sesquiterpenoids; Benzene and substituted derivatives; Benzenoids; Hydrocarbon derivatives; Organic oxygen compounds; 1-hydroxy-2-unsubstituted benzenoids; Chemical entities	75
+78_Mat_2024_01_11_16_29_44_AlignmentResult_2023_09_77	C14H22O	[M - H]-	C14H22O	Terpenoids	0.9449517726898193	Sesquiterpenoids	0.9572640061378479	Caryophyllane sesquiterpenoids	0.3147593140602112	Sesquiterpenoids	0.7802165746688843			Sesquiterpenoids	0.7802165746688843	Prenol lipids	0.8131317496299744	Lipids and lipid-like molecules	0.7942453622817993	Organic compounds; Lipids and lipid-like molecules; Alcohols and polyols; Prenol lipids; Organooxygen compounds; Sesquiterpenoids; Hydrocarbon derivatives; Organic oxygen compounds; Chemical entities	77
+79_Mat_2024_01_11_16_29_44_AlignmentResult_2023_09_78	C14H22O	[M - H]-	C14H22O	Terpenoids	0.5799410939216614	Sesquiterpenoids	0.46788740158081055	Catechols with side chains	0.3168637156486511	Phenylpropanes	0.9243729710578918			Phenylpropanes	0.9243729710578918	Benzene and substituted derivatives	0.9570453763008118	Benzenoids	0.9580451846122742	Organic compounds; Phenols; Organooxygen compounds; Benzene and substituted derivatives; Benzenoids; Phenylpropanes; Hydrocarbon derivatives; Organic oxygen compounds; Chemical entities	78
+80_Mat_2024_01_11_16_29_44_AlignmentResult_2023_09_79	C14H22O	[M - H]-	C14H22O	Shikimates and Phenylpropanoids	0.6062920093536377	Aromatic polyketides	0.5562620759010315	Catechols with side chains	0.6483939290046692	Phenylpropanes	0.9814349412918091			Phenylpropanes	0.9814349412918091	Benzene and substituted derivatives	0.996635377	Benzenoids	0.9996992349624634	Organic compounds; Phenols; Organooxygen compounds; Benzene and substituted derivatives; Benzenoids; Phenoxides; Phenylpropanes; Hydrocarbon derivatives; Organic oxygen compounds; Chemical entities	79
+82_Mat_2024_01_11_16_29_44_AlignmentResult_2023_09_81	C11H13NO3	[M - H]-	C11H13NO3	Amino acids and Peptides	0.9083881974220276	Small peptides	0.969497025	Dipeptides	0.9998493194580078	Phenylalanine and derivatives	0.984933078	Amino acids and derivatives	0.9996219873428345	"Amino acids, peptides, and analogues"	0.9996558427810669	Carboxylic acids and derivatives	0.9999997615814209	Organic acids and derivatives	1	"Organic compounds; Amino acids, peptides, and analogues; Alpha amino acids and derivatives; Phenethylamines; Amphetamines and derivatives; Phenylpropanoids and polyketides; Organic acids and derivatives; Carboxylic acids and derivatives; Organonitrogen compounds; Organooxygen compounds; Amino acids and derivatives; Carboxylic acid amides; Carboxylic acid derivatives; Monocarboxylic acids and derivatives; Carboxylic acid salts; N-acyl-alpha amino acids and derivatives; Carboxylic acids; Secondary carboxylic acid amides; Carbonyl compounds; Benzene and substituted derivatives; N-acyl-alpha amino acids; Benzenoids; Phenylpropanoic acids; Organic anions; Acetamides; Organic oxides; Hydrocarbon derivatives; Phenylalanine and derivatives; Organopnictogen compounds; Organic oxygen compounds; Organic nitrogen compounds; Chemical entities"	81
+83_Mat_2024_01_11_16_29_44_AlignmentResult_2023_09_82	C14H24O	[M - H]-	C14H24O	Terpenoids	0.8014943599700928	Sesquiterpenoids	0.8334239721298218	Caryophyllane sesquiterpenoids	0.2753695845603943	Sesquiterpenoids	0.5423110127449036			Sesquiterpenoids	0.5423110127449036	Prenol lipids	0.7257109880447388	Lipids and lipid-like molecules	0.776928723	Organic compounds; Lipids and lipid-like molecules; Alcohols and polyols; Prenol lipids; Organooxygen compounds; Cyclic alcohols and derivatives; Sesquiterpenoids; Hydrocarbon derivatives; Organic oxygen compounds; Chemical entities	82
+84_Mat_2024_01_11_16_29_44_AlignmentResult_2023_09_83	C14H24O	[M - H]-	C14H24O	Terpenoids	0.8046982288360596	Sesquiterpenoids	0.8250769972801208	Bisabolane sesquiterpenoids	0.5944486856460571	Sesquiterpenoids	0.515989363			Sesquiterpenoids	0.515989363	Prenol lipids	0.6685218811035156	Lipids and lipid-like molecules	0.6656177639961243	Organic compounds; Lipids and lipid-like molecules; Alcohols and polyols; Prenol lipids; Organooxygen compounds; Sesquiterpenoids; Hydrocarbon derivatives; Organic oxygen compounds; Chemical entities	83
+85_Mat_2024_01_11_16_29_44_AlignmentResult_2023_09_84	C14H24O	[M - H]-	C14H24O	Terpenoids	0.8706206679344177	Monoterpenoids	0.6542423963546753	Acyclic monoterpenoids	0.29344916343688965	Sesquiterpenoids	0.578290582			Sesquiterpenoids	0.578290582	Prenol lipids	0.9637309312820435	Lipids and lipid-like molecules	0.9655912518501282	Organic compounds; Lipids and lipid-like molecules; Alcohols and polyols; Prenol lipids; Organooxygen compounds; Acyclic monoterpenoids; Monoterpenoids; Sesquiterpenoids; Monocyclic monoterpenoids; Hydrocarbon derivatives; Organic oxygen compounds; Chemical entities	84
+86_Mat_2024_01_11_16_29_44_AlignmentResult_2023_09_85	C10H16N3O2	[M - H]-	C10H16N3O2	Alkaloids	0.5585504770278931	Small peptides	0.3010052740573883	Aminoacids	0.2265496551990509	Amino acids	0.5147706270217896	Amino acids and derivatives	0.3578096628189087	"Amino acids, peptides, and analogues"	0.35876551270484924	Carboxylic acids and derivatives	0.8676223754882812	Organic acids and derivatives	0.9047368764877319	Organic compounds; Organoheterocyclic compounds; Organic acids and derivatives; Carboxylic acids and derivatives; Organonitrogen compounds; Organooxygen compounds; Monocarboxylic acids and derivatives; Carboxylic acids; Carbonyl compounds; Amines; Organic oxides; Azacyclic compounds; Heteroaromatic compounds; Hydrocarbon derivatives; Amino acids; Organopnictogen compounds; Organic oxygen compounds; Organic nitrogen compounds; Chemical entities	85
+87_Mat_2024_01_11_16_29_44_AlignmentResult_2023_09_86	C12H18O3	[M - H]-	C12H18O3	Fatty acids	0.9266443252563477	Octadecanoids	0.9856321811676025	Jasmonic acids	0.7774147391319275	Jasmonic acids	0.5130788087844849	Jasmonic acids	0.5130788087844849	Lineolic acids and derivatives	0.5558372735977173	Fatty Acyls	0.8961241841316223	Lipids and lipid-like molecules	0.8404344320297241	Organic compounds; Lipids and lipid-like molecules; Ketones; Fatty acids and conjugates; Organic acids and derivatives; Carboxylic acids and derivatives; Organooxygen compounds; Lineolic acids and derivatives; Jasmonic acids; Monocarboxylic acids and derivatives; Carboxylic acids; Carbonyl compounds; Medium-chain fatty acids; Cyclic ketones; Fatty Acyls; Organic oxides; Hydrocarbon derivatives; Organic oxygen compounds; Chemical entities	86
+88_Mat_2024_01_11_16_29_44_AlignmentResult_2023_09_87	C12H18O3	[M - H]-	C12H18O3	Fatty acids	0.7624790072441101	Octadecanoids	0.6772487163543701	Oxo fatty acids	0.6066413521766663	Fatty acids and conjugates	0.5365589261054993			Fatty acids and conjugates	0.5365589261054993	Fatty Acyls	0.6421460509300232	Lipids and lipid-like molecules	0.6975063681602478	Organic compounds; Lipids and lipid-like molecules; Ketones; Fatty acids and conjugates; Organic acids and derivatives; Carboxylic acids and derivatives; Organooxygen compounds; Monocarboxylic acids and derivatives; Carboxylic acids; Carbonyl compounds; Cyclic ketones; Fatty Acyls; Organic oxides; Hydrocarbon derivatives; Organic oxygen compounds; Chemical entities	87
+89_Mat_2024_01_11_16_29_44_AlignmentResult_2023_09_88	C13H22O2	[M - H]-	C13H22O2	Fatty acids	0.5470987558364868	Miscellaneous polyketides	0.42542800307273865	Paraconic acids and derivatives	0.7183057069778442	Gamma butyrolactones	0.5670605897903442			Gamma butyrolactones	0.5670605897903442	Lactones	0.8676393628120422	Organoheterocyclic compounds	0.8284171223640442	"Organic compounds; Organoheterocyclic compounds; Lactones; Organic acids and derivatives; Carboxylic acids and derivatives; Organooxygen compounds; Carboxylic acid derivatives; Monocarboxylic acids and derivatives; Carboxylic acids; Carboxylic acid esters; Gamma butyrolactones; Carbonyl compounds; Enoate esters; Alpha,beta-unsaturated carboxylic esters; Organic oxides; Oxacyclic compounds; Hydrocarbon derivatives; Organic oxygen compounds; Chemical entities"	88
+90_Mat_2024_01_11_16_29_44_AlignmentResult_2023_09_89	C12H20O3	[M - H]-	C12H20O3	Fatty acids	0.6096083521842957	Fatty Acids and Conjugates	0.7206442952156067	Hydroxy fatty acids	0.6309238076210022	Fatty acids and conjugates	0.6264025568962097			Fatty acids and conjugates	0.6264025568962097	Fatty Acyls	0.571042001	Lipids and lipid-like molecules	0.7984710931777954	Organic compounds; Lipids and lipid-like molecules; Alcohols and polyols; Fatty acids and conjugates; Organic acids and derivatives; Carboxylic acids and derivatives; Organooxygen compounds; Monocarboxylic acids and derivatives; Carboxylic acids; Carbonyl compounds; Fatty Acyls; Organic oxides; Hydrocarbon derivatives; Organic oxygen compounds; Chemical entities	89
+92_Mat_2024_01_11_16_29_44_AlignmentResult_2023_09_91	C11H18O4	[M - H]-	C11H18O4	Fatty acids	0.8300921320915222	Fatty Acids and Conjugates	0.9037113785743713	Dicarboxylic acids	0.9459031820297241	Medium-chain fatty acids	0.9030887484550476	Medium-chain fatty acids	0.9030887484550476	Fatty acids and conjugates	0.9471681714057922	Fatty Acyls	0.9342193603515625	Lipids and lipid-like molecules	0.9416805505752563	Organic compounds; Lipids and lipid-like molecules; Fatty acids and conjugates; Organic acids and derivatives; Carboxylic acids and derivatives; Organooxygen compounds; Branched fatty acids; Unsaturated fatty acids; Dicarboxylic acids and derivatives; Carboxylic acids; Carbonyl compounds; Medium-chain fatty acids; Fatty Acyls; Organic oxides; Hydrocarbon derivatives; Organic oxygen compounds; Chemical entities	91
+93_Mat_2024_01_11_16_29_44_AlignmentResult_2023_09_92	C11H18O4	[M - H]-	C11H18O4	Fatty acids	0.7841362953186035	Fatty Acids and Conjugates	0.8835235238075256	Hydroxy fatty acids	0.9064273238182068	Medium-chain hydroxy acids and derivatives	0.6934686303138733			Medium-chain hydroxy acids and derivatives	0.6934686303138733	Hydroxy acids and derivatives	0.7643348574638367	Organic acids and derivatives	0.9998518228530884	Organic compounds; Lipids and lipid-like molecules; Alcohols and polyols; Fatty acids and conjugates; Organic acids and derivatives; Carboxylic acids and derivatives; Primary alcohols; Medium-chain hydroxy acids and derivatives; Organooxygen compounds; Branched fatty acids; Unsaturated fatty acids; Hydroxy fatty acids; Hydroxy acids and derivatives; Monocarboxylic acids and derivatives; Carboxylic acids; Carbonyl compounds; Medium-chain fatty acids; Methyl-branched fatty acids; Fatty Acyls; Organic oxides; Hydrocarbon derivatives; Organic oxygen compounds; Chemical entities	92
+94_Mat_2024_01_11_16_29_44_AlignmentResult_2023_09_93	C12H22O3	[M - H]-	C12H22O3	Fatty acids	0.7145381569862366	Fatty Acids and Conjugates	0.9035552740097046	Branched fatty acids	0.65048933	Medium-chain fatty acids	0.8482599258422852	Medium-chain fatty acids	0.8482599258422852	Fatty acids and conjugates	0.9658370614051819	Fatty Acyls	0.9441999793052673	Lipids and lipid-like molecules	0.9658511877059937	Organic compounds; Lipids and lipid-like molecules; Fatty acids and conjugates; Organic acids and derivatives; Carboxylic acids and derivatives; Organooxygen compounds; Branched fatty acids; Monocarboxylic acids and derivatives; Carboxylic acids; Carbonyl compounds; Medium-chain fatty acids; Methyl-branched fatty acids; Fatty Acyls; Organic oxides; Hydrocarbon derivatives; Organic oxygen compounds; Chemical entities	93
+95_Mat_2024_01_11_16_29_44_AlignmentResult_2023_09_94	C12H22O3	[M - H]-	C12H22O3	Fatty acids	0.8450237512588501	Fatty Acids and Conjugates	0.8779553771018982	Hydroxy fatty acids	0.9623531103134155	Medium-chain hydroxy acids and derivatives	0.5952287912368774			Medium-chain hydroxy acids and derivatives	0.5952287912368774	Hydroxy acids and derivatives	0.8398950695991516	Organic acids and derivatives	0.9997134804725647	Organic compounds; Lipids and lipid-like molecules; Alcohols and polyols; Fatty acids and conjugates; Organic acids and derivatives; Carboxylic acids and derivatives; Primary alcohols; Medium-chain hydroxy acids and derivatives; Organooxygen compounds; Unsaturated fatty acids; Hydroxy fatty acids; Hydroxy acids and derivatives; Monocarboxylic acids and derivatives; Carboxylic acids; Secondary alcohols; Carbonyl compounds; Medium-chain fatty acids; Fatty Acyls; Organic oxides; Hydrocarbon derivatives; Organic oxygen compounds; Chemical entities	94
+98_Mat_2024_01_11_16_29_44_AlignmentResult_2023_09_97	C7H5NO3S2	[M - H]-	C7H5NO3S2	Alkaloids	0.8165163993835449	Anthranilic acid alkaloids	0.6772117614746094	Phenazine alkaloids	0.5487788319587708	Arylsulfonic acids and derivatives	0.772678554	Arylsulfonic acids and derivatives	0.772678554	Organosulfonic acids and derivatives	0.9282354712486267	Organic sulfonic acids and derivatives	0.9281405806541443	Organic acids and derivatives	0.9983003735542297	Organic compounds; Organoheterocyclic compounds; Organosulfur compounds; Thiazoles; Organic acids and derivatives; Organosulfonic acids and derivatives; Organonitrogen compounds; Benzothiazoles; Azoles; Sulfonyls; Organosulfonic acids; Arylsulfonic acids and derivatives; Benzenoids; Organic anions; Organic oxides; Azacyclic compounds; Heteroaromatic compounds; Hydrocarbon derivatives; Organic sulfonic acids and derivatives; Organopnictogen compounds; Organic oxygen compounds; Organic nitrogen compounds; Chemical entities	97
+99_Mat_2024_01_11_16_29_44_AlignmentResult_2023_09_98	C7H5NO3S2	[M - H]-	C7H5NO3S2	Alkaloids	0.8171771764755249	Anthranilic acid alkaloids	0.6753908395767212	Phenazine alkaloids	0.5671564340591431	Arylsulfonic acids and derivatives	0.7624269127845764	Arylsulfonic acids and derivatives	0.7624269127845764	Organosulfonic acids and derivatives	0.9387955069541931	Organic sulfonic acids and derivatives	0.9387183785438538	Organic acids and derivatives	0.9989965558052063	Organic compounds; Organoheterocyclic compounds; Organosulfur compounds; Thiazoles; Organic acids and derivatives; Organosulfonic acids and derivatives; Organonitrogen compounds; Benzothiazoles; Azoles; Sulfonyls; Organosulfonic acids; Arylsulfonic acids and derivatives; Benzenoids; Organic anions; Organic oxides; Azacyclic compounds; Heteroaromatic compounds; Hydrocarbon derivatives; Organic sulfonic acids and derivatives; Organopnictogen compounds; Organic oxygen compounds; Organic nitrogen compounds; Chemical entities	98
+102_Mat_2024_01_11_16_29_44_AlignmentResult_2023_09_101	C11H20O4	[M - H]-	C11H20O4	Fatty acids	0.8947791457176208	Fatty Acids and Conjugates	0.9550619721412659	Dicarboxylic acids	0.9766982197761536	Medium-chain fatty acids	0.9382108449935913	Medium-chain fatty acids	0.9382108449935913	Fatty acids and conjugates	0.9838870167732239	Fatty Acyls	0.9811940789222717	Lipids and lipid-like molecules	0.9863600134849548	Organic compounds; Lipids and lipid-like molecules; Fatty acids and conjugates; Organic acids and derivatives; Carboxylic acids and derivatives; Organooxygen compounds; Dicarboxylic acids and derivatives; Carboxylic acids; Carbonyl compounds; Medium-chain fatty acids; Fatty Acyls; Organic oxides; Hydrocarbon derivatives; Organic oxygen compounds; Chemical entities	101
+103_Mat_2024_01_11_16_29_44_AlignmentResult_2023_09_102	C12H14N2O2	[M - H]-	C12H14N2O2	Alkaloids	0.7544636130332947	Tryptophan alkaloids	0.7016595602035522	Simple indole alkaloids	0.8123996257781982	N-acylserotonins	0.9072340130805969	Serotonins	0.9276180863380432	Tryptamines and derivatives	0.8165097236633301	Indoles and derivatives	0.9929250478744507	Organoheterocyclic compounds	0.9999270439147949	Organic compounds; Organoheterocyclic compounds; Pyrroles; Phenols; Tryptamines and derivatives; Indoles and derivatives; Organic acids and derivatives; Carboxylic acids and derivatives; Organonitrogen compounds; Organooxygen compounds; Carboxylic acid amides; Carboxylic acid derivatives; Serotonins; Carbonyl compounds; Substituted pyrroles; Benzenoids; Indoles; Acetamides; Organic oxides; Azacyclic compounds; Heteroaromatic compounds; Hydrocarbon derivatives; Hydroxyindoles; 3-alkylindoles; N-acetyl-2-arylethylamines; N-acylserotonins; Organopnictogen compounds; Organic oxygen compounds; 1-hydroxy-2-unsubstituted benzenoids; Organic nitrogen compounds; Chemical entities	102
+104_Mat_2024_01_11_16_29_44_AlignmentResult_2023_09_103	C13H16O3	[M - H]-	C13H16O3	Terpenoids	0.6301409006118774	Phloroglucinols	0.23266634345054626	Acyl phloroglucinols	0.1787085086107254	Alkyl-phenylketones	0.5032470226287842	Ketones	0.8348225951194763	Carbonyl compounds	0.9618262648582458	Organooxygen compounds	0.9999617338180542	Organic oxygen compounds	0.9999585151672363	Organic compounds; Ketones; Acetophenones; Aldehydes; Phenols; Organic acids and derivatives; Benzoyl derivatives; Organooxygen compounds; Benzaldehydes; Carbonyl compounds; Benzene and substituted derivatives; Benzenoids; Phenylpropanes; Aryl-aldehydes; Aryl ketones; Aryl alkyl ketones; Vinylogous acids; Organic oxides; Hydroxybenzaldehydes; Hydrocarbon derivatives; Phenylketones; Alkyl-phenylketones; Organic oxygen compounds; 1-hydroxy-2-unsubstituted benzenoids; Chemical entities	103
+105_Mat_2024_01_11_16_29_44_AlignmentResult_2023_09_104	C12H14O4	[M - H]-	C12H14O4	Shikimates and Phenylpropanoids	0.9218232035636902	Phenolic acids (C6-C1)	0.8956348896026611	Simple phenolic acids	0.8647578954696655	Benzoic acid esters	0.8612958192825317	Benzoic acid esters	0.8612958192825317	Benzoic acids and derivatives	0.9886539578437805	Benzene and substituted derivatives	0.9996877908706665	Benzenoids	0.9999895095825195	Organic compounds; Benzoic acids and derivatives; Organic acids and derivatives; Carboxylic acids and derivatives; Benzoyl derivatives; Organooxygen compounds; Dicarboxylic acids and derivatives; Carboxylic acid derivatives; Carboxylic acids; Carboxylic acid esters; Benzoic acid esters; Benzene and substituted derivatives; Benzenoids; Benzoic acids; Organic oxides; Hydrocarbon derivatives; Organic oxygen compounds; Chemical entities	104
+106_Mat_2024_01_11_16_29_44_AlignmentResult_2023_09_105	C12H14O4	[M - H]-	C12H14O4	Shikimates and Phenylpropanoids	0.9187009930610657	Phenolic acids (C6-C1)	0.8898448348045349	Simple phenolic acids	0.860482395	Benzoic acid esters	0.8815935850143433	Benzoic acid esters	0.8815935850143433	Benzoic acids and derivatives	0.9857160449028015	Benzene and substituted derivatives	0.99956876	Benzenoids	0.9999823570251465	Organic compounds; Benzoic acids and derivatives; Organic acids and derivatives; Carboxylic acids and derivatives; Benzoyl derivatives; Organooxygen compounds; Dicarboxylic acids and derivatives; Carboxylic acid derivatives; Carboxylic acids; Carboxylic acid esters; Benzoic acid esters; Benzene and substituted derivatives; Benzenoids; Benzoic acids; Organic oxides; Hydrocarbon derivatives; Organic oxygen compounds; Chemical entities	105
+107_Mat_2024_01_11_16_29_44_AlignmentResult_2023_09_106	C14H22O2	[M - H]-	C14H22O2	Terpenoids	0.6623668074607849	Sesquiterpenoids	0.4820396304130554	Menthane monoterpenoids	0.4138484597206116	Phenylpropanes	0.9838714599609375			Phenylpropanes	0.9838714599609375	Benzene and substituted derivatives	0.9567368030548096	Benzenoids	0.9986627101898193	Organic compounds; Phenols; Organooxygen compounds; Benzene and substituted derivatives; Benzenoids; Phenylpropanes; Hydrocarbon derivatives; Organic oxygen compounds; Chemical entities	106
+108_Mat_2024_01_11_16_29_44_AlignmentResult_2023_09_107	C14H22O2	[M - H]-	C14H22O2	Terpenoids	0.8010537624359131	Sesquiterpenoids	0.7434037923812866	Herbertane sesquiterpenoids	0.7260429263114929	Phenylpropanes	0.8478885293006897			Phenylpropanes	0.8478885293006897	Benzene and substituted derivatives	0.895537794	Benzenoids	0.9937735795974731	Organic compounds; Phenols; Organooxygen compounds; Benzene and substituted derivatives; Benzenoids; Phenylpropanes; Hydrocarbon derivatives; Organic oxygen compounds; Chemical entities	107
+109_Mat_2024_01_11_16_29_44_AlignmentResult_2023_09_108	C14H22O2	[M - H]-	C14H22O2	Terpenoids	0.7371984720230103	Sesquiterpenoids	0.53071183	Menthane monoterpenoids	0.5444961786270142	Phenylpropanes	0.9203675389289856			Phenylpropanes	0.9203675389289856	Benzene and substituted derivatives	0.8743518590927124	Benzenoids	0.9321305155754089	Organic compounds; Phenols; Organooxygen compounds; Benzene and substituted derivatives; Benzenoids; Phenylpropanes; Hydrocarbon derivatives; Organic oxygen compounds; Chemical entities	108
+111_Mat_2024_01_11_16_29_44_AlignmentResult_2023_09_110	C14H22O2	[M - H]-	C14H22O2	Terpenoids	0.7905203104019165	Sesquiterpenoids	0.9161480665206909	Drimane sesquiterpenoids	0.5391798615455627	Alcohols and polyols	0.8901534080505371			Alcohols and polyols	0.8901534080505371	Organooxygen compounds	0.9999005794525146	Organic oxygen compounds	0.9998754262924194	Organic compounds; Alcohols and polyols; Organooxygen compounds; Carbonyl compounds; Organic oxides; Hydrocarbon derivatives; Organic oxygen compounds; Chemical entities	110
+112_Mat_2024_01_11_16_29_44_AlignmentResult_2023_09_111	C14H22O2	[M - H]-	C14H22O2	Terpenoids	0.7266836762428284	Monoterpenoids	0.5463525652885437	Menthane monoterpenoids	0.5768805146217346	Phenylpropanes	0.9792070388793945			Phenylpropanes	0.9792070388793945	Benzene and substituted derivatives	0.9047868251800537	Benzenoids	0.9837480783462524	Organic compounds; Phenols; Organooxygen compounds; Benzene and substituted derivatives; Benzenoids; Phenylpropanes; Hydrocarbon derivatives; Organic oxygen compounds; Chemical entities	111
+113_Mat_2024_01_11_16_29_44_AlignmentResult_2023_09_112	C14H22O2	[M - H]-	C14H22O2	Terpenoids	0.6601600646972656	Sesquiterpenoids	0.5570773482322693	Herbertane sesquiterpenoids	0.5616674423217773	Phenylpropanes	0.9005958437919617			Phenylpropanes	0.9005958437919617	Benzene and substituted derivatives	0.9526423811912537	Benzenoids	0.9837717413902283	Organic compounds; Phenols; Organooxygen compounds; Benzene and substituted derivatives; Benzenoids; Phenylpropanes; Hydrocarbon derivatives; Organic oxygen compounds; Chemical entities	112
+115_Mat_2024_01_11_16_29_44_AlignmentResult_2023_09_114	C13H20O3	[M - H]-	C13H20O3	Terpenoids	0.557558537	Sesquiterpenoids	0.3828727900981903	Bisabolane sesquiterpenoids	0.1667490154504776	Hydroxybenzaldehydes	0.7682279348373413	Aldehydes	0.6786813139915466	Carbonyl compounds	0.948562503	Organooxygen compounds	0.999993086	Organic oxygen compounds	0.9999911785125732	Organic compounds; Aldehydes; Phenols; Organic acids and derivatives; Benzoyl derivatives; Organooxygen compounds; Benzaldehydes; Carbonyl compounds; Aryl-aldehydes; Vinylogous acids; Organic oxides; Hydroxybenzaldehydes; Hydrocarbon derivatives; Organic oxygen compounds; Chemical entities	114
+116_Mat_2024_01_11_16_29_44_AlignmentResult_2023_09_115	C13H20O3	[M - H]-	C13H20O3	Shikimates and Phenylpropanoids	0.292069674	Phenolic acids (C6-C1)	0.6499079465866089	Simple phenolic acids	0.6573050022125244	Benzoic acids	0.5972870588302612	Benzoic acids	0.5972870588302612	Benzoic acids and derivatives	0.6957798004150391	Benzene and substituted derivatives	0.9861060380935669	Benzenoids	0.9964072108268738	Organic compounds; Alkyl aryl ethers; Phenols; Benzoic acids and derivatives; Ethers; Organic acids and derivatives; Carboxylic acids and derivatives; Benzoyl derivatives; Organooxygen compounds; Monocarboxylic acids and derivatives; Carboxylic acids; Benzene and substituted derivatives; Phenol ethers; Benzenoids; Benzoic acids; Organic oxides; Hydrocarbon derivatives; Organic oxygen compounds; Phenoxy compounds; Chemical entities	115
+117_Mat_2024_01_11_16_29_44_AlignmentResult_2023_09_116	C13H20O3	[M - H]-	C13H20O3	Fatty acids	0.6637481451034546	Fatty Acids and Conjugates	0.5075021386146545	Oxo fatty acids	0.5659730434417725	Unsaturated fatty acids	0.783149004	Unsaturated fatty acids	0.783149004	Fatty acids and conjugates	0.8129274249076843	Fatty Acyls	0.8620506525039673	Lipids and lipid-like molecules	0.9088760614395142	Organic compounds; Lipids and lipid-like molecules; Aldehydes; Alcohols and polyols; Fatty acids and conjugates; Organic acids and derivatives; Carboxylic acids and derivatives; Organooxygen compounds; Unsaturated fatty acids; Monocarboxylic acids and derivatives; Carboxylic acids; Carbonyl compounds; Fatty Acyls; Organic oxides; Hydrocarbon derivatives; Organic oxygen compounds; Chemical entities	116
+118_Mat_2024_01_11_16_29_44_AlignmentResult_2023_09_117	C13H20O3	[M - H]-	C13H20O3	Terpenoids	0.593339741	Sesquiterpenoids	0.5067567229270935	Menthane monoterpenoids	0.18289922177791595	Lipids and lipid-like molecules	0.6485509276390076							Lipids and lipid-like molecules	0.6485509276390076	Organic compounds; Lipids and lipid-like molecules; Ketones; Organic acids and derivatives; Carboxylic acids and derivatives; Organooxygen compounds; Monocarboxylic acids and derivatives; Carboxylic acids; Carbonyl compounds; Cyclic ketones; Organic oxides; Hydrocarbon derivatives; Organic oxygen compounds; Chemical entities	117
+119_Mat_2024_01_11_16_29_44_AlignmentResult_2023_09_118	C12H18O4	[M - H]-	C12H18O4	Fatty acids	0.7410163283348083	Fatty Acids and Conjugates	0.6775487661361694	Oxo fatty acids	0.649786115	Medium-chain keto acids and derivatives	0.7350887656211853			Medium-chain keto acids and derivatives	0.7350887656211853	Keto acids and derivatives	0.7187380790710449	Organic acids and derivatives	0.9995508790016174	Organic compounds; Lipids and lipid-like molecules; Ketones; Fatty acids and conjugates; Organic acids and derivatives; Carboxylic acids and derivatives; Organooxygen compounds; Keto acids and derivatives; Gamma-keto acids and derivatives; Monocarboxylic acids and derivatives; Carboxylic acids; Medium-chain keto acids and derivatives; Carbonyl compounds; Fatty Acyls; Organic oxides; Hydrocarbon derivatives; Organic oxygen compounds; Chemical entities	118
+120_Mat_2024_01_11_16_29_44_AlignmentResult_2023_09_119	C13H22O3	[M - H]-	C13H22O3	Fatty acids	0.6714614629745483	Fatty Acids and Conjugates	0.7266102433204651	Hydroxy fatty acids	0.8352438807487488	Medium-chain fatty acids	0.5793915390968323	Medium-chain fatty acids	0.5793915390968323	Fatty acids and conjugates	0.8681954741477966	Fatty Acyls	0.8520833253860474	Lipids and lipid-like molecules	0.8995984196662903	Organic compounds; Lipids and lipid-like molecules; Alcohols and polyols; Fatty acids and conjugates; Organic acids and derivatives; Carboxylic acids and derivatives; Primary alcohols; Organooxygen compounds; Unsaturated fatty acids; Hydroxy fatty acids; Hydroxy acids and derivatives; Monocarboxylic acids and derivatives; Carboxylic acids; Secondary alcohols; Carbonyl compounds; Medium-chain fatty acids; Fatty Acyls; Organic oxides; Hydrocarbon derivatives; Organic oxygen compounds; Chemical entities	119
+121_Mat_2024_01_11_16_29_44_AlignmentResult_2023_09_120	C12H20O4	[M - H]-	C12H20O4	Fatty acids	0.8126328587532043	Fatty Acids and Conjugates	0.8847138285636902	Dicarboxylic acids	0.9185513854026794	Medium-chain fatty acids	0.8752902746200562	Medium-chain fatty acids	0.8752902746200562	Fatty acids and conjugates	0.9619722962379456	Fatty Acyls	0.9357836842536926	Lipids and lipid-like molecules	0.9472171068191528	Organic compounds; Lipids and lipid-like molecules; Fatty acids and conjugates; Organic acids and derivatives; Carboxylic acids and derivatives; Organooxygen compounds; Branched fatty acids; Unsaturated fatty acids; Dicarboxylic acids and derivatives; Carboxylic acids; Carbonyl compounds; Medium-chain fatty acids; Fatty Acyls; Organic oxides; Hydrocarbon derivatives; Organic oxygen compounds; Chemical entities	120
+124_Mat_2024_01_11_16_29_44_AlignmentResult_2023_09_123	C12H23NO3	[M - H]-	C12H23NO3	Amino acids and Peptides	0.6584519743919373	Small peptides	0.6662287712097168	Aminoacids	0.6373276114463806	Alpha amino acids	0.8288500308990479	Amino acids and derivatives	0.9818328619003296	"Amino acids, peptides, and analogues"	0.9817737936973572	Carboxylic acids and derivatives	0.9986963868141174	Organic acids and derivatives	0.999672532	"Organic compounds; Lipids and lipid-like molecules; Amino acids, peptides, and analogues; Alpha amino acids and derivatives; Ketones; Alpha-amino ketones; Fatty acids and conjugates; Organic acids and derivatives; Carboxylic acids and derivatives; Organonitrogen compounds; Organooxygen compounds; Branched fatty acids; Amino acids and derivatives; Keto acids and derivatives; Monoalkylamines; Amino fatty acids; Monocarboxylic acids and derivatives; Carboxylic acids; Carbonyl compounds; Alpha amino acids; Amines; Primary amines; Medium-chain fatty acids; Fatty Acyls; Organic oxides; Hydrocarbon derivatives; Amino acids; Organopnictogen compounds; Organic oxygen compounds; Organic nitrogen compounds; Chemical entities"	123
+126_Mat_2024_01_11_16_29_44_AlignmentResult_2023_09_125	C15H22O2	[M - H]-	C15H22O2	Terpenoids	0.948553741	Sesquiterpenoids	0.9064415693283081	Asteriscane sesquiterpenoids	0.4095692038536072	Sesquiterpenoids	0.6677896976470947			Sesquiterpenoids	0.6677896976470947	Prenol lipids	0.7487876415252686	Lipids and lipid-like molecules	0.7303634881973267	Organic compounds; Lipids and lipid-like molecules; Alcohols and polyols; Prenol lipids; Organooxygen compounds; Sesquiterpenoids; Hydrocarbon derivatives; Organic oxygen compounds; Chemical entities	125
+127_Mat_2024_01_11_16_29_44_AlignmentResult_2023_09_126	C15H22O2	[M - H]-	C15H22O2	Terpenoids	0.9437345266342163	Sesquiterpenoids	0.906489909	Asteriscane sesquiterpenoids	0.4275949001312256	Sesquiterpenoids	0.6709864139556885			Sesquiterpenoids	0.6709864139556885	Prenol lipids	0.749632716	Lipids and lipid-like molecules	0.7399577498435974	Organic compounds; Lipids and lipid-like molecules; Ketones; Alcohols and polyols; Prenol lipids; Organooxygen compounds; Sesquiterpenoids; Tertiary alcohols; Carbonyl compounds; Organic oxides; Hydrocarbon derivatives; Organic oxygen compounds; Chemical entities	126
+128_Mat_2024_01_11_16_29_44_AlignmentResult_2023_09_127	C15H22O2	[M - H]-	C15H22O2	Terpenoids	0.9226391911506653	Sesquiterpenoids	0.8808931708335876	Caryophyllane sesquiterpenoids	0.5969943404197693	Sesquiterpenoids	0.6543260812759399			Sesquiterpenoids	0.6543260812759399	Prenol lipids	0.7737560272216797	Lipids and lipid-like molecules	0.7674318552017212	Organic compounds; Lipids and lipid-like molecules; Ketones; Prenol lipids; Organooxygen compounds; Sesquiterpenoids; Carbonyl compounds; Cyclic ketones; Organic oxides; Hydrocarbon derivatives; Organic oxygen compounds; Chemical entities	127
+129_Mat_2024_01_11_16_29_44_AlignmentResult_2023_09_128	C15H22O2	[M - H]-	C15H22O2	Shikimates and Phenylpropanoids	0.6190612316131592	Flavonoids	0.5110256671905518	Botryane sesquiterpenoids	0.32386961579322815	Phenylpropanes	0.9919811487197876			Phenylpropanes	0.9919811487197876	Benzene and substituted derivatives	0.9800983667373657	Benzenoids	0.9995310306549072	Organic compounds; Phenols; Organooxygen compounds; Benzene and substituted derivatives; Benzenoids; Phenylpropanes; Organic oxides; Hydrocarbon derivatives; Organic oxygen compounds; Chemical entities	128
+130_Mat_2024_01_11_16_29_44_AlignmentResult_2023_09_129	C15H22O2	[M - H]-	C15H22O2	Terpenoids	0.8008308410644531	Sesquiterpenoids	0.7316170334815979	Apocarotenoids (Î²-)	0.18100571632385254	Sesquiterpenoids	0.6821332573890686			Sesquiterpenoids	0.6821332573890686	Prenol lipids	0.7164353728294373	Lipids and lipid-like molecules	0.8177075982093811	Organic compounds; Lipids and lipid-like molecules; Prenol lipids; Fatty acids and conjugates; Organic acids and derivatives; Carboxylic acids and derivatives; Organooxygen compounds; Monocarboxylic acids and derivatives; Carboxylic acids; Sesquiterpenoids; Carbonyl compounds; Organic oxides; Hydrocarbon derivatives; Organic oxygen compounds; Chemical entities	129
+131_Mat_2024_01_11_16_29_44_AlignmentResult_2023_09_130	C15H22O2	[M - H]-	C15H22O2	Terpenoids	0.9349520802497864	Sesquiterpenoids	0.8837425708770752	Caryophyllane sesquiterpenoids	0.30935344099998474	Sesquiterpenoids	0.5528313517570496			Sesquiterpenoids	0.5528313517570496	Prenol lipids	0.6122517585754395	Lipids and lipid-like molecules	0.5981612801551819	Organic compounds; Lipids and lipid-like molecules; Ketones; Ethers; Prenol lipids; Organooxygen compounds; Sesquiterpenoids; Carbonyl compounds; Organic oxides; Hydrocarbon derivatives; Organic oxygen compounds; Chemical entities	130
+132_Mat_2024_01_11_16_29_44_AlignmentResult_2023_09_131	C12H12O5	[M - H]-	C12H12O5	Polyketides	0.6831673979759216	Chromanes	0.5542288422584534	Isocoumarins	0.6615850925445557	Isocoumarins and derivatives	0.7731943130493164					Isocoumarins and derivatives	0.7731943130493164	Phenylpropanoids and polyketides	0.1725502908229828	Organic compounds; Organoheterocyclic compounds; Lactones; Pyrans; Benzopyrans; Alcohols and polyols; Phenols; Organic acids and derivatives; Organooxygen compounds; Pyranones and derivatives; Secondary alcohols; Isocoumarins and derivatives; Polyols; Benzenoids; 2-benzopyrans; Vinylogous acids; Organic oxides; Oxacyclic compounds; Heteroaromatic compounds; Hydrocarbon derivatives; Organic oxygen compounds; 1-hydroxy-2-unsubstituted benzenoids; 1-hydroxy-4-unsubstituted benzenoids; Chemical entities	131
+133_Mat_2024_01_11_16_29_44_AlignmentResult_2023_09_132	C14H20O3	[M - H]-	C14H20O3	Terpenoids	0.5906833410263062	Sesquiterpenoids	0.5697512030601501	Simple aromatic polyketides	0.2864515781402588	Hydroxybenzaldehydes	0.9293702244758606	Aldehydes	0.8703858256340027	Carbonyl compounds	0.9890131950378418	Organooxygen compounds	0.9999977350234985	Organic oxygen compounds	0.9999970197677612	Organic compounds; Ketones; Aldehydes; Phenols; Organic acids and derivatives; Benzoyl derivatives; Organooxygen compounds; Cresols; Benzaldehydes; Carbonyl compounds; Benzene and substituted derivatives; Benzenoids; Aryl-aldehydes; Vinylogous acids; Organic oxides; Hydroxybenzaldehydes; Hydrocarbon derivatives; Organic oxygen compounds; Chemical entities	132
+134_Mat_2024_01_11_16_29_44_AlignmentResult_2023_09_133	C14H20O3	[M - H]-	C14H20O3	Terpenoids	0.6088026762008667	Sesquiterpenoids	0.5264624953269958	Simple aromatic polyketides	0.20262718200683594	Hydroxybenzaldehydes	0.9815905690193176	Aldehydes	0.9765543937683105	Carbonyl compounds	0.9957301020622253	Organooxygen compounds	0.9999997615814209	Organic oxygen compounds	0.9999997615814209	Organic compounds; Aldehydes; Phenols; Organic acids and derivatives; Benzoyl derivatives; Organooxygen compounds; Cresols; Benzenediols; Benzaldehydes; Carbonyl compounds; Benzene and substituted derivatives; Benzenoids; Aryl-aldehydes; Vinylogous acids; Organic oxides; Hydroxybenzaldehydes; Hydrocarbon derivatives; Organic oxygen compounds; Chemical entities	133
+135_Mat_2024_01_11_16_29_44_AlignmentResult_2023_09_134	C15H24O2	[M - H]-	C15H24O2	Terpenoids	0.49583160877227783	Sesquiterpenoids	0.508324385	Catechols with side chains	0.16560320556163788	Tyrosols	0.5478114485740662	Tyrosols	0.5478114485740662	Tyrosols and derivatives	0.4804072976112366	Phenols	0.9034121036529541	Benzenoids	0.9969668984413147	Organic compounds; Alcohols and polyols; Phenols; Primary alcohols; Organooxygen compounds; Benzene and substituted derivatives; Benzenoids; Phenylpropanes; Tyrosols; Hydrocarbon derivatives; Organic oxygen compounds; Chemical entities	134
+139_Mat_2024_01_11_16_29_44_AlignmentResult_2023_09_138	C9H19NO4S	[M - H]-	C9H19NO4S	Fatty acids	0.3073943555355072	Fatty amides	0.5134931206703186	N-acyl amines	0.2895434498786926	Cyclamates	0.936193585			Cyclamates	0.936193585	Sulfamic acid derivatives	0.9403055906295776	Organic acids and derivatives	0.9999963045120239	Organic compounds; Organosulfur compounds; Sulfamic acid derivatives; Organic acids and derivatives; Organosulfonic acids and derivatives; Organonitrogen compounds; Cyclamates; Organic sulfuric acids and derivatives; Sulfuric acid monoamides; Alkanesulfonic acids and derivatives; Alkanesulfonic acids; Organic anions; Organic oxides; Hydrocarbon derivatives; Organopnictogen compounds; Organic oxygen compounds; Organic nitrogen compounds; Chemical entities	138
+140_Mat_2024_01_11_16_29_44_AlignmentResult_2023_09_139	C13H17O4	[M - H]-	C13H17O4	Shikimates and Phenylpropanoids	0.5800725221633911	Phenolic acids (C6-C1)	0.4951358735561371	Menthane monoterpenoids	0.49672946333885193	Benzoic acids	0.5065560936927795	Benzoic acids	0.5065560936927795	Benzoic acids and derivatives	0.5881168246269226	Benzene and substituted derivatives	0.9541146159172058	Benzenoids	0.9981485605239868	Organic compounds; Alkyl aryl ethers; Anisoles; Benzoic acids and derivatives; Ethers; Organic acids and derivatives; Carboxylic acids and derivatives; Organooxygen compounds; Monocarboxylic acids and derivatives; Carboxylic acids; Carbonyl compounds; Benzene and substituted derivatives; Phenol ethers; Benzenoids; Benzoic acids; Organic oxides; Methoxybenzenes; Hydrocarbon derivatives; Organic oxygen compounds; Phenoxy compounds; Chemical entities	139
+142_Mat_2024_01_11_16_29_44_AlignmentResult_2023_09_141	C14H22O3	[M - H]-	C14H22O3	Terpenoids	0.8732666969299316	Sesquiterpenoids	0.9327704310417175	Drimane sesquiterpenoids	0.9143736958503723	Sesquiterpenoids	0.583233654			Sesquiterpenoids	0.583233654	Prenol lipids	0.609014094	Lipids and lipid-like molecules	0.5429725646972656	Organic compounds; Organoheterocyclic compounds; Lipids and lipid-like molecules; Lactones; Alcohols and polyols; Prenol lipids; Organic acids and derivatives; Carboxylic acids and derivatives; Organooxygen compounds; Monocarboxylic acids and derivatives; Cyclic alcohols and derivatives; Sesquiterpenoids; Naphthofurans; Secondary alcohols; Carbonyl compounds; Organic oxides; Hydrocarbon derivatives; Organic oxygen compounds; Chemical entities	141
+143_Mat_2024_01_11_16_29_44_AlignmentResult_2023_09_142	C14H22O3	[M - H]-	C14H22O3	Terpenoids	0.8727986812591553	Sesquiterpenoids	0.8951597213745117	Drimane sesquiterpenoids	0.5300864577293396	Sesquiterpenoids	0.5886821150779724			Sesquiterpenoids	0.5886821150779724	Prenol lipids	0.7021746635437012	Lipids and lipid-like molecules	0.5787731409072876	Organic compounds; Lipids and lipid-like molecules; Alcohols and polyols; Prenol lipids; Organic acids and derivatives; Carboxylic acids and derivatives; Organooxygen compounds; Monocarboxylic acids and derivatives; Carboxylic acids; Cyclic alcohols and derivatives; Sesquiterpenoids; Secondary alcohols; Carbonyl compounds; Organic oxides; Hydrocarbon derivatives; Organic oxygen compounds; Chemical entities	142
+144_Mat_2024_01_11_16_29_44_AlignmentResult_2023_09_143	C14H22O3	[M - H]-	C14H22O3	Terpenoids	0.9163945317268372	Sesquiterpenoids	0.9435964226722717	Drimane sesquiterpenoids	0.9041857123374939	Sesquiterpenoids	0.5871027112007141			Sesquiterpenoids	0.5871027112007141	Prenol lipids	0.6716798543930054	Lipids and lipid-like molecules	0.5977758765220642	Organic compounds; Lipids and lipid-like molecules; Alcohols and polyols; Prenol lipids; Organic acids and derivatives; Carboxylic acids and derivatives; Organooxygen compounds; Monocarboxylic acids and derivatives; Carboxylic acids; Cyclic alcohols and derivatives; Sesquiterpenoids; Secondary alcohols; Carbonyl compounds; Organic oxides; Hydrocarbon derivatives; Organic oxygen compounds; Chemical entities	143
+149_Mat_2024_01_11_16_29_44_AlignmentResult_2023_09_148	C13H20O4	[M - H]-	C13H20O4	Fatty acids	0.5125110149383545	Sesquiterpenoids	0.4574131667613983	Oxo fatty acids	0.3880671262741089	Fatty acids and conjugates	0.6327845454216003			Fatty acids and conjugates	0.6327845454216003	Fatty Acyls	0.5341669917106628	Lipids and lipid-like molecules	0.7120550870895386	Organic compounds; Lipids and lipid-like molecules; Ketones; Alcohols and polyols; Fatty acids and conjugates; Organic acids and derivatives; Carboxylic acids and derivatives; Organooxygen compounds; Monocarboxylic acids and derivatives; Carboxylic acids; Secondary alcohols; Carbonyl compounds; Cyclic ketones; Fatty Acyls; Organic oxides; Hydrocarbon derivatives; Organic oxygen compounds; Chemical entities	148
+151_Mat_2024_01_11_16_29_44_AlignmentResult_2023_09_150	C14H24O3	[M - H]-	C14H24O3	Fatty acids	0.7616539001464844	Fatty Acids and Conjugates	0.8005547523498535	Hydroxy fatty acids	0.8201061487197876	Medium-chain fatty acids	0.5173314213752747	Medium-chain fatty acids	0.5173314213752747	Fatty acids and conjugates	0.9437346458435059	Fatty Acyls	0.9453030824661255	Lipids and lipid-like molecules	0.9576709866523743	Organic compounds; Lipids and lipid-like molecules; Alcohols and polyols; Fatty acids and conjugates; Organic acids and derivatives; Carboxylic acids and derivatives; Organooxygen compounds; Straight chain fatty acids; Hydroxy fatty acids; Monocarboxylic acids and derivatives; Carboxylic acids; Carbonyl compounds; Medium-chain fatty acids; Fatty Acyls; Organic oxides; Hydrocarbon derivatives; Organic oxygen compounds; Chemical entities	150
+153_Mat_2024_01_11_16_29_44_AlignmentResult_2023_09_152	C14H11NO3	[M - H]-	C14H11NO3	Alkaloids	0.7689037919044495	Anthranilic acid alkaloids	0.8053087592124939	Anthranillic acid derivatives	0.8136192560195923	Benzanilides	0.9841055274009705	Aromatic anilides	0.9770219922065735	Anilides	0.9778618216514587	Benzene and substituted derivatives	0.9999816417694092	Benzenoids	0.9999997615814209	Organic compounds; Benzoic acids and derivatives; Benzamides; Organic acids and derivatives; Carboxylic acids and derivatives; Organonitrogen compounds; Anilides; Benzoyl derivatives; Organooxygen compounds; Carboxylic acid amides; Carboxylic acid derivatives; Monocarboxylic acids and derivatives; Carboxylic acids; Secondary carboxylic acid amides; Benzene and substituted derivatives; Benzenoids; Benzoic acids; Organic oxides; Hydrocarbon derivatives; Organopnictogen compounds; Organic oxygen compounds; Organic nitrogen compounds; Aromatic anilides; Benzanilides; Chemical entities	152
+154_Mat_2024_01_11_16_29_44_AlignmentResult_2023_09_153	C14H11NO3	[M - H]-	C14H11NO3	Alkaloids	0.7830018401145935	Anthranilic acid alkaloids	0.8148376941680908	Anthranillic acid derivatives	0.8263600468635559	Benzanilides	0.9868221282958984	Aromatic anilides	0.9811639189720154	Anilides	0.9821128845214844	Benzene and substituted derivatives	0.999985933	Benzenoids	0.9999998807907104	Organic compounds; Benzoic acids and derivatives; Benzamides; Organic acids and derivatives; Carboxylic acids and derivatives; Organonitrogen compounds; Anilides; Benzoyl derivatives; Organooxygen compounds; Carboxylic acid amides; Carboxylic acid derivatives; Monocarboxylic acids and derivatives; Carboxylic acids; Secondary carboxylic acid amides; Benzene and substituted derivatives; Benzenoids; Benzoic acids; Organic oxides; Hydrocarbon derivatives; Organopnictogen compounds; Organic oxygen compounds; Organic nitrogen compounds; Aromatic anilides; Benzanilides; Chemical entities	153
+155_Mat_2024_01_11_16_29_44_AlignmentResult_2023_09_154	C13H22O4	[M - H]-	C13H22O4	Fatty acids	0.8801178932189941	Fatty Acids and Conjugates	0.9133644700050354	Dicarboxylic acids	0.9345420002937317	Long-chain fatty acids	0.5264250636100769	Long-chain fatty acids	0.5264250636100769	Fatty acids and conjugates	0.9755507707595825	Fatty Acyls	0.9645865559577942	Lipids and lipid-like molecules	0.9561132788658142	Organic compounds; Lipids and lipid-like molecules; Fatty acids and conjugates; Organic acids and derivatives; Carboxylic acids and derivatives; Organooxygen compounds; Branched fatty acids; Unsaturated fatty acids; Dicarboxylic acids and derivatives; Carboxylic acids; Carbonyl compounds; Long-chain fatty acids; Medium-chain fatty acids; Fatty Acyls; Organic oxides; Hydrocarbon derivatives; Organic oxygen compounds; Chemical entities	154
+156_Mat_2024_01_11_16_29_44_AlignmentResult_2023_09_155	C14H26O3	[M - H]-	C14H26O3	Fatty acids	0.8789461255073547	Fatty Acids and Conjugates	0.8737637996673584	Branched fatty acids	0.5259533524513245	Long-chain fatty acids	0.7407647967338562	Long-chain fatty acids	0.7407647967338562	Fatty acids and conjugates	0.9689607620239258	Fatty Acyls	0.9537807703018188	Lipids and lipid-like molecules	0.9579110145568848	Organic compounds; Lipids and lipid-like molecules; Fatty acids and conjugates; Organic acids and derivatives; Carboxylic acids and derivatives; Organooxygen compounds; Monocarboxylic acids and derivatives; Carboxylic acids; Carbonyl compounds; Long-chain fatty acids; Fatty Acyls; Organic oxides; Hydrocarbon derivatives; Organic oxygen compounds; Chemical entities	155
+159_Mat_2024_01_11_16_29_44_AlignmentResult_2023_09_158	C15H30O2	[M - H]-	C15H30O2	Fatty acids	0.7770675420761108	Fatty Acids and Conjugates	0.6592791676521301	Hydroxy fatty acids	0.4162362515926361	Long-chain fatty acids	0.7168533802032471	Long-chain fatty acids	0.7168533802032471	Fatty acids and conjugates	0.9082955718040466	Fatty Acyls	0.9335805773735046	Lipids and lipid-like molecules	0.9494450092315674	Organic compounds; Lipids and lipid-like molecules; Alcohols and polyols; Fatty acids and conjugates; Organic acids and derivatives; Carboxylic acids and derivatives; Organooxygen compounds; Monocarboxylic acids and derivatives; Carboxylic acids; Carbonyl compounds; Long-chain fatty acids; Fatty Acyls; Organic oxides; Hydrocarbon derivatives; Organic oxygen compounds; Chemical entities	158
+160_Mat_2024_01_11_16_29_44_AlignmentResult_2023_09_159	C13H25NO3	[M - H]-	C13H25NO3	Fatty acids	0.6542348265647888	Fatty Acids and Conjugates	0.530663788	Amino fatty acids	0.4664944112300873	Amino acids	0.8697654604911804	Amino acids and derivatives	0.8495227098464966	"Amino acids, peptides, and analogues"	0.84714514	Carboxylic acids and derivatives	0.9953259229660034	Organic acids and derivatives	0.9986684322357178	"Organic compounds; Lipids and lipid-like molecules; Amino acids, peptides, and analogues; Ketones; Fatty acids and conjugates; Organic acids and derivatives; Carboxylic acids and derivatives; Organonitrogen compounds; Organooxygen compounds; Branched fatty acids; Amino acids and derivatives; Monoalkylamines; Amino fatty acids; Monocarboxylic acids and derivatives; Carboxylic acids; Carbonyl compounds; Amines; Primary amines; Long-chain fatty acids; Fatty Acyls; Organic oxides; Hydrocarbon derivatives; Amino acids; Organopnictogen compounds; Organic oxygen compounds; Organic nitrogen compounds; Chemical entities"	159
+161_Mat_2024_01_11_16_29_44_AlignmentResult_2023_09_160	C13H25NO3	[M - H]-	C13H25NO3	Fatty acids	0.5754632353782654	Small peptides	0.5220757126808167	Aminoacids	0.5271350145339966	Amino acids	0.9241342544555664	Amino acids and derivatives	0.9126124978065491	"Amino acids, peptides, and analogues"	0.9115347266197205	Carboxylic acids and derivatives	0.9936854243278503	Organic acids and derivatives	0.9978984594345093	"Organic compounds; Lipids and lipid-like molecules; Amino acids, peptides, and analogues; Ketones; Alpha-amino ketones; Fatty acids and conjugates; Organic acids and derivatives; Carboxylic acids and derivatives; Organonitrogen compounds; Organooxygen compounds; Branched fatty acids; Amino acids and derivatives; Keto acids and derivatives; Monoalkylamines; Amino fatty acids; Monocarboxylic acids and derivatives; Carboxylic acids; Carbonyl compounds; Amines; Primary amines; Methyl-branched fatty acids; Fatty Acyls; Organic oxides; Hydrocarbon derivatives; Amino acids; Organopnictogen compounds; Organic oxygen compounds; Organic nitrogen compounds; Chemical entities"	160
+162_Mat_2024_01_11_16_29_44_AlignmentResult_2023_09_161	C13H25NO3	[M - H]-	C13H25NO3	Fatty acids	0.7096904516220093	Fatty amides	0.5344367027282715	Amino fatty acids	0.2855410873889923	Amino acids	0.6241971254348755	Amino acids and derivatives	0.5466771721839905	"Amino acids, peptides, and analogues"	0.5435923337936401	Carboxylic acids and derivatives	0.9930904507637024	Organic acids and derivatives	0.9975812435150146	"Organic compounds; Lipids and lipid-like molecules; Amino acids, peptides, and analogues; Fatty acids and conjugates; Organic acids and derivatives; Carboxylic acids and derivatives; Organonitrogen compounds; Organooxygen compounds; Amino acids and derivatives; Monoalkylamines; Carboxylic acid amides; Amino fatty acids; Carboxylic acid derivatives; Monocarboxylic acids and derivatives; Carboxylic acids; Primary carboxylic acid amides; Carbonyl compounds; Amines; Primary amines; Fatty Acyls; Organic oxides; Hydrocarbon derivatives; Amino acids; Organopnictogen compounds; Organic oxygen compounds; Organic nitrogen compounds; Chemical entities"	161
+163_Mat_2024_01_11_16_29_44_AlignmentResult_2023_09_162	C14H12O4	[M - H]-	C14H12O4	Polyketides	0.7207346558570862	Phloroglucinols	0.6540100574493408	Acyl phloroglucinols	0.6895536780357361	Benzophenones	0.9688647985458374			Benzophenones	0.9688647985458374	Benzene and substituted derivatives	0.9653381705284119	Benzenoids	0.9999984502792358	Organic compounds; Ketones; Benzophenones; Alkyl aryl ethers; Phenols; Resorcinols; Anisoles; Methoxyphenols; Ethers; Organic acids and derivatives; Benzoyl derivatives; Organooxygen compounds; Diphenylmethanes; Monocarboxylic acids and derivatives; Benzenediols; Carbonyl compounds; Benzene and substituted derivatives; Phenol ethers; Benzenoids; Aryl ketones; Vinylogous acids; Organic oxides; Methoxybenzenes; Hydrocarbon derivatives; Phenylketones; Aryl-phenylketones; Organic oxygen compounds; 1-hydroxy-2-unsubstituted benzenoids; 1-hydroxy-4-unsubstituted benzenoids; Phenoxy compounds; Chemical entities	162
+164_Mat_2024_01_11_16_29_44_AlignmentResult_2023_09_163	C13H24O4	[M - H]-	C13H24O4	Fatty acids	0.9018774032592773	Fatty Acids and Conjugates	0.9505897164344788	Dicarboxylic acids	0.974128246	Medium-chain fatty acids	0.9143094420433044	Medium-chain fatty acids	0.9143094420433044	Fatty acids and conjugates	0.9880568981170654	Fatty Acyls	0.9868164658546448	Lipids and lipid-like molecules	0.9906103014945984	Organic compounds; Lipids and lipid-like molecules; Fatty acids and conjugates; Organic acids and derivatives; Carboxylic acids and derivatives; Organooxygen compounds; Dicarboxylic acids and derivatives; Carboxylic acids; Carbonyl compounds; Medium-chain fatty acids; Fatty Acyls; Organic oxides; Hydrocarbon derivatives; Organic oxygen compounds; Chemical entities	163
+165_Mat_2024_01_11_16_29_44_AlignmentResult_2023_09_164	C12H18N6	[M - H]-	C12H18N6	Alkaloids	0.82510376	Pseudoalkaloids	0.6047348976135254	Purine alkaloids	0.5862995982170105	Dialkylarylamines	0.5962561368942261	Tertiary amines	0.6635362505912781	Amines	0.8694485425949097	Organonitrogen compounds	0.9999682903289795	Organic nitrogen compounds	0.9998953342437744	Organic compounds; Organoheterocyclic compounds; Pyrimidines and pyrimidine derivatives; Organonitrogen compounds; Azoles; Aminopyrimidines and derivatives; Diazines; Amines; Tertiary amines; Tertiary alkylarylamines; Dialkylarylamines; Azacyclic compounds; Heteroaromatic compounds; Hydrocarbon derivatives; Organopnictogen compounds; Organic nitrogen compounds; Chemical entities	164
+166_Mat_2024_01_11_16_29_44_AlignmentResult_2023_09_165	C15H20O3	[M - H]-	C15H20O3	Terpenoids	0.9081436395645142	Sesquiterpenoids	0.8665962815284729	Bisabolane sesquiterpenoids	0.617272675	Sesquiterpenoids	0.5325324535369873			Sesquiterpenoids	0.5325324535369873	Prenol lipids	0.6068897247314453	Lipids and lipid-like molecules	0.5578463673591614	Organic compounds; Organoheterocyclic compounds; Lipids and lipid-like molecules; Phenols; Prenol lipids; Organic acids and derivatives; Organooxygen compounds; Monocarboxylic acids and derivatives; Sesquiterpenoids; Carbonyl compounds; Organic oxides; Oxacyclic compounds; Hydrocarbon derivatives; Organic oxygen compounds; Chemical entities	165
+168_Mat_2024_01_11_16_29_44_AlignmentResult_2023_09_167	C15H22O3	[M - H]-	C15H22O3	Terpenoids	0.9273549318313599	Sesquiterpenoids	0.9380914568901062	Quadrane sesquiterpenoids	0.8821700811386108	Naphthofurans	0.6695650815963745					Naphthofurans	0.6695650815963745	Organoheterocyclic compounds	0.8760812878608704	Organic compounds; Organoheterocyclic compounds; Lipids and lipid-like molecules; Lactones; Ketones; Alcohols and polyols; Prenol lipids; Organic acids and derivatives; Carboxylic acids and derivatives; Organooxygen compounds; Monocarboxylic acids and derivatives; Carboxylic acid esters; Naphthofurans; Carbonyl compounds; Cyclic ketones; Organic oxides; Oxacyclic compounds; Hydrocarbon derivatives; Cyclohexenones; Organic oxygen compounds; Chemical entities	167
+169_Mat_2024_01_11_16_29_44_AlignmentResult_2023_09_168	C15H22O3	[M - H]-	C15H22O3	Terpenoids	0.6120472550392151	Sesquiterpenoids	0.6574243307113647	Simple phenolic acids	0.268667608	Benzoic acids	0.6641677618026733	Benzoic acids	0.6641677618026733	Benzoic acids and derivatives	0.5391116142272949	Benzene and substituted derivatives	0.8656591773033142	Benzenoids	0.9672930240631104	Organic compounds; Phenols; Benzoic acids and derivatives; Organic acids and derivatives; Carboxylic acids and derivatives; Benzoyl derivatives; Organooxygen compounds; Monocarboxylic acids and derivatives; Carboxylic acids; Benzene and substituted derivatives; Benzenoids; Benzoic acids; Phenylpropanes; Organic oxides; Hydrocarbon derivatives; Organic oxygen compounds; Chemical entities	168
+172_Mat_2024_01_11_16_29_44_AlignmentResult_2023_09_171	C15H22O3	[M - H]-	C15H22O3	Terpenoids	0.7674803733825684	Sesquiterpenoids	0.882427454	Eudesmane sesquiterpenoids	0.4192448556423187	Terpene lactones	0.5121951699256897			Terpene lactones	0.5121951699256897	Prenol lipids	0.7331260442733765	Lipids and lipid-like molecules	0.6966550946235657	"Organic compounds; Organoheterocyclic compounds; Lipids and lipid-like molecules; Lactones; Alcohols and polyols; Prenol lipids; Organic acids and derivatives; Carboxylic acids and derivatives; Organooxygen compounds; Carboxylic acid derivatives; Monocarboxylic acids and derivatives; Carboxylic acids; Carboxylic acid esters; Terpene lactones; Sesquiterpenoids; Carbonyl compounds; Enoate esters; Alpha,beta-unsaturated carboxylic esters; Organic oxides; Oxacyclic compounds; Hydrocarbon derivatives; Organic oxygen compounds; Chemical entities"	171
+174_Mat_2024_01_11_16_29_44_AlignmentResult_2023_09_173	C15H22O3	[M - H]-	C15H22O3	Terpenoids	0.9064029455184937	Sesquiterpenoids	0.9680449366569519	Eudesmane sesquiterpenoids	0.6028022766113281	Sesquiterpenoids	0.8473917245864868			Sesquiterpenoids	0.8473917245864868	Prenol lipids	0.8624352812767029	Lipids and lipid-like molecules	0.7370959520339966	Organic compounds; Lipids and lipid-like molecules; Alcohols and polyols; Prenol lipids; Organic acids and derivatives; Carboxylic acids and derivatives; Organooxygen compounds; Monocarboxylic acids and derivatives; Carboxylic acids; Sesquiterpenoids; Carbonyl compounds; Organic oxides; Hydrocarbon derivatives; Organic oxygen compounds; Chemical entities	173
+178_Mat_2024_01_11_16_29_44_AlignmentResult_2023_09_177	C15H24O3	[M - H]-	C15H24O3	Terpenoids	0.8824448585510254	Sesquiterpenoids	0.9309617877006531	Eudesmane sesquiterpenoids	0.9232193231582642	"Eudesmane, isoeudesmane or cycloeudesmane sesquiterpenoids"	0.9301539063453674	"Eudesmane, isoeudesmane or cycloeudesmane sesquiterpenoids"	0.9301539063453674	Sesquiterpenoids	0.8244737386703491	Prenol lipids	0.8791190981864929	Lipids and lipid-like molecules	0.874804676	"Organic compounds; Lipids and lipid-like molecules; Eudesmane, isoeudesmane or cycloeudesmane sesquiterpenoids; Alcohols and polyols; Prenol lipids; Organic acids and derivatives; Carboxylic acids and derivatives; Organooxygen compounds; Monocarboxylic acids and derivatives; Carboxylic acids; Cyclic alcohols and derivatives; Sesquiterpenoids; Secondary alcohols; Tertiary alcohols; Carbonyl compounds; Organic oxides; Hydrocarbon derivatives; Organic oxygen compounds; Chemical entities"	177
+179_Mat_2024_01_11_16_29_44_AlignmentResult_2023_09_178	C15H24O3	[M - H]-	C15H24O3	Terpenoids	0.7898237705230713	Sesquiterpenoids	0.9108278751373291	Valerenane sesquiterpenoids	0.2906191647052765	Sesquiterpenoids	0.6456068754196167			Sesquiterpenoids	0.6456068754196167	Prenol lipids	0.7891150712966919	Lipids and lipid-like molecules	0.8216863870620728	Organic compounds; Lipids and lipid-like molecules; Alcohols and polyols; Prenol lipids; Organic acids and derivatives; Carboxylic acids and derivatives; Organooxygen compounds; Monocarboxylic acids and derivatives; Carboxylic acids; Sesquiterpenoids; Carbonyl compounds; Organic oxides; Hydrocarbon derivatives; Organic oxygen compounds; Chemical entities	178
+182_Mat_2024_01_11_16_29_44_AlignmentResult_2023_09_181	C15H24O3	[M - H]-	C15H24O3	Terpenoids	0.6000187397003174	Sesquiterpenoids	0.5775311589241028	Branched fatty acids	0.3182584047317505	Sesquiterpenoids	0.5091719031333923			Sesquiterpenoids	0.5091719031333923	Prenol lipids	0.741774857	Lipids and lipid-like molecules	0.9194337129592896	Organic compounds; Lipids and lipid-like molecules; Alcohols and polyols; Prenol lipids; Fatty acids and conjugates; Organic acids and derivatives; Carboxylic acids and derivatives; Organooxygen compounds; Branched fatty acids; Unsaturated fatty acids; Hydroxy fatty acids; Monocarboxylic acids and derivatives; Carboxylic acids; Sesquiterpenoids; Tertiary alcohols; Carbonyl compounds; Medium-chain fatty acids; Methyl-branched fatty acids; Fatty Acyls; Organic oxides; Hydrocarbon derivatives; Organic oxygen compounds; Chemical entities	181
+183_Mat_2024_01_11_16_29_44_AlignmentResult_2023_09_182	C15H24O3	[M - H]-	C15H24O3	Terpenoids	0.8453395962715149	Sesquiterpenoids	0.8843926787376404	Bergamotane sesquiterpenoids	0.17279551923274994	Sesquiterpenoids	0.589104414			Sesquiterpenoids	0.589104414	Prenol lipids	0.8468692898750305	Lipids and lipid-like molecules	0.8546029925346375	Organic compounds; Lipids and lipid-like molecules; Alcohols and polyols; Prenol lipids; Organic acids and derivatives; Carboxylic acids and derivatives; Primary alcohols; Organooxygen compounds; Hydroxy acids and derivatives; Monocarboxylic acids and derivatives; Carboxylic acids; Cyclic alcohols and derivatives; Sesquiterpenoids; Carbonyl compounds; Organic oxides; Hydrocarbon derivatives; Organic oxygen compounds; Chemical entities	182
+185_Mat_2024_01_11_16_29_44_AlignmentResult_2023_09_184	C15H24O3	[M - H]-	C15H24O3	Terpenoids	0.8698906898498535	Sesquiterpenoids	0.8857628107070923	Eudesmane sesquiterpenoids	0.9009741544723511	"Eudesmane, isoeudesmane or cycloeudesmane sesquiterpenoids"	0.9397610425949097	"Eudesmane, isoeudesmane or cycloeudesmane sesquiterpenoids"	0.9397610425949097	Sesquiterpenoids	0.7975686192512512	Prenol lipids	0.8867473006248474	Lipids and lipid-like molecules	0.8979489803314209	"Organic compounds; Lipids and lipid-like molecules; Eudesmane, isoeudesmane or cycloeudesmane sesquiterpenoids; Alcohols and polyols; Prenol lipids; Organic acids and derivatives; Carboxylic acids and derivatives; Organooxygen compounds; Monocarboxylic acids and derivatives; Carboxylic acids; Cyclic alcohols and derivatives; Sesquiterpenoids; Tertiary alcohols; Carbonyl compounds; Organic oxides; Hydrocarbon derivatives; Organic oxygen compounds; Chemical entities"	184
+186_Mat_2024_01_11_16_29_44_AlignmentResult_2023_09_185	C15H24O3	[M - H]-	C15H24O3	Terpenoids	0.7703229784965515	Sesquiterpenoids	0.8285627365112305	Eudesmane sesquiterpenoids	0.32539069652557373	Sesquiterpenoids	0.5365083813667297			Sesquiterpenoids	0.5365083813667297	Prenol lipids	0.7097824215888977	Lipids and lipid-like molecules	0.8023012280464172	Organic compounds; Lipids and lipid-like molecules; Alcohols and polyols; Prenol lipids; Organic acids and derivatives; Carboxylic acids and derivatives; Primary alcohols; Organooxygen compounds; Monocarboxylic acids and derivatives; Carboxylic acids; Sesquiterpenoids; Carbonyl compounds; Organic oxides; Hydrocarbon derivatives; Organic oxygen compounds; Chemical entities	185
+189_Mat_2024_01_11_16_29_44_AlignmentResult_2023_09_188	C15H26O3	[M - H]-	C15H26O3	Fatty acids	0.6819878816604614	Octadecanoids	0.6091801524162292	Other Octadecanoids	0.42712461948394775	Long-chain fatty acids	0.5839558243751526	Long-chain fatty acids	0.5839558243751526	Fatty acids and conjugates	0.9293232560157776	Fatty Acyls	0.8843609094619751	Lipids and lipid-like molecules	0.8988980054855347	Organic compounds; Lipids and lipid-like molecules; Alcohols and polyols; Fatty acids and conjugates; Organic acids and derivatives; Carboxylic acids and derivatives; Organooxygen compounds; Unsaturated fatty acids; Hydroxy fatty acids; Monocarboxylic acids and derivatives; Carboxylic acids; Secondary alcohols; Carbonyl compounds; Long-chain fatty acids; Fatty Acyls; Organic oxides; Hydrocarbon derivatives; Organic oxygen compounds; Chemical entities	188
+190_Mat_2024_01_11_16_29_44_AlignmentResult_2023_09_189	C15H26O3	[M - H]-	C15H26O3	Fatty acids	0.582890511	Octadecanoids	0.5803700089454651	Hydroxy fatty acids	0.3400832712650299	Lineolic acids and derivatives	0.5748294591903687			Lineolic acids and derivatives	0.5748294591903687	Fatty Acyls	0.8883481621742249	Lipids and lipid-like molecules	0.9184972643852234	Organic compounds; Lipids and lipid-like molecules; Alcohols and polyols; Fatty acids and conjugates; Organic acids and derivatives; Carboxylic acids and derivatives; Organooxygen compounds; Unsaturated fatty acids; Hydroxy fatty acids; Lineolic acids and derivatives; Monocarboxylic acids and derivatives; Carboxylic acids; Secondary alcohols; Carbonyl compounds; Medium-chain fatty acids; Fatty Acyls; Organic oxides; Hydrocarbon derivatives; Organic oxygen compounds; Chemical entities	189
+191_Mat_2024_01_11_16_29_44_AlignmentResult_2023_09_190	C15H26O3	[M - H]-	C15H26O3	Fatty acids	0.6973000764846802	Fatty Acids and Conjugates	0.5524312853813171	Branched fatty acids	0.5391847491264343	Long-chain fatty acids	0.56733638	Long-chain fatty acids	0.56733638	Fatty acids and conjugates	0.5868260264396667	Fatty Acyls	0.6612184047698975	Lipids and lipid-like molecules	0.6180315613746643	Organic compounds; Lipids and lipid-like molecules; Lactones; Fatty acids and conjugates; Organic acids and derivatives; Carboxylic acids and derivatives; Organooxygen compounds; Branched fatty acids; Unsaturated fatty acids; Monocarboxylic acids and derivatives; Carboxylic acids; Carbonyl compounds; Long-chain fatty acids; Fatty Acyls; Organic oxides; Oxacyclic compounds; Hydrocarbon derivatives; Organic oxygen compounds; Chemical entities	190
+193_Mat_2024_01_11_16_29_44_AlignmentResult_2023_09_192	C16H30O2	[M - H]-	C16H30O2	Fatty acids	0.944423258	Fatty Acids and Conjugates	0.8289583921432495	Unsaturated fatty acids	0.9139650464057922	Long-chain fatty acids	0.8553805947303772	Long-chain fatty acids	0.8553805947303772	Fatty acids and conjugates	0.9979242086410522	Fatty Acyls	0.9968795776367188	Lipids and lipid-like molecules	0.9961575865745544	Organic compounds; Lipids and lipid-like molecules; Fatty acids and conjugates; Organic acids and derivatives; Carboxylic acids and derivatives; Organooxygen compounds; Straight chain fatty acids; Unsaturated fatty acids; Monocarboxylic acids and derivatives; Carboxylic acids; Carbonyl compounds; Long-chain fatty acids; Fatty Acyls; Organic oxides; Hydrocarbon derivatives; Organic oxygen compounds; Chemical entities	192
+196_Mat_2024_01_11_16_29_44_AlignmentResult_2023_09_195	C14H21ClO2	[M - H]-	C14H21ClO2	Terpenoids	0.6929664015769958	Sesquiterpenoids	0.5804012417793274	Menthane monoterpenoids	0.33199527859687805	Phenylpropanes	0.6284626722335815			Phenylpropanes	0.6284626722335815	Benzene and substituted derivatives	0.904038668	Benzenoids	0.9386720657348633	Organic compounds; Phenols; Organohalogen compounds; Organooxygen compounds; Alkyl chlorides; Cresols; Organochlorides; Benzene and substituted derivatives; Benzenoids; Phenylpropanes; Alkyl halides; Organic oxides; Hydrocarbon derivatives; Organic oxygen compounds; 1-hydroxy-2-unsubstituted benzenoids; Chemical entities	195
+197_Mat_2024_01_11_16_29_44_AlignmentResult_2023_09_196	C15H28O3	[M - H]-	C15H28O3	Fatty acids	0.5732809901237488	Fatty Acids and Conjugates	0.62411207	Branched fatty acids	0.5231665968894958	Branched fatty acids	0.5140899419784546	Branched fatty acids	0.5140899419784546	Fatty acids and conjugates	0.6568295359611511	Fatty Acyls	0.785409689	Lipids and lipid-like molecules	0.8314189910888672	Organic compounds; Lipids and lipid-like molecules; Alcohols and polyols; Fatty acids and conjugates; Organic acids and derivatives; Carboxylic acids and derivatives; Organooxygen compounds; Branched fatty acids; Monocarboxylic acids and derivatives; Carboxylic acids; Tertiary alcohols; Carbonyl compounds; Fatty Acyls; Organic oxides; Hydrocarbon derivatives; Organic oxygen compounds; Chemical entities	196
+198_Mat_2024_01_11_16_29_44_AlignmentResult_2023_09_197	C15H28O3	[M - H]-	C15H28O3	Fatty acids	0.6780090928077698	Fatty Acids and Conjugates	0.7215290069580078	Branched fatty acids	0.5365033149719238	Long-chain fatty acids	0.7524864673614502	Long-chain fatty acids	0.7524864673614502	Fatty acids and conjugates	0.862983227	Fatty Acyls	0.877163291	Lipids and lipid-like molecules	0.922062874	Organic compounds; Lipids and lipid-like molecules; Alcohols and polyols; Fatty acids and conjugates; Organic acids and derivatives; Carboxylic acids and derivatives; Organooxygen compounds; Branched fatty acids; Hydroxy fatty acids; Monocarboxylic acids and derivatives; Carboxylic acids; Tertiary alcohols; Carbonyl compounds; Long-chain fatty acids; Methyl-branched fatty acids; Fatty Acyls; Organic oxides; Hydrocarbon derivatives; Organic oxygen compounds; Chemical entities	197
+203_Mat_2024_01_11_16_29_44_AlignmentResult_2023_09_202	C16H32O2	[M - H]-	C16H32O2	Fatty acids	0.8333094716072083	Fatty Acids and Conjugates	0.7609619498252869	Unsaturated fatty acids	0.7097221612930298	Long-chain fatty acids	0.7683533430099487	Long-chain fatty acids	0.7683533430099487	Fatty acids and conjugates	0.9883990287780762	Fatty Acyls	0.9822741150856018	Lipids and lipid-like molecules	0.9875005483627319	Organic compounds; Lipids and lipid-like molecules; Fatty acids and conjugates; Organic acids and derivatives; Carboxylic acids and derivatives; Organooxygen compounds; Straight chain fatty acids; Monocarboxylic acids and derivatives; Carboxylic acids; Carbonyl compounds; Long-chain fatty acids; Fatty Acyls; Organic oxides; Hydrocarbon derivatives; Organic oxygen compounds; Chemical entities	202
+204_Mat_2024_01_11_16_29_44_AlignmentResult_2023_09_203	C11H18N2O5	[M - H]-	C11H18N2O5	Amino acids and Peptides	0.6267529726028442	Small peptides	0.4294918477535248	Dipeptides	0.3496089279651642	Alpha amino acids and derivatives	0.7162216305732727	Amino acids and derivatives	0.785152793	"Amino acids, peptides, and analogues"	0.7836130857467651	Carboxylic acids and derivatives	0.9293354153633118	Organic acids and derivatives	0.9964061379432678	"Organic compounds; Amino acids, peptides, and analogues; Alpha amino acids and derivatives; Organic acids and derivatives; Carboxylic acids and derivatives; Organonitrogen compounds; Organooxygen compounds; Amino acids and derivatives; Monoalkylamines; Carboxylic acid derivatives; Carboxylic acids; Carbonyl compounds; Benzene and substituted derivatives; Amines; Primary amines; Organic oxides; Hydrocarbon derivatives; Amino acids; Organopnictogen compounds; Organic oxygen compounds; Organic nitrogen compounds; Chemical entities"	203
+206_Mat_2024_01_11_16_29_44_AlignmentResult_2023_09_205	C14H26O4	[M - H]-	C14H26O4	Fatty acids	0.9024098515510559	Fatty Acids and Conjugates	0.9460330009460449	Dicarboxylic acids	0.9751582741737366	Medium-chain fatty acids	0.8975930213928223	Medium-chain fatty acids	0.8975930213928223	Fatty acids and conjugates	0.9870330095291138	Fatty Acyls	0.9860084652900696	Lipids and lipid-like molecules	0.9897687435150146	Organic compounds; Lipids and lipid-like molecules; Fatty acids and conjugates; Organic acids and derivatives; Carboxylic acids and derivatives; Organooxygen compounds; Dicarboxylic acids and derivatives; Carboxylic acids; Carbonyl compounds; Medium-chain fatty acids; Fatty Acyls; Organic oxides; Hydrocarbon derivatives; Organic oxygen compounds; Chemical entities	205
+207_Mat_2024_01_11_16_29_44_AlignmentResult_2023_09_206	C14H12O5	[M - H]-	C14H12O5	Polyketides	0.8322305679321289	Naphthalenes	0.6886729598045349	Naphthoquinones	0.48053470253944397	Naphthalenes	0.5948143005371094					Naphthalenes	0.5948143005371094	Benzenoids	0.9624019265174866	Organic compounds; Organoheterocyclic compounds; Naphthalenes; Tetralins; Ketones; Alcohols and polyols; Phenols; Organic acids and derivatives; Organooxygen compounds; Secondary alcohols; Carbonyl compounds; Polyols; Benzenoids; Quinones; Cyclic ketones; Aryl ketones; Vinylogous acids; Organic oxides; Oxacyclic compounds; Hydrocarbon derivatives; Organic oxygen compounds; 1-hydroxy-2-unsubstituted benzenoids; 1-hydroxy-4-unsubstituted benzenoids; Chemical entities	206
+209_Mat_2024_01_11_16_29_44_AlignmentResult_2023_09_208	C11H19NO6	[M - H]-	C11H19NO6	Amino acids and Peptides	0.966175914	Amino acid glycosides	0.9980656504631042	Cyanogenic glycosides	0.9983119964599609	Cyanogenic glycosides	0.7991840243339539	Glycosyl compounds	0.9998921155929565	Carbohydrates and carbohydrate conjugates	0.9999966621398926	Organooxygen compounds	0.9999986886978149	Organic oxygen compounds	0.9999598264694214	Organic compounds; Organoheterocyclic compounds; Carbohydrates and carbohydrate conjugates; Alcohols and polyols; Ethers; Organonitrogen compounds; Primary alcohols; Organooxygen compounds; Nitriles; Hexoses; Monosaccharides; Acetals; Secondary alcohols; Oxanes; Glycosyl compounds; O-glycosyl compounds; Polyols; Cyanogenic glycosides; Oxacyclic compounds; Hydrocarbon derivatives; Organic cyanides; Organopnictogen compounds; Organic oxygen compounds; Organic nitrogen compounds; Chemical entities	208
+212_Mat_2024_01_11_16_29_44_AlignmentResult_2023_09_211	C15H20O4	[M - H]-	C15H20O4	Terpenoids	0.8947399854660034	Sesquiterpenoids	0.9541446566581726	Pentalenane sesquiterpenoids	0.692527175	Terpene lactones	0.6621448397636414			Terpene lactones	0.6621448397636414	Prenol lipids	0.9014398455619812	Lipids and lipid-like molecules	0.820827305	Organic compounds; Organoheterocyclic compounds; Lipids and lipid-like molecules; Lactones; Prenol lipids; Organic acids and derivatives; Carboxylic acids and derivatives; Organooxygen compounds; Carboxylic acid derivatives; Monocarboxylic acids and derivatives; Carboxylic acids; Carboxylic acid esters; Delta valerolactones; Terpene lactones; Sesquiterpenoids; Iridoids and derivatives; Carbonyl compounds; Oxanes; Organic oxides; Oxacyclic compounds; Hydrocarbon derivatives; Organic oxygen compounds; Chemical entities	211
+213_Mat_2024_01_11_16_29_44_AlignmentResult_2023_09_212	C16H24O3	[M - H]-	C16H24O3	Terpenoids	0.8277767896652222	Sesquiterpenoids	0.7488553524017334	Herbertane sesquiterpenoids	0.2669582664966583	1-hydroxy-2-unsubstituted benzenoids	0.671676517			1-hydroxy-2-unsubstituted benzenoids	0.671676517	Phenols	0.9186068177223206	Benzenoids	0.9920361638069153	Organic compounds; Lipids and lipid-like molecules; Phenols; Prenol lipids; Organooxygen compounds; Benzene and substituted derivatives; Benzenoids; Organic oxides; Hydrocarbon derivatives; Organic oxygen compounds; 1-hydroxy-2-unsubstituted benzenoids; 1-hydroxy-4-unsubstituted benzenoids; Chemical entities	212
+216_Mat_2024_01_11_16_29_44_AlignmentResult_2023_09_215	C15H22O4	[M - H]-	C15H22O4	Terpenoids	0.8868952393531799	Sesquiterpenoids	0.9584488868713379	Pseudoguaiane sesquiterpenoids	0.4932112395763397	Terpene lactones	0.6328999400138855			Terpene lactones	0.6328999400138855	Prenol lipids	0.7953145503997803	Lipids and lipid-like molecules	0.737660289	"Organic compounds; Organoheterocyclic compounds; Lipids and lipid-like molecules; Lactones; Ketones; Alcohols and polyols; Prenol lipids; Organic acids and derivatives; Carboxylic acids and derivatives; Organooxygen compounds; Carboxylic acid derivatives; Monocarboxylic acids and derivatives; Carboxylic acids; Carboxylic acid esters; Terpene lactones; Cyclic alcohols and derivatives; Sesquiterpenoids; Secondary alcohols; Carbonyl compounds; Enoate esters; Alpha,beta-unsaturated carboxylic esters; Organic oxides; Oxacyclic compounds; Hydrocarbon derivatives; Organic oxygen compounds; Chemical entities"	215
+218_Mat_2024_01_11_16_29_44_AlignmentResult_2023_09_217	C12H26O4S	[M - H]-	C12H26O4S	Fatty acids	0.9036266803741455	Fatty acyls	0.8311526775360107	Fatty alcohols	0.8891520500183105	Sulfuric acid monoesters	0.9274322390556335	Sulfuric acid monoesters	0.9274322390556335	Sulfuric acid esters	0.9209908843040466	Organic sulfuric acids and derivatives	0.9812429547309875	Organic acids and derivatives	0.9999690055847168	Organic compounds; Organic acids and derivatives; Organooxygen compounds; Organic sulfuric acids and derivatives; Sulfuric acid monoesters; Sulfuric acid esters; Alkyl sulfates; Organic oxides; Hydrocarbon derivatives; Organic oxygen compounds; Chemical entities	217
+219_Mat_2024_01_11_16_29_44_AlignmentResult_2023_09_218	C12H26O4S	[M - H]-	C12H26O4S	Fatty acids	0.9047081470489502	Fatty acyls	0.8281652927398682	Fatty alcohols	0.8874562382698059	Sulfuric acid monoesters	0.9286561608314514	Sulfuric acid monoesters	0.9286561608314514	Sulfuric acid esters	0.9215829372406006	Organic sulfuric acids and derivatives	0.9815647006034851	Organic acids and derivatives	0.999970555	Organic compounds; Organic acids and derivatives; Organooxygen compounds; Organic sulfuric acids and derivatives; Sulfuric acid monoesters; Sulfuric acid esters; Alkyl sulfates; Organic oxides; Hydrocarbon derivatives; Organic oxygen compounds; Chemical entities	218
+222_Mat_2024_01_11_16_29_44_AlignmentResult_2023_09_221	C15H24O4	[M - H]-	C15H24O4	Terpenoids	0.5538637042045593	Sesquiterpenoids	0.5736996531486511	Bisabolane sesquiterpenoids	0.1303815096616745	Medium-chain fatty acids	0.5600448250770569	Medium-chain fatty acids	0.5600448250770569	Fatty acids and conjugates	0.6518690586090088	Fatty Acyls	0.581616223	Lipids and lipid-like molecules	0.7010952830314636	Organic compounds; Lipids and lipid-like molecules; Ketones; Fatty acids and conjugates; Organic acids and derivatives; Carboxylic acids and derivatives; Organooxygen compounds; Monocarboxylic acids and derivatives; Carboxylic acids; Carbonyl compounds; Medium-chain fatty acids; Cyclic ketones; Fatty Acyls; Organic oxides; Hydrocarbon derivatives; Organic oxygen compounds; Chemical entities	221
+223_Mat_2024_01_11_16_29_44_AlignmentResult_2023_09_222	C15H24O4	[M - H]-	C15H24O4	Terpenoids	0.7781465649604797	Sesquiterpenoids	0.8880728483200073	Drimane sesquiterpenoids	0.26111552119255066	Sesquiterpenoids	0.5001809597015381			Sesquiterpenoids	0.5001809597015381	Prenol lipids	0.6609441637992859	Lipids and lipid-like molecules	0.6336653232574463	Organic compounds; Lipids and lipid-like molecules; Alcohols and polyols; Prenol lipids; Organic acids and derivatives; Carboxylic acids and derivatives; Primary alcohols; Organooxygen compounds; Hydroxy acids and derivatives; Monocarboxylic acids and derivatives; Carboxylic acids; Cyclic alcohols and derivatives; Sesquiterpenoids; Carbonyl compounds; Organic oxides; Hydrocarbon derivatives; Organic oxygen compounds; Chemical entities	222
+224_Mat_2024_01_11_16_29_44_AlignmentResult_2023_09_223	C15H24O4	[M - H]-	C15H24O4	Terpenoids	0.8486819267272949	Sesquiterpenoids	0.9080700874328613	Daucane sesquiterpenoids	0.21223708987236023	Sesquiterpenoids	0.7280917167663574			Sesquiterpenoids	0.7280917167663574	Prenol lipids	0.7742602229118347	Lipids and lipid-like molecules	0.6859820485115051	Organic compounds; Lipids and lipid-like molecules; Alcohols and polyols; Prenol lipids; Organic acids and derivatives; Carboxylic acids and derivatives; Organooxygen compounds; Monocarboxylic acids and derivatives; Carboxylic acids; Cyclic alcohols and derivatives; Sesquiterpenoids; Secondary alcohols; Tertiary alcohols; Carbonyl compounds; Organic oxides; Hydrocarbon derivatives; Organic oxygen compounds; Chemical entities	223
+225_Mat_2024_01_11_16_29_44_AlignmentResult_2023_09_224	C15H24O4	[M - H]-	C15H24O4	Terpenoids	0.7930763959884644	Sesquiterpenoids	0.909446657	Drimane sesquiterpenoids	0.6860164999961853	Hydroxy acids and derivatives	0.5578297972679138					Hydroxy acids and derivatives	0.5578297972679138	Organic acids and derivatives	0.9967472553253174	Organic compounds; Lipids and lipid-like molecules; Alcohols and polyols; Prenol lipids; Organic acids and derivatives; Carboxylic acids and derivatives; Organooxygen compounds; Hydroxy acids and derivatives; Monocarboxylic acids and derivatives; Carboxylic acids; Cyclic alcohols and derivatives; Secondary alcohols; Carbonyl compounds; Organic oxides; Hydrocarbon derivatives; Organic oxygen compounds; Chemical entities	224
+226_Mat_2024_01_11_16_29_44_AlignmentResult_2023_09_225	C16H28O3	[M - H]-	C16H28O3	Fatty acids	0.8454318046569824	Fatty Acids and Conjugates	0.8390297889709473	Branched fatty acids	0.5879572033882141	Long-chain fatty acids	0.7808001637458801	Long-chain fatty acids	0.7808001637458801	Fatty acids and conjugates	0.9908642172813416	Fatty Acyls	0.9864908456802368	Lipids and lipid-like molecules	0.9903802871704102	Organic compounds; Lipids and lipid-like molecules; Fatty acids and conjugates; Organic acids and derivatives; Carboxylic acids and derivatives; Organooxygen compounds; Branched fatty acids; Monocarboxylic acids and derivatives; Carboxylic acids; Carbonyl compounds; Long-chain fatty acids; Medium-chain fatty acids; Fatty Acyls; Organic oxides; Hydrocarbon derivatives; Organic oxygen compounds; Chemical entities	225
+229_Mat_2024_01_11_16_29_44_AlignmentResult_2023_09_228	C17H32O2	[M - H]-	C17H32O2	Fatty acids	0.8805119395256042	Fatty Acids and Conjugates	0.6519210338592529	Unsaturated fatty acids	0.792269766	Long-chain fatty acids	0.8999421000480652	Long-chain fatty acids	0.8999421000480652	Fatty acids and conjugates	0.9873127341270447	Fatty Acyls	0.9861226081848145	Lipids and lipid-like molecules	0.9864528775215149	Organic compounds; Lipids and lipid-like molecules; Fatty acids and conjugates; Organic acids and derivatives; Carboxylic acids and derivatives; Organooxygen compounds; Straight chain fatty acids; Unsaturated fatty acids; Monocarboxylic acids and derivatives; Carboxylic acids; Carbonyl compounds; Long-chain fatty acids; Fatty Acyls; Organic oxides; Hydrocarbon derivatives; Organic oxygen compounds; Chemical entities	228
+232_Mat_2024_01_11_16_29_44_AlignmentResult_2023_09_231	C15H10O5	[M - H]-	C15H10O5	Shikimates and Phenylpropanoids	0.5893813967704773	Flavonoids	0.5384635329246521	Anthraquinones and anthrones	0.3944316506385803	5-hydroxyflavonoids	0.5187744498252869	5-hydroxyflavonoids	0.5187744498252869	Hydroxyflavonoids	0.5956972241401672	Flavonoids	0.5368556380271912	Phenylpropanoids and polyketides	0.6329524517059326	Organic compounds; Organoheterocyclic compounds; Anthracenes; Pyrans; Benzopyrans; Alcohols and polyols; Phenols; Chromones; Anthraquinones; Phenylpropanoids and polyketides; Organic acids and derivatives; Organooxygen compounds; Flavonoids; Flavones; Benzene and substituted derivatives; Benzenoids; Hydroxyflavonoids; 5-hydroxyflavonoids; 1-benzopyrans; Vinylogous acids; Organic oxides; Oxacyclic compounds; Heteroaromatic compounds; Hydrocarbon derivatives; Organic oxygen compounds; 1-hydroxy-2-unsubstituted benzenoids; 1-hydroxy-4-unsubstituted benzenoids; Chemical entities	231
+233_Mat_2024_01_11_16_29_44_AlignmentResult_2023_09_232	C15H10O5	[M - H]-	C15H10O5	Polyketides	0.7126212120056152	Polycyclic aromatic polyketides	0.589547336	Anthraquinones and anthrones	0.6762955784797668	Hydroxyanthraquinones	0.6155283451080322	Hydroxyanthraquinones	0.6155283451080322	Anthraquinones	0.8172752261161804	Anthracenes	0.6676021814346313	Benzenoids	0.9999406337738037	Organic compounds; Anthracenes; Ketones; Phenols; Anthraquinones; Organic acids and derivatives; Organooxygen compounds; Hydroxyanthraquinones; Carbonyl compounds; Benzenoids; Aryl ketones; Vinylogous acids; Organic oxides; Hydrocarbon derivatives; Organic oxygen compounds; 1-hydroxy-2-unsubstituted benzenoids; 1-hydroxy-4-unsubstituted benzenoids; Chemical entities	232
+234_Mat_2024_01_11_16_29_44_AlignmentResult_2023_09_233	C15H10O5	[M - H]-	C15H10O5	Polyketides	0.5880959033966064	Flavonoids	0.3888765871524811	Anthraquinones and anthrones	0.4673498272895813	Hydroxyanthraquinones	0.5495409965515137	Hydroxyanthraquinones	0.5495409965515137	Anthraquinones	0.6605817675590515	Anthracenes	0.5923923254013062	Benzenoids	0.9999324083328247	Organic compounds; Anthracenes; Phenols; Anthraquinones; Organic acids and derivatives; Organooxygen compounds; Hydroxyanthraquinones; Benzene and substituted derivatives; Benzenoids; Aryl ketones; Vinylogous acids; Organic oxides; Oxacyclic compounds; Hydrocarbon derivatives; Organic oxygen compounds; 1-hydroxy-2-unsubstituted benzenoids; 1-hydroxy-4-unsubstituted benzenoids; Chemical entities	233
+237_Mat_2024_01_11_16_29_44_AlignmentResult_2023_09_236	C19H26O	[M - H]-	C19H26O	Terpenoids	0.9066242575645447	Diterpenoids	0.8964468240737915	Podocarpane diterpenoids	0.6017223000526428	Diterpenoids	0.9721934199333191			Diterpenoids	0.9721934199333191	Prenol lipids	0.909372866	Lipids and lipid-like molecules	0.969154418	Organic compounds; Lipids and lipid-like molecules; Phenanthrenes and derivatives; Tetralins; Ketones; Phenols; Hydrophenanthrenes; Prenol lipids; Organooxygen compounds; Cumenes; Diterpenoids; Carbonyl compounds; Benzenoids; Aryl ketones; Organic oxides; Hydrocarbon derivatives; Organic oxygen compounds; 1-hydroxy-2-unsubstituted benzenoids; Chemical entities	236
+238_Mat_2024_01_11_16_29_44_AlignmentResult_2023_09_237	C19H26O	[M - H]-	C19H26O	Terpenoids	0.81933248	Diterpenoids	0.7439615726470947	Totarane diterpenoids	0.7265970706939697	Diterpenoids	0.7986059784889221			Diterpenoids	0.7986059784889221	Prenol lipids	0.7573341131210327	Lipids and lipid-like molecules	0.8307771682739258	Organic compounds; Lipids and lipid-like molecules; Phenanthrenes and derivatives; Tetralins; Phenols; Hydrophenanthrenes; Prenol lipids; Organooxygen compounds; Diterpenoids; Benzenoids; Hydrocarbon derivatives; Organic oxygen compounds; 1-hydroxy-2-unsubstituted benzenoids; Chemical entities	237
+239_Mat_2024_01_11_16_29_44_AlignmentResult_2023_09_238	C16H30O3	[M - H]-	C16H30O3	Fatty acids	0.7783138751983643	Fatty Acids and Conjugates	0.7456063032150269	Unsaturated fatty acids	0.42603063583374023	Long-chain fatty acids	0.8811227083206177	Long-chain fatty acids	0.8811227083206177	Fatty acids and conjugates	0.970292866	Fatty Acyls	0.9493847489356995	Lipids and lipid-like molecules	0.9551270604133606	Organic compounds; Lipids and lipid-like molecules; Fatty acids and conjugates; Organic acids and derivatives; Carboxylic acids and derivatives; Organooxygen compounds; Unsaturated fatty acids; Monocarboxylic acids and derivatives; Carboxylic acids; Carbonyl compounds; Long-chain fatty acids; Fatty Acyls; Organic oxides; Hydrocarbon derivatives; Organic oxygen compounds; Chemical entities	238
+240_Mat_2024_01_11_16_29_44_AlignmentResult_2023_09_239	C16H30O3	[M - H]-	C16H30O3	Fatty acids	0.8148545622825623	Octadecanoids	0.6400455236434937	Other Octadecanoids	0.708328128	Long-chain fatty acids	0.9185193777084351	Long-chain fatty acids	0.9185193777084351	Fatty acids and conjugates	0.9769555330276489	Fatty Acyls	0.9719550609588623	Lipids and lipid-like molecules	0.9730831384658813	Organic compounds; Lipids and lipid-like molecules; Ketones; Fatty acids and conjugates; Organic acids and derivatives; Carboxylic acids and derivatives; Organooxygen compounds; Unsaturated fatty acids; Keto fatty acids; Monocarboxylic acids and derivatives; Carboxylic acids; Carbonyl compounds; Long-chain fatty acids; Fatty Acyls; Organic oxides; Hydrocarbon derivatives; Organic oxygen compounds; Chemical entities	239
+241_Mat_2024_01_11_16_29_44_AlignmentResult_2023_09_240	C16H30O3	[M - H]-	C16H30O3	Fatty acids	0.8788819909095764	Fatty Acids and Conjugates	0.8464483618736267	Hydroxy fatty acids	0.8806792497634888	Long-chain fatty acids	0.5456454157829285	Long-chain fatty acids	0.5456454157829285	Fatty acids and conjugates	0.9949434399604797	Fatty Acyls	0.9958059787750244	Lipids and lipid-like molecules	0.9965446591377258	Organic compounds; Lipids and lipid-like molecules; Alcohols and polyols; Fatty acids and conjugates; Organic acids and derivatives; Carboxylic acids and derivatives; Medium-chain hydroxy acids and derivatives; Organooxygen compounds; Hydroxy fatty acids; Hydroxy acids and derivatives; Monocarboxylic acids and derivatives; Carboxylic acids; Secondary alcohols; Carbonyl compounds; Long-chain fatty acids; Medium-chain fatty acids; Fatty Acyls; Organic oxides; Hydrocarbon derivatives; Organic oxygen compounds; Chemical entities	240
+242_Mat_2024_01_11_16_29_44_AlignmentResult_2023_09_241	C16H30O3	[M - H]-	C16H30O3	Fatty acids	0.8685504794120789	Octadecanoids	0.6593834161758423	Other Octadecanoids	0.655315638	Long-chain fatty acids	0.939914882	Long-chain fatty acids	0.939914882	Fatty acids and conjugates	0.9975302815437317	Fatty Acyls	0.9968043565750122	Lipids and lipid-like molecules	0.9973458647727966	Organic compounds; Lipids and lipid-like molecules; Alcohols and polyols; Fatty acids and conjugates; Organic acids and derivatives; Carboxylic acids and derivatives; Organooxygen compounds; Unsaturated fatty acids; Hydroxy fatty acids; Monocarboxylic acids and derivatives; Carboxylic acids; Secondary alcohols; Carbonyl compounds; Long-chain fatty acids; Fatty Acyls; Organic oxides; Hydrocarbon derivatives; Organic oxygen compounds; Chemical entities	241
+243_Mat_2024_01_11_16_29_44_AlignmentResult_2023_09_242	C16H30O3	[M - H]-	C16H30O3	Fatty acids	0.8911821842193604	Octadecanoids	0.9246342182159424	Other Octadecanoids	0.9453151226043701	Lineolic acids and derivatives	0.6568556427955627			Lineolic acids and derivatives	0.6568556427955627	Fatty Acyls	0.9975042939186096	Lipids and lipid-like molecules	0.9976332187652588	Organic compounds; Lipids and lipid-like molecules; Alcohols and polyols; Fatty acids and conjugates; Organic acids and derivatives; Carboxylic acids and derivatives; Organooxygen compounds; Unsaturated fatty acids; Hydroxy fatty acids; Lineolic acids and derivatives; Monocarboxylic acids and derivatives; Carboxylic acids; Secondary alcohols; Carbonyl compounds; Long-chain fatty acids; Fatty Acyls; Organic oxides; Hydrocarbon derivatives; Organic oxygen compounds; Chemical entities	242
+244_Mat_2024_01_11_16_29_44_AlignmentResult_2023_09_243	C16H30O3	[M - H]-	C16H30O3	Fatty acids	0.8227288126945496	Fatty Acids and Conjugates	0.6551863551139832	Other Octadecanoids	0.5730193853378296	Long-chain fatty acids	0.8555648326873779	Long-chain fatty acids	0.8555648326873779	Fatty acids and conjugates	0.9178679585456848	Fatty Acyls	0.9172314405441284	Lipids and lipid-like molecules	0.9124265313148499	Organic compounds; Lipids and lipid-like molecules; Ketones; Fatty acids and conjugates; Organic acids and derivatives; Carboxylic acids and derivatives; Organooxygen compounds; Keto fatty acids; Monocarboxylic acids and derivatives; Carboxylic acids; Carbonyl compounds; Long-chain fatty acids; Fatty Acyls; Organic oxides; Hydrocarbon derivatives; Organic oxygen compounds; Chemical entities	243
+245_Mat_2024_01_11_16_29_44_AlignmentResult_2023_09_244	C16H30O3	[M - H]-	C16H30O3	Fatty acids	0.8360863327980042	Fatty Acids and Conjugates	0.627885103	Other Octadecanoids	0.7512638568878174	Long-chain fatty acids	0.9150576591491699	Long-chain fatty acids	0.9150576591491699	Fatty acids and conjugates	0.9548966884613037	Fatty Acyls	0.9543947577476501	Lipids and lipid-like molecules	0.9565190672874451	Organic compounds; Lipids and lipid-like molecules; Ketones; Fatty acids and conjugates; Organic acids and derivatives; Carboxylic acids and derivatives; Organooxygen compounds; Keto acids and derivatives; Keto fatty acids; Monocarboxylic acids and derivatives; Carboxylic acids; Carbonyl compounds; Long-chain fatty acids; Fatty Acyls; Organic oxides; Hydrocarbon derivatives; Organic oxygen compounds; Chemical entities	244
+246_Mat_2024_01_11_16_29_44_AlignmentResult_2023_09_245	C16H30O3	[M - H]-	C16H30O3	Fatty acids	0.8247881531715393	Fatty Acids and Conjugates	0.6344720721244812	Other Octadecanoids	0.6908327341079712	Long-chain fatty acids	0.8342698812484741	Long-chain fatty acids	0.8342698812484741	Fatty acids and conjugates	0.9494883418083191	Fatty Acyls	0.9511803388595581	Lipids and lipid-like molecules	0.9549643993377686	Organic compounds; Lipids and lipid-like molecules; Ketones; Fatty acids and conjugates; Organic acids and derivatives; Carboxylic acids and derivatives; Organooxygen compounds; Keto fatty acids; Monocarboxylic acids and derivatives; Carboxylic acids; Carbonyl compounds; Long-chain fatty acids; Fatty Acyls; Organic oxides; Hydrocarbon derivatives; Organic oxygen compounds; Chemical entities	245
+247_Mat_2024_01_11_16_29_44_AlignmentResult_2023_09_246	C16H30O3	[M - H]-	C16H30O3	Fatty acids	0.8306988477706909	Fatty Acids and Conjugates	0.6582819223403931	Other Octadecanoids	0.4611324667930603	Long-chain fatty acids	0.819290817	Long-chain fatty acids	0.819290817	Fatty acids and conjugates	0.9655441641807556	Fatty Acyls	0.9682897925376892	Lipids and lipid-like molecules	0.9735000133514404	Organic compounds; Lipids and lipid-like molecules; Fatty acids and conjugates; Organic acids and derivatives; Carboxylic acids and derivatives; Organooxygen compounds; Monocarboxylic acids and derivatives; Carboxylic acids; Carbonyl compounds; Long-chain fatty acids; Fatty Acyls; Organic oxides; Hydrocarbon derivatives; Organic oxygen compounds; Chemical entities	246
+248_Mat_2024_01_11_16_29_44_AlignmentResult_2023_09_247	C16H30O3	[M - H]-	C16H30O3	Fatty acids	0.816686749	Fatty Acids and Conjugates	0.6469532251358032	Other Octadecanoids	0.6456987261772156	Long-chain fatty acids	0.8727271556854248	Long-chain fatty acids	0.8727271556854248	Fatty acids and conjugates	0.9504936933517456	Fatty Acyls	0.9503008723258972	Lipids and lipid-like molecules	0.9548613429069519	Organic compounds; Lipids and lipid-like molecules; Ketones; Fatty acids and conjugates; Organic acids and derivatives; Carboxylic acids and derivatives; Organooxygen compounds; Keto fatty acids; Monocarboxylic acids and derivatives; Carboxylic acids; Carbonyl compounds; Long-chain fatty acids; Fatty Acyls; Organic oxides; Hydrocarbon derivatives; Organic oxygen compounds; Chemical entities	247
+251_Mat_2024_01_11_16_29_44_AlignmentResult_2023_09_250	C15H29NO3	[M - H]-	C15H29NO3	Fatty acids	0.7709259986877441	Fatty amides	0.9188722372055054	N-acyl amines	0.9215807914733887	N-acyl-alpha amino acids	0.9108982086181641	Amino acids and derivatives	0.9880329370498657	"Amino acids, peptides, and analogues"	0.9878664016723633	Carboxylic acids and derivatives	1	Organic acids and derivatives	1	"Organic compounds; Lipids and lipid-like molecules; Amino acids, peptides, and analogues; Alpha amino acids and derivatives; Organic acids and derivatives; Carboxylic acids and derivatives; Organonitrogen compounds; Organooxygen compounds; Fatty amides; Amino acids and derivatives; Carboxylic acid amides; Carboxylic acid derivatives; N-acyl amines; Monocarboxylic acids and derivatives; N-acyl-alpha amino acids and derivatives; Carboxylic acids; Tertiary carboxylic acid amides; Carbonyl compounds; N-acyl-alpha amino acids; Fatty Acyls; Organic oxides; Hydrocarbon derivatives; Organopnictogen compounds; Organic oxygen compounds; Organic nitrogen compounds; Chemical entities"	250
+252_Mat_2024_01_11_16_29_44_AlignmentResult_2023_09_251	C15H28O4	[M - H]-	C15H28O4	Fatty acids	0.5587713122367859	Fatty Acids and Conjugates	0.5894337892532349	Dicarboxylic acids	0.367308646	Branched fatty acids	0.643172026	Branched fatty acids	0.643172026	Fatty acids and conjugates	0.7024126648902893	Fatty Acyls	0.6438843011856079	Lipids and lipid-like molecules	0.8120576739311218	Organic compounds; Lipids and lipid-like molecules; Alcohols and polyols; Fatty acids and conjugates; Organic acids and derivatives; Carboxylic acids and derivatives; Organooxygen compounds; Branched fatty acids; Hydroxy fatty acids; Dicarboxylic acids and derivatives; Carboxylic acids; Cyclic alcohols and derivatives; Tertiary alcohols; Carbonyl compounds; Fatty Acyls; Organic oxides; Hydrocarbon derivatives; Organic oxygen compounds; Chemical entities	251
+253_Mat_2024_01_11_16_29_44_AlignmentResult_2023_09_252	C19H28O	[M - H]-	C19H28O	Terpenoids	0.9083290696144104	Diterpenoids	0.9320538640022278	Abietane diterpenoids	0.5575205683708191	Diterpenoids	0.9827980399131775			Diterpenoids	0.9827980399131775	Prenol lipids	0.9683065414428711	Lipids and lipid-like molecules	0.95919323	Organic compounds; Lipids and lipid-like molecules; Phenanthrenes and derivatives; Tetralins; Hydrophenanthrenes; Prenol lipids; Organooxygen compounds; Diterpenoids; Carbonyl compounds; Benzenoids; Organic oxides; Hydrocarbon derivatives; Organic oxygen compounds; Chemical entities	252
+254_Mat_2024_01_11_16_29_44_AlignmentResult_2023_09_253	C19H28O	[M - H]-	C19H28O	Terpenoids	0.8736642599105835	Diterpenoids	0.8569100499153137	Totarane diterpenoids	0.648070216	Diterpenoids	0.938659668			Diterpenoids	0.938659668	Prenol lipids	0.8575484752655029	Lipids and lipid-like molecules	0.9382747411727905	Organic compounds; Lipids and lipid-like molecules; Phenanthrenes and derivatives; Tetralins; Phenols; Hydrophenanthrenes; Prenol lipids; Organooxygen compounds; Diterpenoids; Benzenoids; Hydrocarbon derivatives; Organic oxygen compounds; 1-hydroxy-2-unsubstituted benzenoids; Chemical entities	253
+255_Mat_2024_01_11_16_29_44_AlignmentResult_2023_09_254	C19H28O	[M - H]-	C19H28O	Terpenoids	0.7577091455459595	Diterpenoids	0.6666287183761597	Totarane diterpenoids	0.5200443267822266	Diterpenoids	0.7017067074775696			Diterpenoids	0.7017067074775696	Prenol lipids	0.741401732	Lipids and lipid-like molecules	0.8012340664863586	Organic compounds; Lipids and lipid-like molecules; Ketones; Phenols; Prenol lipids; Organooxygen compounds; Diterpenoids; Carbonyl compounds; Benzenoids; Organic oxides; Hydrocarbon derivatives; Organic oxygen compounds; 1-hydroxy-2-unsubstituted benzenoids; Chemical entities	254
+256_Mat_2024_01_11_16_29_44_AlignmentResult_2023_09_255	C16H32O3	[M - H]-	C16H32O3	Fatty acids	0.8889322876930237	Fatty Acids and Conjugates	0.8902101516723633	Hydroxy fatty acids	0.9692208170890808	Long-chain fatty acids	0.6056283712387085	Long-chain fatty acids	0.6056283712387085	Fatty acids and conjugates	0.996896505	Fatty Acyls	0.9981642365455627	Lipids and lipid-like molecules	0.9981585144996643	Organic compounds; Lipids and lipid-like molecules; Alcohols and polyols; Fatty acids and conjugates; Organic acids and derivatives; Carboxylic acids and derivatives; Primary alcohols; Organooxygen compounds; Straight chain fatty acids; Hydroxy fatty acids; Hydroxy acids and derivatives; Monocarboxylic acids and derivatives; Carboxylic acids; Secondary alcohols; Carbonyl compounds; Long-chain fatty acids; Medium-chain fatty acids; Fatty Acyls; Organic oxides; Hydrocarbon derivatives; Organic oxygen compounds; Chemical entities	255
+257_Mat_2024_01_11_16_29_44_AlignmentResult_2023_09_256	C16H32O3	[M - H]-	C16H32O3	Fatty acids	0.8915179371833801	Fatty Acids and Conjugates	0.9020130634307861	Hydroxy fatty acids	0.96481508	Long-chain fatty acids	0.5679044723510742	Long-chain fatty acids	0.5679044723510742	Fatty acids and conjugates	0.9951157569885254	Fatty Acyls	0.9969035983085632	Lipids and lipid-like molecules	0.9970491528511047	Organic compounds; Lipids and lipid-like molecules; Alcohols and polyols; Fatty acids and conjugates; Organic acids and derivatives; Carboxylic acids and derivatives; Primary alcohols; Medium-chain hydroxy acids and derivatives; Organooxygen compounds; Hydroxy fatty acids; Hydroxy acids and derivatives; Monocarboxylic acids and derivatives; Carboxylic acids; Secondary alcohols; Carbonyl compounds; Long-chain fatty acids; Medium-chain fatty acids; Fatty Acyls; Organic oxides; Hydrocarbon derivatives; Organic oxygen compounds; Chemical entities	256
+258_Mat_2024_01_11_16_29_44_AlignmentResult_2023_09_257	C16H32O3	[M - H]-	C16H32O3	Fatty acids	0.8845006823539734	Fatty Acids and Conjugates	0.7319687008857727	Hydroxy fatty acids	0.8612921237945557	Long-chain fatty acids	0.8385498523712158	Long-chain fatty acids	0.8385498523712158	Fatty acids and conjugates	0.9968543648719788	Fatty Acyls	0.997769833	Lipids and lipid-like molecules	0.9981412887573242	Organic compounds; Lipids and lipid-like molecules; Alcohols and polyols; Fatty acids and conjugates; Organic acids and derivatives; Carboxylic acids and derivatives; Organooxygen compounds; Hydroxy fatty acids; Monocarboxylic acids and derivatives; Carboxylic acids; Secondary alcohols; Carbonyl compounds; Long-chain fatty acids; Fatty Acyls; Organic oxides; Hydrocarbon derivatives; Organic oxygen compounds; Chemical entities	257
+260_Mat_2024_01_11_16_29_44_AlignmentResult_2023_09_259	C16H32O3	[M - H]-	C16H32O3	Fatty acids	0.8983286023139954	Fatty Acids and Conjugates	0.8973214626312256	Hydroxy fatty acids	0.959784985	Medium-chain hydroxy acids and derivatives	0.5519342422485352			Medium-chain hydroxy acids and derivatives	0.5519342422485352	Hydroxy acids and derivatives	0.787161112	Organic acids and derivatives	0.9999936819076538	Organic compounds; Lipids and lipid-like molecules; Alcohols and polyols; Fatty acids and conjugates; Organic acids and derivatives; Carboxylic acids and derivatives; Medium-chain hydroxy acids and derivatives; Organooxygen compounds; Hydroxy fatty acids; Hydroxy acids and derivatives; Monocarboxylic acids and derivatives; Carboxylic acids; Secondary alcohols; Carbonyl compounds; Medium-chain fatty acids; Fatty Acyls; Organic oxides; Hydrocarbon derivatives; Organic oxygen compounds; Chemical entities	259
+261_Mat_2024_01_11_16_29_44_AlignmentResult_2023_09_260	C14H16N2O4	[M - H]-	C14H16N2O4	Amino acids and Peptides	0.6909596920013428	Small peptides	0.7880855798721313	Dipeptides	0.9613109827041626	Phenylalanine and derivatives	0.5130481123924255	Amino acids and derivatives	0.9632265567779541	"Amino acids, peptides, and analogues"	0.9651556611061096	Carboxylic acids and derivatives	0.9963257908821106	Organic acids and derivatives	0.9998342990875244	"Organic compounds; Organoheterocyclic compounds; Amino acids, peptides, and analogues; Alpha amino acids and derivatives; Phenols; Phenethylamines; Amphetamines and derivatives; Organic acids and derivatives; Carboxylic acids and derivatives; Organonitrogen compounds; Organooxygen compounds; Amino acids and derivatives; Carboxylic acid derivatives; Monocarboxylic acids and derivatives; Carboxylic acids; Carboxylic acid imides; Carbonyl compounds; Ureides; N-acyl ureas; Benzene and substituted derivatives; Benzenoids; Phenylpropanoic acids; Dicarboximides; Organic oxides; Azacyclic compounds; Hydrocarbon derivatives; Amino acids; Phenylalanine and derivatives; Organopnictogen compounds; Organic oxygen compounds; 1-hydroxy-2-unsubstituted benzenoids; Organic nitrogen compounds; Chemical entities"	260
+265_Mat_2024_01_11_16_29_44_AlignmentResult_2023_09_264	C18H28O2	[M - H]-	C18H28O2	Fatty acids	0.9630588889122009	Fatty Acids and Conjugates	0.8603845834732056	Unsaturated fatty acids	0.9917755126953125	Long-chain fatty acids	0.86132282	Long-chain fatty acids	0.86132282	Fatty acids and conjugates	0.9995434880256653	Fatty Acyls	0.9992566704750061	Lipids and lipid-like molecules	0.9988282322883606	Organic compounds; Lipids and lipid-like molecules; Fatty acids and conjugates; Organic acids and derivatives; Carboxylic acids and derivatives; Organooxygen compounds; Straight chain fatty acids; Unsaturated fatty acids; Monocarboxylic acids and derivatives; Carboxylic acids; Carbonyl compounds; Long-chain fatty acids; Fatty Acyls; Organic oxides; Hydrocarbon derivatives; Organic oxygen compounds; Chemical entities	264
+266_Mat_2024_01_11_16_29_44_AlignmentResult_2023_09_265	C18H28O2	[M - H]-	C18H28O2	Fatty acids	0.7325375080108643	Fatty Acids and Conjugates	0.6291904449462891	Unsaturated fatty acids	0.8712652325630188	Long-chain fatty acids	0.8241952061653137	Long-chain fatty acids	0.8241952061653137	Fatty acids and conjugates	0.9925298094749451	Fatty Acyls	0.9798908233642578	Lipids and lipid-like molecules	0.9855615496635437	Organic compounds; Lipids and lipid-like molecules; Fatty acids and conjugates; Organic acids and derivatives; Carboxylic acids and derivatives; Organooxygen compounds; Straight chain fatty acids; Unsaturated fatty acids; Monocarboxylic acids and derivatives; Carboxylic acids; Carbonyl compounds; Long-chain fatty acids; Fatty Acyls; Organic oxides; Hydrocarbon derivatives; Organic oxygen compounds; Chemical entities	265
+267_Mat_2024_01_11_16_29_44_AlignmentResult_2023_09_266	C18H28O2	[M - H]-	C18H28O2	Fatty acids	0.9244519472122192	Fatty Acids and Conjugates	0.7821345925331116	Unsaturated fatty acids	0.95712465	Long-chain fatty acids	0.8809285759925842	Long-chain fatty acids	0.8809285759925842	Fatty acids and conjugates	0.9991993308067322	Fatty Acyls	0.9974201917648315	Lipids and lipid-like molecules	0.9972153902053833	Organic compounds; Lipids and lipid-like molecules; Fatty acids and conjugates; Organic acids and derivatives; Carboxylic acids and derivatives; Organooxygen compounds; Straight chain fatty acids; Unsaturated fatty acids; Monocarboxylic acids and derivatives; Carboxylic acids; Carbonyl compounds; Long-chain fatty acids; Fatty Acyls; Organic oxides; Hydrocarbon derivatives; Organic oxygen compounds; Chemical entities	266
+268_Mat_2024_01_11_16_29_44_AlignmentResult_2023_09_267	C16H22O4	[M - H]-	C16H22O4	Shikimates and Phenylpropanoids	0.9090676307678223	Phenolic acids (C6-C1)	0.9131295680999756	Shikimic acids and derivatives	0.955548108	Benzoic acid esters	0.9312851428985596	Benzoic acid esters	0.9312851428985596	Benzoic acids and derivatives	0.989972711	Benzene and substituted derivatives	0.9989445805549622	Benzenoids	0.9999768733978271	Organic compounds; Benzoic acids and derivatives; Organic acids and derivatives; Carboxylic acids and derivatives; Benzoyl derivatives; Organooxygen compounds; Dicarboxylic acids and derivatives; Carboxylic acid derivatives; Carboxylic acid esters; Benzoic acid esters; Benzene and substituted derivatives; Benzenoids; Organic oxides; Hydrocarbon derivatives; Organic oxygen compounds; Chemical entities	267
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
+																					
