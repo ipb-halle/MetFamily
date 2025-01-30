@@ -97,7 +97,7 @@ pcaDimensionTwo <<- 2
 
   resultObj <- calcPlotPCAscores(
     pcaObj = pca, 
-    dataList = project, 
+    dataList = dataList, #project, 
     filterObj = filterObj,
     pcaDimensionOne = pcaDimensionOne, 
     pcaDimensionTwo = pcaDimensionTwo, 
@@ -108,7 +108,7 @@ pcaDimensionTwo <<- 2
 
   resultObj <- calcPlotPCAloadings(
     pcaObj = pca, 
-    dataList = project, 
+    dataList = dataList, #project, 
     filter = filterObj, 
     pcaDimensionOne = pcaDimensionOne, 
     pcaDimensionTwo = pcaDimensionTwo, 
@@ -136,9 +136,9 @@ HCA on MS2 in Figure \@ref(fig:hca).
 ```{r hca, fig.cap="HCA on MS2.", echo=FALSE}
 
 if (FALSE) {
-p <- calcPlotDendrogram_plotly(dataList=project, 
+p <- calcPlotDendrogram_plotly(dataList=dataList, #project, 
                                filterObj=filterObj, 
-                               clusterDataList=project, 
+                               clusterDataList=dataList, #project, 
   distanceMeasure = "Jaccard", 
   showClusterLabels=FALSE, 
   hcaPrecursorLabels="m/z / RT", 
@@ -156,7 +156,7 @@ load(fileName)
 fileName <- system.file("extdata/testdata/hcaFilter.Rdata", package = "MetFamily")
 load(fileName) 
 
-returnObj <- calcPlotDendrogram(dataList=project, 
+returnObj <- calcPlotDendrogram(dataList=dataList, #project, 
                                 filter=filter, 
                                 clusterDataList=clusterDataList, 
                                 annoPresentAnnotationsList = annoPresentAnnotationsList ,
