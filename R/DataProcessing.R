@@ -80,7 +80,8 @@ readClusterDataFromProjectFile <- function(file, progress = FALSE)
   )
   base::close(con = file)
 
-  dataList <- readProjectData(fileLines = fileLines, progress = progress, qfeatures = qfeatures)
+  dataList <- readProjectData(fileLines = fileLines, progress = progress, #qfeatures = qfeatures
+                              )
   fileLines <- NULL
   
   return(dataList)
@@ -215,7 +216,7 @@ readProjectData <- function(fileLines, progress = FALSE, qfeatures = NULL)
     }
   )
   ######debugging
- 
+  if(!is.null(qfeatures)){
   if (!is.null(attr(rowData(qfeatures[[1]]), "annotation column"))) {
     
     # Extract the relevant data: Alignment ID and the annotation column from qfeatures
@@ -230,7 +231,7 @@ readProjectData <- function(fileLines, progress = FALSE, qfeatures = NULL)
     #eliminate NAs replace by "" so nchar(annoVals[[i]]) > 0 works in l. 597
     metaboliteProfile$Annotation[is.na(metaboliteProfile$Annotation)] <- "" 
   }
-  
+  }
   #####################################################################################################################################
   #end of importing  annotation part1 from two
   
@@ -292,6 +293,7 @@ readProjectData <- function(fileLines, progress = FALSE, qfeatures = NULL)
   }
 
   ## STN: Disabled. 
+  if(!is.null(qfeatures)){
   if (!is.null(attr(rowData(qfeatures[[1]]), "annotation column"))) {
   #Start of importing annotation part2 from two
   ################################################################################
@@ -319,7 +321,7 @@ readProjectData <- function(fileLines, progress = FALSE, qfeatures = NULL)
 ################################################################################
 #End of importing  annotation part2 from two
   }
-  
+  }
   annotationColumnIndex <- which(metaboliteProfileColumnNames == annotationColumnName)
   annotationColorsValue <- dataFrameHeader[2, annotationColumnIndex]
   
