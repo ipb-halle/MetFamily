@@ -5,7 +5,7 @@
 
 sourceFolder <- getwd()
 isDevelopment <- FALSE
-errorHunting <- TRUE
+errorHunting <- FALSE
 hcaHeatMapNew <- TRUE
 
 ##
