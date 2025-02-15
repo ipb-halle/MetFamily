@@ -105,11 +105,13 @@ readProjectData <- function(fileLines, progress = FALSE)
   
   ##################################################################################################
   ## parse data
-  if(!is.na(progress))  
-    if(progress)  
+  if(!is.na(progress)) {
+    if(progress) {  
       incProgress(amount = 0.1, detail = "Preprocessing") 
-  else 
+    }
+  } else { 
     print("Preprocessing")
+  }
   
   numberOfRows <- length(fileLines)
   numberOfMS1features <- as.integer(numberOfRows - 3)
@@ -145,9 +147,10 @@ readProjectData <- function(fileLines, progress = FALSE)
   fragmentGroupsAverageMass <- as.numeric(line3Tokens[fragmentMatrixStart:numberOfColumns])
   line3Tokens <- NULL
   
-  if(any(duplicated(metaboliteProfileColumnNames)))
+  if(any(duplicated(metaboliteProfileColumnNames))) {
     stop(paste("Duplicated column names in the metabolite profile: ", 
                paste(sort(unique(metaboliteProfileColumnNames[duplicated(metaboliteProfileColumnNames)])), collapse = "; ")))
+  }
   
   #########################################################################
   ## extract metabolite profile and fragment matrix
@@ -270,12 +273,13 @@ readProjectData <- function(fileLines, progress = FALSE)
   rts <- metaboliteProfile[, "RT"]
   
   ## add .0 if necessary
-  for(i in seq_len(numberOfMS1features))
-    if(length(grep(x = mzs[[i]], pattern = ".*\\..*")) == 0)
-      mzs[[i]] <- paste(mzs[[i]], ".0", sep = "")
-  for(i in seq_len(numberOfMS1features))
-    if(length(grep(x = rts[[i]], pattern = ".*\\..*")) == 0)
-      rts[[i]] <- paste(rts[[i]], ".0", sep = "")
+  for(i in seq_len(numberOfMS1features)) {
+    if(length(grep(x = mzs[[i]], pattern = ".*\\..*")) == 0) {
+      mzs[[i]] <- paste(mzs[[i]], ".0", sep = "") }}
+  
+  for(i in seq_len(numberOfMS1features)) {
+    if(length(grep(x = rts[[i]], pattern = ".*\\..*")) == 0) {
+      rts[[i]] <- paste(rts[[i]], ".0", sep = "") }}
   
   regexResult <- gregexpr(pattern = "^(?<before>\\d+)\\.(?<after>\\d+)$", text = mzs, perl = TRUE)
   mzStartsBefore  <- unlist(lapply(X = regexResult, FUN = function(x){attr(x = x, which = "capture.start")[[1]]}))
@@ -299,6 +303,7 @@ readProjectData <- function(fileLines, progress = FALSE)
   maximumNumberOfDecimalPlacesForMz <- 3
   maximumNumberOfDecimalPlacesForRt <- 2
   
+  # TODO document this block
   for(idx in seq_along(mzs)){
     mzStartBefore  <- mzStartsBefore [[idx]]
     mzStartAfter   <- mzStartsAfter  [[idx]]
@@ -316,35 +321,36 @@ readProjectData <- function(fileLines, progress = FALSE)
     rtBefore <- substr(start = rtStartBefore, stop = rtStartBefore + rtLengthBefore - 1, x = rts[[idx]])
     rtAfter  <- substr(start = rtStartAfter,  stop = rtStartAfter  + rtLengthAfter  - 1, x = rts[[idx]])
     
-    if(nchar(mzBefore) < mzMaxBefore) 
+    if(nchar(mzBefore) < mzMaxBefore) {
       mzBefore <- paste(
         paste(rep(x = "  ", times = mzMaxBefore - nchar(mzBefore)), collapse = ""),
         mzBefore,
-        sep = ""
-      )
-    if(nchar(mzAfter) > maximumNumberOfDecimalPlacesForMz)
+        sep = "")
+    }
+    if(nchar(mzAfter) > maximumNumberOfDecimalPlacesForMz) {
       mzAfter <- substr(x = mzAfter, start = 1, stop = maximumNumberOfDecimalPlacesForMz)
-    if(nchar(mzAfter) < maximumNumberOfDecimalPlacesForMz)
+    }
+    if(nchar(mzAfter) < maximumNumberOfDecimalPlacesForMz) {
       mzAfter <- paste(
         mzAfter,
         paste(rep(x = "0", times = maximumNumberOfDecimalPlacesForMz - nchar(mzAfter)), collapse = ""),
-        sep = ""
-      )
-    
-    if(nchar(rtBefore) < rtMaxBefore) 
+        sep = "")
+    }
+    if(nchar(rtBefore) < rtMaxBefore) {
       rtBefore <- paste(
         paste(rep(x = "  ", times = rtMaxBefore - nchar(rtBefore)), collapse = ""),
         rtBefore,
-        sep = ""
-      )
-    if(nchar(rtAfter) > maximumNumberOfDecimalPlacesForRt)
+        sep = "")
+    }
+    if(nchar(rtAfter) > maximumNumberOfDecimalPlacesForRt) {
       rtAfter <- substr(x = rtAfter, start = 1, stop = maximumNumberOfDecimalPlacesForRt)
-    if(nchar(rtAfter) < maximumNumberOfDecimalPlacesForRt)
+    }
+    if(nchar(rtAfter) < maximumNumberOfDecimalPlacesForRt) {
       rtAfter <- paste(
         rtAfter,
         paste(rep(x = "0", times = maximumNumberOfDecimalPlacesForRt - nchar(rtAfter)), collapse = ""),
-        sep = ""
-      )
+        sep = "")
+    }
     
     mzs[[idx]] <- paste(mzBefore, mzAfter, sep = ".")
     rts[[idx]] <- paste(rtBefore, rtAfter, sep = ".")
@@ -422,8 +428,9 @@ readProjectData <- function(fileLines, progress = FALSE)
   ## featureIndexMatrix
   featureIndexMatrix <- matrix(nrow = numberOfMS1features, ncol = max(sapply(X = featureIndeces, FUN = length)))
   rownames(featureIndexMatrix) <- precursorLabels
-  for(i in seq_len(numberOfMS1features))
+  for(i in seq_len(numberOfMS1features)) {
     featureIndexMatrix[i, seq_len(length(featureIndeces[[i]]))] <- featureIndeces[[i]]
+  }
   
   minimumMass <- min(fragmentGroupsAverageMass)
   maximumMass <- max(fragmentGroupsAverageMass)
@@ -433,10 +440,12 @@ readProjectData <- function(fileLines, progress = FALSE)
   
   ## sample columns
   sampleColumns <- tagsSector != ""
-  for(allowedTag in allowedTags)
+  for(allowedTag in allowedTags) {
     sampleColumns[grep(x = tagsSector, pattern = paste("^", allowedTag, "$", sep = ""))] <- FALSE
-  for(allowedTagPrefix in allowedTagPrefixes)
+  }
+  for(allowedTagPrefix in allowedTagPrefixes) {
     sampleColumns[grep(x = tagsSector, pattern = paste("^", allowedTagPrefix, sep = ""))] <- FALSE
+  }
   sampleColumns <- which(sampleColumns)
   sampleColumnsStartEnd <- c(min(sampleColumns), max(sampleColumns))
   
@@ -576,11 +585,12 @@ readProjectData <- function(fileLines, progress = FALSE)
   annoPresentColorsList <- list()
   annoPresentAnnotationsList[[1]] <- annotationValueIgnore
   annoPresentColorsList[[1]] <- annotationColorIgnore
-  if(length(annotationColorsMapKeys) > 0)
+  if(length(annotationColorsMapKeys) > 0) {
     for(i in seq_len(length(annotationColorsMapKeys))){
       annoPresentAnnotationsList[[1 + i]] <- annotationColorsMapKeys[[i]]
       annoPresentColorsList     [[1 + i]] <- annotationColorsMapValues[[i]]
     }
+  }
   
   ## check consistency
   if(!all(unique(unlist(annoArrayOfLists)) %in% unlist(annoPresentAnnotationsList))){
@@ -666,20 +676,24 @@ readProjectData <- function(fileLines, progress = FALSE)
     which(dataList$tagsSector == dataList$grouXXXps[[groupIdx]] & !(dataList$metaboliteProfileColumnNames %in% sampleNamesToExclude))
   }
   dataList$dataColumnIndecesFunctionFromGroupIndex <- dataColumnIndecesFunctionFromGroupIndex
+  
   dataColumnsNameFunctionFromGroupIndex <- function(groupIdx, sampleNamesToExclude){
     dataList$metaboliteProfileColumnNames[dataList$dataColumnIndecesFunctionFromGroupIndex(groupIdx = groupIdx, sampleNamesToExclude = sampleNamesToExclude)]
   }
   dataList$dataColumnsNameFunctionFromGroupIndex <- dataColumnsNameFunctionFromGroupIndex
+  
   dataColumnsNameFunctionFromGroupName <- function(group, sampleNamesToExclude){
     dataColumns <- dataList$dataColumnsNameFunctionFromGroupIndex(groupIdx = match(x = group, table = dataList$grouXXXps), sampleNamesToExclude = sampleNamesToExclude)
   }
   dataList$dataColumnsNameFunctionFromGroupName <- dataColumnsNameFunctionFromGroupName
+  
   dataColumnsNameFunctionFromGroupNames <- function(grouXXXps, sampleNamesToExclude){
     unlist(lapply(X = grouXXXps, FUN = function(x){
       dataList$dataColumnsNameFunctionFromGroupName(group = x, sampleNamesToExclude = sampleNamesToExclude)
     }))
   }
   dataList$dataColumnsNameFunctionFromGroupNames <- dataColumnsNameFunctionFromGroupNames
+  
   groupNameFunctionFromDataColumnName <- function(dataColumnName, sampleNamesToExclude){
     groupIdx <- which(unlist(lapply(X = dataList$grouXXXps, FUN = function(x){
       dataColumnNames <- dataList$dataColumnsNameFunctionFromGroupName(group = x, sampleNamesToExclude = sampleNamesToExclude)
@@ -706,6 +720,7 @@ readProjectData <- function(fileLines, progress = FALSE)
     return(samples[isExcluded & isGroup])
   }
   dataList$excludedSamples <- excludedSamples
+  
   includedSamples <- function(groupSampleDataFrame, grouXXXps = dataList$grouXXXps){
     samples    =  groupSampleDataFrame[, "Sample"]
     isIncluded = !groupSampleDataFrame[, "Exclude"]
@@ -720,6 +735,7 @@ readProjectData <- function(fileLines, progress = FALSE)
     })))
   }
   dataList$includedGroups <- includedGroups
+  
   excludedGroups <- function(groupSampleDataFrame, samples = dataList$groupSampleDataFrame[, "Sample"]){
     setdiff(dataList$grouXXXps, dataList$includedGroups(groupSampleDataFrame, samples)) 
   }
