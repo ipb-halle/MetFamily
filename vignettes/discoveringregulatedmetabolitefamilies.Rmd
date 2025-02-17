@@ -40,8 +40,7 @@ First, we load the data and summarise it
 
 ```{r load-data}
 
-#That's also what the shiny app uses
-dataList <<- list()
+# Load separate files
 
 filePeakMatrixPath <- system.file("extdata/showcase/Metabolite_profile_showcase.txt", package = "MetFamily")
 
@@ -54,16 +53,40 @@ load(parameterSetPath)
 
 resultObj <- convertToProjectFile(filePeakMatrixPath, 
                                  fileSpectra,
-                                 fileAnnotation,
-                                 parameterSet, 
+                                 parameterSet = parameterSet, 
                                  progress = FALSE)
   
-lines <- sparseMatrixToString(matrixRows = resultObj$matrixRows, matrixCols = resultObj$matrixCols, matrixVals = resultObj$matrixVals, parameterSet = parameterSet)
-qfeatures <- resultObj$qfeatures
-dataList <<- readProjectData(fileLines = lines, progress = FALSE, qfeatures = qfeatures)
-#project <- readClusterDataFromProjectFile(file = fileName)
+lines <- sparseMatrixToString(matrixRows = resultObj$matrixRows, matrixCols = resultObj$matrixCols,
+                              matrixVals = resultObj$matrixVals, parameterSet = parameterSet)
+
+dataList0 <- readProjectData(fileLines = lines, progress = FALSE)
+
 
 ```
+
+```{r}
+# add qfeatures
+
+dataList <- add_qfeatures(dataList0, qfeatures = resultObj$qfeatures, fileAnnotation)
+
+# *** gp: PR works until here to reproduce previous behavior with a simpler workflow
+
+
+```
+
+```{r eval=FALSE, include=FALSE}
+
+# use showcase for testing
+
+# fileName <- system.file("extdata/showcase/Project_file_showcase_annotated.csv.gz", package = "MetFamily")
+# project <- readClusterDataFromProjectFile(file = fileName)
+
+project$dataFrameMS1Header$Annotation
+dataList$dataFrameMS1Header$Annotation
+
+
+```
+
 
 # Filtering data
 
@@ -84,7 +107,7 @@ PCA on MS1 in Figure \@ref(fig:pca).
 fileName <- system.file("extdata/testdata/filterObj.Rdata", package = "MetFamily")
 load(fileName) 
 
-pca <- calculatePCA(dataList=dataList, 
+pca <- calculatePCA(dataList=dataList,
                          filterObj=filterObj, 
                          ms1AnalysisMethod="PCA (Principal Component Analysis)", 
                          scaling="None", 
@@ -106,6 +129,9 @@ pcaDimensionTwo <<- 2
     yInterval = NULL
 )
 
+  # undebug(calcPlotPCAloadings)
+  # undebug(getPrecursorColors)
+  
   resultObj <- calcPlotPCAloadings(
     pcaObj = pca, 
     dataList = dataList, #project, 
@@ -156,7 +182,7 @@ load(fileName)
 fileName <- system.file("extdata/testdata/hcaFilter.Rdata", package = "MetFamily")
 load(fileName) 
 
-returnObj <- calcPlotDendrogram(dataList=dataList, #project, 
+returnObj <- calcPlotDendrogram(dataList=dataList2, #project, 
                                 filter=filter, 
                                 clusterDataList=clusterDataList, 
                                 annoPresentAnnotationsList = annoPresentAnnotationsList ,
