@@ -506,7 +506,11 @@ readProjectData <- function(fileLines, progress = FALSE)
   returnObj <- processMS1data(
     sampleNamesToExclude=sampleNamesToExclude, numberOfMS1features=numberOfMS1features, precursorLabels=precursorLabels, 
     grouXXXps=grouXXXps, metaboliteProfileColumnNames=metaboliteProfileColumnNames, tagsSector = tagsSector, 
-    dataColumnIndecesFunctionFromGroupIndex=dataColumnIndecesFunctionFromGroupIndex, dataColumnsNameFunctionFromGroupIndex=dataColumnsNameFunctionFromGroupIndex, dataColumnsNameFunctionFromGroupName=dataColumnsNameFunctionFromGroupName, dataColumnsNameFunctionFromGroupNames=dataColumnsNameFunctionFromGroupNames, groupNameFunctionFromDataColumnName=groupNameFunctionFromDataColumnName,
+    dataColumnIndecesFunctionFromGroupIndex=dataColumnIndecesFunctionFromGroupIndex, 
+    dataColumnsNameFunctionFromGroupIndex=dataColumnsNameFunctionFromGroupIndex, 
+    dataColumnsNameFunctionFromGroupName=dataColumnsNameFunctionFromGroupName, 
+    dataColumnsNameFunctionFromGroupNames=dataColumnsNameFunctionFromGroupNames, 
+    groupNameFunctionFromDataColumnName=groupNameFunctionFromDataColumnName,
     metaboliteProfile=metaboliteProfile, progress=progress
   )
   
@@ -743,6 +747,97 @@ readProjectData <- function(fileLines, progress = FALSE)
   
   return(dataList)
 }
+
+
+#' Add qfeatures to dataList
+#' 
+#'
+#' @param dataList Output from readProjectData.
+#' @param qfeatures qfeature object, can be taken from resultObj$qfeatures.
+#' @param fileAnnotation character Path for sirius annotation file.
+#'
+#' @returns The dataList object with added sirius annotations.
+#' @export
+add_qfeatures <- function(dataList, qfeatures, fileAnnotation) {
+  # This function takes snippets previously in convertToProjectFile and readProjectData
+  # to streamline the process de declutter the aforementionned functions.
+  
+  metaboliteProfile <- dataList$dataFrameInfos
+  
+  qfeatures <- addSiriusAnnotations(qfeatures, fileAnnotation)
+  
+  if (is.null(attr(rowData(qfeatures[[1]]), "annotation column"))) {
+    stop("No annotation")
+  }
+  
+  
+  #Start of importing  annotation part1 from two
+  
+  # Extract the relevant data: Alignment ID and the annotation column from qfeatures
+  annot_colname <- attr(rowData(qfeatures[[1]]), "annotation column")
+  annotation_data <- rowData(qfeatures[[1]])[[annot_colname]]
+  alignment_ids <- rowData(qfeatures[[1]])[["Alignment ID"]]
+  
+  # Find the matching indices between metaboliteProfile and annotation_data
+  
+  matching_indices <- match(metaboliteProfile[["Alignment ID"]], alignment_ids)
+  
+  metaboliteProfile$Annotation[!is.na(matching_indices)] <- annotation_data[matching_indices[!is.na(matching_indices)]] 
+  #eliminate NAs replace by "" so nchar(annoVals[[i]]) > 0 works in l. 597
+  metaboliteProfile$Annotation[is.na(metaboliteProfile$Annotation)] <- "" 
+  
+  
+  #Start of importing annotation part2 from two
+  
+  #adding HEX color codes from external annotations to the annotationColorsMapInitValue of dataFrameHeader
+  
+  # Copy the selected column by user, Remove duplicates and exclude the first row
+  uniqueAnnotations <- unique(unlist(strsplit(metaboliteProfile$Annotation, ",")))
+  
+  uniqueAnnotations <- paste0(uniqueAnnotations, "=")
+  # Add a random string from the hex color list to each element of uniqueAnnotions
+  # strings_list <- c("#000000", "#FFFFFF", "#FF0000", "#00FF00", "#0000FF", "#FFFF00", "#FF00FF", "#00FFFF", "#800000", "#008000", "#000080", "#808000", "#800080", "#008080", "#808080", "#C0C0C0", "#FFA500", "#FFC0CB", "#FFD700", "#A52A2A")
+  # uniqueAnnotations <- paste0(uniqueAnnotations, sample(strings_list, length(uniqueAnnotations), replace = TRUE))
+  
+  # gp: removed red as it is already used for ignore category
+  # TODO automate color generation, do not limit it to 40, could always use same colors, no need for sampling
+  allowedCols <- c("blue", "yellow", "green", "brown", "deepskyblue", "orange", "deeppink", "aquamarine", "burlywood", "cadetblue", "coral", "cornflowerblue", "cyan", "firebrick", "goldenrod", "indianred", "khaki", "magenta", "maroon", "beige", "moccasin", "olivedrab", "orangered", "orchid", "paleturquoise3", "rosybrown", "salmon", "seagreen3", "skyblue", "steelblue", "#BF360C", "#33691E", "#311B92", "#880E4F", "#1A237E", "#006064", "#004D40", "#FF6F00", "#E65100")
+  # uniqueAnnotations <- paste0(uniqueAnnotations, sample(allowedCols, length(uniqueAnnotations), replace = TRUE))
+  uniqueAnnotations <- uniano
+  # Format uniqueAnnotations into a single line with comma-separated values
+  uniqueAnnotations1 <- paste(uniqueAnnotations, collapse = ", ")
+  #uniqueAnnotationsHexs <- paste("AnnotationColors={", paste(uniqueAnnotations1, collapse = ","), "}")# this line introduces a space after the first Item of the object, therefore, replaced with the following to remove the space
+  uniqueAnnotationsHexs <- gsub("AnnotationColors=\\{\\s+", "AnnotationColors={", paste0("AnnotationColors={", paste(uniqueAnnotations1, collapse = ","), "}"))
+  # Assuming dataFrameHeader is your data frame
+  dataList$dataFrameHeader$Annotation[2] <- uniqueAnnotationsHexs
+  
+  
+  # adjust the rest -----------------------------
+  # gp: Some of these are using brute force instead of repeating logic from readProjectData
+  # I think this is fine for now, needs to be tested more thoroughly later (or rewrite readProjectData)
+  
+  dataList$dataFrameInfos <- metaboliteProfile
+  
+  # dataFrameMS1Header - brute force
+  dataList$dataFrameMS1Header$Annotation[2] <- uniqueAnnotationsHexs
+  
+  # annoArrayOfLists - brute force
+  annoArrayOfLists1 <- 
+    split(metaboliteProfile$Annotation, seq_along(metaboliteProfile$Annotation))[!metaboliteProfile$Annotation == ""] %>% 
+    unname
+  annoArrayOfLists2 <- split(annoArrayOfLists1, seq_along(annoArrayOfLists1))
+  dataList$annoArrayOfLists[!metaboliteProfile$Annotation == ""] <- annoArrayOfLists2
+  
+  # annoPresentAnnotationsList
+  dataList$annoPresentAnnotationsList <- c(list("Ignore"), annoArrayOfLists1)
+  
+  # annoPresentColorsList
+  dataList$annoPresentColorsList <- c(list("red"), uniqueAnnotations %>% strsplit("=") %>% lapply(function(x) x[2]))
+  
+  dataList
+  
+}
+
 
 #' Process MS-Dial-like MS1 data.frame
 #' 
