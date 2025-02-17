@@ -1396,9 +1396,19 @@ mzClustGeneric <- function(p,
   return(list(mat=groupmat,idx=groupindex))
 }
 
+#' Convert to Project File
+#' 
+#' Reads and creates a list from separate files.
+#'
+#' @param filePeakMatrixPath path
+#' @param fileSpectra path
+#' @param parameterSet list of parameters
+#' @param progress logical
+#'
+#' @returns resultObj
+#' @export
 convertToProjectFile <- function(filePeakMatrixPath, 
                                  fileSpectra,
-                                 fileAnnotation,
                                  parameterSet, 
                                  progress = FALSE){
   ####################################################################################
@@ -1437,11 +1447,7 @@ convertToProjectFile <- function(filePeakMatrixPath,
   
   
   filePeakMatrixQF <- readMSDial(filePeakMatrixPath)
-  if (!is.null(fileAnnotation)){
-    # TODO: determine colums to merge by
-    filePeakMatrixQF <- addSiriusAnnotations(filePeakMatrixQF,fileAnnotation)
-  }
-  
+
   returnObj <- convertToProjectFile2(
     filePeakMatrixQF = filePeakMatrixQF, 
     spectraList = spectraList, precursorMz = precursorMz, precursorRt = precursorRt, 

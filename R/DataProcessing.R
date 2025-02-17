@@ -802,8 +802,8 @@ add_qfeatures <- function(dataList, qfeatures, fileAnnotation) {
   # gp: removed red as it is already used for ignore category
   # TODO automate color generation, do not limit it to 40, could always use same colors, no need for sampling
   allowedCols <- c("blue", "yellow", "green", "brown", "deepskyblue", "orange", "deeppink", "aquamarine", "burlywood", "cadetblue", "coral", "cornflowerblue", "cyan", "firebrick", "goldenrod", "indianred", "khaki", "magenta", "maroon", "beige", "moccasin", "olivedrab", "orangered", "orchid", "paleturquoise3", "rosybrown", "salmon", "seagreen3", "skyblue", "steelblue", "#BF360C", "#33691E", "#311B92", "#880E4F", "#1A237E", "#006064", "#004D40", "#FF6F00", "#E65100")
-  # uniqueAnnotations <- paste0(uniqueAnnotations, sample(allowedCols, length(uniqueAnnotations), replace = TRUE))
-  uniqueAnnotations <- uniano
+  uniqueAnnotations <- paste0(uniqueAnnotations, sample(allowedCols, length(uniqueAnnotations), replace = TRUE))
+  
   # Format uniqueAnnotations into a single line with comma-separated values
   uniqueAnnotations1 <- paste(uniqueAnnotations, collapse = ", ")
   #uniqueAnnotationsHexs <- paste("AnnotationColors={", paste(uniqueAnnotations1, collapse = ","), "}")# this line introduces a space after the first Item of the object, therefore, replaced with the following to remove the space
