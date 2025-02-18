@@ -758,19 +758,22 @@ readProjectData <- function(fileLines, progress = FALSE)
 #'
 #' @returns The dataList object with added sirius annotations.
 #' @export
-add_qfeatures <- function(dataList, qfeatures, fileAnnotation) {
+add_qfeatures <- function(dataList, qfeatures, fileAnnotation = NULL) {
   # This function takes snippets previously in convertToProjectFile and readProjectData
   # to streamline the process de declutter the aforementionned functions.
   
+  # The function does not do anything without annotation file
+  if (is.null(fileAnnotation)) {
+    return(dataList)
+  }
+  
   metaboliteProfile <- dataList$dataFrameInfos
   
-  qfeatures <- addSiriusAnnotations(qfeatures, fileAnnotation)
-  
+  # previously used test, not sure if still needed
   if (is.null(attr(rowData(qfeatures[[1]]), "annotation column"))) {
     stop("No annotation")
   }
-  
-  
+
   #Start of importing  annotation part1 from two
   
   # Extract the relevant data: Alignment ID and the annotation column from qfeatures
