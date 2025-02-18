@@ -159,7 +159,7 @@ pcaDimensionTwo <<- 2
 
 HCA on MS2 in Figure \@ref(fig:hca). 
 
-```{r hca, fig.cap="HCA on MS2.", echo=FALSE}
+```{r hca, fig.cap="HCA on MS2.", echo=FALSE, eval=FALSE}
 
 if (FALSE) {
 p <- calcPlotDendrogram_plotly(dataList=dataList, #project, 
