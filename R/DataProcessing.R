@@ -767,7 +767,7 @@ add_qfeatures <- function(dataList, qfeatures, fileAnnotation = NULL) {
     return(dataList)
   }
   
-  metaboliteProfile <- dataList$dataFrameInfos
+  qfeatures <- addSiriusAnnotations(qfeatures, fileAnnotation)
   
   # previously used test, not sure if still needed
   if (is.null(attr(rowData(qfeatures[[1]]), "annotation column"))) {
@@ -782,7 +782,7 @@ add_qfeatures <- function(dataList, qfeatures, fileAnnotation = NULL) {
   alignment_ids <- rowData(qfeatures[[1]])[["Alignment ID"]]
   
   # Find the matching indices between metaboliteProfile and annotation_data
-  
+  metaboliteProfile <- dataList$dataFrameInfos
   matching_indices <- match(metaboliteProfile[["Alignment ID"]], alignment_ids)
   
   metaboliteProfile$Annotation[!is.na(matching_indices)] <- annotation_data[matching_indices[!is.na(matching_indices)]] 
