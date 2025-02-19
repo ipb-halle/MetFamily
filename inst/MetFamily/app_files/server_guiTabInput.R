@@ -370,7 +370,7 @@ importData <- function(importMS1andMS2data){
         convertToProjectFile(
           filePeakMatrix = fileMs1Path, 
           fileSpectra = fileMs2Path, 
-          fileAnnotation = fileAnnotPath,
+          # fileAnnotation = fileAnnotPath,
           parameterSet = parameterSet, 
           progress = TRUE
         )
@@ -403,12 +403,14 @@ importData <- function(importMS1andMS2data){
   error <- NULL
   withProgress(message = 'Processing matrix...', value = 0, {
     lines <- sparseMatrixToString(matrixRows = resultObj$matrixRows, matrixCols = resultObj$matrixCols, matrixVals = resultObj$matrixVals, parameterSet = parameterSet)
-    qfeatures <- resultObj$qfeatures
+    # qfeatures <- resultObj$qfeatures
     #################################################
     ## process project file
     
     dataList <<- tryCatch({
-        readProjectData(fileLines = lines, progress = TRUE, qfeatures = qfeatures)
+        readProjectData(fileLines = lines, progress = TRUE) %>% 
+        add_qfeatures(qfeatures = resultObj$qfeatures,
+                      fileAnnotation = fileAnnotPath)
       }, error = function(e) {
         error <<- e
       }
