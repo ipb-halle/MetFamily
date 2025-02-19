@@ -2346,6 +2346,30 @@ calcPlotPCAscores <- function(pcaObj, dataList, filterObj,
   }
 }
 
+#' calcPlotPCAloadings
+#'
+#' @param pcaObj 
+#' @param dataList 
+#' @param filter 
+#' @param pcaDimensionOne 
+#' @param pcaDimensionTwo 
+#' @param selectionFragmentPcaLoadingSet 
+#' @param selectionAnalysisPcaLoadingSet 
+#' @param selectionSearchPcaLoadingSet 
+#' @param xInterval 
+#' @param yInterval 
+#' @param loadingsLabels 
+#' @param showLoadingsAbundance 
+#' @param showLoadingsFeaturesAnnotated 
+#' @param showLoadingsFeaturesUnannotated 
+#' @param showLoadingsFeaturesSelected 
+#' @param showLoadingsFeaturesUnselected 
+#'
+#' @returns
+#' @export
+#' @importFrom stringr str_squish
+#'
+#' @examples
 calcPlotPCAloadings <- function(
   pcaObj, dataList, filter, 
   pcaDimensionOne, pcaDimensionTwo, 

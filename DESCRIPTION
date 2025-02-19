@@ -28,7 +28,6 @@ Depends:
     gdata,
     searchable, 
     tools,
-    stringr,
     matrixStats,
     plotrix,
     slam,
@@ -43,6 +42,7 @@ Imports:
     stats,
     utils,
     S4Vectors, 
+    stringr,
     SummarizedExperiment,
     openxlsx2
 Remotes: 

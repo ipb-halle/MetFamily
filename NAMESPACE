@@ -40,3 +40,4 @@ importFrom("SummarizedExperiment","rowData","rowData<-")
 importFrom(SummarizedExperiment,assay)
 
 importFrom("plotly", "plot_ly", "add_trace", "layout")
+importFrom("stringr", "str_squish", "str_split")

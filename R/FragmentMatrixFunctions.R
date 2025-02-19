@@ -824,6 +824,22 @@ parseMSP_chunk <- function(fileLines,
   return(returnObj)
 }
 
+
+#' parseMSP_attributes
+#'
+#' @param fileSpectra 
+#' @param progress 
+#' @param flexiblePeakList 
+#' @param multiplePeaksPerLine 
+#' @param includeIDasRecordSeparator 
+#' @param includeNAMEasRecordSeparator 
+#' @param includeTITLEasRecordSeparator 
+#' @param returnEmptySpectra 
+#'
+#' @returns
+#' @importFrom stringr str_split
+#'
+#' @examples
 parseMSP_attributes <- function(fileSpectra, progress = FALSE, flexiblePeakList = FALSE, multiplePeaksPerLine = FALSE, includeIDasRecordSeparator=TRUE, includeNAMEasRecordSeparator=TRUE, includeTITLEasRecordSeparator=TRUE, returnEmptySpectra = FALSE){
   fileLines <- readLines(con = fileSpectra)
   
