@@ -29,7 +29,6 @@ Depends:
     searchable, 
     tools,
     stringr,
-    mzR,
     matrixStats,
     plotrix,
     slam,
