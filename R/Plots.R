@@ -329,6 +329,7 @@ calcPlotDendrogram <- function(dataList, filter, clusterDataList, annoPresentAnn
 #'
 #' @return
 #' @importFrom grDevices colorRampPalette rainbow rgb
+#' @importFrom plotly plot_ly add_trace layout
 #' @export
 #'
 #' @examples

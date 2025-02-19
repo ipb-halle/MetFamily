@@ -40,6 +40,5 @@ load_metfamily_dependencies <- function()
   library("cba")
   library("squash")
   library("plotrix")
-  library("plotly")
   library("RColorBrewer")
 }

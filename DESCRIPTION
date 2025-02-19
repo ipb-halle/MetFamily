@@ -32,13 +32,13 @@ Depends:
     matrixStats,
     plotrix,
     slam,
-    plotly,
     xcms
 Imports:
     egg,
     graphics,
     grDevices,
     methods,
+    plotly,
     QFeatures,
     stats,
     utils,

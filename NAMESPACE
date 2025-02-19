@@ -33,9 +33,10 @@ importFrom("graphics", "axis", "mtext", "par", "plot.new",
 importFrom("methods", "as", "is")
 importFrom("stats", "as.dendrogram", "cor", "dendrapply", "dist",
            "hclust", "is.leaf", "median", "na.omit", "predict", "sd")
-importFrom("utils", "flush.console", "read.table")
-
+importFrom("utils", "flush.console", "read.table", "read.delim")
 
 importFrom(SummarizedExperiment,colData)
 importFrom("SummarizedExperiment","rowData","rowData<-")
 importFrom(SummarizedExperiment,assay)
+
+importFrom("plotly", "plot_ly", "add_trace", "layout")
