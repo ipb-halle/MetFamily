@@ -14,7 +14,6 @@ env:
   has_testthat: 'true'
 #  run_covr: 'true' # Disabled until later
   run_covr: 'false'
-#  run_pkgdown: 'true' # Disabled until later
   run_pkgdown: 'false'
   has_RUnit: 'false'
   has_BiocCheck: 'false'
