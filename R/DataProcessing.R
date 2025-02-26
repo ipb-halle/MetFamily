@@ -80,7 +80,7 @@ readClusterDataFromProjectFile <- function(file, progress = FALSE)
   )
   base::close(con = file)
 
-  dataList <- readProjectData(fileLines = fileLines, progress = progress, qfeatures = NULL)
+  dataList <- readProjectData(fileLines = fileLines, progress = progress)
   fileLines <- NULL
   
   return(dataList)
@@ -98,18 +98,20 @@ readClusterDataFromProjectFile <- function(file, progress = FALSE)
 #' @export
 #'
 #' @examples
-readProjectData <- function(fileLines, progress = FALSE, qfeatures = NULL)
+readProjectData <- function(fileLines, progress = FALSE)
 {
   allowedTags <- c("ID")
   allowedTagPrefixes <- c("AnnotationColors=")
   
   ##################################################################################################
   ## parse data
-  if(!is.na(progress))  
-    if(progress)  
+  if(!is.na(progress)) {
+    if(progress) {  
       incProgress(amount = 0.1, detail = "Preprocessing") 
-  else 
+    }
+  } else { 
     print("Preprocessing")
+  }
   
   numberOfRows <- length(fileLines)
   numberOfMS1features <- as.integer(numberOfRows - 3)
@@ -145,9 +147,10 @@ readProjectData <- function(fileLines, progress = FALSE, qfeatures = NULL)
   fragmentGroupsAverageMass <- as.numeric(line3Tokens[fragmentMatrixStart:numberOfColumns])
   line3Tokens <- NULL
   
-  if(any(duplicated(metaboliteProfileColumnNames)))
+  if(any(duplicated(metaboliteProfileColumnNames))) {
     stop(paste("Duplicated column names in the metabolite profile: ", 
                paste(sort(unique(metaboliteProfileColumnNames[duplicated(metaboliteProfileColumnNames)])), collapse = "; ")))
+  }
   
   #########################################################################
   ## extract metabolite profile and fragment matrix
@@ -196,33 +199,7 @@ readProjectData <- function(fileLines, progress = FALSE, qfeatures = NULL)
   listMatrixRows <- NULL
   listMatrixCols <- NULL
 
-  
-  ################################################################################
-  #Start of importing  annotation part1 from two
-  # Display the message and give the user the option to choose whether to upload the annotation file or not. 
-  #If Y shows selection window for annotation file. if N ignores annotation process
-  #message("Do you want to upload the annotation file? (Y/N)")
-  #user_choice <- readline()
-  
-  # qfeatures==NULL if function is called from readClusterDataFromProjectFile()
-  if(!is.null(qfeatures)){
-    if (!is.null(attr(rowData(qfeatures[[1]]), "annotation column"))) {
-      
-      # Extract the relevant data: Alignment ID and the annotation column from qfeatures
-      annot_colname <- attr(rowData(qfeatures[[1]]), "annotation column")
-      annotation_data <- rowData(qfeatures[[1]])[[annot_colname]]
-      alignment_ids <- rowData(qfeatures[[1]])[["Alignment ID"]]
-      
-      # Find the matching indices between metaboliteProfile and annotation_data
-      matching_indices <- match(metaboliteProfile[["Alignment ID"]], alignment_ids)
-      
-      metaboliteProfile$Annotation[!is.na(matching_indices)] <- annotation_data[matching_indices[!is.na(matching_indices)]] 
-      #eliminate NAs replace by "" so nchar(annoVals[[i]]) > 0 works in l. 597
-      metaboliteProfile$Annotation[is.na(metaboliteProfile$Annotation)] <- "" 
-    }
-  }
-  #####################################################################################################################################
-  #end of importing  annotation part1 from two
+  # gp: Previous location of "Start of importing annotation part1 from two"
   
   listMatrixVals <- NULL
   
@@ -281,6 +258,7 @@ readProjectData <- function(fileLines, progress = FALSE, qfeatures = NULL)
     dataFrameHeader[3, target + 1] <- annotationColumnName
   }
 
+<<<<<<< HEAD
 
   # qfeatures==NULL if function is called from readClusterDataFromProjectFile()
   if(!is.null(qfeatures)){
@@ -312,6 +290,10 @@ readProjectData <- function(fileLines, progress = FALSE, qfeatures = NULL)
   #End of importing  annotation part2 from two
     }
   }
+=======
+  # gp: Previous location of "Start of importing annotation part2 from two"
+  
+>>>>>>> upstream/devel
   annotationColumnIndex <- which(metaboliteProfileColumnNames == annotationColumnName)
   annotationColorsValue <- dataFrameHeader[2, annotationColumnIndex]
   
@@ -325,12 +307,13 @@ readProjectData <- function(fileLines, progress = FALSE, qfeatures = NULL)
   rts <- metaboliteProfile[, "RT"]
   
   ## add .0 if necessary
-  for(i in seq_len(numberOfMS1features))
-    if(length(grep(x = mzs[[i]], pattern = ".*\\..*")) == 0)
-      mzs[[i]] <- paste(mzs[[i]], ".0", sep = "")
-  for(i in seq_len(numberOfMS1features))
-    if(length(grep(x = rts[[i]], pattern = ".*\\..*")) == 0)
-      rts[[i]] <- paste(rts[[i]], ".0", sep = "")
+  for(i in seq_len(numberOfMS1features)) {
+    if(length(grep(x = mzs[[i]], pattern = ".*\\..*")) == 0) {
+      mzs[[i]] <- paste(mzs[[i]], ".0", sep = "") }}
+  
+  for(i in seq_len(numberOfMS1features)) {
+    if(length(grep(x = rts[[i]], pattern = ".*\\..*")) == 0) {
+      rts[[i]] <- paste(rts[[i]], ".0", sep = "") }}
   
   regexResult <- gregexpr(pattern = "^(?<before>\\d+)\\.(?<after>\\d+)$", text = mzs, perl = TRUE)
   mzStartsBefore  <- unlist(lapply(X = regexResult, FUN = function(x){attr(x = x, which = "capture.start")[[1]]}))
@@ -354,6 +337,7 @@ readProjectData <- function(fileLines, progress = FALSE, qfeatures = NULL)
   maximumNumberOfDecimalPlacesForMz <- 3
   maximumNumberOfDecimalPlacesForRt <- 2
   
+  # TODO document this block
   for(idx in seq_along(mzs)){
     mzStartBefore  <- mzStartsBefore [[idx]]
     mzStartAfter   <- mzStartsAfter  [[idx]]
@@ -371,35 +355,36 @@ readProjectData <- function(fileLines, progress = FALSE, qfeatures = NULL)
     rtBefore <- substr(start = rtStartBefore, stop = rtStartBefore + rtLengthBefore - 1, x = rts[[idx]])
     rtAfter  <- substr(start = rtStartAfter,  stop = rtStartAfter  + rtLengthAfter  - 1, x = rts[[idx]])
     
-    if(nchar(mzBefore) < mzMaxBefore) 
+    if(nchar(mzBefore) < mzMaxBefore) {
       mzBefore <- paste(
         paste(rep(x = "  ", times = mzMaxBefore - nchar(mzBefore)), collapse = ""),
         mzBefore,
-        sep = ""
-      )
-    if(nchar(mzAfter) > maximumNumberOfDecimalPlacesForMz)
+        sep = "")
+    }
+    if(nchar(mzAfter) > maximumNumberOfDecimalPlacesForMz) {
       mzAfter <- substr(x = mzAfter, start = 1, stop = maximumNumberOfDecimalPlacesForMz)
-    if(nchar(mzAfter) < maximumNumberOfDecimalPlacesForMz)
+    }
+    if(nchar(mzAfter) < maximumNumberOfDecimalPlacesForMz) {
       mzAfter <- paste(
         mzAfter,
         paste(rep(x = "0", times = maximumNumberOfDecimalPlacesForMz - nchar(mzAfter)), collapse = ""),
-        sep = ""
-      )
-    
-    if(nchar(rtBefore) < rtMaxBefore) 
+        sep = "")
+    }
+    if(nchar(rtBefore) < rtMaxBefore) {
       rtBefore <- paste(
         paste(rep(x = "  ", times = rtMaxBefore - nchar(rtBefore)), collapse = ""),
         rtBefore,
-        sep = ""
-      )
-    if(nchar(rtAfter) > maximumNumberOfDecimalPlacesForRt)
+        sep = "")
+    }
+    if(nchar(rtAfter) > maximumNumberOfDecimalPlacesForRt) {
       rtAfter <- substr(x = rtAfter, start = 1, stop = maximumNumberOfDecimalPlacesForRt)
-    if(nchar(rtAfter) < maximumNumberOfDecimalPlacesForRt)
+    }
+    if(nchar(rtAfter) < maximumNumberOfDecimalPlacesForRt) {
       rtAfter <- paste(
         rtAfter,
         paste(rep(x = "0", times = maximumNumberOfDecimalPlacesForRt - nchar(rtAfter)), collapse = ""),
-        sep = ""
-      )
+        sep = "")
+    }
     
     mzs[[idx]] <- paste(mzBefore, mzAfter, sep = ".")
     rts[[idx]] <- paste(rtBefore, rtAfter, sep = ".")
@@ -477,8 +462,9 @@ readProjectData <- function(fileLines, progress = FALSE, qfeatures = NULL)
   ## featureIndexMatrix
   featureIndexMatrix <- matrix(nrow = numberOfMS1features, ncol = max(sapply(X = featureIndeces, FUN = length)))
   rownames(featureIndexMatrix) <- precursorLabels
-  for(i in seq_len(numberOfMS1features))
+  for(i in seq_len(numberOfMS1features)) {
     featureIndexMatrix[i, seq_len(length(featureIndeces[[i]]))] <- featureIndeces[[i]]
+  }
   
   minimumMass <- min(fragmentGroupsAverageMass)
   maximumMass <- max(fragmentGroupsAverageMass)
@@ -488,10 +474,12 @@ readProjectData <- function(fileLines, progress = FALSE, qfeatures = NULL)
   
   ## sample columns
   sampleColumns <- tagsSector != ""
-  for(allowedTag in allowedTags)
+  for(allowedTag in allowedTags) {
     sampleColumns[grep(x = tagsSector, pattern = paste("^", allowedTag, "$", sep = ""))] <- FALSE
-  for(allowedTagPrefix in allowedTagPrefixes)
+  }
+  for(allowedTagPrefix in allowedTagPrefixes) {
     sampleColumns[grep(x = tagsSector, pattern = paste("^", allowedTagPrefix, sep = ""))] <- FALSE
+  }
   sampleColumns <- which(sampleColumns)
   sampleColumnsStartEnd <- c(min(sampleColumns), max(sampleColumns))
   
@@ -552,7 +540,11 @@ readProjectData <- function(fileLines, progress = FALSE, qfeatures = NULL)
   returnObj <- processMS1data(
     sampleNamesToExclude=sampleNamesToExclude, numberOfMS1features=numberOfMS1features, precursorLabels=precursorLabels, 
     grouXXXps=grouXXXps, metaboliteProfileColumnNames=metaboliteProfileColumnNames, tagsSector = tagsSector, 
-    dataColumnIndecesFunctionFromGroupIndex=dataColumnIndecesFunctionFromGroupIndex, dataColumnsNameFunctionFromGroupIndex=dataColumnsNameFunctionFromGroupIndex, dataColumnsNameFunctionFromGroupName=dataColumnsNameFunctionFromGroupName, dataColumnsNameFunctionFromGroupNames=dataColumnsNameFunctionFromGroupNames, groupNameFunctionFromDataColumnName=groupNameFunctionFromDataColumnName,
+    dataColumnIndecesFunctionFromGroupIndex=dataColumnIndecesFunctionFromGroupIndex, 
+    dataColumnsNameFunctionFromGroupIndex=dataColumnsNameFunctionFromGroupIndex, 
+    dataColumnsNameFunctionFromGroupName=dataColumnsNameFunctionFromGroupName, 
+    dataColumnsNameFunctionFromGroupNames=dataColumnsNameFunctionFromGroupNames, 
+    groupNameFunctionFromDataColumnName=groupNameFunctionFromDataColumnName,
     metaboliteProfile=metaboliteProfile, progress=progress
   )
   
@@ -631,11 +623,12 @@ readProjectData <- function(fileLines, progress = FALSE, qfeatures = NULL)
   annoPresentColorsList <- list()
   annoPresentAnnotationsList[[1]] <- annotationValueIgnore
   annoPresentColorsList[[1]] <- annotationColorIgnore
-  if(length(annotationColorsMapKeys) > 0)
+  if(length(annotationColorsMapKeys) > 0) {
     for(i in seq_len(length(annotationColorsMapKeys))){
       annoPresentAnnotationsList[[1 + i]] <- annotationColorsMapKeys[[i]]
       annoPresentColorsList     [[1 + i]] <- annotationColorsMapValues[[i]]
     }
+  }
   
   ## check consistency
   if(!all(unique(unlist(annoArrayOfLists)) %in% unlist(annoPresentAnnotationsList))){
@@ -721,20 +714,24 @@ readProjectData <- function(fileLines, progress = FALSE, qfeatures = NULL)
     which(dataList$tagsSector == dataList$grouXXXps[[groupIdx]] & !(dataList$metaboliteProfileColumnNames %in% sampleNamesToExclude))
   }
   dataList$dataColumnIndecesFunctionFromGroupIndex <- dataColumnIndecesFunctionFromGroupIndex
+  
   dataColumnsNameFunctionFromGroupIndex <- function(groupIdx, sampleNamesToExclude){
     dataList$metaboliteProfileColumnNames[dataList$dataColumnIndecesFunctionFromGroupIndex(groupIdx = groupIdx, sampleNamesToExclude = sampleNamesToExclude)]
   }
   dataList$dataColumnsNameFunctionFromGroupIndex <- dataColumnsNameFunctionFromGroupIndex
+  
   dataColumnsNameFunctionFromGroupName <- function(group, sampleNamesToExclude){
     dataColumns <- dataList$dataColumnsNameFunctionFromGroupIndex(groupIdx = match(x = group, table = dataList$grouXXXps), sampleNamesToExclude = sampleNamesToExclude)
   }
   dataList$dataColumnsNameFunctionFromGroupName <- dataColumnsNameFunctionFromGroupName
+  
   dataColumnsNameFunctionFromGroupNames <- function(grouXXXps, sampleNamesToExclude){
     unlist(lapply(X = grouXXXps, FUN = function(x){
       dataList$dataColumnsNameFunctionFromGroupName(group = x, sampleNamesToExclude = sampleNamesToExclude)
     }))
   }
   dataList$dataColumnsNameFunctionFromGroupNames <- dataColumnsNameFunctionFromGroupNames
+  
   groupNameFunctionFromDataColumnName <- function(dataColumnName, sampleNamesToExclude){
     groupIdx <- which(unlist(lapply(X = dataList$grouXXXps, FUN = function(x){
       dataColumnNames <- dataList$dataColumnsNameFunctionFromGroupName(group = x, sampleNamesToExclude = sampleNamesToExclude)
@@ -761,6 +758,7 @@ readProjectData <- function(fileLines, progress = FALSE, qfeatures = NULL)
     return(samples[isExcluded & isGroup])
   }
   dataList$excludedSamples <- excludedSamples
+  
   includedSamples <- function(groupSampleDataFrame, grouXXXps = dataList$grouXXXps){
     samples    =  groupSampleDataFrame[, "Sample"]
     isIncluded = !groupSampleDataFrame[, "Exclude"]
@@ -775,6 +773,7 @@ readProjectData <- function(fileLines, progress = FALSE, qfeatures = NULL)
     })))
   }
   dataList$includedGroups <- includedGroups
+  
   excludedGroups <- function(groupSampleDataFrame, samples = dataList$groupSampleDataFrame[, "Sample"]){
     setdiff(dataList$grouXXXps, dataList$includedGroups(groupSampleDataFrame, samples)) 
   }
@@ -782,6 +781,100 @@ readProjectData <- function(fileLines, progress = FALSE, qfeatures = NULL)
   
   return(dataList)
 }
+
+
+#' Add qfeatures to dataList
+#' 
+#'
+#' @param dataList Output from readProjectData.
+#' @param qfeatures qfeature object, can be taken from resultObj$qfeatures.
+#' @param fileAnnotation character Path for sirius annotation file.
+#'
+#' @returns The dataList object with added sirius annotations.
+#' @export
+add_qfeatures <- function(dataList, qfeatures, fileAnnotation = NULL) {
+  # This function takes snippets previously in convertToProjectFile and readProjectData
+  # to streamline the process de declutter the aforementionned functions.
+  
+  # The function does not do anything without annotation file
+  if (is.null(fileAnnotation)) {
+    return(dataList)
+  }
+  
+  qfeatures <- addSiriusAnnotations(qfeatures, fileAnnotation)
+  
+  # previously used test, not sure if still needed
+  if (is.null(attr(rowData(qfeatures[[1]]), "annotation column"))) {
+    stop("No annotation")
+  }
+
+  #Start of importing  annotation part1 from two
+  
+  # Extract the relevant data: Alignment ID and the annotation column from qfeatures
+  annot_colname <- attr(rowData(qfeatures[[1]]), "annotation column")
+  annotation_data <- rowData(qfeatures[[1]])[[annot_colname]]
+  alignment_ids <- rowData(qfeatures[[1]])[["Alignment ID"]]
+  
+  # Find the matching indices between metaboliteProfile and annotation_data
+  metaboliteProfile <- dataList$dataFrameInfos
+  matching_indices <- match(metaboliteProfile[["Alignment ID"]], alignment_ids)
+  
+  metaboliteProfile$Annotation[!is.na(matching_indices)] <- annotation_data[matching_indices[!is.na(matching_indices)]] 
+  #eliminate NAs replace by "" so nchar(annoVals[[i]]) > 0 works in l. 597
+  metaboliteProfile$Annotation[is.na(metaboliteProfile$Annotation)] <- "" 
+  
+  
+  #Start of importing annotation part2 from two
+  
+  #adding HEX color codes from external annotations to the annotationColorsMapInitValue of dataFrameHeader
+  
+  # Copy the selected column by user, Remove duplicates and exclude the first row
+  uniqueAnnotations <- unique(unlist(strsplit(metaboliteProfile$Annotation, ",")))
+  
+  uniqueAnnotations <- paste0(uniqueAnnotations, "=")
+  # Add a random string from the hex color list to each element of uniqueAnnotions
+  # strings_list <- c("#000000", "#FFFFFF", "#FF0000", "#00FF00", "#0000FF", "#FFFF00", "#FF00FF", "#00FFFF", "#800000", "#008000", "#000080", "#808000", "#800080", "#008080", "#808080", "#C0C0C0", "#FFA500", "#FFC0CB", "#FFD700", "#A52A2A")
+  # uniqueAnnotations <- paste0(uniqueAnnotations, sample(strings_list, length(uniqueAnnotations), replace = TRUE))
+  
+  # gp: removed red as it is already used for ignore category
+  # TODO automate color generation, do not limit it to 40, could always use same colors, no need for sampling
+  allowedCols <- c("blue", "yellow", "green", "brown", "deepskyblue", "orange", "deeppink", "aquamarine", "burlywood", "cadetblue", "coral", "cornflowerblue", "cyan", "firebrick", "goldenrod", "indianred", "khaki", "magenta", "maroon", "beige", "moccasin", "olivedrab", "orangered", "orchid", "paleturquoise3", "rosybrown", "salmon", "seagreen3", "skyblue", "steelblue", "#BF360C", "#33691E", "#311B92", "#880E4F", "#1A237E", "#006064", "#004D40", "#FF6F00", "#E65100")
+  uniqueAnnotations <- paste0(uniqueAnnotations, sample(allowedCols, length(uniqueAnnotations), replace = TRUE))
+  
+  # Format uniqueAnnotations into a single line with comma-separated values
+  uniqueAnnotations1 <- paste(uniqueAnnotations, collapse = ", ")
+  #uniqueAnnotationsHexs <- paste("AnnotationColors={", paste(uniqueAnnotations1, collapse = ","), "}")# this line introduces a space after the first Item of the object, therefore, replaced with the following to remove the space
+  uniqueAnnotationsHexs <- gsub("AnnotationColors=\\{\\s+", "AnnotationColors={", paste0("AnnotationColors={", paste(uniqueAnnotations1, collapse = ","), "}"))
+  # Assuming dataFrameHeader is your data frame
+  dataList$dataFrameHeader$Annotation[2] <- uniqueAnnotationsHexs
+  
+  
+  # adjust the rest -----------------------------
+  # gp: Some of these are using brute force instead of repeating logic from readProjectData
+  # I think this is fine for now, needs to be tested more thoroughly later (or rewrite readProjectData)
+  
+  dataList$dataFrameInfos <- metaboliteProfile
+  
+  # dataFrameMS1Header - brute force
+  dataList$dataFrameMS1Header$Annotation[2] <- uniqueAnnotationsHexs
+  
+  # annoArrayOfLists - brute force
+  annoArrayOfLists1 <- 
+    split(metaboliteProfile$Annotation, seq_along(metaboliteProfile$Annotation))[!metaboliteProfile$Annotation == ""] %>% 
+    unname
+  annoArrayOfLists2 <- split(annoArrayOfLists1, seq_along(annoArrayOfLists1))
+  dataList$annoArrayOfLists[!metaboliteProfile$Annotation == ""] <- annoArrayOfLists2
+  
+  # annoPresentAnnotationsList
+  dataList$annoPresentAnnotationsList <- c(list("Ignore"), annoArrayOfLists1)
+  
+  # annoPresentColorsList
+  dataList$annoPresentColorsList <- c(list("red"), uniqueAnnotations %>% strsplit("=") %>% lapply(function(x) x[2]))
+  
+  dataList
+  
+}
+
 
 #' Process MS-Dial-like MS1 data.frame
 #' 
