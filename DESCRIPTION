@@ -6,7 +6,7 @@ Date: 2025-02-18
 Author: c( person(given = "Hendrik", family = "Treutler", role = c("aut"), email = "hendrik.treutler@ipb-halle.de"),
            person(given = "Khabat", family = "Vahabi", role = c("ctb"), email = "khabat.vahabi@ipb-halle.de"),
            person(given = "Norman", family = "Storz", role = c("ctb"), email = "nstorz@ipb-halle.de"),
-           person(given = "Guillaume", family = "Patoine", role = c("ctb"), email = "Guillaume.Patoine@ipb-halle.de"),
+           person(given = "Guillaume", family = "Patoine", role = c("ctb"), email = "gpatoine@ipb-halle.de"),
            person(given = "Steffen", family = "Neumann", email = "sneumann@ipb-halle.de",
            role = c("aut", "cre"), comment = c(ORCID = "0000-0002-7899-7192")) )
 Depends:
