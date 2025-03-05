@@ -35,7 +35,7 @@ if(errorHunting){
 ## server-side logic of the Shiny app
 shinyServer(
   func = function(input, output, session) {
-    show_modal_spinner(spin = "self-building-square", text="Loading libraries")
+    shinybusy::show_modal_spinner(spin = "self-building-square", text="Loading libraries")
     #########################################################################################
     #########################################################################################
     ## global variables per user
@@ -147,7 +147,7 @@ shinyServer(
     #########################################################################################
     #########################################################################################
     ## observer
-    remove_modal_spinner() #Remove preparing message
+    shinybusy::remove_modal_spinner() #Remove preparing message
     
     ## controls
     obsTabs <- observeEvent(input$runTabs, {
@@ -214,8 +214,8 @@ shinyServer(
               #scrollY = "600px",
               scrollX = "40vh",
               scrollY = "60vh",
-              preDrawCallback = JS('function() { Shiny.unbindAll(this.api().table().node()); }'),
-              drawCallback    = JS('function() { Shiny.bindAll(  this.api().table().node()); }'),
+              preDrawCallback = DT::JS('function() { Shiny.unbindAll(this.api().table().node()); }'),
+              drawCallback    = DT::JS('function() { Shiny.bindAll(  this.api().table().node()); }'),
               iDisplayLength=nrow(availableClassifiersDf),       # initial number of records
               ordering = F,              # row ordering
               sDom  = 't'
@@ -314,14 +314,14 @@ shinyServer(
     
     ## display of tabs
     observe({
-      toggle(condition = !is.null(state_tabInput$importedOrLoadedFile_s_), selector = "#runTabs li a[data-value='MS/MS filter']")
-      toggle(condition = !is.null(state_tabInput$importedOrLoadedFile_s_), selector = "#runTabs li a[data-value='Sample filter']")
-      toggle(condition = !is.null(state_tabInput$importedOrLoadedFile_s_), selector = "#runTabs li a[data-value='PCA']")
-      toggle(condition = !is.null(state_tabInput$importedOrLoadedFile_s_), selector = "#runTabs li a[data-value='HCA']")
-      toggle(condition = !is.null(state_tabInput$importedOrLoadedFile_s_), selector = "#runTabs li a[data-value='Search']")
-      toggle(condition = !is.null(state_tabInput$importedOrLoadedFile_s_), selector = "#runTabs li a[data-value='Classifiers']")
-      toggle(condition = !is.null(state_tabInput$importedOrLoadedFile_s_), selector = "#runTabs li a[data-value='Annotations']")
-      toggle(condition = !is.null(state_tabInput$importedOrLoadedFile_s_), selector = "#runTabs li a[data-value='Project']")
+      shinyjs::toggle(condition = !is.null(state_tabInput$importedOrLoadedFile_s_), selector = "#runTabs li a[data-value='MS/MS filter']")
+      shinyjs::toggle(condition = !is.null(state_tabInput$importedOrLoadedFile_s_), selector = "#runTabs li a[data-value='Sample filter']")
+      shinyjs::toggle(condition = !is.null(state_tabInput$importedOrLoadedFile_s_), selector = "#runTabs li a[data-value='PCA']")
+      shinyjs::toggle(condition = !is.null(state_tabInput$importedOrLoadedFile_s_), selector = "#runTabs li a[data-value='HCA']")
+      shinyjs::toggle(condition = !is.null(state_tabInput$importedOrLoadedFile_s_), selector = "#runTabs li a[data-value='Search']")
+      shinyjs::toggle(condition = !is.null(state_tabInput$importedOrLoadedFile_s_), selector = "#runTabs li a[data-value='Classifiers']")
+      shinyjs::toggle(condition = !is.null(state_tabInput$importedOrLoadedFile_s_), selector = "#runTabs li a[data-value='Annotations']")
+      shinyjs::toggle(condition = !is.null(state_tabInput$importedOrLoadedFile_s_), selector = "#runTabs li a[data-value='Project']")
     })
     
     

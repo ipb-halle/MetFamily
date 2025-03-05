@@ -1,5 +1,5 @@
 
-library(htmltools)
+# library(htmltools)
 library(shiny)
 library(shinyBS)
 library(shinyjs)
@@ -120,7 +120,7 @@ shinyUI(
                   fluidRow(
                     column(width = 6,
                            bsTooltip(id = "loadProjectData", title = "Press to load the selected project file", placement = "bottom", trigger = "hover"),
-                           disabled(actionButton(inputId = "loadProjectData", label = "Load project data", class="btn-success", width = "100%"))
+                           shinyjs::disabled(actionButton(inputId = "loadProjectData", label = "Load project data", class="btn-success", width = "100%"))
                     ),##column
                     column(width = 6
                            
@@ -271,11 +271,11 @@ shinyUI(
                   fluidRow(
                     column(width = 6,
                            bsTooltip(id = "importMs1Ms2Data", title = "Press to import the selected metabolite profile and MS/MS library", placement = "bottom", trigger = "hover"),
-                           disabled(actionButton(inputId = "importMs1Ms2Data", label = "Import MS\u00B9 and MS/MS data", class="btn-success", width = "100%"))
+                           shinyjs::disabled(actionButton(inputId = "importMs1Ms2Data", label = "Import MS\u00B9 and MS/MS data", class="btn-success", width = "100%"))
                     ),##column
                     column(width = 6,
                            bsTooltip(id = "importMs2Data", title = "Press to import the selected MS/MS library without a metabolite profile", placement = "bottom", trigger = "hover"),
-                           disabled(actionButton(inputId = "importMs2Data", label = "Import MS/MS data", class="btn-success", width = "100%"))
+                           shinyjs::disabled(actionButton(inputId = "importMs2Data", label = "Import MS/MS data", class="btn-success", width = "100%"))
                     )##column
                   )##row
                 ),## conditional
@@ -915,7 +915,7 @@ shinyUI(
                   verbatimTextOutput(outputId = "classifierCount"),
                   DT::dataTableOutput("classifierSelectionTable"),
                   bsTooltip(id = "doAnnotation", title = "Press to automatically annotate metabolite families to spectra ", placement = "bottom", trigger = "hover"),
-                  disabled(actionButton(inputId = "doAnnotation", label = "Perform scan", class="btn-success", width = "100%"))
+                  shinyjs::disabled(actionButton(inputId = "doAnnotation", label = "Perform scan", class="btn-success", width = "100%"))
                 )
               ),
               conditionalPanel(

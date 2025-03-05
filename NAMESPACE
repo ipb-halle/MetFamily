@@ -25,6 +25,7 @@ importFrom(openxlsx2,read_xlsx)
 ## Hardcoded:
 exportPattern("^[^\\.]")
 import(egg)
+import(shiny)
 importFrom("grDevices", "as.raster", "rainbow", "rgb")
 importFrom("methods", "as")
 importFrom("graphics", "axis", "mtext", "par", "plot.new",

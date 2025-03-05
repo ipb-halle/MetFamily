@@ -859,11 +859,11 @@ performPca <- function(dataList, dataFrame2, ms1AnalysisMethod){
            returnObj$variance <- pca@sDev
            
            returnObj$R2 <- pca@R2
-           #returnObj$Q2 <- Q2(object = pca, fold=2)
+           #returnObj$Q2 <- pcaMethods::Q2(object = pca, fold=2)
            returnObj$Q2 <- tryCatch(
              {
                #Q2(object = pca, fold=2)
-               Q2(object = pca, verbose = FALSE)
+               pcaMethods::Q2(object = pca, verbose = FALSE)
              },
              error=function(cond) {
                rep(x = "N/A", times = numberOfComponents)
@@ -888,8 +888,8 @@ performPca <- function(dataList, dataFrame2, ms1AnalysisMethod){
            #returnObj$R2 <- 
            #returnObj$Q2 <- 
            
-           #performance <- perf(pca, validation = "loo", progressBar = FALSE)
-           #val <- perf(pca, criterion = c("R2", "Q2"))
+           #performance <- mixOmics::perf(pca, validation = "loo", progressBar = FALSE)
+           #val <- mixOmics::perf(pca, criterion = c("R2", "Q2"))
            
          },
          "mixOmics_plsda"={
@@ -908,12 +908,12 @@ performPca <- function(dataList, dataFrame2, ms1AnalysisMethod){
            returnObj$loadings <- pca$loadings[[1]]
            returnObj$variance <- pca$explained_variance$X
            
-           #performance <- perf(pca, validation = "loo", progressBar = FALSE)
+           #performance <- mixOmics::perf(pca, validation = "loo", progressBar = FALSE)
            #performance$choice.ncomp
            
            if(FALSE){## R2 and Q2?
-             performance <- perf(pca, validation = "Mfold", folds = 2, progressBar = FALSE, tol = 1e-20)
-             performance <- perf(pca, validation = "loo", progressBar = FALSE, tol = 1e-20)
+             performance <- mixOmics::perf(pca, validation = "Mfold", folds = 2, progressBar = FALSE, tol = 1e-20)
+             performance <- mixOmics::perf(pca, validation = "loo", progressBar = FALSE, tol = 1e-20)
              
              pca = mixOmics::pca(X = dataFrame2, ncomp = numberOfComponents, center = FALSE, scale = FALSE)
              loadings <- pca$loadings[[1]]
@@ -933,9 +933,9 @@ performPca <- function(dataList, dataFrame2, ms1AnalysisMethod){
              returnObj$loadings <- pca$loadings[[1]]
              returnObj$variance <- pca$explained_variance
              
-             performance <- perf(pca, validation = "Mfold", folds = 2, progressBar = FALSE, tol = 1e-20)
-             performance <- perf(pca, validation = "loo", progressBar = FALSE)
-             perf(pca, validation = "loo", progressBar = FALSE)
+             performance <- mixOmics::perf(pca, validation = "Mfold", folds = 2, progressBar = FALSE, tol = 1e-20)
+             performance <- mixOmics::perf(pca, validation = "loo", progressBar = FALSE)
+             mixOmics::perf(pca, validation = "loo", progressBar = FALSE)
            }
            
            #returnObj$R2 <- performance$R2

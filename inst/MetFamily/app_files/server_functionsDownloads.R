@@ -139,13 +139,13 @@ createExportMatrix <- function(precursorSet){
 }
 
 writeTable <- function(precursorSet, file){
-  show_modal_spinner(spin="scaling-squares", 
+  shinybusy::show_modal_spinner(spin="scaling-squares", 
                      text="\nMerging project files to csv. This can take several minutes!")
   lines <- createExportMatrix(precursorSet)
   gz1 <- gzfile(description = file, open = "w")
   writeLines(text = lines, con = gz1)
-  close(gz1)
-  remove_modal_spinner()
+  base::close(gz1)
+  shinybusy::remove_modal_spinner()
 }
 
 ## individual downloads

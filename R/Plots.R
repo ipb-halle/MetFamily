@@ -771,7 +771,7 @@ calcPlotDendrogram_plotly <- function(
     
     ## optimal leaf ordering
     if(numberOfGroups > 2){
-      opt <- order.optimal(dist = dist, merge = cluster$merge)
+      opt <- cba::order.optimal(dist = dist, merge = cluster$merge)
       cluster$merge <- opt$merge
       cluster$order <- opt$order
     }
@@ -1760,7 +1760,7 @@ plotLegendWithBalls <- function(labels, xPositions, yPositions, circleXPositions
   
   ## circles
   for(i in seq_len(length(annoColors)))
-    draw.circle(x = circleXPositions[[i]], y = circleYPositions[[i]], radius = radius, nv=50, border=annoColors[[i]], col = annoColors[[i]], lty=1, lwd=5)
+    plotrix::draw.circle(x = circleXPositions[[i]], y = circleYPositions[[i]], radius = radius, nv=50, border=annoColors[[i]], col = annoColors[[i]], lty=1, lwd=5)
   
   ### adding the cex=0.5 #######
   ## labels
@@ -1931,8 +1931,8 @@ calcPlotHeatmapLegend <- function(dataList){
   ## heatmap legend
   par(mar=c(0,0,0,0), mgp = c(3, 1, 0))  ## c(bottom, left, top, right)
   
-  legend_imageAbs <- as.raster(x = t(x = matrix(data = cmap(x = seq(from = dataList$logAbsMax,        to =  0,                         length.out = 100), map = dataList$colorMapAbsoluteData ), nrow=1)))
-  legend_imageLFC <- as.raster(x = t(x = matrix(data = cmap(x = seq(from = dataList$logFoldChangeMax, to = -dataList$logFoldChangeMax, length.out = 100), map = dataList$colorMapLogFoldChange), nrow=1)))
+  legend_imageAbs <- as.raster(x = t(x = matrix(data = squash::cmap(x = seq(from = dataList$logAbsMax,        to =  0,                         length.out = 100), map = dataList$colorMapAbsoluteData ), nrow=1)))
+  legend_imageLFC <- as.raster(x = t(x = matrix(data = squash::cmap(x = seq(from = dataList$logFoldChangeMax, to = -dataList$logFoldChangeMax, length.out = 100), map = dataList$colorMapLogFoldChange), nrow=1)))
   
   maximumNumberOfLabelsAbs <- 5
   maximumNumberOfLabelsLFC <- 2.5
@@ -4779,10 +4779,10 @@ plotFragmentsFromDataList <- function(dataList, xInterval = NULL, yInterval = NU
   numberOfFragments <- dataList$ms2_numberOfFragments[selection]
   masses            <- dataList$ms2_masses[selection]
   
-  colors <- cmap(x = numberOfFragments, map = dataList$colorMapFragmentData)
+  colors <- squash::cmap(x = numberOfFragments, map = dataList$colorMapFragmentData)
   
   #colors <- rep(x = "black", times = length(dataList$ms2_masses))
-  colors <- cmap(x = numberOfFragments, map = dataList$colorMapFragmentData)
+  colors <- squash::cmap(x = numberOfFragments, map = dataList$colorMapFragmentData)
   
   if(relative)
     numberOfFragments <- numberOfFragments / dataList$numberOfPrecursors
@@ -4876,12 +4876,12 @@ plotFragments2 <- function(masses, numberOfFragments, numberOfPrecursors, xInter
   numberOfFragments <- numberOfFragments[selection]
   masses            <- masses[selection]
   
-  ms2PlotDataColorMapFragmentData  <- makecmap(
+  ms2PlotDataColorMapFragmentData  <- squash::makecmap(
     x = c(0, max(numberOfFragments)), n = 100, 
     colFn = colorRampPalette(c('grey', 'black'))
   )
   #colors <- rep(x = "black", times = length(masses))
-  colors <- cmap(x = numberOfFragments, map = ms2PlotDataColorMapFragmentData)
+  colors <- squash::cmap(x = numberOfFragments, map = ms2PlotDataColorMapFragmentData)
   
   yMin <- 0
   if(sum(selection) == 0)

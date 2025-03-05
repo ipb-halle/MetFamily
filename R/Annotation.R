@@ -897,11 +897,11 @@ preprocessClassPlot <- function(frequentFragments, characteristicFragments){
   
   characteristics_class <- rep(x = 0., times = length(masses_class))
   characteristics_class[match(x = characteristicMasses, table = masses_class)] <- unname(characteristicFragments)
-  classDataColorMapFragmentData  <- makecmap(
+  classDataColorMapFragmentData  <- squash::makecmap(
     x = c(0, 1), n = 100, 
     colFn = colorRampPalette(c('grey', 'black'))
   )
-  colors_class <- cmap(x = characteristics_class, map = classDataColorMapFragmentData)
+  colors_class <- squash::cmap(x = characteristics_class, map = classDataColorMapFragmentData)
   
   returnObj <- list(
     masses_class = masses_class,

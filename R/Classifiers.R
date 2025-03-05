@@ -20,7 +20,7 @@ colSumsPos_classifier <- list(
     matrixRows <- dgTMatrix@i
     matrixCols <- dgTMatrix@j
     matrixVals <- dgTMatrix@x
-    stMatrix_test <- simple_triplet_matrix(
+    stMatrix_test <- slam::simple_triplet_matrix(
       i    = matrixRows + 1, 
       j    = matrixCols + 1, 
       v    = matrixVals, 
@@ -29,7 +29,7 @@ colSumsPos_classifier <- list(
     )
     
     ## score test matrix row by row
-    scores <- rowapply_simple_triplet_matrix(x = stMatrix_test, FUN = function(x){
+    scores <- slam::rowapply_simple_triplet_matrix(x = stMatrix_test, FUN = function(x){
       sum(x * classifier)
     })
     
@@ -60,9 +60,9 @@ predict_ColSums <- function(matrix_train, classes_pm_train, matrix_test, classes
   matrixRows <- dgTMatrix@i
   matrixCols <- dgTMatrix@j
   matrixVals <- dgTMatrix@x
-  stMatrix <- simple_triplet_matrix(i = matrixRows + 1, j = matrixCols + 1, v = matrixVals, nrow=nrow(matrix_test), ncol=ncol(matrix_test))
+  stMatrix <- slam::simple_triplet_matrix(i = matrixRows + 1, j = matrixCols + 1, v = matrixVals, nrow=nrow(matrix_test), ncol=ncol(matrix_test))
   
-  scores <- rowapply_simple_triplet_matrix(x = stMatrix, FUN = function(x){
+  scores <- slam::rowapply_simple_triplet_matrix(x = stMatrix, FUN = function(x){
     sum(x * colSums)
   })
   
@@ -252,7 +252,7 @@ colSums_classifier <- list(
     matrixRows <- dgTMatrix@i
     matrixCols <- dgTMatrix@j
     matrixVals <- dgTMatrix@x
-    stMatrix_test <- simple_triplet_matrix(
+    stMatrix_test <- slam::simple_triplet_matrix(
       i    = matrixRows + 1, 
       j    = matrixCols + 1, 
       v    = matrixVals, 
@@ -261,7 +261,7 @@ colSums_classifier <- list(
     )
     
     ## score test matrix
-    scores <- rowapply_simple_triplet_matrix(x = stMatrix_test, FUN = function(x){
+    scores <- slam::rowapply_simple_triplet_matrix(x = stMatrix_test, FUN = function(x){
       sum(x * classifier)
     })
     

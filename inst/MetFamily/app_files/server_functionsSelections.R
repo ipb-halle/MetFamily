@@ -398,8 +398,8 @@ setMS1FeatureTable <- function(){
     expr = selectedTable,
     server = FALSE, escape = FALSE, selection = "none",
     options = list(
-      preDrawCallback = JS('function() { Shiny.unbindAll(this.api().table().node()); }'),
-      drawCallback    = JS('function() { Shiny.bindAll(  this.api().table().node()); }')
+      preDrawCallback = DT::JS('function() { Shiny.unbindAll(this.api().table().node()); }'),
+      drawCallback    = DT::JS('function() { Shiny.bindAll(  this.api().table().node()); }')
     )
   )
 }

@@ -8,50 +8,43 @@ Author: c( person(given = "Hendrik", family = "Treutler", role = c("aut"), email
            person(given = "Norman", family = "Storz", role = c("ctb"), email = "nstorz@ipb-halle.de"),
            person(given = "Guillaume", family = "Patoine", role = c("ctb"), email = "gpatoine@ipb-halle.de"),
            person(given = "Steffen", family = "Neumann", email = "sneumann@ipb-halle.de",
-           role = c("aut", "cre"), comment = c(ORCID = "0000-0002-7899-7192")) )
+                  role = c("aut", "cre"), comment = c(ORCID = "0000-0002-7899-7192")) )
 Depends:
-    R (>= 3.5.0),
-    htmltools,
-    shiny,
-    shinyBS,
-    shinyjs,
-    shinybusy,
-    DT,
-    colourpicker,
-    Matrix,
-    squash,
-    FactoMineR,
-    mixOmics,
-    pcaMethods,
-    cba,
-    cowplot,
-    gdata,
-    searchable, 
-    tools,
-    matrixStats,
-    plotrix,
-    slam,
-    xcms
+  R (>= 3.5.0)
 Imports:
-    egg,
-    graphics,
-    grDevices,
-    methods,
-    plotly,
-    QFeatures,
-    stats,
-    utils,
-    S4Vectors, 
-    stringr,
-    SummarizedExperiment,
-    openxlsx2
-Remotes: 
-    decisionpatterns/searchable
+  egg,
+  graphics,
+  grDevices,
+  methods,
+  plotly,
+  QFeatures,
+  stats,
+  utils,
+  S4Vectors, 
+  stringr,
+  SummarizedExperiment,
+  openxlsx2,
+  cba,
+  tools,
+  squash,
+  caret,
+  pcaMethods,
+  mixOmics,
+  plotrix,
+  colourpicker,
+  slam,
+  scales,
+  xcms,
+  shinyBS,
+  shinybusy,
+  shinyjs,
+  DT,
+  shiny
 Suggests:
-    knitr,
-    BiocStyle,
-    testthat,
-    shinytest2
+  knitr,
+  BiocStyle,
+  testthat,
+  shinytest2
 VignetteBuilder: knitr
 Maintainer: Steffen Neumann <sneumann@ipb-halle.de>
 Description: Untargeted discovery 
@@ -61,19 +54,6 @@ Description: Untargeted discovery
   of comprehensive metabolomics studies for all researchers worldwide.
 License: GPL (>= 2)
 biocViews: Software, Visualization
-Collate:
-    'Annotation.R'
-    'Classifiers.R'
-    'runMetFamily.R'
-    'FragmentMatrixFunctions.R'
-    'DataProcessing.R'
-    'Analysis.R'
-    'TreeAlgorithms.R'
-    'Plots.R'
-    'R_packages.R'
-    parsePeakAbundanceMatrixQF.R
-    readMSDial.R
-    readMetaboScape.R
 RoxygenNote: 7.2.3
 Encoding: UTF-8
 URL: http://ipb-halle.github.io/MetFamily/

@@ -1,0 +1,21 @@
+
+usethis::use_devtools()
+
+use_package("shiny")
+use_package("egg") # is it used?
+
+use_pipe()
+use_import_from("shinyBS", "bsTooltip")
+use_import_from("grDevices", c("as.raster", "rainbow", "rgb"))
+use_import_from("methods", "as")
+use_import_from("graphics", c("axis", "mtext", "par", "plot.new",
+                              "plot.window", "points", "rasterImage", "rect", "segments",
+                              "title"))
+use_import_from("methods", c("as", "is"))
+use_import_from("stats", c("as.dendrogram", "cor", "dendrapply", "dist",
+                           "hclust", "is.leaf", "median", "na.omit", "predict", "sd"))
+use_import_from("utils", c("flush.console", "read.table", "read.delim"))
+
+use_import_from("SummarizedExperiment", c("colData", "rowData","rowData<-", "assay"))
+use_import_from("plotly", c("plot_ly", "add_trace", "layout"))
+use_import_from("stringr", c("str_squish", "str_split"))

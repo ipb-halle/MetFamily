@@ -67,7 +67,7 @@ readClusterDataFromProjectFile <- function(file, progress = FALSE)
   else 
     print("Parsing")
   
-  extension <- file_ext(file)
+  extension <- tools::file_ext(file)
   
   if(extension == "gz") {
     file <- gzfile(file, "r")
@@ -412,7 +412,7 @@ readProjectData <- function(fileLines, progress = FALSE)
   ms2PlotDataAverageAbundance  <- fragmentGroupsAverageIntensity
   ms2PlotDataFragmentMasses    <- fragmentGroupsAverageMass
   maxNumberOfFragments <- max(ms2PlotDataNumberOfFragments)
-  ms2PlotDataColorMapFragmentData  <- makecmap(
+  ms2PlotDataColorMapFragmentData  <- squash::makecmap(
     x = c(0, maxNumberOfFragments), n = 100, 
     colFn = colorRampPalette(c('grey', 'black'))
   )
@@ -827,9 +827,9 @@ add_qfeatures <- function(dataList, qfeatures, fileAnnotation = NULL) {
   
   # annoArrayOfLists - brute force
   annoArrayOfLists1 <- 
-    split(metaboliteProfile$Annotation, seq_along(metaboliteProfile$Annotation))[!metaboliteProfile$Annotation == ""] %>% 
+    base::split(metaboliteProfile$Annotation, seq_along(metaboliteProfile$Annotation))[!metaboliteProfile$Annotation == ""] %>% 
     unname
-  annoArrayOfLists2 <- split(annoArrayOfLists1, seq_along(annoArrayOfLists1))
+  annoArrayOfLists2 <- base::split(annoArrayOfLists1, seq_along(annoArrayOfLists1))
   dataList$annoArrayOfLists[!metaboliteProfile$Annotation == ""] <- annoArrayOfLists2
   
   # annoPresentAnnotationsList
@@ -1018,11 +1018,11 @@ processMS1data <- function(sampleNamesToExclude,
     logFoldChangeMax <- 1
   
   ## maps
-  colorMapAbsoluteData  <- makecmap(
+  colorMapAbsoluteData  <- squash::makecmap(
     x = c(logAbsMin, logAbsMax), n = 100, 
     colFn = colorRampPalette(rainbow(18)[10:1])
   )
-  colorMapLogFoldChange <- makecmap(
+  colorMapLogFoldChange <- squash::makecmap(
     x = c(-logFoldChangeMax, logFoldChangeMax), n = 100, 
     colFn = colorRampPalette(c('blue', 'white', 'red'))
   )
@@ -1042,9 +1042,9 @@ processMS1data <- function(sampleNamesToExclude,
     print("Coloring box")
   
   colorDataFrame <- dataFrameMeasurements
-  colorDataFrame[, dataColumnNames    ] <- cmap(x = matrixDataFrame[, dataColumnNames    ], map = colorMapAbsoluteData)
-  colorDataFrame[, dataMeanColumnNames] <- cmap(x = matrixDataFrame[, dataMeanColumnNames], map = colorMapAbsoluteData)
-  colorDataFrame[, lfcColumnNames]      <- cmap(x = matrixDataFrame[, lfcColumnNames     ], map = colorMapLogFoldChange)
+  colorDataFrame[, dataColumnNames    ] <- squash::cmap(x = matrixDataFrame[, dataColumnNames    ], map = colorMapAbsoluteData)
+  colorDataFrame[, dataMeanColumnNames] <- squash::cmap(x = matrixDataFrame[, dataMeanColumnNames], map = colorMapAbsoluteData)
+  colorDataFrame[, lfcColumnNames]      <- squash::cmap(x = matrixDataFrame[, lfcColumnNames     ], map = colorMapLogFoldChange)
   colorMatrixDataFrame <- as.matrix(colorDataFrame)
   
   returnObj <- list(
@@ -1711,4 +1711,15 @@ numericVectorToStringForEval <- function(vec){
 }
 colorVectorToStringForEval <- function(vec){
   return(paste("c('", paste(vec, collapse = "','"), "')", sep = ""))
+}
+
+invert <- function(x) {
+  
+  if( is.null( names(x) ) ) stop( "vector does not have names.")
+  
+  v <- names(x)
+  names(v) <- as.character(x)
+  
+  return(v)
+  
 }
