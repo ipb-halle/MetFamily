@@ -397,8 +397,8 @@ getAlgorithms <- function(){
   methods <- list(
     ## scores
     "CosinusDistance"  = predict_CosinusDistance,
-    "ColSums"          = colSums_classifier,
-    "ColSumsPos"       = colSumsPos_classifier,
+    "ColSums"          = colSums_classifier(),
+    "ColSumsPos"       = colSumsPos_classifier(),
     "Prod"             = predict_Prod,
     "Jaccard"          = predict_Jaccard,
     "JaccardWeighted"  = predict_JaccardWeighted,

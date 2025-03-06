@@ -1,7 +1,24 @@
 
-#########################################################################################
-## constants
-filterData <- function(dataList, grouXXXps, sampleSet, filterBySamples, filter_average, filter_lfc, filterList_ms2_masses, filter_ms2_ppm, filter_ms1_masses, filter_ms1_ppm, includeIgnoredPrecursors, progress = FALSE){
+#' Filter a dataList
+#'
+#' @param dataList List object
+#' @param grouXXXps sample class
+#' @param sampleSet 
+#' @param filterBySamples 
+#' @param filter_average 
+#' @param filter_lfc 
+#' @param filterList_ms2_masses 
+#' @param filter_ms2_ppm 
+#' @param filter_ms1_masses 
+#' @param filter_ms1_ppm 
+#' @param includeIgnoredPrecursors 
+#' @param progress boolean
+#'
+#' @returns A filtered dataList objetc
+#' @export
+filterData <- function(dataList, grouXXXps, sampleSet, filterBySamples, filter_average,
+                       filter_lfc, filterList_ms2_masses, filter_ms2_ppm, filter_ms1_masses,
+                       filter_ms1_ppm, includeIgnoredPrecursors, progress = FALSE){
   ##########################################
   ## filter
   filter <- rep(x = TRUE, times = dataList$numberOfPrecursors)
@@ -770,7 +787,15 @@ preprocessDataForPca <- function(dataFrame, scaling, logTransform){
   
   return(dataFrame2)
 }
-minimumNumberOfComponents <- 5
+
+#' Run PCA
+#'
+#' @param dataList List object 
+#' @param dataFrame2 
+#' @param ms1AnalysisMethod 
+#'
+#' @returns A PCA list object
+#' @export
 performPca <- function(dataList, dataFrame2, ms1AnalysisMethod){
   
   print("######################################################################################")
@@ -789,6 +814,7 @@ performPca <- function(dataList, dataFrame2, ms1AnalysisMethod){
   
   
   ## TODO pcaMethods confidence intervals analog to MetaboAnalyst: pcaMethods:::simpleEllipse
+  minimumNumberOfComponents <- 5
   numberOfComponents <- min(minimumNumberOfComponents, nrow(dataFrame2))
   
   returnObj <- list()

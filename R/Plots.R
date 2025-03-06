@@ -53,6 +53,23 @@ colorLabels <- function(labels, clusterMembers, color, labelsToRemove = NULL, ne
 }
 
 
+#' Prepare dendrogram plot
+#'
+#' @param dataList 
+#' @param filter 
+#' @param clusterDataList 
+#' @param annoPresentAnnotationsList 
+#' @param annoPresentColorsList 
+#' @param distanceMeasure 
+#' @param selectionFragmentTreeNodeSet 
+#' @param selectionAnalysisTreeNodeSet 
+#' @param selectionSearchTreeNodeSet 
+#' @param showClusterLabels 
+#' @param hcaPrecursorLabels 
+#' @param xInterval 
+#'
+#' @returns
+#' @export
 calcPlotDendrogram <- function(dataList, filter, clusterDataList, annoPresentAnnotationsList, annoPresentColorsList, distanceMeasure, selectionFragmentTreeNodeSet = NULL, selectionAnalysisTreeNodeSet = NULL, selectionSearchTreeNodeSet = NULL, showClusterLabels, hcaPrecursorLabels, xInterval = NULL){
   if(FALSE){
     dataList_ <<- dataList
@@ -311,7 +328,7 @@ calcPlotDendrogram <- function(dataList, filter, clusterDataList, annoPresentAnn
 }
 
 
-#' Title
+#' Prepare Dendrogram for Plotly
 #'
 #' @param dataList 
 #' @param filterObj 
@@ -1198,6 +1215,19 @@ calcPlotDendrogram_plotly <- function(
 
 
 
+#' Plot Heatmap
+#'
+#' @param dataList 
+#' @param filterObj 
+#' @param clusterDataList 
+#' @param selectedTreeNodeSet 
+#' @param frameColor 
+#' @param heatmapContent 
+#' @param heatmapOrdering 
+#' @param xInterval 
+#'
+#' @returns
+#' @export
 calcPlotHeatmap <- function(dataList, filterObj, clusterDataList, selectedTreeNodeSet, frameColor, heatmapContent, heatmapOrdering, xInterval = NULL){
   
   if(FALSE){

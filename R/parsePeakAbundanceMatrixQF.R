@@ -183,7 +183,7 @@ parsePeakAbundanceMatrixQF <- function(qfeatures,
   return (returnObj)
 }
 
-#' Title
+#' Add Sirius Annotations
 #'
 #' @param qfeatures 
 #' @param siriusFile 
@@ -194,7 +194,7 @@ parsePeakAbundanceMatrixQF <- function(qfeatures,
 #' @importFrom utils read.delim
 #' @importFrom SummarizedExperiment rowData
 #' @importFrom SummarizedExperiment rowData<- 
-#' @export
+#' @export dataList?
 #'
 #' @examples
 addSiriusAnnotations <- function(qfeatures,

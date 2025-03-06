@@ -39,7 +39,10 @@ Imports:
   shinybusy,
   shinyjs,
   DT,
-  shiny
+  shiny,
+  QFeatures,
+  purrr,
+  dplyr
 Suggests:
   knitr,
   BiocStyle,
@@ -54,6 +57,7 @@ Description: Untargeted discovery
   of comprehensive metabolomics studies for all researchers worldwide.
 License: GPL (>= 2)
 biocViews: Software, Visualization
+Roxygen: list(markdown = TRUE)
 RoxygenNote: 7.2.3
 Encoding: UTF-8
 URL: http://ipb-halle.github.io/MetFamily/

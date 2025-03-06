@@ -1,8 +1,8 @@
-library(openxlsx2)
-library(dplyr)
-library(purrr)
-library(QFeatures)
-library(SummarizedExperiment)
+# library(openxlsx2)
+# library(dplyr)
+# library(purrr)
+# library(QFeatures)
+# library(SummarizedExperiment)
 
 #' Read Metaboscape Output File into a QFeatures Object
 #'
@@ -57,10 +57,9 @@ library(SummarizedExperiment)
 #' #TODO: Bruker metaboscape site 
 #' #TODO: Ordering ?
 #' 
-
 readMetaboscape <- function(file, version){
   
-  table <- read_xlsx(file)
+  table <- openxlsx2::read_xlsx(file)
   rownames(table) <- table[,1]
   colnames <- colnames(table)
   colIdsSamples <- grepl("\\d+$", colnames)
@@ -89,11 +88,11 @@ readMetaboscape <- function(file, version){
                        "Sample name" = colDataRaw[1,])
                     
   # Create SummarizedExperiment object
-  sumExp <- SummarizedExperiment(assays = list(counts = counts),
+  sumExp <- SummarizedExperiment::SummarizedExperiment(assays = list(counts = counts),
                                  rowData = rowData,
                                  colData = colData)
   rownames(sumExp)
   # Create QFeatures object
-  qf <- QFeatures(list(exampleAssay = sumExp), colData = colData(sumExp))
+  qf <- QFeatures::QFeatures(list(exampleAssay = sumExp), colData = colData(sumExp))
   qf
 }
