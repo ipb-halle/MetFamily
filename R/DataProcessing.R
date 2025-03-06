@@ -25,6 +25,18 @@ data.numericmatrix <- function(x) {
 
 #########################################################################################
 ## annotate and process matrix
+
+#' Flatten listObject to string for export
+#' 
+#' Also used before running readProjectData
+#'
+#' @param matrixRows 
+#' @param matrixCols 
+#' @param matrixVals 
+#' @param parameterSet 
+#'
+#' @returns big string object
+#' @export
 sparseMatrixToString <- function(matrixRows, matrixCols, matrixVals, parameterSet){
   matrixRows <- c(matrixRows, 1)
   matrixCols <- c(matrixCols, 1)
