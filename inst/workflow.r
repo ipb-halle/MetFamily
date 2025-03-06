@@ -29,3 +29,8 @@ use_import_from("Matrix", "sparseMatrix")
 
 document()
 check(vignettes = F)
+
+
+# explore dependencies ----------------------------------------------------
+
+pak::local_deps_tree("MetFamily")

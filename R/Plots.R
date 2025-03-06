@@ -2264,6 +2264,20 @@ getPcaPerformanceIndicator <- function(pcaObj, isScores){
   return(resultObj)
 }
 
+#' PCA plot
+#'
+#' @param pcaObj 
+#' @param dataList 
+#' @param filterObj 
+#' @param pcaDimensionOne 
+#' @param pcaDimensionTwo 
+#' @param showScoresLabels 
+#' @param xInterval 
+#' @param yInterval 
+#' @param downloadLayout 
+#'
+#' @returns ?
+#' @export
 calcPlotPCAscores <- function(pcaObj, dataList, filterObj, 
                               pcaDimensionOne, pcaDimensionTwo, 
                               showScoresLabels, 

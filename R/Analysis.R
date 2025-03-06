@@ -1060,6 +1060,17 @@ leaveOneOutCrossValidation_plsda <- function(dataFrame2, groupLabels, numberOfCo
   
   return(accurracyContribution_comp)
 }
+
+#' Calculate PCA
+#'
+#' @param dataList listObject
+#' @param filterObj filterObject
+#' @param ms1AnalysisMethod 
+#' @param scaling 
+#' @param logTransform 
+#'
+#' @returns PCA object
+#' @export
 calculatePCA <- function(dataList, filterObj, ms1AnalysisMethod, scaling, logTransform){
   if(FALSE){
     dataList_ <<- dataList
