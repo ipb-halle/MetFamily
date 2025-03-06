@@ -29,6 +29,9 @@ metaboliteFamilyVersusClass(
 
 \item{addClassifierConsensusSpectrum}{}
 }
+\value{
+?
+}
 \description{
 Title
 }

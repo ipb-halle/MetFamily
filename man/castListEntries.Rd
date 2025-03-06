@@ -13,8 +13,8 @@ castListEntries(list)
 list of the same lenght with logical's and numeric's casted
 }
 \description{
-Tries to cast a list entry (or column in a data.frame) to logical's, 
-if that does not create any missing values, it is assumed 
-to be a logical will be replaced by `as.logical()` conversion.
+Tries to cast a list entry (or column in a data.frame) to logical's,
+if that does not create any missing values, it is assumed
+to be a logical will be replaced by \code{as.logical()} conversion.
 Similarly for numeric entries (or columns). Everything else remains strings
 }
