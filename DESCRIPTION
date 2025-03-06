@@ -20,15 +20,13 @@ Imports:
   QFeatures,
   stats,
   utils,
-  S4Vectors, 
+  S4Vectors,
   stringr,
   SummarizedExperiment,
   openxlsx2,
   cba,
   tools,
   squash,
-  caret,
-  pcaMethods,
   mixOmics,
   plotrix,
   colourpicker,
@@ -40,14 +38,19 @@ Imports:
   shinyjs,
   DT,
   shiny,
-  QFeatures,
   purrr,
-  dplyr
+  dplyr,
+  magrittr,
+  rlang,
+  Matrix
 Suggests:
   knitr,
   BiocStyle,
   testthat,
-  shinytest2
+  shinytest2,
+  FactoMineR,
+  caret,
+  pcaMethods
 VignetteBuilder: knitr
 Maintainer: Steffen Neumann <sneumann@ipb-halle.de>
 Description: Untargeted discovery 
@@ -58,6 +61,6 @@ Description: Untargeted discovery
 License: GPL (>= 2)
 biocViews: Software, Visualization
 Roxygen: list(markdown = TRUE)
-RoxygenNote: 7.2.3
+RoxygenNote: 7.3.2
 Encoding: UTF-8
 URL: http://ipb-halle.github.io/MetFamily/

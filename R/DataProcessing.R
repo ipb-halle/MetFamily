@@ -57,8 +57,6 @@ sparseMatrixToString <- function(matrixRows, matrixCols, matrixVals, parameterSe
 #' 
 #' @seealso [readProjectData]
 #' @export
-#'
-#' @examples
 readClusterDataFromProjectFile <- function(file, progress = FALSE)
 {
   if(!is.na(progress))  
@@ -97,8 +95,6 @@ readClusterDataFromProjectFile <- function(file, progress = FALSE)
 #' @seealso [processMS1data]
 #' @export
 #' @importFrom stringr str_split
-#'
-#' @examples
 readProjectData <- function(fileLines, progress = FALSE)
 {
   allowedTags <- c("ID")
@@ -862,11 +858,9 @@ add_qfeatures <- function(dataList, qfeatures, fileAnnotation = NULL) {
 #' @param metaboliteProfile 
 #' @param progress 
 #'
-#' @return
+#' @return ?
 #' @export
 #' @importFrom grDevices colorRampPalette rainbow
-#'
-#' @examples
 processMS1data <- function(sampleNamesToExclude, 
                            numberOfMS1features, 
                            precursorLabels, 
@@ -1197,8 +1191,6 @@ deserializeParameterSetKeyValuePairs <- function(importParametersValuePairs){
 #'
 #' @return list of the same lenght with logical's and numeric's casted
 #' @export
-#'
-#' @examples
 castListEntries <- function(list){
   ## cast logical's and numeric's
   suppressWarnings(

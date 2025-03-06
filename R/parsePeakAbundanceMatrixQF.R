@@ -7,11 +7,8 @@
 #' @param maximumRtDifference 
 #' @param progress boolean whether or not to show a progress bar
 #'
-#' @return
+#' @return ?
 #' @export
-#'
-#' @examples
-
 parsePeakAbundanceMatrixQF <- function(qfeatures, 
                                      doPrecursorDeisotoping, 
                                      mzDeviationInPPM_precursorDeisotoping, 
@@ -186,17 +183,15 @@ parsePeakAbundanceMatrixQF <- function(qfeatures,
 #' Add Sirius Annotations
 #'
 #' @param qfeatures 
+#' @param rowData_col 
+#' @param sirius_col 
 #' @param siriusFile 
-#' @param featureID 
-#' @param siriusID 
 #'
-#' @return
+#' @return ?
 #' @importFrom utils read.delim
 #' @importFrom SummarizedExperiment rowData
 #' @importFrom SummarizedExperiment rowData<- 
-#' @export dataList?
-#'
-#' @examples
+#' @export
 addSiriusAnnotations <- function(qfeatures,
                                  siriusFile,
                                  rowData_col = "Alignment ID",

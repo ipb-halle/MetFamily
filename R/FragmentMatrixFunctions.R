@@ -836,10 +836,8 @@ parseMSP_chunk <- function(fileLines,
 #' @param includeTITLEasRecordSeparator 
 #' @param returnEmptySpectra 
 #'
-#' @returns
+#' @returns ?
 #' @importFrom stringr str_split
-#'
-#' @examples
 parseMSP_attributes <- function(fileSpectra, progress = FALSE, flexiblePeakList = FALSE, multiplePeaksPerLine = FALSE, includeIDasRecordSeparator=TRUE, includeNAMEasRecordSeparator=TRUE, includeTITLEasRecordSeparator=TRUE, returnEmptySpectra = FALSE){
   fileLines <- readLines(con = fileSpectra)
   
@@ -1203,10 +1201,8 @@ builtMatrix <- function(spectraList,
 #' @param minfrac 
 #' @param progress 
 #'
-#' @return
+#' @return ?
 #' @export
-#'
-#' @examples
 mzClustGeneric <- function(p, 
                            sampclass=NULL, 
                            mzppm = 20, 

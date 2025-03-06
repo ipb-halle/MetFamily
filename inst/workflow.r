@@ -2,11 +2,11 @@
 usethis::use_devtools()
 
 use_package("shiny")
-use_package("egg") # is it used?
+# use_package("egg") # is it used?
 
 use_pipe()
 use_import_from("shinyBS", "bsTooltip")
-use_import_from("grDevices", c("as.raster", "rainbow", "rgb"))
+use_import_from("grDevices", c("as.raster", "rainbow", "rgb", "colorRampPalette"))
 use_import_from("methods", "as")
 use_import_from("graphics", c("axis", "mtext", "par", "plot.new",
                               "plot.window", "points", "rasterImage", "rect", "segments",
@@ -19,3 +19,13 @@ use_import_from("utils", c("flush.console", "read.table", "read.delim"))
 use_import_from("SummarizedExperiment", c("colData", "rowData","rowData<-", "assay"))
 use_import_from("plotly", c("plot_ly", "add_trace", "layout"))
 use_import_from("stringr", c("str_squish", "str_split"))
+use_import_from("QFeatures", c("QFeatures", "ncols"))
+
+use_import_from("S4Vectors", "DataFrame")
+use_import_from("openxlsx2", "read_xlsx")
+use_import_from("Matrix", "sparseMatrix")
+
+# -------------------------------------------------------------------------
+
+document()
+check(vignettes = F)

@@ -1,11 +1,11 @@
 #' Read MS-DIAL Output File into a QFeatures Object
 #'
-#' This function reads the output file from MS-DIAL and 
-#' converts it into a QFeatures object.
+#' This function reads the output file from MS-DIAL and converts it into a
+#' QFeatures object.
 #'
 #' @param file A string with the path to the MS-DIAL output file.
-#' @param version A character string specifying the version of MS-DIAL used to generate the file.
-#'   This parameter is currently not used.
+#' @param version A character string specifying the version of MS-DIAL used to
+#'   generate the file. This parameter is currently not used.
 #'
 #' @return A QFeatures object containing:
 #'   \itemize{
@@ -18,18 +18,19 @@
 #'
 #' @examples
 #' \dontrun{
-#' # Assuming you have an MS-DIAL output file named "Metabolite_profile_showcase.txt" in a "data" directory:
+#' # Assuming you have an MS-DIAL output file named
+#'  "Metabolite_profile_showcase.txt" in a "data" directory:
 #' qf <- readMSDial("data/Metabolite_profile_showcase.txt")
-#' 
+#'
 #' # Examine the structure of the resulting QFeatures object
 #' qf
-#' 
+#'
 #' # Access the assay data
 #' assay(qf[["exampleAssay"]])
-#' 
+#'
 #' # Access the row data (feature metadata)
 #' rowData(qf[["exampleAssay"]])
-#' 
+#'
 #' # Access the column data (sample metadata)
 #' colData(qf)
 #' }
@@ -38,14 +39,9 @@
 #' @importFrom SummarizedExperiment SummarizedExperiment
 #' @importFrom S4Vectors DataFrame
 #'
-#' @seealso 
-#' \code{\link[QFeatures]{QFeatures}} for more information on the QFeatures class.
-#' \code{\link[SummarizedExperiment]{SummarizedExperiment}} for details on the underlying data structure.
-#'
-#' @note 
-#'
-#'
-#' @references
+#' @seealso \code{\link[QFeatures]{QFeatures}} for more information on the
+#' QFeatures class. \code{\link[SummarizedExperiment]{SummarizedExperiment}} for
+#' details on the underlying data structure.
 #' 
 readMSDial <- function(file, version){
     table <- read.table(file, fill = TRUE, sep = "\t",

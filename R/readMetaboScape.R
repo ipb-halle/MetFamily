@@ -46,9 +46,6 @@
 #' }
 #'
 #'
-#' @details
-#' @note 
-#'
 #' @seealso 
 #' \code{\link[QFeatures]{QFeatures}} for more information on the QFeatures class.
 #' \code{\link[SummarizedExperiment]{SummarizedExperiment}} for details on the underlying data structure.

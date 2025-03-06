@@ -68,7 +68,7 @@ colorLabels <- function(labels, clusterMembers, color, labelsToRemove = NULL, ne
 #' @param hcaPrecursorLabels 
 #' @param xInterval 
 #'
-#' @returns
+#' @returns ?
 #' @export
 calcPlotDendrogram <- function(dataList, filter, clusterDataList, annoPresentAnnotationsList, annoPresentColorsList, distanceMeasure, selectionFragmentTreeNodeSet = NULL, selectionAnalysisTreeNodeSet = NULL, selectionSearchTreeNodeSet = NULL, showClusterLabels, hcaPrecursorLabels, xInterval = NULL){
   if(FALSE){
@@ -344,12 +344,10 @@ calcPlotDendrogram <- function(dataList, filter, clusterDataList, annoPresentAnn
 #' @param heatmapOrdering 
 #' @param heatmapProportion 
 #'
-#' @return
+#' @returns ?
 #' @importFrom grDevices colorRampPalette rainbow rgb
 #' @importFrom plotly plot_ly add_trace layout
 #' @export
-#'
-#' @examples
 calcPlotDendrogram_plotly <- function(
   dataList, filterObj, clusterDataList, 
   #annoPresentAnnotationsList, annoPresentColorsList, 
@@ -1226,7 +1224,7 @@ calcPlotDendrogram_plotly <- function(
 #' @param heatmapOrdering 
 #' @param xInterval 
 #'
-#' @returns
+#' @returns ?
 #' @export
 calcPlotHeatmap <- function(dataList, filterObj, clusterDataList, selectedTreeNodeSet, frameColor, heatmapContent, heatmapOrdering, xInterval = NULL){
   
@@ -1947,15 +1945,13 @@ calcPlotDiscriminativityLegend <- function(){
 }
 
 
-#' Title
+#' Prep Heatmap Legend
 #'
 #' @param dataList 
 #'
-#' @return
+#' @returns ?
 #' @export
-#' @importsFrom grDevices as.raster
-#'
-#' @examples
+#' @importFrom grDevices as.raster
 calcPlotHeatmapLegend <- function(dataList){
   ####################
   ## heatmap legend
@@ -2394,12 +2390,10 @@ calcPlotPCAscores <- function(pcaObj, dataList, filterObj,
 #' @param showLoadingsFeaturesUnannotated 
 #' @param showLoadingsFeaturesSelected 
 #' @param showLoadingsFeaturesUnselected 
-#'
-#' @returns
+#' 
+#' @returns ?
 #' @export
 #' @importFrom stringr str_squish
-#'
-#' @examples
 calcPlotPCAloadings <- function(
   pcaObj, dataList, filter, 
   pcaDimensionOne, pcaDimensionTwo, 

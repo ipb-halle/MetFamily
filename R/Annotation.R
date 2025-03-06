@@ -834,12 +834,9 @@ evaluatePutativeMetaboliteFamiliesOfPrecursorSet_old <- function(dataList, precu
 #' @param mappingSpectraToClassDf 
 #' @param addClassifierConsensusSpectrum 
 #'
-#' @return
+#' @return ?
 #' @export
 #' @importFrom grDevices colorRampPalette
-#' 
-#'
-#' @examples
 metaboliteFamilyVersusClass <- function(dataList, precursorSet, classToSpectra_class, properties_class, classifierClass, mappingSpectraToClassDf, addClassifierConsensusSpectrum){
   returnObj <- getSpectrumStatistics(dataList = dataList, precursorSet = precursorSet)
   masses_spec <- returnObj$fragmentMasses
