@@ -137,7 +137,7 @@ jobs:
 
           ## Pass #1 at installing dependencies
           BiocManager::install(c(
-            "mzR", "htmltools", "shiny", "shinyBS", "shinyjs", "shinybusy",
+            "htmltools", "shiny", "shinyBS", "shinyjs", "shinybusy",
             "DT", "colourpicker", "Matrix", "squash", "FactoMineR", "mixOmics",
             "pcaMethods", "cba", "tools", "stringr", "xcms", "matrixStats",
             "plotrix"

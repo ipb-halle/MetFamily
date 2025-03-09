@@ -6,6 +6,7 @@ Date: 2025-02-18
 Author: c( person(given = "Hendrik", family = "Treutler", role = c("aut"), email = "hendrik.treutler@ipb-halle.de"),
            person(given = "Khabat", family = "Vahabi", role = c("ctb"), email = "khabat.vahabi@ipb-halle.de"),
            person(given = "Norman", family = "Storz", role = c("ctb"), email = "nstorz@ipb-halle.de"),
+           person(given = "Guillaume", family = "Patoine", role = c("ctb"), email = "gpatoine@ipb-halle.de"),
            person(given = "Steffen", family = "Neumann", email = "sneumann@ipb-halle.de",
            role = c("aut", "cre"), comment = c(ORCID = "0000-0002-7899-7192")) )
 Depends:
@@ -27,22 +28,21 @@ Depends:
     gdata,
     searchable, 
     tools,
-    stringr,
-    mzR,
     matrixStats,
     plotrix,
     slam,
-    plotly,
     xcms
 Imports:
     egg,
     graphics,
     grDevices,
     methods,
+    plotly,
     QFeatures,
     stats,
     utils,
     S4Vectors, 
+    stringr,
     SummarizedExperiment,
     openxlsx2
 Remotes: 
@@ -59,7 +59,7 @@ Description: Untargeted discovery
   in comparative metabolomics. We implemented the presented methodology 
   in the easy-to-use web application MetFamily to enable the analysis 
   of comprehensive metabolomics studies for all researchers worldwide.
-License: GPL (>= 2) + file LICENSE
+License: GPL (>= 2)
 biocViews: Software, Visualization
 Collate:
     'Annotation.R'

@@ -96,6 +96,7 @@ readClusterDataFromProjectFile <- function(file, progress = FALSE)
 #' 
 #' @seealso [processMS1data]
 #' @export
+#' @importFrom stringr str_split
 #'
 #' @examples
 readProjectData <- function(fileLines, progress = FALSE)

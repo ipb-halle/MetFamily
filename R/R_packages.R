@@ -14,7 +14,6 @@ load_metfamily_dependencies <- function()
   
   ##############################################################################################################
   ## mass spectrometry
-  library("mzR")
   library("xcms")
   
   ##############################################################################################################
@@ -41,6 +40,5 @@ load_metfamily_dependencies <- function()
   library("cba")
   library("squash")
   library("plotrix")
-  library("plotly")
   library("RColorBrewer")
 }
