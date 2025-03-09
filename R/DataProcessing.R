@@ -258,42 +258,8 @@ readProjectData <- function(fileLines, progress = FALSE)
     dataFrameHeader[3, target + 1] <- annotationColumnName
   }
 
-<<<<<<< HEAD
-
-  # qfeatures==NULL if function is called from readClusterDataFromProjectFile()
-  if(!is.null(qfeatures)){
-    if (!is.null(attr(rowData(qfeatures[[1]]), "annotation column"))) {
-    #Start of importing annotation part2 from two
-    ################################################################################
-     #adding HEX color codes from external annotations to the annotationColorsMapInitValue of dataFrameHeader
-  
-        # Copy the selected column by user, Remove duplicates and exclude the first row
-      uniqueAnnotations <- unique(unlist(strsplit(metaboliteProfile$Annotation, ",")))
-      ###Debug
-      print("Unique Annotations Before Filtering:")
-      print(uniqueAnnotations)
-      ###/Debug
-      uniqueAnnotations <- paste0(uniqueAnnotations, "=")
-      # Add a random string from the hex color list to each element of uniqueAnnotions
-      # strings_list <- c("#000000", "#FFFFFF", "#FF0000", "#00FF00", "#0000FF", "#FFFF00", "#FF00FF", "#00FFFF", "#800000", "#008000", "#000080", "#808000", "#800080", "#008080", "#808080", "#C0C0C0", "#FFA500", "#FFC0CB", "#FFD700", "#A52A2A")
-      # uniqueAnnotations <- paste0(uniqueAnnotations, sample(strings_list, length(uniqueAnnotations), replace = TRUE))
-      allowedCols <- c("blue", "red", "yellow", "green", "brown", "deepskyblue", "orange", "deeppink", "aquamarine", "burlywood", "cadetblue", "coral", "cornflowerblue", "cyan", "firebrick", "goldenrod", "indianred", "khaki", "magenta", "maroon", "beige", "moccasin", "olivedrab", "orangered", "orchid", "paleturquoise3", "rosybrown", "salmon", "seagreen3", "skyblue", "steelblue", "#BF360C", "#33691E", "#311B92", "#880E4F", "#1A237E", "#006064", "#004D40", "#FF6F00", "#E65100")
-      uniqueAnnotations <- paste0(uniqueAnnotations, sample(allowedCols, length(uniqueAnnotations), replace = TRUE))
-      # Format uniqueAnnotations into a single line with comma-separated values
-      uniqueAnnotations1 <- paste(uniqueAnnotations, collapse = ", ")
-      #uniqueAnnotationsHexs <- paste("AnnotationColors={", paste(uniqueAnnotations1, collapse = ","), "}")# this line introduces a space after the first Item of the object, therefore, replaced with the following to remove the space
-      uniqueAnnotationsHexs <- gsub("AnnotationColors=\\{\\s+", "AnnotationColors={", paste("AnnotationColors={", paste(uniqueAnnotations1, collapse = ","), "}"))
-      # Assuming dataFrameHeader is your data frame
-      dataFrameHeader$Annotation[2] <- uniqueAnnotationsHexs
-    
-  ################################################################################
-  #End of importing  annotation part2 from two
-    }
-  }
-=======
   # gp: Previous location of "Start of importing annotation part2 from two"
   
->>>>>>> upstream/devel
   annotationColumnIndex <- which(metaboliteProfileColumnNames == annotationColumnName)
   annotationColorsValue <- dataFrameHeader[2, annotationColumnIndex]
   
