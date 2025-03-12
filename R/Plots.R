@@ -1590,7 +1590,7 @@ calcPlotAnnoLegend1 <- function(annoLabels, annoColors){
   calcPlotLegend1(annoLabels, annoColors, "Loadings")
 }
 
-
+#’ @export
 calcPlotScoresGroupsLegend <- function(grouXXXps, colors){
   ## get and reorder annotations
   calcPlotLegend(grouXXXps, colors, "Scores")
@@ -1639,6 +1639,8 @@ calcPlotLegend1 <- function(annoLabels, annoColors, title){
 
 ##############
 
+
+#' @export
 calcPlotAnnoLegendForImage <- function(annoLabels, annoColors, maximumNumberOfLines=20){
   ## get and reorder annotations
   resultObj <- reorderAnnotationsForLegend(annoLabels, annoColors)
@@ -1648,6 +1650,8 @@ calcPlotAnnoLegendForImage <- function(annoLabels, annoColors, maximumNumberOfLi
   calcPlotLegendForImage(annoLabels, annoColors, "Annotations", maximumNumberOfLines)
 }
 ##### I am adding this new 
+
+
 
 calcPlotAnnoLegendForImage1 <- function(annoLabels, annoColors, maximumNumberOfLines=30){
   ## get and reorder annotations
@@ -1665,6 +1669,8 @@ calcPlotScoresGroupsLegendForImage <- function(grouXXXps, colors, maximumNumberO
   calcPlotLegendForImage(grouXXXps, colors, "Scores", maximumNumberOfLines)
 }
 #### I am adding this new 
+
+#' @export
 calcPlotScoresGroupsLegendForImage1 <- function(grouXXXps, colors, maximumNumberOfLines=30){
   ## get and reorder annotations
   calcPlotLegendForImage1(grouXXXps, colors, "Scores", maximumNumberOfLines)
@@ -1913,6 +1919,8 @@ calcPlotDendrogramLegend <- function(){
   graphics::text(x = xPositions, y = yPositions, labels = labels, pos = 4)
 }
 
+
+#' @export
 calcPlotDiscriminativityLegend <- function(){
   ####################
   ## heatmap legend
@@ -4670,6 +4678,8 @@ colorPalette2 <- function(){
   #))
   return(palette)
 }
+
+#' @export
 colorPalette <- function(){
   palette <- c(
     "blue",
@@ -4826,6 +4836,8 @@ colorPaletteScores <- function(){
   return(palette)
 }
 
+
+#' @export
 plotFragmentsFromDataList <- function(dataList, xInterval = NULL, yInterval = NULL, relative = FALSE){
   if(is.null(xInterval)){
     xMin <- min(dataList$fragmentMasses)
@@ -5029,6 +5041,8 @@ calcPlotSpectrumVsClass_small <- function(masses_spec, intensity_spec, colors_sp
   points(x = masses_spec,  y = intensity_spec,  col = colors_spec,  type = "h", lwd=4)
   points(x = masses_class, y = frequency_class, col = colors_class, type = "h", lwd=4)
 }
+
+#' @export
 calcPlotSpectrumVsClass_big <- function(masses_spec, intensity_spec, colors_spec, masses_class, frequency_class, colors_class, singleSpec, xInterval){
   if(TRUE){
     masses_spec_ <<- masses_spec

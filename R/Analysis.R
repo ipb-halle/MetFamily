@@ -127,6 +127,8 @@ filterData <- function(dataList, grouXXXps, sampleSet, filterBySamples, filter_a
   
   return (resultObj)
 }
+
+#' @export
 calculateDistanceMatrix <- function(dataList, filter, distanceMeasure = "Jaccard", progress = FALSE){
   numberOfPrecursors <- length(filter)
   
@@ -593,6 +595,8 @@ calculateDistanceMatrix <- function(dataList, filter, distanceMeasure = "Jaccard
   
   return(returnObj)
 }
+
+#' @export
 calculateCluster <- function(dataList, filterObj, distanceMatrix, method, distanceMeasure, progress = FALSE){
   
   if(FALSE){

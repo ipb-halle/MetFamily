@@ -71,7 +71,7 @@ updateAnnotationOverview <- function(){
     ))
   
   output$familySelectionTable <- DT::renderDataTable(
-    expr = formatStyle(table = dataTable, columns = "Color", target = "cell", backgroundColor = styleEqual(levels = allAnnotationColors, values = allAnnotationColors)),
+    expr = DT::formatStyle(table = dataTable, columns = "Color", target = "cell", backgroundColor = DT::styleEqual(levels = allAnnotationColors, values = allAnnotationColors)),
     server = FALSE
   )
   

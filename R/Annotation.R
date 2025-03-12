@@ -27,6 +27,8 @@
 ## propertiesList <- list($library= "2018-02-13_09:14:10_pos_21908_MoNA-export-LC-MS-MS_Spectra.msp", maximumNumberOfScores= "10000", removeRareFragments= "FALSE", mergeDuplicatedSpectra= "TRUE", takeSpectraWithMaximumNumberOfPeaks= "FALSE", classOfClass= "ChemOnt|AllClasses", minimumNumberOfPosSpectraPerClass= "10", minimumNumberOfNegSpectraPerClass= "10", numberOfDataSetDecompositions= "10", proportionTraining= "0.7", unitResolution= "FALSE", methodName= "ColSumsPos", paramsString= "smoothIntensities=FALSE", algoName= "method=ColSumsPos; smoothIntensities=FALSE")
 ## featureMatrix <- dataList$featureMatrix
 ## parameterSet <- dataList$importParameterSet
+
+#' @export
 doAnnotation <- function(filePath, propertiesList, featureMatrix, parameterSet, classesWhiteList = NULL, progress = FALSE){
   if(TRUE){
     filePath_ <<- filePath
@@ -654,6 +656,8 @@ getAvailableClassifiers <- function(resultFolderForClassifiers){
   return(resultObj)
 }
 
+
+#' @export
 evaluatePutativeMetaboliteFamiliesOfPrecursorSet <- function(dataList, precursorSet, classToSpectra_class){
   if(FALSE){
     dataList_ <<- dataList
@@ -892,6 +896,8 @@ metaboliteFamilyVersusClass <- function(dataList, precursorSet, classToSpectra_c
   )
   return(returnObj)
 }
+
+#' @export
 preprocessClassPlot <- function(frequentFragments, characteristicFragments){
   frequentMasses       <- as.numeric(names(frequentFragments)) 
   characteristicMasses <- as.numeric(names(characteristicFragments))
@@ -915,6 +921,8 @@ preprocessClassPlot <- function(frequentFragments, characteristicFragments){
   )
   return(returnObj)
 }
+
+#' @export
 preprocessSpectrumVsClassPlot <- function(dataList, precursorIndeces, masses_class, mappingSpectraToClassDf, yType){
   if(length(precursorIndeces) == 1){
     resultObj   <- getMS2spectrumInfoForPrecursor(dataList = dataList, precursorIndex = precursorIndeces)

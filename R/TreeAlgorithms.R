@@ -242,6 +242,8 @@ getSetOfSubTreesFromRootForMass <- function(dataList, fragmentMass, filter, clus
     yesNoFunction = yesNoFunction
   )
 }
+
+#' @export
 getSetOfSubTreesFromRootForPrecursorSet <- function(dataList, precursorSet, filter, clusterDataList){
   yesNoFunction <- function(precursorIndex){
     take <- precursorIndex %in% precursorSet

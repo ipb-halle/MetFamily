@@ -1075,6 +1075,8 @@ processMS1data <- function(sampleNamesToExclude,
   )
 }
 
+
+#' @export
 serializeSampleSelectionAndOrder <- function(groupSampleDataFrame)
 {
   ## wrap columns
@@ -1121,6 +1123,8 @@ deserializeSampleSelectionAndOrder <- function(groupSampleDataFrameFieldValue){
   return(groupSampleDataFrame)
 }
 
+
+#' @export
 serializeParameterSetFile <- function(importParameterSet, toolName, toolVersion){
   ## wrap
   importParametersValue <- paste(names(importParameterSet), importParameterSet, sep = "=", collapse = "\n")
@@ -1137,6 +1141,8 @@ serializeParameterSetFile <- function(importParameterSet, toolName, toolVersion)
   return(importParametersFileValue)
 }
 
+
+#' @export
 deserializeParameterSetFile <- function(importParametersFileContent){
   ## remove comments
   importParametersValuePairs <- importParametersFileContent[-grep(pattern = "#.*", x = importParametersFileContent)]
@@ -1248,6 +1254,8 @@ setOfAnnotationSetsToSetOfColorSets <- function(dataList, setOfAnnotationSets){
   })
   return(setOfColorSets)
 }
+
+#' @export
 getPrecursorColors <- function(dataList, precursorSet){
   setOfAnnotationSets <- precursorSetToSetOfAnnotationSets(dataList, precursorSet)
   setOfColorSets      <- setOfAnnotationSetsToSetOfColorSets(dataList, setOfAnnotationSets)
@@ -1299,6 +1307,8 @@ getPrecursorColors <- function(dataList, precursorSet){
 
 #########################################################################################
 ## data fetching
+
+#' @export
 getMetFragLink <- function(dataList, precursorIndex, outAdductWarning = TRUE){
   features <- dataList$featureIndeces[[precursorIndex]]
   fragmentsX <- dataList$fragmentMasses[features]
@@ -1398,6 +1408,8 @@ getMetFragLink <- function(dataList, precursorIndex, outAdductWarning = TRUE){
   
   return(returObj)
 }
+
+#' @export
 getMS2spectrum <- function(dataList, clusterDataList, treeLabel){
   if(treeLabel < 0){
     ###############################################
@@ -1411,6 +1423,7 @@ getMS2spectrum <- function(dataList, clusterDataList, treeLabel){
     return(clusterDataList$ms2spectrumInfoForClusters[[treeLabel]])
   }
 }
+
 getMS2spectrumInfoForPrecursorLeaf <- function(dataList, clusterDataList, treeLabel, outAdductWarning = TRUE){
   if(treeLabel >= 0)
     return(NULL)
@@ -1419,6 +1432,8 @@ getMS2spectrumInfoForPrecursorLeaf <- function(dataList, clusterDataList, treeLa
   precursorIndex <- clusterDataList$filterObj$filter[[-treeLabel]]
   return(getMS2spectrumInfoForPrecursor(dataList, precursorIndex, outAdductWarning))
 }
+
+#' @export
 getMS2spectrumInfoForPrecursor <- function(dataList, precursorIndex, outAdductWarning = TRUE){
   
   precursorSet <- precursorIndex
@@ -1582,6 +1597,8 @@ getMS2spectrumInfoForCluster <- function(dataList, clusterDataList, treeLabel){
   return(resultObj)
 }
 ## XXX adapt getTableFromTreeSelection
+
+#' @export
 getTableFromPrecursorSet <- function(dataList, precursorSet){
   ###############################################
   ## table data
@@ -1632,12 +1649,16 @@ getTableFromPrecursorSet <- function(dataList, precursorSet){
   
   return(resultObj)
 }
+
+#' @export
 getPrecursorSetFromTreeSelections <- function(clusterDataList, clusterLabels){
   precursorSet <- NULL
   for(clusterLabel in clusterLabels)
     precursorSet <- c(precursorSet, getPrecursorSetFromTreeSelection(clusterDataList, clusterLabel))
   return(precursorSet)
 }
+
+#' @export
 getPrecursorSetFromTreeSelection <- function(clusterDataList, clusterLabel){
   if(clusterLabel < 0){
     ###############################################
@@ -1652,6 +1673,8 @@ getPrecursorSetFromTreeSelection <- function(clusterDataList, clusterLabel){
   }
   return(precursorSet)
 }
+
+#' @export
 getSpectrumStatistics <- function(dataList, precursorSet){
   if(FALSE){
     dataList_ <<- dataList
@@ -1710,9 +1733,13 @@ regExExtraction = function(pattern, x, ...) {
     return(cap)
   }, re, x, SIMPLIFY=F)
 }
+
+#' @export
 numericVectorToStringForEval <- function(vec){
   return(paste("c(", paste(vec, collapse = ","), ")", sep = ""))
 }
+
+#' @export
 colorVectorToStringForEval <- function(vec){
   return(paste("c('", paste(vec, collapse = "','"), "')", sep = ""))
 }
