@@ -1,9 +1,3 @@
-# library(openxlsx2)
-# library(dplyr)
-# library(purrr)
-# library(QFeatures)
-# library(SummarizedExperiment)
-
 #' Read Metaboscape Output File into a QFeatures Object
 #'
 #' This function reads a metabolite profile output file (.xlsx) from Metaboscape and 

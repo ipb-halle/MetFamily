@@ -11,8 +11,7 @@ hcaHeatMapNew <- TRUE
 ##
 ## Load dependency libraries. Formerly in sourceTheCode()
 ##
-# library(MetFamily)
-# load_metfamily_dependencies()
+# load_metfamily_dependencies() # not needed anymore
 
 #####################################################################################################
 ## handling of errors and warnings

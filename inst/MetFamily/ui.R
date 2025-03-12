@@ -1,9 +1,5 @@
 
-# library(htmltools)
-# library(shiny)
-# library(shinyBS, include.only = "bsTooltip")
-# library(shinyjs)
-# library(DT)
+# used to load libraries here: htmltools, shiny, shinyBS, shinyjs, DT. Not needed anymore.
 
 ipbfooter <- HTML(readLines("www/ipbfooter.html"))
 
