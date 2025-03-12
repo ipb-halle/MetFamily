@@ -1717,7 +1717,14 @@ colorVectorToStringForEval <- function(vec){
   return(paste("c('", paste(vec, collapse = "','"), "')", sep = ""))
 }
 
-invert <- function(x) {
+#' Swap a vector's names and values
+#' 
+#' Similar to `searchable::invert()`
+#'
+#' @param x vector
+#'
+#' @returns string
+swap_names_and_values <- function(x) {
   
   if( is.null( names(x) ) ) stop( "vector does not have names.")
   

@@ -1,5 +1,5 @@
 
-# library(htmltools)
+library(htmltools)
 library(shiny)
 library(shinyBS)
 library(shinyjs)

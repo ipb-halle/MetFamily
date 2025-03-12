@@ -44,7 +44,7 @@ updateAnnotationOverview <- function(){
     "Count"  = annoCounts
   )
   
-  dataTable <- datatable(
+  dataTable <- DT::datatable(
     data = metaboliteFamiliesDf, 
     escape = FALSE, rownames = FALSE,
     selection = list(mode = "single"),#, selected = selected), 

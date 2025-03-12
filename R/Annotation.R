@@ -584,8 +584,16 @@ getClassifierProperties <- function(propertiesFile){
   
   return(propertiesList)
 }
+
 ## resultFolderForClassifiers <- "/home/htreutle/Code/Java/MetFam/inst/data/classifiers"
 ## resultFolderForClassifiers <- "/home/htreutle/Code/Java/MetFam/inst/data/classifier"
+
+#' Classifiers
+#'
+#' @param resultFolderForClassifiers 
+#'
+#' @returns ?
+#' @export
 getAvailableClassifiers <- function(resultFolderForClassifiers){
   
   resultFolderForClassifiers <- gsub(x = resultFolderForClassifiers, pattern = "app/data/classifier", replacement = "inst/data/classifier")

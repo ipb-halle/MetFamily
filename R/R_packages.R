@@ -1,11 +1,11 @@
 
 #' Run library for all packages
-#' 
+#'
 #' Not sure why it didn't work when this function wasn't exported.
 #'
 #' @returns NULL
 #' @export
-load_metfamily_dependencies <- function() 
+load_metfamily_dependencies <- function()
 {
   ##############################################################################################################
   ## GUI
@@ -17,11 +17,11 @@ load_metfamily_dependencies <- function()
   library("shinyBS")
   library("shinybusy")
   library(egg)
-  
+
   ##############################################################################################################
   ## mass spectrometry
   library("xcms")
-  
+
   ##############################################################################################################
   ## MS1 analyses
   library("FactoMineR")
@@ -36,17 +36,17 @@ load_metfamily_dependencies <- function()
   library("tools")
   library("stringr")
   library("slam")
-  
+
   ##############################################################################################################
   ## pdf report
   library("knitr")
-  
+
   ##############################################################################################################
   ## plot
   library("cba")
   library("squash")
   library("plotrix")
   library("RColorBrewer")
-  
+
   invisible(NULL)
 }

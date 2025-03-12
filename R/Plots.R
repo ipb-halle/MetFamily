@@ -1560,6 +1560,7 @@ reorderAnnotationsForLegend <- function(annoLabels, annoColors){
 }
 ########################################
 
+#' @export
 calcPlotAnnoLegend <- function(annoLabels, annoColors){
   if(is.null(annoLabels)){
     annoLabels <- vector(mode = "character")
@@ -1828,6 +1829,12 @@ plotLegendWithBalls1 <- function(labels, xPositions, yPositions, circleXPosition
 ######################################
 
 
+#' MS2 plot legend
+#'
+#' @param dataList 
+#'
+#' @returns ?
+#' @export
 calcPlotMS2Legend <- function(dataList){
   ####################
   ## heatmap legend
@@ -1869,7 +1876,7 @@ calcPlotMS2Legend <- function(dataList){
 }
 
 
-
+#' @export
 calcPlotDendrogramLegend <- function(){
   ####################
   ## heatmap legend
@@ -2083,6 +2090,22 @@ createTickLabels <- function(maximumNumberOfLabels, max, labelPrefix){
   return(returnObj)
 }
 
+#' MS2 Plot
+#'
+#' @param dataList 
+#' @param fragmentsX 
+#' @param fragmentsY 
+#' @param fragmentsColor 
+#' @param fragmentsDiscriminativity 
+#' @param fragmentsX_02 
+#' @param fragmentsY_02 
+#' @param fragmentsColor_02 
+#' @param xInterval 
+#' @param selectedFragmentIndex 
+#' @param dendrogramFragmentStatistics 
+#'
+#' @returns ?
+#' @export
 calcPlotMS2 <- function(dataList, fragmentsX = NULL, fragmentsY = NULL, fragmentsColor = NULL, fragmentsDiscriminativity = NULL, fragmentsX_02 = NULL, fragmentsY_02 = NULL, fragmentsColor_02 = NULL, xInterval = NULL, selectedFragmentIndex = NULL, dendrogramFragmentStatistics = FALSE){
   
   if(FALSE){
@@ -2651,7 +2674,7 @@ calcPlotPCAloadings <- function(
   ###############
   Nind<-which(T1NF3 %in% TNF4)
   names(TNF4)<-Nind
-  TNF5<-invert(TNF4)
+  TNF5<-swap_names_and_values(TNF4)
   TNF6<-as.integer(unname(TNF5))
   names(TNF6)<-names(TNF5)
   TNF7<-TNF6
@@ -2662,7 +2685,7 @@ calcPlotPCAloadings <- function(
   #print(pcaObj)
   #NGpc<-names(TNF1)
   #names(NGpc)<-seq(1,length(TNF1))
-  #NGpc1<-invert(NGpc)
+  #NGpc1<-swap_names_and_values(NGpc)
   #print(TNF2)
   #print(T1NF)
   #print(typeof(T1NF))
@@ -2673,7 +2696,7 @@ calcPlotPCAloadings <- function(
   #T1pl1<-trimws(T1pl)
   #T1pl2<-str_squish(T1pl1)
   #names(T1pl2)<-seq(1,length(T1pl))
-  #T1pl3<-invert(T1pl2)
+  #T1pl3<-swap_names_and_values(T1pl2)
   #T1pl4<-as.integer(unname(T1pl3))
   #names(T1pl4)<-names(T1pl3)
   ###########
@@ -2753,7 +2776,7 @@ calcPlotPCAloadings <- function(
   #########################
   dataDimOne2 <- str_squish(trimws(names(dataDimOne1)))
   names(dataDimOne2)<-as.double(unname(dataDimOne1))
-  dataDimOne3 <- invert(dataDimOne2)
+  dataDimOne3 <- swap_names_and_values(dataDimOne2)
   #############
   #print("entering the line ... 2634")
   #print(dataDimOne2)
@@ -2761,7 +2784,7 @@ calcPlotPCAloadings <- function(
   ###########
   dataDimOne4 <- str_squish(trimws(names(dataDimTwo1)))
   names(dataDimOne4)<-as.double(unname(dataDimTwo1))
-  dataDimOne5 <- invert(dataDimOne4)
+  dataDimOne5 <- swap_names_and_values(dataDimOne4)
   #####################################################
   ## performance
   resultObj <- getPcaPerformanceIndicator(pcaObj = pcaObj, isScores = TRUE)
@@ -3008,7 +3031,7 @@ calcPlotPCAloadings <- function(
 #   ###############
 #   Nind<-which(T1NF3 %in% TNF4)
 #   names(TNF4)<-Nind
-#   TNF5<-invert(TNF4)
+#   TNF5<-swap_names_and_values(TNF4)
 #   TNF6<-as.integer(unname(TNF5))
 #   names(TNF6)<-names(TNF5)
 #   TNF7<-TNF6
@@ -3019,7 +3042,7 @@ calcPlotPCAloadings <- function(
 #   #print(pcaObj)
 #   #NGpc<-names(TNF1)
 #   #names(NGpc)<-seq(1,length(TNF1))
-#   #NGpc1<-invert(NGpc)
+#   #NGpc1<-swap_names_and_values(NGpc)
 #   #print(TNF2)
 #   #print(T1NF)
 #   #print(typeof(T1NF))
@@ -3030,7 +3053,7 @@ calcPlotPCAloadings <- function(
 #   #T1pl1<-trimws(T1pl)
 #   #T1pl2<-str_squish(T1pl1)
 #   #names(T1pl2)<-seq(1,length(T1pl))
-#   #T1pl3<-invert(T1pl2)
+#   #T1pl3<-swap_names_and_values(T1pl2)
 #   #T1pl4<-as.integer(unname(T1pl3))
 #   #names(T1pl4)<-names(T1pl3)
 #   ###########
@@ -3113,7 +3136,7 @@ calcPlotPCAloadings <- function(
 #   if(dD1 & dD2 ) {
 #   dataDimOne2 <- str_squish(trimws(names(dataDimOne1)))
 #   names(dataDimOne2)<-as.double(unname(dataDimOne1))
-#   dataDimOne3 <- invert(dataDimOne2)
+#   dataDimOne3 <- swap_names_and_values(dataDimOne2)
 #   #########################
 #   #print("entering the line ... 2634")
 #   #print(dataDimOne2)
@@ -3121,7 +3144,7 @@ calcPlotPCAloadings <- function(
 #   ###########
 #   dataDimOne4 <- str_squish(trimws(names(dataDimTwo1)))
 #   names(dataDimOne4)<-as.double(unname(dataDimTwo1))
-#   dataDimOne5 <- invert(dataDimOne4)
+#   dataDimOne5 <- swap_names_and_values(dataDimOne4)
 #   #####################################################
 #   ## performance
 #   resultObj <- getPcaPerformanceIndicator(pcaObj = pcaObj, isScores = TRUE)
@@ -3522,7 +3545,7 @@ calcPlotPCAloadings <- function(
 #   ###############
 #   Nind<-which(T1NF3 %in% TNF4)
 #   names(TNF4)<-Nind
-#   TNF5<-invert(TNF4)
+#   TNF5<-swap_names_and_values(TNF4)
 #   print("entering the line ...2540")
 #   print(TNF5)
 #   print(filter)
@@ -4787,6 +4810,11 @@ colorPalette <- function(){
   )
   return(palette)
 }
+
+#' Colors
+#'
+#' @returns string
+#' @export
 colorPaletteScores <- function(){
   palette <- colorPalette()
   palette <- c(
@@ -4797,6 +4825,7 @@ colorPaletteScores <- function(){
   )
   return(palette)
 }
+
 plotFragmentsFromDataList <- function(dataList, xInterval = NULL, yInterval = NULL, relative = FALSE){
   if(is.null(xInterval)){
     xMin <- min(dataList$fragmentMasses)
