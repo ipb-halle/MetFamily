@@ -1,12 +1,10 @@
 
 #' Run library for all packages
 #'
-#' Not sure why it didn't work when this function wasn't exported.
 #'
 #' @returns NULL
 #' @export
-load_metfamily_dependencies <- function()
-{
+load_metfamily_dependencies <- function() {
   ##############################################################################################################
   ## GUI
   library("shiny")

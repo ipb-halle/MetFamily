@@ -26,7 +26,6 @@
 #' @importFrom QFeatures ncols
 #' @importFrom QFeatures QFeatures
 #' @importFrom S4Vectors DataFrame
-#' @importFrom shinyBS bsTooltip
 #' @importFrom stats as.dendrogram
 #' @importFrom stats cor
 #' @importFrom stats dendrapply
@@ -49,3 +48,8 @@
 ## usethis namespace: end
 #' @import shiny
 NULL
+
+
+#' @importFrom shinyBS bsTooltip
+#' @export
+shinyBS::bsTooltip

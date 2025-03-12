@@ -7,5 +7,5 @@
 load_metfamily_dependencies()
 }
 \description{
-Not sure why it didn't work when this function wasn't exported.
+Run library for all packages
 }

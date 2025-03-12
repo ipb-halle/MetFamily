@@ -1590,7 +1590,7 @@ calcPlotAnnoLegend1 <- function(annoLabels, annoColors){
   calcPlotLegend1(annoLabels, annoColors, "Loadings")
 }
 
-#’ @export
+#' @export
 calcPlotScoresGroupsLegend <- function(grouXXXps, colors){
   ## get and reorder annotations
   calcPlotLegend(grouXXXps, colors, "Scores")
