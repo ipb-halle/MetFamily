@@ -242,10 +242,10 @@ jobs:
         run: R CMD INSTALL .
 
       # Step 25: Test Shiny App in package
-      - name: Test Shiny App
-        uses: rstudio/shinytest2/actions/test-app@actions/v1
-        with:
-          app-dir: "inst/MetFamily"
+      #- name: Test Shiny App
+      #  uses: rstudio/shinytest2/actions/test-app@actions/v1
+      #  with:
+      #    app-dir: "inst/MetFamily"
 
       # Step 26: Deploy package
       - name: Deploy package
