@@ -8,11 +8,6 @@ isDevelopment <- FALSE
 errorHunting <- TRUE
 hcaHeatMapNew <- TRUE
 
-##
-## Load dependency libraries. Formerly in sourceTheCode()
-##
-# load_metfamily_dependencies() # not needed anymore
-
 #####################################################################################################
 ## handling of errors and warnings
 if(errorHunting){
