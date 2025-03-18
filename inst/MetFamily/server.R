@@ -331,6 +331,11 @@ shinyServer(
       print("Suspending observers")
       for(suspendOnExitFunction in suspendOnExitFunctions)
         suspendOnExitFunction()
+      # stops shiny running when closing the browser
+      # potential issue when multiples instances of the app are running simultaneously
+      # see https://stackoverflow.com/questions/35306295/how-to-stop-running-shiny-app-by-closing-the-browser-window
+      # answer from user "until" for single-user button alternative
+      stopApp()
     })
     
     #########################################################################################

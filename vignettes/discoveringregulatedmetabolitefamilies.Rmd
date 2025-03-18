@@ -104,8 +104,8 @@ We can filter the data to remove low quality data points
 PCA on MS1 in Figure \@ref(fig:pca). 
 
 ```{r pca, fig.cap="PCA of MS1.", echo=FALSE}
-fileName <- system.file("extdata/testdata/filterObj.Rdata", package = "MetFamily")
-load(fileName) 
+fileName <- system.file("extdata/testdata/canopus/filterPca_canopus.rds", package = "MetFamily")
+filterObj <- readRDS(fileName) 
 
 pca <- calculatePCA(dataList=dataList,
                          filterObj=filterObj, 
@@ -118,38 +118,38 @@ pca <- calculatePCA(dataList=dataList,
 pcaDimensionOne <<- 1
 pcaDimensionTwo <<- 2
 
-  resultObj <- calcPlotPCAscores(
-    pcaObj = pca, 
-    dataList = dataList, #project, 
-    filterObj = filterObj,
-    pcaDimensionOne = pcaDimensionOne, 
-    pcaDimensionTwo = pcaDimensionTwo, 
-    showScoresLabels = FALSE, 
-    xInterval = NULL, 
-    yInterval = NULL
+resultObj <- calcPlotPCAscores(
+  pcaObj = pca, 
+  dataList = dataList, #project, 
+  filterObj = filterObj,
+  pcaDimensionOne = pcaDimensionOne, 
+  pcaDimensionTwo = pcaDimensionTwo, 
+  showScoresLabels = FALSE, 
+  xInterval = NULL, 
+  yInterval = NULL
 )
 
-  # undebug(calcPlotPCAloadings)
-  # undebug(getPrecursorColors)
-  
-  resultObj <- calcPlotPCAloadings(
-    pcaObj = pca, 
-    dataList = dataList, #project, 
-    filter = filterObj, 
-    pcaDimensionOne = pcaDimensionOne, 
-    pcaDimensionTwo = pcaDimensionTwo, 
-    selectionFragmentPcaLoadingSet = NULL,
-    selectionAnalysisPcaLoadingSet = NULL,
-    selectionSearchPcaLoadingSet   = NULL,
-    xInterval = NULL, 
-    yInterval = NULL,
-    loadingsLabels = "None", 
-    showLoadingsAbundance = FALSE, 
-    showLoadingsFeaturesAnnotated   = TRUE,
-    showLoadingsFeaturesUnannotated = TRUE,
-    showLoadingsFeaturesSelected    = TRUE,
-    showLoadingsFeaturesUnselected  = TRUE
-  )
+# undebug(calcPlotPCAloadings)
+# undebug(getPrecursorColors)
+
+resultObj <- calcPlotPCAloadings(
+  pcaObj = pca, 
+  dataList = dataList, #project, 
+  filter = filterObj, 
+  pcaDimensionOne = pcaDimensionOne, 
+  pcaDimensionTwo = pcaDimensionTwo, 
+  selectionFragmentPcaLoadingSet = NULL,
+  selectionAnalysisPcaLoadingSet = NULL,
+  selectionSearchPcaLoadingSet   = NULL,
+  xInterval = NULL, 
+  yInterval = NULL,
+  loadingsLabels = "None", 
+  showLoadingsAbundance = FALSE, 
+  showLoadingsFeaturesAnnotated   = TRUE,
+  showLoadingsFeaturesUnannotated = TRUE,
+  showLoadingsFeaturesSelected    = TRUE,
+  showLoadingsFeaturesUnselected  = TRUE
+)
 
     
     
