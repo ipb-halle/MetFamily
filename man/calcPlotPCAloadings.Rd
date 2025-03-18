@@ -2,14 +2,14 @@
 % Please edit documentation in R/Plots.R
 \name{calcPlotPCAloadings}
 \alias{calcPlotPCAloadings}
-\title{calcPlotPCAloadings}
+\title{PCA plot of loadings}
 \usage{
 calcPlotPCAloadings(
   pcaObj,
   dataList,
-  filter,
-  pcaDimensionOne,
-  pcaDimensionTwo,
+  filter = NULL,
+  pcaDimensionOne = 1,
+  pcaDimensionTwo = 1,
   selectionFragmentPcaLoadingSet = NULL,
   selectionAnalysisPcaLoadingSet = NULL,
   selectionSearchPcaLoadingSet = NULL,
@@ -24,41 +24,41 @@ calcPlotPCAloadings(
 )
 }
 \arguments{
-\item{pcaObj}{}
+\item{pcaObj}{output from function calculatePCA}
 
-\item{dataList}{}
+\item{dataList}{dataList object}
 
-\item{filter}{}
+\item{filter}{deprecated, use filterObj parameter in calculatePCA() instead}
 
-\item{pcaDimensionOne}{}
+\item{pcaDimensionOne}{numeric PCA dimension for x axis}
 
-\item{pcaDimensionTwo}{}
+\item{pcaDimensionTwo}{numeric PCA dimension for y axis}
 
-\item{selectionFragmentPcaLoadingSet}{}
+\item{selectionFragmentPcaLoadingSet}{numeric vector of indices}
 
-\item{selectionAnalysisPcaLoadingSet}{}
+\item{selectionAnalysisPcaLoadingSet}{numeric vector of indices}
 
-\item{selectionSearchPcaLoadingSet}{}
+\item{selectionSearchPcaLoadingSet}{numeric vector of indices}
 
-\item{xInterval}{}
+\item{xInterval}{numeric Plot parameter}
 
-\item{yInterval}{}
+\item{yInterval}{numeric Plot parameter}
 
-\item{loadingsLabels}{}
+\item{loadingsLabels}{boolean One of "None", "m/z / RT", "Metabolite name", or "Metabolite family"}
 
-\item{showLoadingsAbundance}{}
+\item{showLoadingsAbundance}{logical}
 
-\item{showLoadingsFeaturesAnnotated}{}
+\item{showLoadingsFeaturesAnnotated}{logical}
 
-\item{showLoadingsFeaturesUnannotated}{}
+\item{showLoadingsFeaturesUnannotated}{logical}
 
-\item{showLoadingsFeaturesSelected}{}
+\item{showLoadingsFeaturesSelected}{logical}
 
-\item{showLoadingsFeaturesUnselected}{}
+\item{showLoadingsFeaturesUnselected}{logical}
 }
 \value{
-?
+a resultList object with annotation colors
 }
 \description{
-calcPlotPCAloadings
+Show feature loadings on a PCA plot.
 }

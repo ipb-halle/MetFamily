@@ -2,14 +2,14 @@
 % Please edit documentation in R/Plots.R
 \name{calcPlotPCAscores}
 \alias{calcPlotPCAscores}
-\title{PCA plot}
+\title{PCA plot of samples}
 \usage{
 calcPlotPCAscores(
   pcaObj,
   dataList,
   filterObj,
-  pcaDimensionOne,
-  pcaDimensionTwo,
+  pcaDimensionOne = 1,
+  pcaDimensionTwo = 2,
   showScoresLabels,
   xInterval = NULL,
   yInterval = NULL,
@@ -23,9 +23,9 @@ calcPlotPCAscores(
 
 \item{filterObj}{}
 
-\item{pcaDimensionOne}{}
+\item{pcaDimensionOne}{first PCA axis}
 
-\item{pcaDimensionTwo}{}
+\item{pcaDimensionTwo}{second PCA axis}
 
 \item{showScoresLabels}{}
 
@@ -33,11 +33,11 @@ calcPlotPCAscores(
 
 \item{yInterval}{}
 
-\item{downloadLayout}{}
+\item{downloadLayout}{boolean, set to TRUE for a different figure better suited for printing}
 }
 \value{
-?
+makes a plot, returns NULL
 }
 \description{
-PCA plot
+PCA plot of samples
 }

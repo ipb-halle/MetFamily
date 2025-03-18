@@ -1041,12 +1041,13 @@ processMS1data <- function(sampleNamesToExclude,
                               })
   
   ## translate and box colors
-  if(!is.na(progress))  
-    if(progress)  
-      incProgress(amount = 0, detail = "Coloring box") 
-  else 
+  if(!is.na(progress)) {
+    if(progress) incProgress(amount = 0, detail = "Coloring box")
+  } else {
     print("Coloring box")
+  }
   
+  # TODO document why all the colors
   colorDataFrame <- dataFrameMeasurements
   colorDataFrame[, dataColumnNames    ] <- squash::cmap(x = matrixDataFrame[, dataColumnNames    ], map = colorMapAbsoluteData)
   colorDataFrame[, dataMeanColumnNames] <- squash::cmap(x = matrixDataFrame[, dataMeanColumnNames], map = colorMapAbsoluteData)
@@ -1255,7 +1256,14 @@ setOfAnnotationSetsToSetOfColorSets <- function(dataList, setOfAnnotationSets){
   return(setOfColorSets)
 }
 
-#' @export
+
+#' Create annotation colors
+#'
+#' @param dataList list object
+#' @param precursorSet vector
+#'
+#' @returns list with colors and annotations
+#' @noRd
 getPrecursorColors <- function(dataList, precursorSet){
   setOfAnnotationSets <- precursorSetToSetOfAnnotationSets(dataList, precursorSet)
   setOfColorSets      <- setOfAnnotationSetsToSetOfColorSets(dataList, setOfAnnotationSets)
