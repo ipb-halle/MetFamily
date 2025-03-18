@@ -21,10 +21,11 @@ resetWorkspaceFunctions <- c(resetWorkspaceFunctions, function(){
   ## update filter
   sampleSet <- dataList$grouXXXpsampleDataFrame[, "Sample"][!dataList$groupSampleDataFrame[, "Exclude"]]
   filter <- doPerformFiltering(dataList$grouXXXps, sampleSet, FALSE, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, TRUE)$filter
-  if(length(dataList$grouXXXps) == 1)
+  if(length(dataList$grouXXXps) == 1) {
     filter2 <- doPerformFiltering(c(dataList$grouXXXps[[1]], dataList$grouXXXps[[1]]), NULL, FALSE, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, TRUE)$filter
-  else
+  } else{
     filter2 <- filter
+  }
   
   filterGlobal <<- filter
   filterHca    <<- filter2

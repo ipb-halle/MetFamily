@@ -229,8 +229,9 @@ deserialization <- function(serialization){
   filter_ms1_masses <- NULL
   filter_ms1_ppm  <- NULL
   
-  if(length(groupSet) != 2)
+  if(length(groupSet) != 2) {
     filter_lfc <- NULL
+  }
   
   resultObj <- doPerformFiltering(
     groupSet, sampleSet, filterBySamples, filter_average, filter_lfc, 
@@ -256,14 +257,16 @@ deserialization <- function(serialization){
     filter_ms1_masses <- paramsListsearchMS1mass
     filter_ms1_ppm  <- paramsListsearchMS1massPpm
     
-    if(nchar(trimws(filter_ms1_masses)) == 0)
+    if(nchar(trimws(filter_ms1_masses)) == 0) {
       return()
+    }
     
     filter_ms2_masses1  <- NULL
     filter_ms2_masses2  <- NULL
     filter_ms2_masses3  <- NULL
     filter_ms2_ppm      <- NULL
   }
+  
   if(searchMode == 'Fragment m/z'){
     #################################################
     ## get inputs
