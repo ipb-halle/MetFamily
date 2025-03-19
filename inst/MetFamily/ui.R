@@ -262,7 +262,7 @@ shinyUI(
                     multiple = FALSE,
                     inputId = 'ms2DataFile', 
                     label = NULL, #label = 'Choose fragment matrix file',
-                    accept = c('text/plain', 'msp')
+                    accept = ".msp" #c('text/plain', 'msp')
                   ),
                   fluidRow(
                     column(width = 6,

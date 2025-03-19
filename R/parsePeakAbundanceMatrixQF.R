@@ -199,18 +199,18 @@ addSiriusAnnotations <- function(qfeatures,
   #TODO: specify more parameters in read delim
   annotation <- read.delim(siriusFile)
  
-  rowData <- rowData(qfeatures[[1]])
+  rowDat <- rowData(qfeatures[[1]])
   
   # Print for debugging
   print(paste("Merging by:", sirius_col, "and", rowData_col))
   
   # Merge the data frames
-  annotatedRowData <- S4Vectors::merge( rowData, annotation,
+  annotatedRowData <- S4Vectors::merge(rowDat, annotation,
                              by.x = rowData_col, by.y = sirius_col,  all.x = TRUE)
 
   #TODO: ? check for duplicate columns ?
   annotation_cols <- colnames(annotation)[colnames(annotation) != rowData_col]
-  rowData_cols <- colnames(rowData)
+  rowData_cols <- colnames(rowDat)
   
   for (col in colnames(annotatedRowData)) {
     if (col %in% annotation_cols) {
