@@ -1,9 +1,10 @@
 
 #' Run library for all packages
 #'
+#' Deprecated function, kept for documentation
 #'
 #' @returns NULL
-#' @export
+#' @noRd
 load_metfamily_dependencies <- function() {
   ##############################################################################################################
   ## GUI

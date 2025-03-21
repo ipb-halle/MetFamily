@@ -1450,8 +1450,9 @@ convertToProjectFile <- function(filePeakMatrixPath,
   numberOfSpectraDiscardedDueToMaxIntensity <- returnObj$numberOfSpectraDiscardedDueToMaxIntensity
   numberOfSpectraDiscardedDueToTooHeavy <- returnObj$numberOfSpectraDiscardedDueToTooHeavy
   
-  if(numberOfSpectra == 0)
+  if(numberOfSpectra == 0){
     return("Number of spectra is zero")
+  }
   
   if(!is.na(progress))  if(progress)  incProgress(amount = 0.01, detail = paste("Parsing MS/MS file ready", sep = "")) else print(paste("Parsing MS/MS file ready", sep = ""))
   

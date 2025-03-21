@@ -172,7 +172,17 @@ doPerformFiltering <- function(groupSet, sampleSet, filterBySamples, filter_aver
     doPerformFiltering_impl(groupSet, sampleSet, filterBySamples, filter_average, filter_lfc, filter_ms2_masses1, filter_ms2_masses2, filter_ms2_masses3, filter_ms2_ppm, filter_ms1_masses, filter_ms1_ppm, includeIgnoredPrecursors, preFilter)
   )
 }
-doPerformFiltering_impl <- function(groupSet, sampleSet, filterBySamples, filter_average, filter_lfc, filter_ms2_masses1, filter_ms2_masses2, filter_ms2_masses3, filter_ms2_ppm, filter_ms1_masses, filter_ms1_ppm, includeIgnoredPrecursors, preFilter = NULL){
+
+#' Main internal filtering function
+#' 
+#' Called from `doPerformFiltering()`. Takes dataList from global environment.
+#'
+#' @returns filterObject
+#' @noRd
+doPerformFiltering_impl <- function(
+    groupSet, sampleSet, filterBySamples, filter_average, filter_lfc, filter_ms2_masses1, 
+    filter_ms2_masses2, filter_ms2_masses3, filter_ms2_ppm, filter_ms1_masses, 
+    filter_ms1_ppm, includeIgnoredPrecursors, preFilter = NULL){
   print(paste("Observe applyFilters1", "gs", paste(groupSet, collapse = "-"), "a", filter_average, "lfc", filter_lfc, "ms2_1", filter_ms2_masses1, "ms2_2", filter_ms2_masses2, "ms2_3", filter_ms2_masses3, "ppm", filter_ms2_ppm, "ig", includeIgnoredPrecursors))
   
   groupSetOriginal                 <- groupSet
@@ -195,50 +205,53 @@ doPerformFiltering_impl <- function(groupSet, sampleSet, filterBySamples, filter
   
   #################################################
   ## sanity checks
-  if(all(!is.null(filter_lfc), !is.na(filter_lfc), filter_lfc != 0) & length(groupSet) != 2)
+  if(all(!is.null(filter_lfc), !is.na(filter_lfc), filter_lfc != 0) & length(groupSet) != 2) {
     stop("lfc filter for not exactly two groups")
+  }
   
   #################################################
   ## check for errors in inputs amd process ms2
   error <- FALSE
-  if(any(is.null(groupSet), is.na(groupSet), length(groupSet) == 0, any(nchar(groupSet) == 0)))
+  if(any(is.null(groupSet), is.na(groupSet), length(groupSet) == 0, any(nchar(groupSet) == 0))) {
     error <- TRUE
+  }
   
-  if(any(is.null(filter_average), is.na(filter_average), length(filter_average) == 0, nchar(filter_average) == 0))
+  if(any(is.null(filter_average), is.na(filter_average), length(filter_average) == 0, nchar(filter_average) == 0)) {
     filter_average <- NULL
-  else{
+  } else {
     filter_average <- as.numeric(filter_average)
     error <- error | is.na(filter_average)
   }
   
-  if(any(is.null(filter_lfc), is.na(filter_lfc), length(filter_lfc) == 0, nchar(filter_lfc) == 0))
+  if(any(is.null(filter_lfc), is.na(filter_lfc), length(filter_lfc) == 0, nchar(filter_lfc) == 0)) {
     filter_lfc <- NULL
-  else{
+  } else {
     filter_lfc <- as.numeric(filter_lfc)
     error <- error | is.na(filter_lfc)
   }
   
-  if(any(is.null(filter_ms2_masses1), is.na(filter_ms2_masses1), length(filter_ms2_masses1) == 0, nchar(filter_ms2_masses1) == 0))
+  if(any(is.null(filter_ms2_masses1), is.na(filter_ms2_masses1), length(filter_ms2_masses1) == 0, nchar(filter_ms2_masses1) == 0)) {
     filter_ms2_masses1 <- NULL
-  else{
+  } else {
     ms2Masses <- strsplit(x = filter_ms2_masses1, split = "[,; ]+")[[1]]
     filter_ms2_masses1 <- vector(mode = "numeric", length = length(ms2Masses))
-    for(idx in 1:length(ms2Masses))
+    for(idx in 1:length(ms2Masses)) {
       filter_ms2_masses1[[idx]] <- as.numeric(ms2Masses[[idx]])
+    }
     error <- error | any(is.na(filter_ms2_masses1))
   }
-  if(any(is.null(filter_ms2_masses2), is.na(filter_ms2_masses2), length(filter_ms2_masses2) == 0, nchar(filter_ms2_masses2) == 0))
+  if(any(is.null(filter_ms2_masses2), is.na(filter_ms2_masses2), length(filter_ms2_masses2) == 0, nchar(filter_ms2_masses2) == 0)){
     filter_ms2_masses2 <- NULL
-  else{
+  } else {
     ms2Masses <- strsplit(x = filter_ms2_masses2, split = "[,; ]+")[[1]]
     filter_ms2_masses2 <- vector(mode = "numeric", length = length(ms2Masses))
     for(idx in 1:length(ms2Masses))
       filter_ms2_masses2[[idx]] <- as.numeric(ms2Masses[[idx]])
     error <- error | any(is.na(filter_ms2_masses2))
   }
-  if(any(is.null(filter_ms2_masses3), is.na(filter_ms2_masses3), length(filter_ms2_masses3) == 0, nchar(filter_ms2_masses3) == 0))
+  if(any(is.null(filter_ms2_masses3), is.na(filter_ms2_masses3), length(filter_ms2_masses3) == 0, nchar(filter_ms2_masses3) == 0)) {
     filter_ms2_masses3 <- NULL
-  else{
+  } else {
     ms2Masses <- strsplit(x = filter_ms2_masses3, split = "[,; ]+")[[1]]
     filter_ms2_masses3 <- vector(mode = "numeric", length = length(ms2Masses))
     for(idx in 1:length(ms2Masses))
@@ -246,16 +259,16 @@ doPerformFiltering_impl <- function(groupSet, sampleSet, filterBySamples, filter
     error <- error | any(is.na(filter_ms2_masses3))
   }
   
-  if(any(is.null(filter_ms2_ppm), is.na(filter_ms2_ppm), length(filter_ms2_ppm) == 0, nchar(filter_ms2_ppm) == 0))
+  if(any(is.null(filter_ms2_ppm), is.na(filter_ms2_ppm), length(filter_ms2_ppm) == 0, nchar(filter_ms2_ppm) == 0)) {
     filter_ms2_ppm <- NULL
-  else{
+  } else {
     filter_ms2_ppm <- as.numeric(filter_ms2_ppm)
     error <- error | is.na(filter_ms2_ppm)
   }
   
-  if(any(is.null(filter_ms1_masses), is.na(filter_ms1_masses), length(filter_ms1_masses) == 0, nchar(filter_ms1_masses) == 0))
+  if(any(is.null(filter_ms1_masses), is.na(filter_ms1_masses), length(filter_ms1_masses) == 0, nchar(filter_ms1_masses) == 0)) {
     filter_ms1_masses <- NULL
-  else{
+  } else {
     ms1Masses <- strsplit(x = filter_ms1_masses, split = "[,; ]+")[[1]]
     filter_ms1_masses <- vector(mode = "numeric", length = length(ms1Masses))
     for(idx in 1:length(ms1Masses))
@@ -263,9 +276,9 @@ doPerformFiltering_impl <- function(groupSet, sampleSet, filterBySamples, filter
     error <- error | any(is.na(filter_ms1_masses))
   }
   
-  if(any(is.null(filter_ms1_ppm), is.na(filter_ms1_ppm), length(filter_ms1_ppm) == 0, nchar(filter_ms1_ppm) == 0))
+  if(any(is.null(filter_ms1_ppm), is.na(filter_ms1_ppm), length(filter_ms1_ppm) == 0, nchar(filter_ms1_ppm) == 0)) {
     filter_ms1_ppm <- NULL
-  else{
+  } else {
     filter_ms1_ppm <- as.numeric(filter_ms1_ppm)
     error <- error | is.na(filter_ms1_ppm)
   }

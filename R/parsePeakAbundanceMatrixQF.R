@@ -182,12 +182,12 @@ parsePeakAbundanceMatrixQF <- function(qfeatures,
 
 #' Add Sirius Annotations
 #'
-#' @param qfeatures 
-#' @param rowData_col 
-#' @param sirius_col 
-#' @param siriusFile 
+#' @param qfeatures dataset
+#' @param siriusFile file path
+#' @param rowData_col character Qfeatures column to match
+#' @param sirius_col character Sirius column to match
 #'
-#' @return ?
+#' @return qfeatures object
 #' @importFrom utils read.delim
 #' @importFrom SummarizedExperiment rowData
 #' @importFrom SummarizedExperiment rowData<- 
