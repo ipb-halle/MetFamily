@@ -7,15 +7,15 @@
 filterData(
   dataList,
   grouXXXps,
-  sampleSet,
-  filterBySamples,
-  filter_average,
-  filter_lfc,
-  filterList_ms2_masses,
-  filter_ms2_ppm,
-  filter_ms1_masses,
-  filter_ms1_ppm,
-  includeIgnoredPrecursors,
+  sampleSet = NULL,
+  filterBySamples = FALSE,
+  filter_average = NULL,
+  filter_lfc = NULL,
+  filterList_ms2_masses = NULL,
+  filter_ms2_ppm = NULL,
+  filter_ms1_masses = NULL,
+  filter_ms1_ppm = NULL,
+  includeIgnoredPrecursors = FALSE,
   progress = FALSE
 )
 }
@@ -24,28 +24,28 @@ filterData(
 
 \item{grouXXXps}{sample class}
 
-\item{sampleSet}{}
+\item{sampleSet}{?}
 
-\item{filterBySamples}{}
+\item{filterBySamples}{boolean}
 
-\item{filter_average}{}
+\item{filter_average}{numeric Features that have a mean intensity below that threshold are filtered out.}
 
-\item{filter_lfc}{}
+\item{filter_lfc}{numeric Log-fold-change threshold between two treatments. Only implement when exactly two groups are present.}
 
-\item{filterList_ms2_masses}{}
+\item{filterList_ms2_masses}{?}
 
-\item{filter_ms2_ppm}{}
+\item{filter_ms2_ppm}{?}
 
-\item{filter_ms1_masses}{}
+\item{filter_ms1_masses}{?}
 
-\item{filter_ms1_ppm}{}
+\item{filter_ms1_ppm}{?}
 
-\item{includeIgnoredPrecursors}{}
+\item{includeIgnoredPrecursors}{boolean}
 
 \item{progress}{boolean}
 }
 \value{
-A filtered dataList objetc
+A filtered dataList object
 }
 \description{
 Filter a dataList
