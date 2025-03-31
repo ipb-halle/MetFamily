@@ -12,16 +12,16 @@ addSiriusAnnotations(
 )
 }
 \arguments{
-\item{qfeatures}{}
+\item{qfeatures}{dataset}
 
-\item{siriusFile}{}
+\item{siriusFile}{file path}
 
-\item{rowData_col}{}
+\item{rowData_col}{character Qfeatures column to match}
 
-\item{sirius_col}{}
+\item{sirius_col}{character Sirius column to match}
 }
 \value{
-?
+qfeatures object
 }
 \description{
 Add Sirius Annotations

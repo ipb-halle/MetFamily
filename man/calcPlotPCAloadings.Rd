@@ -7,7 +7,7 @@
 calcPlotPCAloadings(
   pcaObj,
   dataList,
-  filter = NULL,
+  filterVec = NULL,
   pcaDimensionOne = 1,
   pcaDimensionTwo = 1,
   selectionFragmentPcaLoadingSet = NULL,
@@ -28,7 +28,7 @@ calcPlotPCAloadings(
 
 \item{dataList}{dataList object}
 
-\item{filter}{deprecated, use filterObj parameter in calculatePCA() instead}
+\item{filterVec}{deprecated, use filterObj element in calculatePCA() instead}
 
 \item{pcaDimensionOne}{numeric PCA dimension for x axis}
 
