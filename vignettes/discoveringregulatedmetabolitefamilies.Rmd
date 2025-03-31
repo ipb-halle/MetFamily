@@ -41,37 +41,19 @@ First, we load the data and summarise it
 ```{r load-data}
 
 # Load separate files
-
 filePeakMatrixPath <- system.file("extdata/showcase/Metabolite_profile_showcase.txt", package = "MetFamily")
-
 fileSpectra <- system.file("extdata/showcase/MSMS_library_showcase.msp", package = "MetFamily")
-
-fileAnnotation <- system.file("extdata/testdata/canopus/canopusShort.txt", package = "MetFamily")
 fileAnnotation <- system.file("extdata/testdata/canopus/canopus1680.txt", package = "MetFamily")
 
-parameterSetPath <- system.file("extdata/testdata/parameterSet.RData",  package = "MetFamily" )
-load(parameterSetPath)
+parameterSet <- parameterSetDefault()
 
-resultObj <- convertToProjectFile(filePeakMatrixPath, 
-                                 fileSpectra,
-                                 parameterSet = parameterSet, 
-                                 progress = FALSE)
-  
-lines <- sparseMatrixToString(matrixRows = resultObj$matrixRows, matrixCols = resultObj$matrixCols,
-                              matrixVals = resultObj$matrixVals, parameterSet = parameterSet)
-
-dataList0 <- readProjectData(fileLines = lines, progress = FALSE)
-
+dataList <- projectFromFiles(filePeakMatrixPath, 
+                              fileSpectra,
+                              parameterSet = parameterSet,
+                              annot_path =fileAnnotation)
 
 ```
 
-```{r}
-# add qfeatures
-
-dataList <- add_qfeatures(dataList0, qfeatures = resultObj$qfeatures, fileAnnotation)
-
-
-```
 
 ```{r eval=FALSE, include=FALSE}
 
@@ -79,9 +61,6 @@ dataList <- add_qfeatures(dataList0, qfeatures = resultObj$qfeatures, fileAnnota
 
 # fileName <- system.file("extdata/showcase/Project_file_showcase_annotated.csv.gz", package = "MetFamily")
 # project <- readClusterDataFromProjectFile(file = fileName)
-
-project$dataFrameMS1Header$Annotation
-dataList$dataFrameMS1Header$Annotation
 
 
 ```
@@ -93,10 +72,12 @@ We can filter the data to remove low quality data points
 
 ```{r filter-data}
 
-# TODO implement that part
+filterObj <- make_filterObj(dataList, filter_average = 10000, filter_lfc = 2)
 
-fileName <- system.file("extdata/testdata/canopus/filterPca_canopus.rds", package = "MetFamily")
-filterObj <- readRDS(fileName) 
+# fileName <- system.file("extdata/testdata/canopus/filterPca_canopus.rds", package = "MetFamily")
+# filterObj_file <- readRDS(fileName)
+# identical(filterObj_file, filterObj)
+
 
 ```
 
@@ -106,6 +87,8 @@ filterObj <- readRDS(fileName)
 PCA on MS1 in Figure \@ref(fig:pca). 
 
 ```{r pca, fig.cap="PCA of MS1.", echo=FALSE}
+
+filterObj <- make_filterObj(dataList, filter_average = 2000, filter_lfc = 1)
 
 pca <- calculatePCA(dataList=dataList,
                          filterObj=filterObj, 
@@ -119,7 +102,7 @@ pcaDimensionTwo <- 2
 # could be easily implemented with ggplot
 resultObj <- calcPlotPCAscores(
   pcaObj = pca, 
-  dataList = dataList, #project, 
+  dataList = dataList,
   filterObj = filterObj,
   pcaDimensionOne = pcaDimensionOne, 
   pcaDimensionTwo = pcaDimensionTwo, 
@@ -128,22 +111,19 @@ resultObj <- calcPlotPCAscores(
   yInterval = NULL
 )
 
-# undebug(calcPlotPCAloadings)
-# undebug(getPrecursorColors)
-
 resultObj <- calcPlotPCAloadings(
-  pcaObj = pca, 
-  dataList = dataList, #project, 
-  filter = filterObj, 
-  pcaDimensionOne = pcaDimensionOne, 
-  pcaDimensionTwo = pcaDimensionTwo, 
+  pcaObj = pca,
+  dataList = dataList,
+  # filter = filterObj$filter, # deprecated
+  pcaDimensionOne = pcaDimensionOne,
+  pcaDimensionTwo = pcaDimensionTwo,
   selectionFragmentPcaLoadingSet = NULL,
   selectionAnalysisPcaLoadingSet = NULL,
   selectionSearchPcaLoadingSet   = NULL,
-  xInterval = NULL, 
+  xInterval = NULL,
   yInterval = NULL,
-  loadingsLabels = "None", 
-  showLoadingsAbundance = FALSE, 
+  loadingsLabels = "None",
+  showLoadingsAbundance = FALSE,
   showLoadingsFeaturesAnnotated   = TRUE,
   showLoadingsFeaturesUnannotated = TRUE,
   showLoadingsFeaturesSelected    = TRUE,
@@ -181,7 +161,7 @@ load(fileName)
 fileName <- system.file("extdata/testdata/hcaFilter.Rdata", package = "MetFamily")
 load(fileName) 
 
-returnObj <- calcPlotDendrogram(dataList=dataList2, #project, 
+returnObj <- calcPlotDendrogram(dataList=dataList, #project, 
                                 filter=filter, 
                                 clusterDataList=clusterDataList, 
                                 annoPresentAnnotationsList = annoPresentAnnotationsList ,
