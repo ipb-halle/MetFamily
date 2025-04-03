@@ -37,7 +37,7 @@ parsePeakAbundanceMatrix <- function(filePeakMatrix,
                                           table = dataFrameHeader1[1, ]), 
                                     na.rm = TRUE)
   
-  if(ncol(dataFrame1) > columnIndexEndOfAnnotation){
+  if(ncol(dataFrame1) > columnIndexEndOfAnnotation) {
     dataColumnStartEndIndeces <- c(columnIndexEndOfAnnotation + 1, ncol(dataFrame1))
     numberOfDataColumns <- dataColumnStartEndIndeces[[2]] - dataColumnStartEndIndeces[[1]] + 1
     dataColumnNames <- colnames(dataFrame1)[dataColumnStartEndIndeces[[1]]:dataColumnStartEndIndeces[[2]]]
@@ -46,8 +46,9 @@ parsePeakAbundanceMatrix <- function(filePeakMatrix,
     sampleType           <- dataFrameHeader1[2, (columnIndexEndOfAnnotation + 1):ncol(dataFrameHeader1)]
     sampleInjectionOrder <- dataFrameHeader1[3, (columnIndexEndOfAnnotation + 1):ncol(dataFrameHeader1)]
     batchID              <- NULL
-    if(!oldFormat)
+    if(!oldFormat) {
       batchID            <- dataFrameHeader1[4, (columnIndexEndOfAnnotation + 1):ncol(dataFrameHeader1)]
+    }
   } else {
     dataColumnStartEndIndeces <- NULL
     numberOfDataColumns <- 0
@@ -89,15 +90,17 @@ parsePeakAbundanceMatrix <- function(filePeakMatrix,
   
   #####################
   ## sorted by m/z (needed for deisotoping)
-  if(!is.null(dataFrame1$"Average Mz"))
+  if(!is.null(dataFrame1$"Average Mz")) {
     dataFrame1 <- dataFrame1[order(dataFrame1$"Average Mz"), ]
+  }
   
   ## replace -1 by 0
   if(numberOfDataColumns > 0){
     for(colIdx in dataColumnStartEndIndeces[[1]]:dataColumnStartEndIndeces[[2]]){
       dataFrame1[ , colIdx] <- as.numeric(dataFrame1[ , colIdx])
-      if(!is.na(sum(dataFrame1[,colIdx] == -1)))
+      if(!is.na(sum(dataFrame1[,colIdx] == -1))) {
         dataFrame1[(dataFrame1[,colIdx] == -1),colIdx] <- 0
+      }
     }
   }
   
@@ -137,8 +140,9 @@ parsePeakAbundanceMatrix <- function(filePeakMatrix,
         validPrecursorsInIntensity <- TRUE
       }
       
-      if(any(validPrecursorsInRt & validPrecursorsInMz & validPrecursorsInIntensity))
+      if(any(validPrecursorsInRt & validPrecursorsInMz & validPrecursorsInIntensity)) {
         precursorsToRemove[[precursorIdx]] <- TRUE
+      }
     }
     
     ## remove isotopes
@@ -1628,6 +1632,7 @@ convertToProjectFile2 <- function(filePeakMatrixQF,
   numberOfUnmappedPrecursorsMz <- 0
   numberOfUnmappedPrecursorsRt <- 0
   
+  # HERE crash?
   for(i in seq_len(numberOfPrecursors)){
     numberOfItems <- length(allHits[[i]])
     if(numberOfItems == 1)

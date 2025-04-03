@@ -25,9 +25,6 @@ parsePeakAbundanceMatrixQF <- function(qfeatures,
     } 
   }
 
-
-  
-  
   cols_to_exclude <- c("Reference RT","Reference m/z","Comment",
                        "Manually modified for quantification",
                        "Total score","RT similarity","Average","Stdev") 
@@ -141,8 +138,10 @@ parsePeakAbundanceMatrixQF <- function(qfeatures,
         validPrecursorsInIntensity <- TRUE
       }
 
-      if(any(validPrecursorsInRt & validPrecursorsInMz & validPrecursorsInIntensity))
+      # crash HERE?
+      if(any(validPrecursorsInRt & validPrecursorsInMz & validPrecursorsInIntensity)) {
         precursorsToRemove[[precursorIdx]] <- TRUE
+      }
     
     }
    

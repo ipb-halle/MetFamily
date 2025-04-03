@@ -72,7 +72,7 @@ We can filter the data to remove low quality data points
 
 ```{r filter-data}
 
-filterObj <- make_filterObj(dataList, filter_average = 10000, filter_lfc = 2)
+filterObj <- makeFilterObj(dataList, filter_average = 10000, filter_lfc = 2)
 
 # fileName <- system.file("extdata/testdata/canopus/filterPca_canopus.rds", package = "MetFamily")
 # filterObj_file <- readRDS(fileName)
@@ -88,7 +88,7 @@ PCA on MS1 in Figure \@ref(fig:pca).
 
 ```{r pca, fig.cap="PCA of MS1.", echo=FALSE}
 
-filterObj <- make_filterObj(dataList, filter_average = 2000, filter_lfc = 1)
+filterObj <- makeFilterObj(dataList, filter_average = 2000, filter_lfc = 1)
 
 pca <- calculatePCA(dataList=dataList,
                          filterObj=filterObj, 

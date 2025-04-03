@@ -57,7 +57,7 @@ filterLFC <- function(dataList, filter_lfc, grouXXXps = dataList$grouXXXps) {
 #'
 #' @returns filterObject
 #' @export
-make_filterObj <- function(dataList, filter_average = NULL, filter_lfc = NULL, grouXXXps = NULL) {
+makeFilterObj <- function(dataList, filter_average = NULL, filter_lfc = NULL, grouXXXps = NULL) {
   
   if(is.null(grouXXXps)) grouXXXps <- dataList$grouXXXps
   sampleSet <- dataList$groupSampleDataFrame$Sample
