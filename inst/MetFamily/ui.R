@@ -234,8 +234,7 @@ shinyUI(
                     multiple = FALSE,
                     inputId = 'annotationFile', 
                     label = NULL,
-                    # TODO show txt and tsv files, or just all files
-                    accept = c('text/tab-separated-values', 'text/plain')
+                    accept = c('text/tab-separated-values')
                   ),
                   p("Please choose spectral library (MS/MS, .msp)"),
                   bsTooltip(id = "ms2DataFile", title = "Press to choose a MS/MS library", placement = "bottom", trigger = "hover"),
