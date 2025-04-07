@@ -1,3 +1,64 @@
+#' Default values
+#'
+#' @returns list parameterSet
+#' @export
+importParameterSetInit <- function() {
+  
+  list(
+    minimumIntensityOfMaximalMS2peak = 2000,
+    minimumProportionOfMS2peaks = 0.05,
+    neutralLossesPrecursorToFragments = TRUE,
+    neutralLossesFragmentsToFragments = FALSE,
+    mzDeviationAbsolute_grouping = 0.01,
+    mzDeviationInPPM_grouping = 10,
+    showImportParametersAdvanced = FALSE,
+    doPrecursorDeisotoping = TRUE,
+    mzDeviationAbsolute_precursorDeisotoping = 0.01,
+    mzDeviationInPPM_precursorDeisotoping = 10,
+    maximumRtDifference = 0.05,
+    doMs2PeakGroupDeisotoping = TRUE,
+    mzDeviationAbsolute_ms2PeakGroupDeisotoping = 0.01,
+    mzDeviationInPPM_ms2PeakGroupDeisotoping = 10
+  )
+
+}
+
+
+#' Create a parameterSet object
+#'
+#' To use in a script
+#'
+#' @returns a parameterSet list object of default values used by the app
+#' @export
+parameterSetDefault <- function() {
+  
+  ipsi <- importParameterSetInit()
+ 
+  c(
+    list(
+      projectName = paste0("MetFamily project (created ", 
+                           gsub(" ", "_", gsub(":", ".", Sys.time())),
+                           ")"),
+      projectDescription = "",
+      toolVersion = "MetFamily 1.0"
+    ),
+    
+    # assigned from app input in ui.R
+    ipsi[c(1, 2, 5, 6, 8, 9, 10, 11, 12, 13, 14)],
+    
+    # fixed parameters, see server_guiTabInput
+    list(
+      proportionOfMatchingPeaks_ms2PeakGroupDeisotoping = 0.9,
+      mzDeviationAbsolute_mapping = 0.01
+    ),
+    
+    # more app inputs
+    ipsi[3:4]
+  )
+}
+
+
+
 #' Convert data.frame columns to numeric
 #'
 #' The data.numericmatrix() function works similar to base::data.matrix()
@@ -57,6 +118,42 @@ sparseMatrixToString <- function(matrixRows, matrixCols, matrixVals, parameterSe
   
   return(lines)
 }
+
+
+
+#' Create a project dataList
+#' 
+#' Wrapper for a clunky workflow
+#'
+#' @param ms1_path file for MS1 intensity .txt file
+#' @param ms2_path file for MS2 .msp file
+#' @param annot_path file for annotations (.csv or .tsv)
+#' @param parameterSet list of parameters to use
+#'
+#' @returns dataList
+#' @export
+projectFromFiles <- function(ms1_path, ms2_path, annot_path = NULL, parameterSet = NULL) {
+  
+  if (is.null(parameterSet)) {
+    parameterSet <- parameterSetDefault()
+  }
+  
+  resultObj <- convertToProjectFile(filePeakMatrixPath = ms1_path, 
+                                    fileSpectra = ms2_path, parameterSet) 
+  
+  lines <- sparseMatrixToString(resultObj$matrixRows, resultObj$matrixCols,
+                                resultObj$matrixVals, parameterSet)
+  
+  dataList <- readProjectData(lines)
+  
+  if(!is.null(annot_path)) {
+    dataList <- add_qfeatures(dataList, resultObj$qfeatures, annot_path)
+  }
+  
+  dataList
+}
+
+
 
 #' Read MetFamily Project data saved by the export function
 #'
@@ -141,6 +238,7 @@ readProjectData <- function(fileLines, progress = FALSE)
   importParameters <- line1Tokens[[1]]
   if(nchar(importParameters) == 0){
     ## import parameterSet not there: backward compatibility - add if not there
+    # FIX doesn't match app defaults
     importParameters <- "ImportParameters={projectName=MetFamily project; projectDescription=; toolVersion=MetFamily 1.0; minimumIntensityOfMaximalMS2peak=2000; minimumProportionOfMS2peaks=0.05; mzDeviationAbsolute_grouping=0.01; mzDeviationInPPM_grouping=10; doPrecursorDeisotoping=TRUE; mzDeviationAbsolute_precursorDeisotoping=0.001; mzDeviationInPPM_precursorDeisotoping=10; maximumRtDifference=0.02; doMs2PeakGroupDeisotoping=FALSE; mzDeviationAbsolute_ms2PeakGroupDeisotoping=0.01; mzDeviationInPPM_ms2PeakGroupDeisotoping=10; proportionOfMatchingPeaks_ms2PeakGroupDeisotoping=0.9; mzDeviationAbsolute_mapping=0.01; minimumNumberOfMS2PeaksPerGroup=1; neutralLossesPrecursorToFragments=TRUE; neutralLossesFragmentsToFragments=FALSE}"
   }
   groupSampleDataFrameFieldValue <- line1Tokens[[2]]
@@ -804,9 +902,9 @@ add_qfeatures <- function(dataList, qfeatures, fileAnnotation = NULL) {
   #adding HEX color codes from external annotations to the annotationColorsMapInitValue of dataFrameHeader
   
   # Copy the selected column by user, Remove duplicates and exclude the first row
-  uniqueAnnotations <- unique(unlist(strsplit(metaboliteProfile$Annotation, ",")))
+  uniqueAnnotations0 <- unique(unlist(strsplit(metaboliteProfile$Annotation, ",")))
   
-  uniqueAnnotations <- paste0(uniqueAnnotations, "=")
+  uniqueAnnotations <- paste0(uniqueAnnotations0, "=")
   # Add a random string from the hex color list to each element of uniqueAnnotions
   # strings_list <- c("#000000", "#FFFFFF", "#FF0000", "#00FF00", "#0000FF", "#FFFF00", "#FF00FF", "#00FFFF", "#800000", "#008000", "#000080", "#808000", "#800080", "#008080", "#808080", "#C0C0C0", "#FFA500", "#FFC0CB", "#FFD700", "#A52A2A")
   # uniqueAnnotations <- paste0(uniqueAnnotations, sample(strings_list, length(uniqueAnnotations), replace = TRUE))
@@ -820,7 +918,7 @@ add_qfeatures <- function(dataList, qfeatures, fileAnnotation = NULL) {
   uniqueAnnotations1 <- paste(uniqueAnnotations, collapse = ", ")
   #uniqueAnnotationsHexs <- paste("AnnotationColors={", paste(uniqueAnnotations1, collapse = ","), "}")# this line introduces a space after the first Item of the object, therefore, replaced with the following to remove the space
   uniqueAnnotationsHexs <- gsub("AnnotationColors=\\{\\s+", "AnnotationColors={", paste0("AnnotationColors={", paste(uniqueAnnotations1, collapse = ","), "}"))
-  # Assuming dataFrameHeader is your data frame
+  # Put back in dataFrameHeader
   dataList$dataFrameHeader$Annotation[2] <- uniqueAnnotationsHexs
   
   
@@ -841,7 +939,7 @@ add_qfeatures <- function(dataList, qfeatures, fileAnnotation = NULL) {
   dataList$annoArrayOfLists[!metaboliteProfile$Annotation == ""] <- annoArrayOfLists2
   
   # annoPresentAnnotationsList
-  dataList$annoPresentAnnotationsList <- c(list("Ignore"), annoArrayOfLists1)
+  dataList$annoPresentAnnotationsList <- c(list("Ignore"), uniqueAnnotations0 %>% as.list)
   
   # annoPresentColorsList
   dataList$annoPresentColorsList <- c(list("red"), uniqueAnnotations %>% strsplit("=") %>% lapply(function(x) x[2]))
@@ -1041,12 +1139,13 @@ processMS1data <- function(sampleNamesToExclude,
                               })
   
   ## translate and box colors
-  if(!is.na(progress))  
-    if(progress)  
-      incProgress(amount = 0, detail = "Coloring box") 
-  else 
+  if(!is.na(progress)) {
+    if(progress) incProgress(amount = 0, detail = "Coloring box")
+  } else {
     print("Coloring box")
+  }
   
+  # TODO document why all the colors
   colorDataFrame <- dataFrameMeasurements
   colorDataFrame[, dataColumnNames    ] <- squash::cmap(x = matrixDataFrame[, dataColumnNames    ], map = colorMapAbsoluteData)
   colorDataFrame[, dataMeanColumnNames] <- squash::cmap(x = matrixDataFrame[, dataMeanColumnNames], map = colorMapAbsoluteData)
@@ -1233,37 +1332,58 @@ castListEntries <- function(list){
 precursorSetToSetOfAnnotationSets <- function(dataList, precursorSet){
   setOfAnnotationSets <- lapply(X = precursorSet, FUN = function(x){
     annotationSet <- dataList$annoArrayOfLists[[x]]
-    if(dataList$annoArrayIsArtifact[[x]])
+    if(dataList$annoArrayIsArtifact[[x]]) {
       annotationSet <- c(annotationSet, "Ignore")
+    }
     return(unlist(annotationSet))
   })
   return(setOfAnnotationSets)
 }
+
+#' Find color for annotations
+#'
+#' @param dataList dataList object
+#' @param setOfAnnotationSets list of features with annotation class
+#'
+#' @returns list of annotations and colors
+#' @noRd
 setOfAnnotationSetsToSetOfColorSets <- function(dataList, setOfAnnotationSets){
-  setOfColorSets <- lapply(X = setOfAnnotationSets, FUN = function(x){
-    if(is.null(x))
+  # setOfAnnotationSets %>% unlist %>% table  
+  
+  makeColorSet <- function(x){
+    if(is.null(x)) {
       ## no annotation
       colors <- "black"
-    else
+    } else {
       ## at least one annotation
-      colors <- unlist(lapply(X = x, FUN = function(y){
-        dataList$annoPresentColorsList[[match(x = y, table = dataList$annoPresentAnnotationsList)]] }
-      ))
-    
+      matchColor <- function(y) {
+        dataList$annoPresentColorsList[[match(x = y, table = dataList$annoPresentAnnotationsList)]]
+      }
+      colors <- unlist(lapply(x, matchColor))
+    }
     return(colors)
-  })
+  }
+  
+  setOfColorSets <- lapply(X = setOfAnnotationSets, FUN = makeColorSet)
   return(setOfColorSets)
 }
 
+
+#' Create annotation colors
+#'
+#' @param dataList list object
+#' @param precursorSet vector
+#'
+#' @returns list with colors and annotations
 #' @export
 getPrecursorColors <- function(dataList, precursorSet){
   setOfAnnotationSets <- precursorSetToSetOfAnnotationSets(dataList, precursorSet)
   setOfColorSets      <- setOfAnnotationSetsToSetOfColorSets(dataList, setOfAnnotationSets)
   setOfColors <- lapply(X = setOfColorSets, FUN = function(x){
-    if(any(x == "red"))
+    if(any(x == "red")) {
       ## at least one annotation is ignore --> take ignore
       color <- "red"
-    else{
+    } else {
       switch(as.character(length(x)),
              "0"={## no annotation
                color <- "black"
@@ -1278,10 +1398,10 @@ getPrecursorColors <- function(dataList, precursorSet){
     }## end else
   })## end lapply
   setOfAnnotations <- lapply(X = setOfAnnotationSets, FUN = function(x){
-    if(any(x == "Ignore"))
+    if(any(x == "Ignore")) {
       ## at least one annotation is ignore --> take ignore
       annotation <- "Ignore"
-    else{
+    } else {
       switch(as.character(length(x)),
              "0"={## no annotation
                annotation <- "Unknown"

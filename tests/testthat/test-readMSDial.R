@@ -1,3 +1,5 @@
+library(purrr)
+
 filePeakMatrix <- system.file("extdata/showcase/Metabolite_profile_showcase.txt", package = "MetFamily")
 qf <- readMSDial(filePeakMatrix)
 
@@ -39,3 +41,40 @@ test_that("Number of Rows and Columns are correct", {
 
 
 
+# gp: testing different MS-Dial data formats
+
+files <- system.file(package = "MetFamily",
+                     c("extdata/showcase/Metabolite_profile_showcase.txt", 
+                       "extdata/testdata/Height_MSDIAL.ver5.2.240424-short.txt",
+                       "extdata/testdata/Height_202502_wide-msms.txt"))
+
+rowDataDefaultNames2020 <- c("Alignment ID", "Average Rt(min)", "Average Mz", "Metabolite name", 
+                             "Adduct ion name", "Fill %", "MS/MS included", "INCHIKEY", "SMILES", 
+                             "LINK", "Dot product", "Reverse dot product", "Fragment presence %", 
+                             "Spectrum reference file name")
+
+colDataDefaultNames2020 <- c("Class", "Type", "Injection order")
+
+
+check_qf <- function(q1) {
+  # q1 <- ms_reads[[1]]
+  
+  rD <- rowData(q1)[[1]]
+  cD <- colData(q1)
+  
+  c(identical(names(rD), rowDataDefaultNames2020),
+    identical(names(cD), colDataDefaultNames2020),
+    identical(dim(assay(q1)), c(nrow(rD), nrow(cD))))
+}
+
+
+test_that("Different MS-Dial formats can be read in properly", {
+  
+  ms_reads <- map(files, readMSDial)
+  
+  t3x3 <- rep(list(rep(TRUE, 3)), 3)
+  
+  expect_equal(map(ms_reads, check_qf), t3x3)
+      
+})
+  

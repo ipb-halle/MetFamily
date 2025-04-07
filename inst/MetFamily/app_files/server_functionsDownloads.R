@@ -374,7 +374,7 @@ plotPCA <- function(file, fileType, plotMS2 = TRUE){
   }
   
   drawPcaScoresPlotImpl(downloadLayout=TRUE)
-  calcPlotScoresGroupsLegendForImage1(scoresGroups$grouXXXps, scoresGroups$colors, 30)
+  calcPlotScoresGroupsLegendForImage(scoresGroups$grouXXXps, scoresGroups$colors, 30)
   drawPcaLoadingsPlotImpl()
   drawAnnotationLegendForImagePCAimpl()
   dev.off()

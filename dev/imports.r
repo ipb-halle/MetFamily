@@ -18,12 +18,14 @@ use_import_from("utils", c("flush.console", "read.table", "read.delim"))
 
 use_import_from("SummarizedExperiment", c("colData", "rowData","rowData<-", "assay"))
 use_import_from("plotly", c("plot_ly", "add_trace", "layout"))
-use_import_from("stringr", c("str_squish", "str_split"))
+use_import_from("stringr", c("str_squish", "str_split", "str_trim"))
 use_import_from("QFeatures", c("QFeatures", "ncols"))
 
 use_import_from("S4Vectors", "DataFrame")
 use_import_from("openxlsx2", "read_xlsx")
 use_import_from("Matrix", "sparseMatrix")
+
+use_import_from("purrr", "set_names")
 
 # -------------------------------------------------------------------------
 

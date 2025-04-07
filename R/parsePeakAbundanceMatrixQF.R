@@ -25,9 +25,6 @@ parsePeakAbundanceMatrixQF <- function(qfeatures,
     } 
   }
 
-
-  
-  
   cols_to_exclude <- c("Reference RT","Reference m/z","Comment",
                        "Manually modified for quantification",
                        "Total score","RT similarity","Average","Stdev") 
@@ -51,10 +48,10 @@ parsePeakAbundanceMatrixQF <- function(qfeatures,
     sampleType            <- colData(qfeatures)$Type
     sampleInjectionOrder  <- colData(qfeatures)$"Injection order"
     batchID               <- NULL
-    if(! is.null(colData(qfeatures)$BatchID))
+    if(! is.null(colData(qfeatures)$BatchID)) {
       batchID            <- colData(qfeatures)$BatchID
-    
-    }   else {
+    }
+  }   else {
     dataColumnStartEndIndeces <- NULL
     numberOfDataColumns <- 0
     sampleClass          <- NULL
@@ -63,6 +60,7 @@ parsePeakAbundanceMatrixQF <- function(qfeatures,
     batchID              <- NULL
   }
   
+  # gp: hopefully deprecated, should check and fix that earlier, possibly in readMSDial
   commaNumbers <- sum(grepl(x = dataFrame$"Average Mz", pattern = "^(\\d+,\\d+$)|(^\\d+$)"))
   decimalSeparatorIsComma <- commaNumbers == nrow(dataFrame)
   if(decimalSeparatorIsComma){
@@ -87,21 +85,26 @@ parsePeakAbundanceMatrixQF <- function(qfeatures,
   if(!is.null(dataFrame$"Average Mz"))          dataFrame$"Average Mz"          <- as.numeric(dataFrame$"Average Mz")
   if(!is.null(dataFrame$"Fill %"))              dataFrame$"Fill %"              <- as.numeric(dataFrame$"Fill %")
   if(!is.null(dataFrame$"MS/MS included"))      dataFrame$"MS/MS included"      <- as.logical(dataFrame$"MS/MS included")
+  # "null" replaced by NA
+  suppressWarnings({
   if(!is.null(dataFrame$"Dot product"))         dataFrame$"Dot product"         <- as.numeric(dataFrame$"Dot product")
   if(!is.null(dataFrame$"Reverse dot product")) dataFrame$"Reverse dot product" <- as.numeric(dataFrame$"Reverse dot product")
+  })
   if(!is.null(dataFrame$"Fragment presence %")) dataFrame$"Fragment presence %" <- as.numeric(dataFrame$"Fragment presence %")
   
   #####################
   ## sorted by m/z (needed for deisotoping)
-  if(!is.null(dataFrame$"Average Mz"))
+  if(!is.null(dataFrame$"Average Mz")) {
     dataFrame <- dataFrame[order(dataFrame$"Average Mz"), ]
+  }
   
   ## replace -1 by 0
   if(numberOfDataColumns > 0){
     for(colIdx in (numRowDataCols+1):ncol(dataFrame)){
       dataFrame[ , colIdx] <- as.numeric(dataFrame[ , colIdx])
-      if(!is.na(sum(dataFrame[,colIdx] == -1)))
+      if(!is.na(sum(dataFrame[,colIdx] == -1))) {
         dataFrame[(dataFrame[,colIdx] == -1),colIdx] <- 0
+      }
     }
   }
   vals <- NULL
@@ -120,9 +123,10 @@ parsePeakAbundanceMatrixQF <- function(qfeatures,
     }
     
     for(precursorIdx in seq_len(numberOfPrecursors)){
-      if((precursorIdx %% (as.integer(numberOfPrecursors/10))) == 0)
+      if((precursorIdx %% (as.integer(numberOfPrecursors/10))) == 0) {
         if(!is.na(progress))  if(progress)  incProgress(amount = 0.0, detail = paste("Precursor deisotoping ", precursorIdx, " / ", numberOfPrecursors, sep = "")) else print(paste("Precursor deisotoping ", precursorIdx, " / ", numberOfPrecursors, sep = ""))
-      
+      }
+        
       mzError <- dataFrame$"Average Mz"[[precursorIdx]] * mzDeviationInPPM_precursorDeisotoping / 1000000
       mzError <- max(mzError, mzDeviationAbsolute_precursorDeisotoping)
       
@@ -141,8 +145,9 @@ parsePeakAbundanceMatrixQF <- function(qfeatures,
         validPrecursorsInIntensity <- TRUE
       }
 
-      if(any(validPrecursorsInRt & validPrecursorsInMz & validPrecursorsInIntensity))
+      if(any(validPrecursorsInRt & validPrecursorsInMz & validPrecursorsInIntensity)) {
         precursorsToRemove[[precursorIdx]] <- TRUE
+      }
     
     }
    
@@ -182,12 +187,12 @@ parsePeakAbundanceMatrixQF <- function(qfeatures,
 
 #' Add Sirius Annotations
 #'
-#' @param qfeatures 
-#' @param rowData_col 
-#' @param sirius_col 
-#' @param siriusFile 
+#' @param qfeatures dataset
+#' @param siriusFile file path
+#' @param rowData_col character Qfeatures column to match
+#' @param sirius_col character Sirius column to match
 #'
-#' @return ?
+#' @return qfeatures object
 #' @importFrom utils read.delim
 #' @importFrom SummarizedExperiment rowData
 #' @importFrom SummarizedExperiment rowData<- 
@@ -199,18 +204,18 @@ addSiriusAnnotations <- function(qfeatures,
   #TODO: specify more parameters in read delim
   annotation <- read.delim(siriusFile)
  
-  rowData <- rowData(qfeatures[[1]])
+  rowDat <- rowData(qfeatures[[1]])
   
   # Print for debugging
   print(paste("Merging by:", sirius_col, "and", rowData_col))
   
   # Merge the data frames
-  annotatedRowData <- S4Vectors::merge( rowData, annotation,
+  annotatedRowData <- S4Vectors::merge(rowDat, annotation,
                              by.x = rowData_col, by.y = sirius_col,  all.x = TRUE)
 
   #TODO: ? check for duplicate columns ?
   annotation_cols <- colnames(annotation)[colnames(annotation) != rowData_col]
-  rowData_cols <- colnames(rowData)
+  rowData_cols <- colnames(rowDat)
   
   for (col in colnames(annotatedRowData)) {
     if (col %in% annotation_cols) {

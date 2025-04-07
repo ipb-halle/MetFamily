@@ -1226,7 +1226,8 @@ calcPlotDendrogram_plotly <- function(
 #'
 #' @returns ?
 #' @export
-calcPlotHeatmap <- function(dataList, filterObj, clusterDataList, selectedTreeNodeSet, frameColor, heatmapContent, heatmapOrdering, xInterval = NULL){
+calcPlotHeatmap <- function(dataList, filterObj, clusterDataList, selectedTreeNodeSet,
+                            frameColor, heatmapContent, heatmapOrdering, xInterval = NULL){
   
   if(FALSE){
     dataList_ <<- dataList
@@ -1486,7 +1487,8 @@ calcPlotHeatmapOld <- function(dataList, filterObj, clusterDataList, xInterval =
   ####################
   ## heatmap
   columnsOfInterest <- c(
-    dataList$dataMeanColumnNameFunctionFromName(filterObj$grouXXXps[[1]]), dataList$dataMeanColumnNameFunctionFromName(filterObj$grouXXXps[[2]]), 
+    dataList$dataMeanColumnNameFunctionFromName(filterObj$grouXXXps[[1]]), 
+    dataList$dataMeanColumnNameFunctionFromName(filterObj$grouXXXps[[2]]), 
     dataList$lfcColumnNameFunctionFromName(filterObj$grouXXXps[[1]], filterObj$grouXXXps[[2]])
   )
   
@@ -1574,21 +1576,7 @@ calcPlotAnnoLegend <- function(annoLabels, annoColors){
   
   calcPlotLegend(annoLabels, annoColors, "Annotations")
 }
-### I am adding this new 
 
-calcPlotAnnoLegend1 <- function(annoLabels, annoColors){
-  if(is.null(annoLabels)){
-    annoLabels <- vector(mode = "character")
-    annoColors <- vector(mode = "character")
-  }
-  
-  ## get and reorder annotations
-  resultObj <- reorderAnnotationsForLegend(annoLabels, annoColors)
-  annoLabels <- resultObj$annoLabels
-  annoColors <- resultObj$annoColors
-  
-  calcPlotLegend1(annoLabels, annoColors, "Loadings")
-}
 
 #' @export
 calcPlotScoresGroupsLegend <- function(grouXXXps, colors){
@@ -1616,29 +1604,6 @@ calcPlotLegend <- function(annoLabels, annoColors, title){
   plotLegendWithBalls(labels, xPositions, yPositions, symbolXPositions, symbolYPositions, annoColors, xSpacing*0.075)
 }
 
-### I am adding this new 
-
-calcPlotLegend1 <- function(annoLabels, annoColors, title){
-  ## layout
-  numberOfLines <- length(annoLabels) + 1
-  ySpacing <- 1 / (numberOfLines + 1)
-  xSpacing <- 0.1
-  
-  labels <- c(paste(title, ":", sep = ""), annoLabels)
-  xPositions <- c(-0.05, rep(x = xSpacing, times = length(annoLabels)))
-  #yPositions <- seq(from = 1, to = 0, by = 1/(-length(xPositions)))
-  yPositions <- seq(from = 1 - ySpacing, to = ySpacing, length.out = numberOfLines)
-  
-  symbolXPositions <- rep(x = xSpacing * 0.75, times = length(annoLabels))
-  symbolYPositions <- yPositions[2:length(yPositions)]
-  
-  ##################################################################################################
-  ## plot
-  plotLegendWithBalls(labels, xPositions, yPositions, symbolXPositions, symbolYPositions, annoColors, xSpacing*0.075)
-}
-
-##############
-
 
 #' @export
 calcPlotAnnoLegendForImage <- function(annoLabels, annoColors, maximumNumberOfLines=20){
@@ -1649,34 +1614,12 @@ calcPlotAnnoLegendForImage <- function(annoLabels, annoColors, maximumNumberOfLi
   
   calcPlotLegendForImage(annoLabels, annoColors, "Annotations", maximumNumberOfLines)
 }
-##### I am adding this new 
 
-
-
-calcPlotAnnoLegendForImage1 <- function(annoLabels, annoColors, maximumNumberOfLines=30){
-  ## get and reorder annotations
-  resultObj <- reorderAnnotationsForLegend(annoLabels, annoColors)
-  annoLabels <- resultObj$annoLabels
-  annoColors <- resultObj$annoColors
-  
-  calcPlotLegendForImage2(annoLabels, annoColors, "Loadings", maximumNumberOfLines)
-}
-#################
-
-
+#' @export
 calcPlotScoresGroupsLegendForImage <- function(grouXXXps, colors, maximumNumberOfLines=20){
   ## get and reorder annotations
   calcPlotLegendForImage(grouXXXps, colors, "Scores", maximumNumberOfLines)
 }
-#### I am adding this new 
-
-#' @export
-calcPlotScoresGroupsLegendForImage1 <- function(grouXXXps, colors, maximumNumberOfLines=30){
-  ## get and reorder annotations
-  calcPlotLegendForImage1(grouXXXps, colors, "Scores", maximumNumberOfLines)
-}
-
-###########
 
 
 calcPlotLegendForImage <- function(annoLabels, annoColors, title, maximumNumberOfLines){
@@ -1711,82 +1654,10 @@ calcPlotLegendForImage <- function(annoLabels, annoColors, title, maximumNumberO
   ## plot
   plotLegendWithBalls(labels, xPositions, yPositions, symbolXPositions, symbolYPositions, annoColors, xSpacing*0.075)
 }
-### I am adding this new line
-calcPlotLegendForImage2 <- function(annoLabels, annoColors, title, maximumNumberOfLines){
-  ## layout
-  numberOfLines <- length(annoLabels) + 1
-  ySpacing <- 1 / maximumNumberOfLines
-  xSpacing <- 0.1
-  
-  labels <- c(paste(title, ":", sep = ""), annoLabels)
-  xPositions <- c(-0.05, rep(x = xSpacing, times = length(annoLabels)))
-  #yPositions <- seq(from = 1, to = 0, by = 1/(-length(xPositions)))
-  yPositions <- seq(from = 1 - ySpacing, to = ySpacing, length.out = maximumNumberOfLines)
-  yPositions <- yPositions[seq_len(numberOfLines)]
-  
-  symbolXPositions <- rep(x = xSpacing * 0.75, times = length(annoLabels))
-  symbolYPositions <- yPositions[2:length(yPositions)]
-  symbolYPositions <- symbolYPositions[seq_len(length(symbolXPositions))]
-  
-  if(numberOfLines > maximumNumberOfLines){
-    labels <- labels[seq_len(maximumNumberOfLines)]
-    annoColors <- annoColors[seq_len((maximumNumberOfLines - 1))]
-    xPositions <- xPositions[seq_len(maximumNumberOfLines)]
-    yPositions <- yPositions[seq_len(maximumNumberOfLines)]
-    
-    labels[length(labels)] <- paste("...", (numberOfLines - maximumNumberOfLines + 1), " more", sep = "")
-    annoColors <- annoColors[seq_len(length(annoColors) - 1)]
-    symbolXPositions <- symbolXPositions[seq_len(length(symbolXPositions) - 1)]
-    symbolYPositions <- symbolYPositions[seq_len(length(symbolYPositions) - 1)]
-  }
-  
-  ##################################################################################################
-  ## plot
-  
-  plotLegendWithBalls(labels, xPositions, yPositions, symbolXPositions, symbolYPositions, annoColors, xSpacing*0.075)
-}
-###################################
-##### I am adding this new 
-
-calcPlotLegendForImage1 <- function(annoLabels, annoColors, title, maximumNumberOfLines){
-  ## layout
-  numberOfLines <- length(annoLabels) + 1
-  ySpacing <- 1 / maximumNumberOfLines
-  xSpacing <- 0.1
-  
-  labels <- c(paste(title, ":", sep = ""), annoLabels)
-  xPositions <- c(-0.05, rep(x = xSpacing, times = length(annoLabels)))
-  #yPositions <- seq(from = 1, to = 0, by = 1/(-length(xPositions)))
-  yPositions <- seq(from = 1 - ySpacing, to = ySpacing, length.out = maximumNumberOfLines)
-  yPositions <- yPositions[seq_len(numberOfLines)]
-  
-  symbolXPositions <- rep(x = xSpacing * 0.75, times = length(annoLabels))
-  symbolYPositions <- yPositions[2:length(yPositions)]
-  symbolYPositions <- symbolYPositions[seq_len(length(symbolXPositions))]
-  
-  if(numberOfLines > maximumNumberOfLines){
-    labels <- labels[seq_len(maximumNumberOfLines)]
-    annoColors <- annoColors[seq_len((maximumNumberOfLines - 1))]
-    xPositions <- xPositions[seq_len(maximumNumberOfLines)]
-    yPositions <- yPositions[seq_len(maximumNumberOfLines)]
-    
-    labels[length(labels)] <- paste("...", (numberOfLines - maximumNumberOfLines + 1), " more", sep = "")
-    annoColors <- annoColors[seq_len(length(annoColors) - 1)]
-    symbolXPositions <- symbolXPositions[seq_len(length(symbolXPositions) - 1)]
-    symbolYPositions <- symbolYPositions[seq_len(length(symbolYPositions) - 1)]
-  }
-  
-  ##################################################################################################
-  ## plot
-  plotLegendWithBalls1(labels, xPositions, yPositions, symbolXPositions, symbolYPositions, annoColors, xSpacing*0.075)
-  #plotLegendWithBalls1(labels, xPositions, yPositions, symbolXPositions, symbolYPositions, annoColors, xSpacing*0.075,filterObj)
-}
-
 
 
 
 ####  this is the original
-
 
 plotLegendWithBalls <- function(labels, xPositions, yPositions, circleXPositions, circleYPositions, annoColors, radius){
   par(mar=c(0,0,0,0), mgp = c(3, 1, 0))  ## c(bottom, left, top, right)
@@ -1801,6 +1672,7 @@ plotLegendWithBalls <- function(labels, xPositions, yPositions, circleXPositions
   ## labels
   graphics::text(x = xPositions, y = yPositions, labels = labels, pos = 4)
 }
+
 #################
 plotLegendWithBalls1 <- function(labels, xPositions, yPositions, circleXPositions, circleYPositions, annoColors, radius){
   #plotLegendWithBalls1 <- function(labels, xPositions, yPositions, circleXPositions, circleYPositions, annoColors, radius,filterObj){
@@ -2253,7 +2125,7 @@ calcPlotMS2 <- function(dataList, fragmentsX = NULL, fragmentsY = NULL, fragment
   }
 }
 
-getPcaPerformanceIndicator <- function(pcaObj, isScores){
+getPcaPerformanceIndicator <- function(pcaObj, isScores, pcaDimensionOne, pcaDimensionTwo){
   variableName <- ifelse(test = isScores, yes = "t", no = "p")
   variableName_dim <- paste(variableName, "_", pcaDimensionOne, sep = "")
   
@@ -2295,22 +2167,23 @@ getPcaPerformanceIndicator <- function(pcaObj, isScores){
   return(resultObj)
 }
 
-#' PCA plot
+
+#' PCA plot of samples
 #'
 #' @param pcaObj 
 #' @param dataList 
 #' @param filterObj 
-#' @param pcaDimensionOne 
-#' @param pcaDimensionTwo 
+#' @param pcaDimensionOne first PCA axis
+#' @param pcaDimensionTwo second PCA axis
 #' @param showScoresLabels 
 #' @param xInterval 
 #' @param yInterval 
-#' @param downloadLayout 
+#' @param downloadLayout boolean, set to TRUE for a different figure better suited for printing
 #'
-#' @returns ?
+#' @returns makes a plot, returns NULL
 #' @export
 calcPlotPCAscores <- function(pcaObj, dataList, filterObj, 
-                              pcaDimensionOne, pcaDimensionTwo, 
+                              pcaDimensionOne = 1, pcaDimensionTwo = 2 , 
                               showScoresLabels, 
                               xInterval = NULL, yInterval = NULL,
                               downloadLayout=FALSE){
@@ -2344,13 +2217,12 @@ calcPlotPCAscores <- function(pcaObj, dataList, filterObj,
   }
   
   
-  
   ## data
   dataDimOne <- pcaObj$scores[, pcaDimensionOne]
   dataDimTwo <- pcaObj$scores[, pcaDimensionTwo]
   
   ## performance
-  resultObj <- getPcaPerformanceIndicator(pcaObj = pcaObj, isScores = TRUE)
+  resultObj <- getPcaPerformanceIndicator(pcaObj = pcaObj, isScores = TRUE, pcaDimensionOne, pcaDimensionTwo)
   xAxisLabel <- resultObj$xAxisLabel
   yAxisLabel <- resultObj$yAxisLabel
   
@@ -2415,465 +2287,205 @@ calcPlotPCAscores <- function(pcaObj, dataList, filterObj,
       graphics::text(x = dataDimOne, y = dataDimTwo, labels = labels, pos = 2)  
     }
   }
+  
+  invisible(NULL)
 }
 
-#' calcPlotPCAloadings
+#' PCA plot of loadings
 #'
-#' @param pcaObj 
-#' @param dataList 
-#' @param filter 
-#' @param pcaDimensionOne 
-#' @param pcaDimensionTwo 
-#' @param selectionFragmentPcaLoadingSet 
-#' @param selectionAnalysisPcaLoadingSet 
-#' @param selectionSearchPcaLoadingSet 
-#' @param xInterval 
-#' @param yInterval 
-#' @param loadingsLabels 
-#' @param showLoadingsAbundance 
-#' @param showLoadingsFeaturesAnnotated 
-#' @param showLoadingsFeaturesUnannotated 
-#' @param showLoadingsFeaturesSelected 
-#' @param showLoadingsFeaturesUnselected 
-#' 
-#' @returns ?
-#' @export
+#' Show feature loadings on a PCA plot.
+#'
+#' @param pcaObj output from function calculatePCA
+#' @param dataList dataList object
+#' @param filterVec deprecated, use filterObj element in calculatePCA() instead
+#' @param pcaDimensionOne numeric PCA dimension for x axis
+#' @param pcaDimensionTwo numeric PCA dimension for y axis
+#' @param selectionFragmentPcaLoadingSet numeric vector of indices
+#' @param selectionAnalysisPcaLoadingSet numeric vector of indices
+#' @param selectionSearchPcaLoadingSet numeric vector of indices
+#' @param xInterval numeric Plot parameter
+#' @param yInterval numeric Plot parameter
+#' @param loadingsLabels boolean One of "None", "m/z / RT", "Metabolite name", or "Metabolite family"
+#' @param showLoadingsAbundance logical
+#' @param showLoadingsFeaturesAnnotated logical
+#' @param showLoadingsFeaturesUnannotated logical
+#' @param showLoadingsFeaturesSelected logical
+#' @param showLoadingsFeaturesUnselected logical
+#'
 #' @importFrom stringr str_squish
+#' @importFrom purrr set_names
+#'
+#' @returns a resultList object with annotation colors
+#' @export
 calcPlotPCAloadings <- function(
-  pcaObj, dataList, filter, 
-  pcaDimensionOne, pcaDimensionTwo, 
-  selectionFragmentPcaLoadingSet = NULL, selectionAnalysisPcaLoadingSet = NULL, selectionSearchPcaLoadingSet = NULL, 
-  xInterval = NULL, yInterval = NULL, 
-  loadingsLabels = "None", showLoadingsAbundance = FALSE,
-  showLoadingsFeaturesAnnotated = TRUE, showLoadingsFeaturesUnannotated = TRUE, showLoadingsFeaturesSelected = TRUE, showLoadingsFeaturesUnselected = TRUE
+    pcaObj, dataList, filterVec = NULL, 
+    pcaDimensionOne = 1, pcaDimensionTwo = 2, 
+    selectionFragmentPcaLoadingSet = NULL, selectionAnalysisPcaLoadingSet = NULL, 
+    selectionSearchPcaLoadingSet = NULL, xInterval = NULL, yInterval = NULL, 
+    loadingsLabels = "None", showLoadingsAbundance = FALSE,
+    showLoadingsFeaturesAnnotated = TRUE, showLoadingsFeaturesUnannotated = TRUE,
+    showLoadingsFeaturesSelected = TRUE, showLoadingsFeaturesUnselected = TRUE
 ){
-  if(FALSE){
-    pcaObj_ <<- pcaObj
-    dataList_ <<- dataList
-    filter__ <<- filter
-    pcaDimensionOne_ <<- pcaDimensionOne
-    pcaDimensionTwo_ <<- pcaDimensionTwo
-    selectionFragmentPcaLoadingSet_ <<- selectionFragmentPcaLoadingSet
-    selectionAnalysisPcaLoadingSet_ <<- selectionAnalysisPcaLoadingSet
-    selectionSearchPcaLoadingSet_ <<- selectionSearchPcaLoadingSet
-    xInterval_ <<- xInterval
-    yInterval_ <<- yInterval
-    loadingsLabels_ <<- loadingsLabels
-    showLoadingsAbundance_ <<- showLoadingsAbundance
-    showLoadingsFeaturesAnnotated_ <<- showLoadingsFeaturesAnnotated
-    showLoadingsFeaturesUnannotated_ <<- showLoadingsFeaturesUnannotated
-    showLoadingsFeaturesSelected_ <<- showLoadingsFeaturesSelected
-    showLoadingsFeaturesUnselected_ <<- showLoadingsFeaturesUnselected
+  
+  # deprecated filterVec argument, if provided, should match that of pcaObj
+  if (!is.null(filterVec)) {
+    stopifnot(identical(filterVec, pcaObj$filterObj$filter))
   }
-  if(FALSE){
-    pcaObj <- pcaObj_
-    dataList <- dataList_
-    filter <- filter__
-    pcaDimensionOne <- pcaDimensionOne_
-    pcaDimensionTwo <- pcaDimensionTwo_
-    selectionFragmentPcaLoadingSet <- selectionFragmentPcaLoadingSet_
-    selectionAnalysisPcaLoadingSet <- selectionAnalysisPcaLoadingSet_
-    selectionSearchPcaLoadingSet <- selectionSearchPcaLoadingSet_
-    xInterval <- xInterval_
-    yInterval <- yInterval_
-    loadingsLabels <- loadingsLabels_
-    showLoadingsAbundance <- showLoadingsAbundance_
-    showLoadingsFeaturesAnnotated <- showLoadingsFeaturesAnnotated_
-    showLoadingsFeaturesUnannotated <- showLoadingsFeaturesUnannotated_
-    showLoadingsFeaturesSelected <- showLoadingsFeaturesSelected_
-    showLoadingsFeaturesUnselected <- showLoadingsFeaturesUnselected_
-  }
-  ###################################################
-  ########## this is new line I added################
-  TNF<-pcaObj$filterObj$filter_averageOriginal
-  TNF1<-apply(as.data.frame(dataList$dataFrameMeasurements[, sapply(X = as.vector(pcaObj$filterObj$grouXXXps), FUN = dataList$dataMeanColumnNameFunctionFromName)]),MARGIN = 1,FUN = mean) >= as.double(TNF)
-  TNF2<-names(TNF1)[unname(TNF1)]
-  TNF3<-trimws(TNF2)
-  TNF4<-str_squish(TNF3)
-  ################################
-  T1NF<-dataList$colorMatrixDataFrame
-  T1NF1<-rownames(T1NF)
-  T1NF2<-trimws(T1NF1)
-  T1NF3<-str_squish(T1NF2)
-  ###### addding this new
-  if(rlang::is_empty(TNF4) || rlang::is_empty(TNF4))
-  {
-    #print(TNF4)
-    #print("need to induce old code here")
-    resultObjAnno <- getPrecursorColors(dataList, filter)
-    
-    ## shown loadings features
-    allFeatures <- seq_len(dataList$numberOfPrecursors)
-    annotatedFeatures <- which(resultObjAnno$setOfColors != "black")
-    selectedLoadingsFeatures <- union(union(selectionAnalysisPcaLoadingSet, selectionFragmentPcaLoadingSet), selectionSearchPcaLoadingSet)
-    filter2 <- NULL
-    if(showLoadingsFeaturesAnnotated)
-      ## annotated features
-      filter2 <- c(filter2, annotatedFeatures)
-    if(showLoadingsFeaturesUnannotated)
-      ## unannotated features
-      filter2 <- c(filter2, setdiff(allFeatures, annotatedFeatures))
-    if(showLoadingsFeaturesSelected)
-      ## selected features
-      filter2 <- c(filter2, selectedLoadingsFeatures)
-    if(showLoadingsFeaturesUnselected)
-      ## unselected features
-      filter2 <- c(filter2, setdiff(allFeatures, selectedLoadingsFeatures))
-    
-    filter <- intersect(filter, unique(filter2))
-    
-    resultObjAnno <- getPrecursorColors(dataList, filter)
-    #resultObjAnno$setOfAnnotations <- resultObjAnno$setOfAnnotations[filter]
-    #resultObjAnno$setOfColors      <- resultObjAnno$setOfColors[filter]
-    
-    ## data
-    dataDimOne <- pcaObj$loadings[, pcaDimensionOne]
-    dataDimTwo <- pcaObj$loadings[, pcaDimensionTwo]
-    
-    ## performance
-    resultObj <- getPcaPerformanceIndicator(pcaObj = pcaObj, isScores = TRUE)
-    xAxisLabel <- resultObj$xAxisLabel
-    yAxisLabel <- resultObj$yAxisLabel
-    
-    ## xlim / ylim
-    xMin <- min(dataDimOne)
-    xMax <- max(dataDimOne)
-    yMin <- min(dataDimTwo)
-    yMax <- max(dataDimTwo)
-    
-    if(any(is.na(c(xMin, xMax, yMin, yMax)))){
-      xMin <- -1
-      xMax <- 1
-      yMin <- -1
-      yMax <- 1
-    }
-    
-    if(is.null(xInterval))
-      xInterval <- c(xMin, xMax)
-    if(is.null(yInterval))
-      yInterval <- c(yMin, yMax)
-    
-    dataDimOne <- dataDimOne[filter]
-    dataDimTwo <- dataDimTwo[filter]
-    selectionFragmentPcaLoadingSet <- intersect(selectionFragmentPcaLoadingSet, filter)
-    selectionAnalysisPcaLoadingSet <- intersect(selectionAnalysisPcaLoadingSet, filter)
-    selectionSearchPcaLoadingSet   <- intersect(selectionSearchPcaLoadingSet  , filter)
-    
-    numberOfPrecursors <- length(dataDimOne)
-    poisX <- dataDimOne
-    poisY <- dataDimTwo
-    
-    pointSizesAnno  <- rep(x = clusterNodePointSize0, times = numberOfPrecursors)
-    pointColorsAnno <- resultObjAnno$setOfColors
-    
-    pointsAnalysis <- vector(mode = "logical", length = numberOfPrecursors)
-    pointsAnalysis[match(x = selectionAnalysisPcaLoadingSet, table = filter)] <- TRUE
-    pointsFragment <- vector(mode = "logical", length = numberOfPrecursors)
-    pointsFragment[match(x = selectionFragmentPcaLoadingSet, table = filter)] <- TRUE
-    pointsSearch <- vector(mode = "logical", length = numberOfPrecursors)
-    pointsSearch[match(x = selectionSearchPcaLoadingSet, table = filter)] <- TRUE
-    
-    annotatedPoints <- pointColorsAnno != "black"
-    selectedPoints  <- pointsAnalysis | pointsFragment | pointsSearch
-    lv1points <-   annotatedPoints  &   selectedPoints
-    lv2points <- (!annotatedPoints) &   selectedPoints
-    lv3points <-   annotatedPoints  & (!selectedPoints)
-    lv4points <- (!annotatedPoints) & (!selectedPoints)
-    
-    #poisX <- c(poisX[!annotatedPoints], poisX[annotatedPoints])
-    #poisY <- c(poisY[!annotatedPoints], poisY[annotatedPoints])
-    #pointSizesAnno <- c(pointSizesAnno[!annotatedPoints], pointSizesAnno[annotatedPoints])
-    #pointColorsAnno <- c(pointColorsAnno[!annotatedPoints], pointColorsAnno[annotatedPoints])
-    #pointsAnalysis <- c(pointsAnalysis[!annotatedPoints], pointsAnalysis[annotatedPoints])
-    #pointsFragment <- c(pointsFragment[!annotatedPoints], pointsFragment[annotatedPoints])
-    #pointsSearch <- c(pointsSearch[!annotatedPoints], pointsSearch[annotatedPoints])
-    
-    poisX           <- c(poisX          [lv4points], poisX          [lv3points], poisX          [lv2points], poisX          [lv1points])
-    poisY           <- c(poisY          [lv4points], poisY          [lv3points], poisY          [lv2points], poisY          [lv1points])
-    pointSizesAnno  <- c(pointSizesAnno [lv4points], pointSizesAnno [lv3points], pointSizesAnno [lv2points], pointSizesAnno [lv1points])
-    pointColorsAnno <- c(pointColorsAnno[lv4points], pointColorsAnno[lv3points], pointColorsAnno[lv2points], pointColorsAnno[lv1points])
-    pointsAnalysis  <- c(pointsAnalysis [lv4points], pointsAnalysis [lv3points], pointsAnalysis [lv2points], pointsAnalysis [lv1points])
-    pointsFragment  <- c(pointsFragment [lv4points], pointsFragment [lv3points], pointsFragment [lv2points], pointsFragment [lv1points])
-    pointsSearch    <- c(pointsSearch   [lv4points], pointsSearch   [lv3points], pointsSearch   [lv2points], pointsSearch   [lv1points])
-    
-    resultObjPoints <- generatePoints(
-      poisX = poisX, poisY = poisY, 
-      pointSizesAnno = pointSizesAnno, pointColorsAnno = pointColorsAnno, 
-      pointsAnalysis = pointsAnalysis, pointsFragment = pointsFragment, pointsSearch = pointsSearch,
-      pointSizeModifier = NULL
-    )
-    pointSizes    <- resultObjPoints$pointSizes
-    pointColors   <- resultObjPoints$pointColors
-    poisXpoints   <- resultObjPoints$poisXpoints
-    poisYpoints   <- resultObjPoints$poisYpoints
-    mappingToData <- resultObjPoints$mappingToData
-    
-    switch(loadingsLabels,
-           "None"={## no labels
-             labels <- NULL
-           },
-           "m/z / RT"={## mz/rt
-             labels <- dataList$precursorLabels[filter]
-             labels <- c(labels[lv4points], labels[lv3points], labels[lv2points], labels[lv1points])
-             #labels <- c(labels[!annotatedPoints], labels[annotatedPoints])
-           },
-           "Metabolite name"={## name
-             labels <- dataList$dataFrameInfos[filter, "Metabolite name"]
-             labels <- c(labels[lv4points], labels[lv3points], labels[lv2points], labels[lv1points])
-             #labels <- c(labels[!annotatedPoints], labels[annotatedPoints])
-           },
-           "Metabolite family"={## family
-             featureFamilies <- dataList$annoArrayOfLists[filter]
-             labels <- unlist(lapply(X = featureFamilies, FUN = function(x){
-               ifelse(
-                 test = length(x) == 0, 
-                 yes = "-", 
-                 no = paste(unlist(x), collapse = ", ")
-               )
-             }))
-             labels <- c(labels[lv4points], labels[lv3points], labels[lv2points], labels[lv1points])
-           },
-           {## unknown state
-             stop(paste("Unknown loadingsLabels value", loadingsLabels))
-           }
-    )## end switch
-    
-    ## points
-    #points(x = poisXpoints, y = poisYpoints, col = pointColors, pch=19, cex=pointSizes)
-    if(showLoadingsAbundance){
-      precursorMeansNorm <- dataList$dataFrameMeasurements[filter, "meanAllNormed"]
-      precursorMeansNorm <- c(precursorMeansNorm[lv4points], precursorMeansNorm[lv3points], precursorMeansNorm[lv2points], precursorMeansNorm[lv1points])
-      #precursorMeansNorm <- c(precursorMeansNorm[!annotatedPoints], precursorMeansNorm[annotatedPoints])
-      precursorMeansNorm <- precursorMeansNorm[mappingToData]
-      pointSizes <- pointSizes * 2 * precursorMeansNorm
-    }
-    
-    ############################################################################################
-    ## plot
-    par(mar=c(3 + 0.35, 3, 2, 1), mgp = c(2, 1, 0))  ## c(bottom, left, top, right)
-    #plot(x = dataDimOne, y = dataDimTwo, xlim = xInterval, ylim = yInterval, xlab = xAxisLabel, ylab = yAxisLabel, main = "Loadings", pch=19, cex=0.7, col = nodeColors)
-    plot(x = NULL, y = NULL, xlim = xInterval, ylim = yInterval, xlab = xAxisLabel, ylab = yAxisLabel, main = "Loadings")
-    points(x = poisXpoints, y = poisYpoints, col = pointColors, pch=19, cex=pointSizes)
-    
-    ## axis
-    xInt <- xMax - xMin
-    yInt <- yMax - yMin
-    xl <- xMin - xInt
-    xr <- xMax + xInt
-    yl <- yMin - yInt
-    yr <- yMax + yInt
-    segments(x0 = xl, x1 = xr, y0 = 0, y1 = 0, col = "black", lwd = 1)
-    segments(x0 = 0, x1 = 0, y0 = yl, y1 = yr, col = "black", lwd = 1)
-    
-    if(all(!is.null(labels), length(labels) > 0))
-      graphics::text(  x = poisX - 0.0, y = poisY + 0.0, labels = labels, pos = 4)
-    
-    uniqueIndeces     <- which(!duplicated(resultObjAnno$setOfAnnotations))
-    uniqueAnnotations <- resultObjAnno$setOfAnnotations[uniqueIndeces]
-    uniqueColors      <- resultObjAnno$setOfColors[uniqueIndeces]
-    
-    resultList <- list(
-      setOfAnnotations = uniqueAnnotations,
-      setOfColors      = uniqueColors
-    )
-    return(resultList)
-  }else{
-  #print(T1NF3)
-  ###############
-  Nind<-which(T1NF3 %in% TNF4)
-  names(TNF4)<-Nind
-  TNF5<-swap_names_and_values(TNF4)
-  TNF6<-as.integer(unname(TNF5))
-  names(TNF6)<-names(TNF5)
-  TNF7<-TNF6
-  ###############################
-  resultObjAnno <- getPrecursorColors(dataList,TNF7)
-  ####################################
-  #print("enter the line ...2544")
-  #print(pcaObj)
-  #NGpc<-names(TNF1)
-  #names(NGpc)<-seq(1,length(TNF1))
-  #NGpc1<-swap_names_and_values(NGpc)
-  #print(TNF2)
-  #print(T1NF)
-  #print(typeof(T1NF))
-  #print(TNF1)
-  #print(TNF7)
-  #$annoArrayOfLists
-  #T1pl<-dataList$ precursorLabels
-  #T1pl1<-trimws(T1pl)
-  #T1pl2<-str_squish(T1pl1)
-  #names(T1pl2)<-seq(1,length(T1pl))
-  #T1pl3<-swap_names_and_values(T1pl2)
-  #T1pl4<-as.integer(unname(T1pl3))
-  #names(T1pl4)<-names(T1pl3)
-  ###########
-  #print("entering the line ...2552")
-  ##################################
+  
+  # filter base on mean intensity threshold
+  # gp: this step should not be necessary, and it ignores filtering by LFC
+  # see filterLFC()
+  threshold <- pcaObj$filterObj$filter_averageOriginal %>% as.numeric
+  kept <- filterThreshold(dataList, threshold, pcaObj$filterObj$grouXXXps)
+  filt_feat <- dataList$precursorLabels[kept] %>% stringr::str_squish()
+  
+  # filter already applied in pca so use that
+  pca_features <- pcaObj$loadings %>% rownames %>% stringr::str_squish()
+  
+  # feature names from dataList
+  dl_feat <- dataList$precursorLabels %>% stringr::str_squish()
+  
+  # gp: we assume these should be true, fix otherwise
+  stopifnot(all(pca_features %in% filt_feat))
+  stopifnot(all(filt_feat %in% dl_feat))
+  
+  if(rlang::is_empty(filt_feat)) {
+    stop("All features were filtered out.")
+    # resultObjAnno <- getPrecursorColors(dataList, filter)
+  } 
+  
+  # add indices
+  # FIX this is not used further, using pca_features instead
+  filt_feat_ind <- which(dl_feat %in% filt_feat) %>% purrr::set_names(filt_feat)
+  
+  pca_feat_ind <- which(dl_feat %in% pca_features) %>% purrr::set_names(pca_features)
+  
+  # NOTE gp for missing labels:
+  # ~ annotations are on features that are filtered out
+  # resultObjAnno$setOfAnnotations %>% .[. != "Unknown"] %>% names %>% 
+  #   {. %in% (names(filterObj$filter) %>% str_squish)}
+  
+  
   ## shown loadings features
   allFeatures <- seq_len(dataList$numberOfPrecursors)
-  annotatedFeatures <- which(resultObjAnno$setOfColors != "black")
-  selectedLoadingsFeatures <- union(union(selectionAnalysisPcaLoadingSet, selectionFragmentPcaLoadingSet), selectionSearchPcaLoadingSet)
-  ############################################
-  #print(annotatedFeatures)
-  #print(resultObjAnno$setOfColors)
-  #print(selectionAnalysisPcaLoadingSet)
-  #print(selectionFragmentPcaLoadingSet)
-  #print(selectionSearchPcaLoadingSet)
-  #print(selectedLoadingsFeatures)
-  #print("entering the line...2559")
-  ##################################
   
-  ##################################
-  filter2 <- NULL
-  if(showLoadingsFeaturesAnnotated)
-    ########
-  filter2 <- c(filter2, annotatedFeatures)
-  #####
-  if(showLoadingsFeaturesUnannotated)
-    ########
-  NsLFU<-which(allFeatures %in%  unname(annotatedFeatures))
-  #####
-  filter2 <- c(filter2, setdiff(allFeatures, annotatedFeatures))
-  #######################
-  #########################
-  if(showLoadingsFeaturesSelected)
-    ######
-  filter2 <- c(filter2, selectedLoadingsFeatures)
-  ###############
-  if(showLoadingsFeaturesUnselected)
-    ##########
-  ## unselected features
-  filter2 <- c(filter2, setdiff(allFeatures, selectedLoadingsFeatures))
-  #######
-  #############################################################
-  ############## This is the original one 
-  resultObjAnno <- getPrecursorColors(dataList,TNF7)
-  #resultObjAnno <- getPrecursorColors(dataList, filter)
-  filter <- TNF7
-  ########################
-  #print("entering the line ...2643")
-  #print(resultObjAnno)
-  ########################
-  Tdf<-as.data.frame(apply(dataList$colorMatrixDataFrame, 2, unlist))
-  TDF1<-Tdf[,1]
-  TCol<-as.character(TDF1)
-  TDval<-names(TDF1)
-  TDval1<-trimws(TDval)
-  TDval1<-str_squish(TDval1)
-  TDval2<-TDval1
-  names(TCol)<-TDval2
-  #print(TCol) ## it is the dataframe Color
-  #####################
-  #print(union(colnames(dataList$colorMatrixDataFrame)))
-  ##############
-  ## data
-  dataDimOne <- pcaObj$loadings[, pcaDimensionOne]
-  dataDimTwo <- pcaObj$loadings[, pcaDimensionTwo]
-  ###################### This is the one i am adding
-  #print("entering the line ...2674")
-  dataDimOne1 <- dataDimOne 
-  dataDimTwo1 <-  dataDimTwo 
-  #################
-  #print(dataDimOne1)
-  #print(dataDimTwo1)
-  #print(typeof(dataDimOne1))
-  #print(typeof(dataDimTwo1))
-  #print(names(dataDimOne1))
-  #print(names(dataDimTwo1))
-  #########################
-  dataDimOne2 <- str_squish(trimws(names(dataDimOne1)))
-  names(dataDimOne2)<-as.double(unname(dataDimOne1))
-  dataDimOne3 <- swap_names_and_values(dataDimOne2)
-  #############
-  #print("entering the line ... 2634")
-  #print(dataDimOne2)
-  #print(dataDimOne3)
-  ###########
-  dataDimOne4 <- str_squish(trimws(names(dataDimTwo1)))
-  names(dataDimOne4)<-as.double(unname(dataDimTwo1))
-  dataDimOne5 <- swap_names_and_values(dataDimOne4)
-  #####################################################
+  # run getPrec to filter and get indices
+  resultObjAnno <- getPrecursorColors(dataList = dataList, precursorSet = filt_feat_ind)
+  annotatedFeatures <- which(resultObjAnno$setOfColors != "black")
+  
+  # table(resultObjAnno)
+  
+  
+  # combine filters ---------------------------------------------------------
+  
+  filter_show <- NULL
+  
+  # annotated features
+  if(showLoadingsFeaturesAnnotated) {
+    filter_show <- c(filter_show, annotatedFeatures)
+  }
+  
+  # unannotated features
+  if(showLoadingsFeaturesUnannotated) {
+    # NsLFU<-which(allFeatures %in%  unname(annotatedFeatures)) # weird old code
+    filter_show <- c(filter_show, setdiff(allFeatures, annotatedFeatures))
+  }
+  
+  # selected features
+  selectedLoadingsFeatures <- union(union(selectionAnalysisPcaLoadingSet, selectionFragmentPcaLoadingSet), selectionSearchPcaLoadingSet)
+  if(showLoadingsFeaturesSelected) {
+    filter_show <- c(filter_show, selectedLoadingsFeatures)
+  }
+  
+  # unselected features
+  if(showLoadingsFeaturesUnselected) {
+    ## unselected features
+    filter_show <- c(filter_show, setdiff(allFeatures, selectedLoadingsFeatures))
+  }
+  
+  # combine filters
+  filter_full <- intersect(pca_feat_ind, unique(filter_show))
+  filter_names <- dl_feat[filter_full]
+  
+  
+  # get colors here
+  resultObjAnno <- getPrecursorColors(dataList, filter_full)
+  # table(resultObjAnno)
+
+  
+  # prepare axes ------------------------------------------------------------
+  
+  dataDimOne <- pcaObj$loadings[, pcaDimensionOne] %>% purrr::set_names(pca_features)
+  dataDimTwo <- pcaObj$loadings[, pcaDimensionTwo] %>% purrr::set_names(pca_features)
+  
   ## performance
-  resultObj <- getPcaPerformanceIndicator(pcaObj = pcaObj, isScores = TRUE)
-  #print(resultObj)
-  ##########
+  resultObj <- getPcaPerformanceIndicator(pcaObj = pcaObj, isScores = TRUE, pcaDimensionOne, pcaDimensionTwo)
   xAxisLabel <- resultObj$xAxisLabel
   yAxisLabel <- resultObj$yAxisLabel
-  #################### 
+  
+  
+  # set plot dimensions
   ## xlim / ylim
   xMin <- min(dataDimOne)
   xMax <- max(dataDimOne)
   yMin <- min(dataDimTwo)
   yMax <- max(dataDimTwo)
-  ##################### 
+  
+  # i.e. if no data
   if(any(is.na(c(xMin, xMax, yMin, yMax)))){
     xMin <- -1
     xMax <- 1
     yMin <- -1
     yMax <- 1
   }
-  ####################### 
-  if(is.null(xInterval))
-    xInterval <- c(xMin, xMax)
-  if(is.null(yInterval))
-    yInterval <- c(yMin, yMax)
-  ################# 
-  #print(dataDimOne)
-  #print(TNF7)
-  ########## This is change ###########
-  d1ataDimOne1 <-dataDimOne[which(names(dataDimOne3) %in% names(TNF7))]
-  d1ataDimTwo1<-dataDimTwo[which(names(dataDimOne5) %in% names(TNF7))]
-  ########## This is the I need to test
-  #print(d1ataDimOne1)
-  #print(TNF7[which(names(TNF7) %in% names(dataDimOne3))])
-  TNF8<-TNF7[which(names(TNF7) %in% names(dataDimOne3))]
-  resultObjAnno1 <- getPrecursorColors(dataList,TNF8)
-  ###############
-  #print(TNF8)
-  #print(length(TNF8))
-  #print(TNF7)
-  #print(length(TNF7))
-  ####################################################
-  selectionFragmentPcaLoadingSet <- intersect(selectionFragmentPcaLoadingSet, filter)
-  selectionAnalysisPcaLoadingSet <- intersect(selectionAnalysisPcaLoadingSet, filter)
-  selectionSearchPcaLoadingSet   <- intersect(selectionSearchPcaLoadingSet  , filter)
-  ###################################################
-  numberOfPrecursors <- length(dataDimOne)
-  ### This is Original
-  #poisX <- dataDimOne
-  #poisY <- dataDimTwo
-  #################
-  poisX <- d1ataDimOne1
-  poisY <- d1ataDimTwo1
-  ###############################
+  
+  if(is.null(xInterval)) {
+    xInterval <- c(xMin, xMax)}
+  if(is.null(yInterval)) {
+    yInterval <- c(yMin, yMax)}
+  
+  
+  # filter dims
+  dataDimOne_f <- dataDimOne[names(dataDimOne) %in% filter_names]
+  dataDimTwo_f <- dataDimTwo[names(dataDimTwo) %in% filter_names]
+  
+  
+  # settings
+  selectionFragmentPcaLoadingSet <- intersect(selectionFragmentPcaLoadingSet, filter_full)
+  selectionAnalysisPcaLoadingSet <- intersect(selectionAnalysisPcaLoadingSet, filter_full)
+  selectionSearchPcaLoadingSet   <- intersect(selectionSearchPcaLoadingSet  , filter_full)
+  
+  numberOfPrecursors <- length(dataDimOne_f)
+  
+  poisX <- dataDimOne_f
+  poisY <- dataDimTwo_f
+  
   pointSizesAnno  <- rep(x = clusterNodePointSize0, times = numberOfPrecursors)
-  ##### this is original one 
-  #pointColorsAnno <- resultObjAnno$setOfColors
-  pointColorsAnno <- resultObjAnno1$setOfColors
-  print("entering the line ...2686")
-  #print(pointColorsAnno)
-  #print(length(pointColorsAnno))
-  ############################
-  ####################################################
+  pointColorsAnno <- resultObjAnno$setOfColors
+  
+  
+  # UI selections -----------------------------------------------------------    
+  
   pointsAnalysis <- vector(mode = "logical", length = numberOfPrecursors)
-  pointsAnalysis[match(x = selectionAnalysisPcaLoadingSet, table = filter)] <- TRUE
+  pointsAnalysis[match(x = selectionAnalysisPcaLoadingSet, table = filter_full)] <- TRUE
   pointsFragment <- vector(mode = "logical", length = numberOfPrecursors)
-  pointsFragment[match(x = selectionFragmentPcaLoadingSet, table = filter)] <- TRUE
+  pointsFragment[match(x = selectionFragmentPcaLoadingSet, table = filter_full)] <- TRUE
   pointsSearch <- vector(mode = "logical", length = numberOfPrecursors)
-  pointsSearch[match(x = selectionSearchPcaLoadingSet, table = filter)] <- TRUE
-  ######################################
+  pointsSearch[match(x = selectionSearchPcaLoadingSet, table = filter_full)] <- TRUE
+  
   annotatedPoints <- pointColorsAnno != "black"
+  # returns FALSE vector if used outside of app
   selectedPoints  <- pointsAnalysis | pointsFragment | pointsSearch
-  ####################################
-  #print("entering the line ...2762")
+  
   
   lv1points <-   annotatedPoints  &   selectedPoints
   lv2points <- (!annotatedPoints) &   selectedPoints
   lv3points <-   annotatedPoints  & (!selectedPoints)
   lv4points <- (!annotatedPoints) & (!selectedPoints)
   
-  ##############################
+  # purrr::map_dbl(list(lv1points, lv2points, lv3points, lv4points), sum)
+  
+  # figure parameters --------------------------------------------------
   poisX           <- c(poisX          [lv4points], poisX          [lv3points], poisX          [lv2points], poisX          [lv1points])
   poisY           <- c(poisY          [lv4points], poisY          [lv3points], poisY          [lv2points], poisY          [lv1points])
   pointSizesAnno  <- c(pointSizesAnno [lv4points], pointSizesAnno [lv3points], pointSizesAnno [lv2points], pointSizesAnno [lv1points])
@@ -2881,36 +2493,36 @@ calcPlotPCAloadings <- function(
   pointsAnalysis  <- c(pointsAnalysis [lv4points], pointsAnalysis [lv3points], pointsAnalysis [lv2points], pointsAnalysis [lv1points])
   pointsFragment  <- c(pointsFragment [lv4points], pointsFragment [lv3points], pointsFragment [lv2points], pointsFragment [lv1points])
   pointsSearch    <- c(pointsSearch   [lv4points], pointsSearch   [lv3points], pointsSearch   [lv2points], pointsSearch   [lv1points])
-  ##############
+  
   resultObjPoints <- generatePoints(
     poisX = poisX, poisY = poisY, 
     pointSizesAnno = pointSizesAnno, pointColorsAnno = pointColorsAnno, 
     pointsAnalysis = pointsAnalysis, pointsFragment = pointsFragment, pointsSearch = pointsSearch,
     pointSizeModifier = NULL
   )
-  #####################
+  
   pointSizes    <- resultObjPoints$pointSizes
   pointColors   <- resultObjPoints$pointColors
   poisXpoints   <- resultObjPoints$poisXpoints
   poisYpoints   <- resultObjPoints$poisYpoints
   mappingToData <- resultObjPoints$mappingToData
-  ############
+  
   switch(loadingsLabels,
          "None"={## no labels
            labels <- NULL
          },
          "m/z / RT"={## mz/rt
-           labels <- dataList$precursorLabels[filter]
+           labels <- dataList$precursorLabels[filter_full]
            labels <- c(labels[lv4points], labels[lv3points], labels[lv2points], labels[lv1points])
            #labels <- c(labels[!annotatedPoints], labels[annotatedPoints])
          },
          "Metabolite name"={## name
-           labels <- dataList$dataFrameInfos[filter, "Metabolite name"]
+           labels <- dataList$dataFrameInfos[filter_full, "Metabolite name"]
            labels <- c(labels[lv4points], labels[lv3points], labels[lv2points], labels[lv1points])
            #labels <- c(labels[!annotatedPoints], labels[annotatedPoints])
          },
          "Metabolite family"={## family
-           featureFamilies <- dataList$annoArrayOfLists[filter]
+           featureFamilies <- dataList$annoArrayOfLists[filter_full]
            labels <- unlist(lapply(X = featureFamilies, FUN = function(x){
              ifelse(
                test = length(x) == 0, 
@@ -2923,21 +2535,20 @@ calcPlotPCAloadings <- function(
          {## unknown state
            stop(paste("Unknown loadingsLabels value", loadingsLabels))
          }
-  )## end switch
+  )
   
-  ## points###########
-  #points(x = poisXpoints, y = poisYpoints, col = pointColors, pch=19, cex=pointSizes)
-  if(showLoadingsAbundance){
-    precursorMeansNorm <- dataList$dataFrameMeasurements[filter, "meanAllNormed"]
+  # points ----------------------------------------------
+  
+  if (showLoadingsAbundance) {
+    precursorMeansNorm <- dataList$dataFrameMeasurements[filter_full, "meanAllNormed"]
     precursorMeansNorm <- c(precursorMeansNorm[lv4points], precursorMeansNorm[lv3points], precursorMeansNorm[lv2points], precursorMeansNorm[lv1points])
     #precursorMeansNorm <- c(precursorMeansNorm[!annotatedPoints], precursorMeansNorm[annotatedPoints])
     precursorMeansNorm <- precursorMeansNorm[mappingToData]
     pointSizes <- pointSizes * 2 * precursorMeansNorm
   }
   
-  ############################################################################################
-  ## plot
-  ### commenting the original value for the par
+  # plot
+  # original par values
   ##par(mar=c(3 + 0.35, 3, 2, 1), mgp = c(2, 1, 0))  ## c(bottom, left, top, right)
   par(mar=c(3+0.15 , 3, 2, 1), mgp = c(2.0, 1, 0))
   
@@ -2946,9 +2557,6 @@ calcPlotPCAloadings <- function(
   points(x = poisXpoints, y = poisYpoints, col = pointColors, pch=19, cex=pointSizes)
   
   ## axis
-  ### changing 
-  #xInt <- xMax - xMin
-  #yInt <- yMax - yMin
   xInt <- xMax - xMin
   yInt <- yMax - yMin
   xl <- xMin - xInt
@@ -2958,1307 +2566,14 @@ calcPlotPCAloadings <- function(
   segments(x0 = xl, x1 = xr, y0 = 0, y1 = 0, col = "black", lwd = 1)
   segments(x0 = 0, x1 = 0, y0 = yl, y1 = yr, col = "black", lwd = 1)
   
-  if(all(!is.null(labels), length(labels) > 0))
+  if(all(!is.null(labels), length(labels) > 0)) {
     ### changing pos = 4 to pos =3 
     graphics::text(  x = poisX - 0.0, y = poisY + 0.0, labels = labels, pos = 2)
-  
-  uniqueIndeces     <- which(!duplicated(resultObjAnno$setOfAnnotations))
-  uniqueAnnotations <- resultObjAnno$setOfAnnotations[uniqueIndeces]
-  uniqueColors      <- resultObjAnno$setOfColors[uniqueIndeces]
-  
-  resultList <- list(
-    setOfAnnotations = uniqueAnnotations,
-    setOfColors      = uniqueColors
-  )
-  return(resultList)
-  }  ### enter the line
-}
-
-###########################################
-# calcPlotPCAloadings <- function(
-#   pcaObj, dataList, filter, 
-#   pcaDimensionOne, pcaDimensionTwo, 
-#   selectionFragmentPcaLoadingSet = NULL, selectionAnalysisPcaLoadingSet = NULL, selectionSearchPcaLoadingSet = NULL, 
-#   xInterval = NULL, yInterval = NULL, 
-#   loadingsLabels = "None", showLoadingsAbundance = FALSE,
-#   showLoadingsFeaturesAnnotated = TRUE, showLoadingsFeaturesUnannotated = TRUE, showLoadingsFeaturesSelected = TRUE, showLoadingsFeaturesUnselected = TRUE
-# ){
-#   if(FALSE){
-#     pcaObj_ <<- pcaObj
-#     dataList_ <<- dataList
-#     filter__ <<- filter
-#     pcaDimensionOne_ <<- pcaDimensionOne
-#     pcaDimensionTwo_ <<- pcaDimensionTwo
-#     selectionFragmentPcaLoadingSet_ <<- selectionFragmentPcaLoadingSet
-#     selectionAnalysisPcaLoadingSet_ <<- selectionAnalysisPcaLoadingSet
-#     selectionSearchPcaLoadingSet_ <<- selectionSearchPcaLoadingSet
-#     xInterval_ <<- xInterval
-#     yInterval_ <<- yInterval
-#     loadingsLabels_ <<- loadingsLabels
-#     showLoadingsAbundance_ <<- showLoadingsAbundance
-#     showLoadingsFeaturesAnnotated_ <<- showLoadingsFeaturesAnnotated
-#     showLoadingsFeaturesUnannotated_ <<- showLoadingsFeaturesUnannotated
-#     showLoadingsFeaturesSelected_ <<- showLoadingsFeaturesSelected
-#     showLoadingsFeaturesUnselected_ <<- showLoadingsFeaturesUnselected
-#   }
-#   if(FALSE){
-#     pcaObj <- pcaObj_
-#     dataList <- dataList_
-#     filter <- filter__
-#     pcaDimensionOne <- pcaDimensionOne_
-#     pcaDimensionTwo <- pcaDimensionTwo_
-#     selectionFragmentPcaLoadingSet <- selectionFragmentPcaLoadingSet_
-#     selectionAnalysisPcaLoadingSet <- selectionAnalysisPcaLoadingSet_
-#     selectionSearchPcaLoadingSet <- selectionSearchPcaLoadingSet_
-#     xInterval <- xInterval_
-#     yInterval <- yInterval_
-#     loadingsLabels <- loadingsLabels_
-#     showLoadingsAbundance <- showLoadingsAbundance_
-#     showLoadingsFeaturesAnnotated <- showLoadingsFeaturesAnnotated_
-#     showLoadingsFeaturesUnannotated <- showLoadingsFeaturesUnannotated_
-#     showLoadingsFeaturesSelected <- showLoadingsFeaturesSelected_
-#     showLoadingsFeaturesUnselected <- showLoadingsFeaturesUnselected_
-#   }
-#   ###################################################
-#   ########## this is new line I added################
-#   TNF<-pcaObj$filterObj$filter_averageOriginal
-#   print("enter the line ...line 2524")
-#   TNF1<-apply(as.data.frame(dataList$dataFrameMeasurements[, sapply(X = as.vector(pcaObj$filterObj$grouXXXps), FUN = dataList$dataMeanColumnNameFunctionFromName)]),MARGIN = 1,FUN = mean) >= as.double(TNF)
-#   TNF2<-names(TNF1)[unname(TNF1)]
-#   TNF3<-trimws(TNF2)
-#   TNF4<-str_squish(TNF3)
-#   #print(TNF4)
-#   #print(rlang::is_empty(TNF4))
-#   ################################
-#   T1NF<-dataList$colorMatrixDataFrame
-#   T1NF1<-rownames(T1NF)
-#   T1NF2<-trimws(T1NF1)
-#   T1NF3<-str_squish(T1NF2)
-#   #print(T1NF3)
-#   #print(rlang::is_empty(T1NF3))
-#   ###############
-#   Nind<-which(T1NF3 %in% TNF4)
-#   names(TNF4)<-Nind
-#   TNF5<-swap_names_and_values(TNF4)
-#   TNF6<-as.integer(unname(TNF5))
-#   names(TNF6)<-names(TNF5)
-#   TNF7<-TNF6
-#   ###############################
-#   resultObjAnno <- getPrecursorColors(dataList,TNF7)
-#   ####################################
-#   #print("enter the line ...2544")
-#   #print(pcaObj)
-#   #NGpc<-names(TNF1)
-#   #names(NGpc)<-seq(1,length(TNF1))
-#   #NGpc1<-swap_names_and_values(NGpc)
-#   #print(TNF2)
-#   #print(T1NF)
-#   #print(typeof(T1NF))
-#   #print(TNF1)
-#   #print(TNF7)
-#   #$annoArrayOfLists
-#   #T1pl<-dataList$ precursorLabels
-#   #T1pl1<-trimws(T1pl)
-#   #T1pl2<-str_squish(T1pl1)
-#   #names(T1pl2)<-seq(1,length(T1pl))
-#   #T1pl3<-swap_names_and_values(T1pl2)
-#   #T1pl4<-as.integer(unname(T1pl3))
-#   #names(T1pl4)<-names(T1pl3)
-#   ###########
-#   #print("entering the line ...2552")
-#   ##################################
-#   ## shown loadings features
-#   allFeatures <- seq_len(dataList$numberOfPrecursors)
-#   annotatedFeatures <- which(resultObjAnno$setOfColors != "black")
-#   selectedLoadingsFeatures <- union(union(selectionAnalysisPcaLoadingSet, selectionFragmentPcaLoadingSet), selectionSearchPcaLoadingSet)
-#   ############################################
-#   #print(annotatedFeatures)
-#   #print(resultObjAnno$setOfColors)
-#   #print(selectionAnalysisPcaLoadingSet)
-#   #print(selectionFragmentPcaLoadingSet)
-#   #print(selectionSearchPcaLoadingSet)
-#   #print(selectedLoadingsFeatures)
-#   #print("entering the line...2559")
-#   ##################################
-#  
-#   ##################################
-#   filter2 <- NULL
-#   if(showLoadingsFeaturesAnnotated)
-#     ########
-#     filter2 <- c(filter2, annotatedFeatures)
-#     #####
-#   if(showLoadingsFeaturesUnannotated)
-#     ########
-#     NsLFU<-which(allFeatures %in%  unname(annotatedFeatures))
-#     #####
-#     filter2 <- c(filter2, setdiff(allFeatures, annotatedFeatures))
-#     #######################
-#     #########################
-#   if(showLoadingsFeaturesSelected)
-#     ######
-#     filter2 <- c(filter2, selectedLoadingsFeatures)
-#     ###############
-#   if(showLoadingsFeaturesUnselected)
-#     ##########
-#     ## unselected features
-#     filter2 <- c(filter2, setdiff(allFeatures, selectedLoadingsFeatures))
-#     #######
-# #############################################################
-#   ############## This is the original one 
-#   resultObjAnno <- getPrecursorColors(dataList,TNF7)
-#   #resultObjAnno <- getPrecursorColors(dataList, filter)
-#   filter <- TNF7
-#   ########################
-#   #print("entering the line ...2643")
-#   #print(resultObjAnno)
-#   ########################
-#   Tdf<-as.data.frame(apply(dataList$colorMatrixDataFrame, 2, unlist))
-#   TDF1<-Tdf[,1]
-#   TCol<-as.character(TDF1)
-#   TDval<-names(TDF1)
-#   TDval1<-trimws(TDval)
-#   TDval1<-str_squish(TDval1)
-#   TDval2<-TDval1
-#   names(TCol)<-TDval2
-#   #print(TCol) ## it is the dataframe Color
-#   #####################
-#   #print(union(colnames(dataList$colorMatrixDataFrame)))
-#   ##############
-#   ## data
-#   dataDimOne <- pcaObj$loadings[, pcaDimensionOne]
-#   dataDimTwo <- pcaObj$loadings[, pcaDimensionTwo]
-#   ###################### This is the one i am adding
-#   #print("entering the line ...2674")
-#   dataDimOne1 <- dataDimOne 
-#   dataDimTwo1 <-  dataDimTwo 
-#   #################
-#   #print(dataDimOne1)
-#   #print(dataDimTwo1)
-#   #print(typeof(dataDimOne1))
-#   #print(typeof(dataDimTwo1))
-#   #print(names(dataDimOne1))
-#   #print(names(dataDimTwo1))
-#   dD1<-checkmate::test_numeric(dataDimOne1, names = "named")
-#   dD2<-checkmate::test_numeric(dataDimTwo1, names = "named")
-#   #########################
-#   if(dD1 & dD2 ) {
-#   dataDimOne2 <- str_squish(trimws(names(dataDimOne1)))
-#   names(dataDimOne2)<-as.double(unname(dataDimOne1))
-#   dataDimOne3 <- swap_names_and_values(dataDimOne2)
-#   #########################
-#   #print("entering the line ... 2634")
-#   #print(dataDimOne2)
-#   #print(dataDimOne3)
-#   ###########
-#   dataDimOne4 <- str_squish(trimws(names(dataDimTwo1)))
-#   names(dataDimOne4)<-as.double(unname(dataDimTwo1))
-#   dataDimOne5 <- swap_names_and_values(dataDimOne4)
-#   #####################################################
-#   ## performance
-#   resultObj <- getPcaPerformanceIndicator(pcaObj = pcaObj, isScores = TRUE)
-#   #print(resultObj)
-#   ##########
-#   xAxisLabel <- resultObj$xAxisLabel
-#   yAxisLabel <- resultObj$yAxisLabel
-#  #################### 
-#   ## xlim / ylim
-#   xMin <- min(dataDimOne)
-#   xMax <- max(dataDimOne)
-#   yMin <- min(dataDimTwo)
-#   yMax <- max(dataDimTwo)
-#  ##################### 
-#   if(any(is.na(c(xMin, xMax, yMin, yMax)))){
-#     xMin <- -1
-#     xMax <- 1
-#     yMin <- -1
-#     yMax <- 1
-#   }
-#  ####################### 
-#   if(is.null(xInterval))
-#     xInterval <- c(xMin, xMax)
-#   if(is.null(yInterval))
-#     yInterval <- c(yMin, yMax)
-#  ################# 
-#   #print(dataDimOne)
-#   #print(TNF7)
-#   ########## This is change ###########
-#   d1ataDimOne1 <-dataDimOne[which(names(dataDimOne3) %in% names(TNF7))]
-#   d1ataDimTwo1<-dataDimTwo[which(names(dataDimOne5) %in% names(TNF7))]
-#   ########## This is the I need to test
-#   #print(d1ataDimOne1)
-#   #print(TNF7[which(names(TNF7) %in% names(dataDimOne3))])
-#   TNF8<-TNF7[which(names(TNF7) %in% names(dataDimOne3))]
-#   resultObjAnno1 <- getPrecursorColors(dataList,TNF8)
-#   ###############
-#   #print(TNF8)
-#   #print(length(TNF8))
-#   #print(TNF7)
-#   #print(length(TNF7))
-#   ####################################################
-#   selectionFragmentPcaLoadingSet <- intersect(selectionFragmentPcaLoadingSet, filter)
-#   selectionAnalysisPcaLoadingSet <- intersect(selectionAnalysisPcaLoadingSet, filter)
-#   selectionSearchPcaLoadingSet   <- intersect(selectionSearchPcaLoadingSet  , filter)
-#   ###################################################
-#   numberOfPrecursors <- length(dataDimOne)
-#   ### This is Original
-#   #poisX <- dataDimOne
-#   #poisY <- dataDimTwo
-#   #################
-#   poisX <- d1ataDimOne1
-#   poisY <- d1ataDimTwo1
-#   ###############################
-#   pointSizesAnno  <- rep(x = clusterNodePointSize0, times = numberOfPrecursors)
-#   ##### this is original one 
-#   #pointColorsAnno <- resultObjAnno$setOfColors
-#   pointColorsAnno <- resultObjAnno1$setOfColors
-#   print("entering the line ...2686")
-#   #print(pointColorsAnno)
-#   #print(length(pointColorsAnno))
-#   ############################
-#   ####################################################
-#   pointsAnalysis <- vector(mode = "logical", length = numberOfPrecursors)
-#   pointsAnalysis[match(x = selectionAnalysisPcaLoadingSet, table = filter)] <- TRUE
-#   pointsFragment <- vector(mode = "logical", length = numberOfPrecursors)
-#   pointsFragment[match(x = selectionFragmentPcaLoadingSet, table = filter)] <- TRUE
-#   pointsSearch <- vector(mode = "logical", length = numberOfPrecursors)
-#   pointsSearch[match(x = selectionSearchPcaLoadingSet, table = filter)] <- TRUE
-#   ######################################
-#   annotatedPoints <- pointColorsAnno != "black"
-#   selectedPoints  <- pointsAnalysis | pointsFragment | pointsSearch
-#   ####################################
-#   #print("entering the line ...2762")
-#   
-#   lv1points <-   annotatedPoints  &   selectedPoints
-#   lv2points <- (!annotatedPoints) &   selectedPoints
-#   lv3points <-   annotatedPoints  & (!selectedPoints)
-#   lv4points <- (!annotatedPoints) & (!selectedPoints)
-#   
-#   ##############################
-#   poisX           <- c(poisX          [lv4points], poisX          [lv3points], poisX          [lv2points], poisX          [lv1points])
-#   poisY           <- c(poisY          [lv4points], poisY          [lv3points], poisY          [lv2points], poisY          [lv1points])
-#   pointSizesAnno  <- c(pointSizesAnno [lv4points], pointSizesAnno [lv3points], pointSizesAnno [lv2points], pointSizesAnno [lv1points])
-#   pointColorsAnno <- c(pointColorsAnno[lv4points], pointColorsAnno[lv3points], pointColorsAnno[lv2points], pointColorsAnno[lv1points])
-#   pointsAnalysis  <- c(pointsAnalysis [lv4points], pointsAnalysis [lv3points], pointsAnalysis [lv2points], pointsAnalysis [lv1points])
-#   pointsFragment  <- c(pointsFragment [lv4points], pointsFragment [lv3points], pointsFragment [lv2points], pointsFragment [lv1points])
-#   pointsSearch    <- c(pointsSearch   [lv4points], pointsSearch   [lv3points], pointsSearch   [lv2points], pointsSearch   [lv1points])
-#   ##############
-#   resultObjPoints <- generatePoints(
-#     poisX = poisX, poisY = poisY, 
-#     pointSizesAnno = pointSizesAnno, pointColorsAnno = pointColorsAnno, 
-#     pointsAnalysis = pointsAnalysis, pointsFragment = pointsFragment, pointsSearch = pointsSearch,
-#     pointSizeModifier = NULL
-#   )
-#   #####################
-#   pointSizes    <- resultObjPoints$pointSizes
-#   pointColors   <- resultObjPoints$pointColors
-#   poisXpoints   <- resultObjPoints$poisXpoints
-#   poisYpoints   <- resultObjPoints$poisYpoints
-#   mappingToData <- resultObjPoints$mappingToData
-#   ############
-#   switch(loadingsLabels,
-#          "None"={## no labels
-#            labels <- NULL
-#          },
-#          "m/z / RT"={## mz/rt
-#            labels <- dataList$precursorLabels[filter]
-#            labels <- c(labels[lv4points], labels[lv3points], labels[lv2points], labels[lv1points])
-#            #labels <- c(labels[!annotatedPoints], labels[annotatedPoints])
-#          },
-#          "Metabolite name"={## name
-#            labels <- dataList$dataFrameInfos[filter, "Metabolite name"]
-#            labels <- c(labels[lv4points], labels[lv3points], labels[lv2points], labels[lv1points])
-#            #labels <- c(labels[!annotatedPoints], labels[annotatedPoints])
-#          },
-#          "Metabolite family"={## family
-#            featureFamilies <- dataList$annoArrayOfLists[filter]
-#            labels <- unlist(lapply(X = featureFamilies, FUN = function(x){
-#              ifelse(
-#                test = length(x) == 0, 
-#                yes = "-", 
-#                no = paste(unlist(x), collapse = ", ")
-#              )
-#            }))
-#            labels <- c(labels[lv4points], labels[lv3points], labels[lv2points], labels[lv1points])
-#          },
-#          {## unknown state
-#            stop(paste("Unknown loadingsLabels value", loadingsLabels))
-#          }
-#   )## end switch
-#   
-#   ## points###########
-#   #points(x = poisXpoints, y = poisYpoints, col = pointColors, pch=19, cex=pointSizes)
-#   if(showLoadingsAbundance){
-#     precursorMeansNorm <- dataList$dataFrameMeasurements[filter, "meanAllNormed"]
-#     precursorMeansNorm <- c(precursorMeansNorm[lv4points], precursorMeansNorm[lv3points], precursorMeansNorm[lv2points], precursorMeansNorm[lv1points])
-#     #precursorMeansNorm <- c(precursorMeansNorm[!annotatedPoints], precursorMeansNorm[annotatedPoints])
-#     precursorMeansNorm <- precursorMeansNorm[mappingToData]
-#     pointSizes <- pointSizes * 2 * precursorMeansNorm
-#   }
-#   
-#   ############################################################################################
-#   ## plot
-#   ### commenting the original value for the par
-#   ##par(mar=c(3 + 0.35, 3, 2, 1), mgp = c(2, 1, 0))  ## c(bottom, left, top, right)
-#   par(mar=c(3+0.15 , 3, 2, 1), mgp = c(2.0, 1, 0))
-#   
-#   #plot(x = dataDimOne, y = dataDimTwo, xlim = xInterval, ylim = yInterval, xlab = xAxisLabel, ylab = yAxisLabel, main = "Loadings", pch=19, cex=0.7, col = nodeColors)
-#   plot(x = NULL, y = NULL, xlim = xInterval, ylim = yInterval, xlab = xAxisLabel, ylab = yAxisLabel, main = "Loadings")
-#   points(x = poisXpoints, y = poisYpoints, col = pointColors, pch=19, cex=pointSizes)
-#   
-#   ## axis
-#   ### changing 
-#   #xInt <- xMax - xMin
-#   #yInt <- yMax - yMin
-#   xInt <- xMax - xMin
-#   yInt <- yMax - yMin
-#   xl <- xMin - xInt
-#   xr <- xMax + xInt
-#   yl <- yMin - yInt
-#   yr <- yMax + yInt
-#   segments(x0 = xl, x1 = xr, y0 = 0, y1 = 0, col = "black", lwd = 1)
-#   segments(x0 = 0, x1 = 0, y0 = yl, y1 = yr, col = "black", lwd = 1)
-#   
-#   if(all(!is.null(labels), length(labels) > 0))
-#     ### changing pos = 4 to pos =3 
-#     graphics::text(  x = poisX - 0.0, y = poisY + 0.0, labels = labels, pos = 2)
-#   
-#   uniqueIndeces     <- which(!duplicated(resultObjAnno$setOfAnnotations))
-#   uniqueAnnotations <- resultObjAnno$setOfAnnotations[uniqueIndeces]
-#   uniqueColors      <- resultObjAnno$setOfColors[uniqueIndeces]
-#   
-#   resultList <- list(
-#     setOfAnnotations = uniqueAnnotations,
-#     setOfColors      = uniqueColors
-#   )
-#   return(resultList)
-#   #### this is my check
-#   } else {
-#     
-#     ## performance
-#     resultObj <- getPcaPerformanceIndicator(pcaObj = pcaObj, isScores = TRUE)
-#     xAxisLabel <- resultObj$xAxisLabel
-#     yAxisLabel <- resultObj$yAxisLabel
-#     
-#     ## xlim / ylim
-#     xMin <- min(dataDimOne)
-#     xMax <- max(dataDimOne)
-#     yMin <- min(dataDimTwo)
-#     yMax <- max(dataDimTwo)
-#     
-#     if(any(is.na(c(xMin, xMax, yMin, yMax)))){
-#       xMin <- -1
-#       xMax <- 1
-#       yMin <- -1
-#       yMax <- 1
-#     }
-#     
-#     if(is.null(xInterval))
-#       xInterval <- c(xMin, xMax)
-#     if(is.null(yInterval))
-#       yInterval <- c(yMin, yMax)
-#     
-#     dataDimOne <- dataDimOne[filter]
-#     dataDimTwo <- dataDimTwo[filter]
-#     selectionFragmentPcaLoadingSet <- intersect(selectionFragmentPcaLoadingSet, filter)
-#     selectionAnalysisPcaLoadingSet <- intersect(selectionAnalysisPcaLoadingSet, filter)
-#     selectionSearchPcaLoadingSet   <- intersect(selectionSearchPcaLoadingSet  , filter)
-#     
-#     numberOfPrecursors <- length(dataDimOne)
-#     poisX <- dataDimOne
-#     poisY <- dataDimTwo
-#     
-#     pointSizesAnno  <- rep(x = clusterNodePointSize0, times = numberOfPrecursors)
-#     pointColorsAnno <- resultObjAnno$setOfColors
-#     
-#     pointsAnalysis <- vector(mode = "logical", length = numberOfPrecursors)
-#     pointsAnalysis[match(x = selectionAnalysisPcaLoadingSet, table = filter)] <- TRUE
-#     pointsFragment <- vector(mode = "logical", length = numberOfPrecursors)
-#     pointsFragment[match(x = selectionFragmentPcaLoadingSet, table = filter)] <- TRUE
-#     pointsSearch <- vector(mode = "logical", length = numberOfPrecursors)
-#     pointsSearch[match(x = selectionSearchPcaLoadingSet, table = filter)] <- TRUE
-#     
-#     annotatedPoints <- pointColorsAnno != "black"
-#     selectedPoints  <- pointsAnalysis | pointsFragment | pointsSearch
-#     lv1points <-   annotatedPoints  &   selectedPoints
-#     lv2points <- (!annotatedPoints) &   selectedPoints
-#     lv3points <-   annotatedPoints  & (!selectedPoints)
-#     lv4points <- (!annotatedPoints) & (!selectedPoints)
-#     
-#     #poisX <- c(poisX[!annotatedPoints], poisX[annotatedPoints])
-#     #poisY <- c(poisY[!annotatedPoints], poisY[annotatedPoints])
-#     #pointSizesAnno <- c(pointSizesAnno[!annotatedPoints], pointSizesAnno[annotatedPoints])
-#     #pointColorsAnno <- c(pointColorsAnno[!annotatedPoints], pointColorsAnno[annotatedPoints])
-#     #pointsAnalysis <- c(pointsAnalysis[!annotatedPoints], pointsAnalysis[annotatedPoints])
-#     #pointsFragment <- c(pointsFragment[!annotatedPoints], pointsFragment[annotatedPoints])
-#     #pointsSearch <- c(pointsSearch[!annotatedPoints], pointsSearch[annotatedPoints])
-#     
-#     poisX           <- c(poisX          [lv4points], poisX          [lv3points], poisX          [lv2points], poisX          [lv1points])
-#     poisY           <- c(poisY          [lv4points], poisY          [lv3points], poisY          [lv2points], poisY          [lv1points])
-#     pointSizesAnno  <- c(pointSizesAnno [lv4points], pointSizesAnno [lv3points], pointSizesAnno [lv2points], pointSizesAnno [lv1points])
-#     pointColorsAnno <- c(pointColorsAnno[lv4points], pointColorsAnno[lv3points], pointColorsAnno[lv2points], pointColorsAnno[lv1points])
-#     pointsAnalysis  <- c(pointsAnalysis [lv4points], pointsAnalysis [lv3points], pointsAnalysis [lv2points], pointsAnalysis [lv1points])
-#     pointsFragment  <- c(pointsFragment [lv4points], pointsFragment [lv3points], pointsFragment [lv2points], pointsFragment [lv1points])
-#     pointsSearch    <- c(pointsSearch   [lv4points], pointsSearch   [lv3points], pointsSearch   [lv2points], pointsSearch   [lv1points])
-#     
-#     resultObjPoints <- generatePoints(
-#       poisX = poisX, poisY = poisY, 
-#       pointSizesAnno = pointSizesAnno, pointColorsAnno = pointColorsAnno, 
-#       pointsAnalysis = pointsAnalysis, pointsFragment = pointsFragment, pointsSearch = pointsSearch,
-#       pointSizeModifier = NULL
-#     )
-#     pointSizes    <- resultObjPoints$pointSizes
-#     pointColors   <- resultObjPoints$pointColors
-#     poisXpoints   <- resultObjPoints$poisXpoints
-#     poisYpoints   <- resultObjPoints$poisYpoints
-#     mappingToData <- resultObjPoints$mappingToData
-#     
-#     switch(loadingsLabels,
-#            "None"={## no labels
-#              labels <- NULL
-#            },
-#            "m/z / RT"={## mz/rt
-#              labels <- dataList$precursorLabels[filter]
-#              labels <- c(labels[lv4points], labels[lv3points], labels[lv2points], labels[lv1points])
-#              #labels <- c(labels[!annotatedPoints], labels[annotatedPoints])
-#            },
-#            "Metabolite name"={## name
-#              labels <- dataList$dataFrameInfos[filter, "Metabolite name"]
-#              labels <- c(labels[lv4points], labels[lv3points], labels[lv2points], labels[lv1points])
-#              #labels <- c(labels[!annotatedPoints], labels[annotatedPoints])
-#            },
-#            "Metabolite family"={## family
-#              featureFamilies <- dataList$annoArrayOfLists[filter]
-#              labels <- unlist(lapply(X = featureFamilies, FUN = function(x){
-#                ifelse(
-#                  test = length(x) == 0, 
-#                  yes = "-", 
-#                  no = paste(unlist(x), collapse = ", ")
-#                )
-#              }))
-#              labels <- c(labels[lv4points], labels[lv3points], labels[lv2points], labels[lv1points])
-#            },
-#            {## unknown state
-#              stop(paste("Unknown loadingsLabels value", loadingsLabels))
-#            }
-#     )## end switch
-#     
-#     ## points
-#     #points(x = poisXpoints, y = poisYpoints, col = pointColors, pch=19, cex=pointSizes)
-#     if(showLoadingsAbundance){
-#       precursorMeansNorm <- dataList$dataFrameMeasurements[filter, "meanAllNormed"]
-#       precursorMeansNorm <- c(precursorMeansNorm[lv4points], precursorMeansNorm[lv3points], precursorMeansNorm[lv2points], precursorMeansNorm[lv1points])
-#       #precursorMeansNorm <- c(precursorMeansNorm[!annotatedPoints], precursorMeansNorm[annotatedPoints])
-#       precursorMeansNorm <- precursorMeansNorm[mappingToData]
-#       pointSizes <- pointSizes * 2 * precursorMeansNorm
-#     }
-#     
-#     ############################################################################################
-#     ## plot
-#     par(mar=c(3 + 0.35, 3, 2, 1), mgp = c(2, 1, 0))  ## c(bottom, left, top, right)
-#     #plot(x = dataDimOne, y = dataDimTwo, xlim = xInterval, ylim = yInterval, xlab = xAxisLabel, ylab = yAxisLabel, main = "Loadings", pch=19, cex=0.7, col = nodeColors)
-#     plot(x = NULL, y = NULL, xlim = xInterval, ylim = yInterval, xlab = xAxisLabel, ylab = yAxisLabel, main = "Loadings")
-#     points(x = poisXpoints, y = poisYpoints, col = pointColors, pch=19, cex=pointSizes)
-#     
-#     ## axis
-#     xInt <- xMax - xMin
-#     yInt <- yMax - yMin
-#     xl <- xMin - xInt
-#     xr <- xMax + xInt
-#     yl <- yMin - yInt
-#     yr <- yMax + yInt
-#     segments(x0 = xl, x1 = xr, y0 = 0, y1 = 0, col = "black", lwd = 1)
-#     segments(x0 = 0, x1 = 0, y0 = yl, y1 = yr, col = "black", lwd = 1)
-#     
-#     if(all(!is.null(labels), length(labels) > 0))
-#       graphics::text(  x = poisX - 0.0, y = poisY + 0.0, labels = labels, pos = 4)
-#     
-#     uniqueIndeces     <- which(!duplicated(resultObjAnno$setOfAnnotations))
-#     uniqueAnnotations <- resultObjAnno$setOfAnnotations[uniqueIndeces]
-#     uniqueColors      <- resultObjAnno$setOfColors[uniqueIndeces]
-#     
-#     resultList <- list(
-#       setOfAnnotations = uniqueAnnotations,
-#       setOfColors      = uniqueColors
-#     )
-#     return(resultList)
-#     
-#     
-#     
-#     print("check the data file")
-#   }
-#   
-# }
-
-########################################################################################
-
-# calcPlotPCAloadings <- function(
-#   pcaObj, dataList, filter, 
-#   pcaDimensionOne, pcaDimensionTwo, 
-#   selectionFragmentPcaLoadingSet = NULL, selectionAnalysisPcaLoadingSet = NULL, selectionSearchPcaLoadingSet = NULL, 
-#   xInterval = NULL, yInterval = NULL, 
-#   loadingsLabels = "None", showLoadingsAbundance = FALSE,
-#   showLoadingsFeaturesAnnotated = TRUE, showLoadingsFeaturesUnannotated = TRUE, showLoadingsFeaturesSelected = TRUE, showLoadingsFeaturesUnselected = TRUE
-# ){
-#   if(FALSE){
-#     pcaObj_ <<- pcaObj
-#     dataList_ <<- dataList
-#     filter__ <<- filter
-#     pcaDimensionOne_ <<- pcaDimensionOne
-#     pcaDimensionTwo_ <<- pcaDimensionTwo
-#     selectionFragmentPcaLoadingSet_ <<- selectionFragmentPcaLoadingSet
-#     selectionAnalysisPcaLoadingSet_ <<- selectionAnalysisPcaLoadingSet
-#     selectionSearchPcaLoadingSet_ <<- selectionSearchPcaLoadingSet
-#     xInterval_ <<- xInterval
-#     yInterval_ <<- yInterval
-#     loadingsLabels_ <<- loadingsLabels
-#     showLoadingsAbundance_ <<- showLoadingsAbundance
-#     showLoadingsFeaturesAnnotated_ <<- showLoadingsFeaturesAnnotated
-#     showLoadingsFeaturesUnannotated_ <<- showLoadingsFeaturesUnannotated
-#     showLoadingsFeaturesSelected_ <<- showLoadingsFeaturesSelected
-#     showLoadingsFeaturesUnselected_ <<- showLoadingsFeaturesUnselected
-#   }
-#   if(FALSE){
-#     pcaObj <- pcaObj_
-#     dataList <- dataList_
-#     filter <- filter__
-#     pcaDimensionOne <- pcaDimensionOne_
-#     pcaDimensionTwo <- pcaDimensionTwo_
-#     selectionFragmentPcaLoadingSet <- selectionFragmentPcaLoadingSet_
-#     selectionAnalysisPcaLoadingSet <- selectionAnalysisPcaLoadingSet_
-#     selectionSearchPcaLoadingSet <- selectionSearchPcaLoadingSet_
-#     xInterval <- xInterval_
-#     yInterval <- yInterval_
-#     loadingsLabels <- loadingsLabels_
-#     showLoadingsAbundance <- showLoadingsAbundance_
-#     showLoadingsFeaturesAnnotated <- showLoadingsFeaturesAnnotated_
-#     showLoadingsFeaturesUnannotated <- showLoadingsFeaturesUnannotated_
-#     showLoadingsFeaturesSelected <- showLoadingsFeaturesSelected_
-#     showLoadingsFeaturesUnselected <- showLoadingsFeaturesUnselected_
-#   }
-#   
-#   resultObjAnno <- getPrecursorColors(dataList, filter)
-#   ##############################
-#   ########## this is new line I added
-#   TNF<-pcaObj$filterObj$filter_averageOriginal
-#   TNF1<-apply(as.data.frame(dataList$dataFrameMeasurements[, sapply(X = as.vector(pcaObj$filterObj$grouXXXps), FUN = dataList$dataMeanColumnNameFunctionFromName)]),MARGIN = 1,FUN = mean) >= as.double(TNF)
-#   TNF2<-names(TNF1)[unname(TNF1)]
-#   TNF3<-trimws(TNF2)
-#   TNF4<-str_squish(TNF3)
-#   ################################
-#   T1NF<-dataList$colorMatrixDataFrame
-#   T1NF1<-rownames(T1NF)
-#   T1NF2<-trimws(T1NF1)
-#   T1NF3<-str_squish(T1NF2)
-#   #print(T1NF3)
-#   ###############
-#   Nind<-which(T1NF3 %in% TNF4)
-#   names(TNF4)<-Nind
-#   TNF5<-swap_names_and_values(TNF4)
-#   print("entering the line ...2540")
-#   print(TNF5)
-#   print(filter)
-#   ######
-#  #print("coming to this line ...line 2326")
-# #  print("printing the first filter")
-#  # print(filter)
-#  
-#   ########################################################
-#   #print(resultObjAnno)
-#  # print(resultObjAnno[[1]])
-#  ################################################################################ 
-#   ## shown loadings features
-#   allFeatures <- seq_len(dataList$numberOfPrecursors)
-#   #print("coming to this line ...line 2330")
-#   
-#   annotatedFeatures <- which(resultObjAnno$setOfColors != "black")
-#   selectedLoadingsFeatures <- union(union(selectionAnalysisPcaLoadingSet, selectionFragmentPcaLoadingSet), selectionSearchPcaLoadingSet)
-#   filter2 <- NULL
-#   if(showLoadingsFeaturesAnnotated)
-#     ## annotated features
-#     filter2 <- c(filter2, annotatedFeatures)
-#   if(showLoadingsFeaturesUnannotated)
-#     ## unannotated features
-#     filter2 <- c(filter2, setdiff(allFeatures, annotatedFeatures))
-#   if(showLoadingsFeaturesSelected)
-#     ## selected features
-#     filter2 <- c(filter2, selectedLoadingsFeatures)
-#   if(showLoadingsFeaturesUnselected)
-#     ## unselected features
-#     filter2 <- c(filter2, setdiff(allFeatures, selectedLoadingsFeatures))
-#   #############
-#   filter <- intersect(filter, unique(filter2))
-#   ###########################################
-#   #print("coming to this line ...line 2347...to print the filter")
-#   #print(filter)
-#   ###########
-#   resultObjAnno <- getPrecursorColors(dataList, filter)
-#   ############
-#   #print("coming to this line ...line 2350")
-#   #print(resultObjAnno)
-#   #resultObjAnno$setOfAnnotations <- resultObjAnno$setOfAnnotations[filter]
-#   #resultObjAnno$setOfColors      <- resultObjAnno$setOfColors[filter]
-#   
-#   ## data
-#   dataDimOne <- pcaObj$loadings[, pcaDimensionOne]
-#   dataDimTwo <- pcaObj$loadings[, pcaDimensionTwo]
-#   
-#   ## performance
-#   resultObj <- getPcaPerformanceIndicator(pcaObj = pcaObj, isScores = TRUE)
-#   print("coming to this line ...line 2363")
-#   
-#   #print(resultObj)
-#   xAxisLabel <- resultObj$xAxisLabel
-#   yAxisLabel <- resultObj$yAxisLabel
-#   
-#   ## xlim / ylim
-#   xMin <- min(dataDimOne)
-#   xMax <- max(dataDimOne)
-#   yMin <- min(dataDimTwo)
-#   yMax <- max(dataDimTwo)
-#   
-#   if(any(is.na(c(xMin, xMax, yMin, yMax)))){
-#     xMin <- -1
-#     xMax <- 1
-#     yMin <- -1
-#     yMax <- 1
-#   }
-#   
-#   if(is.null(xInterval))
-#     xInterval <- c(xMin, xMax)
-#   if(is.null(yInterval))
-#     yInterval <- c(yMin, yMax)
-#  
-#   
-#   dataDimOne <- dataDimOne[filter]
-#   dataDimTwo <- dataDimTwo[filter]
-#   
-#   selectionFragmentPcaLoadingSet <- intersect(selectionFragmentPcaLoadingSet, filter)
-#   selectionAnalysisPcaLoadingSet <- intersect(selectionAnalysisPcaLoadingSet, filter)
-#   selectionSearchPcaLoadingSet   <- intersect(selectionSearchPcaLoadingSet  , filter)
-#   
-#   
-#   numberOfPrecursors <- length(dataDimOne)
-#  # print("entering the line ...2389")
-#   #print(numberOfPrecursors)
-#   
-#   poisX <- dataDimOne
-#   poisY <- dataDimTwo
-#   
-#   pointSizesAnno  <- rep(x = clusterNodePointSize0, times = numberOfPrecursors)
-#   print("entering the line ...2399")
-#  # print(pointSizesAnno)
-#   ### this is area that I need to focous
-#   pointColorsAnno <- resultObjAnno$setOfColors
-#   print("entering the line ...2402")
-#   #print(pointColorsAnno)
-#   
-#   pointsAnalysis <- vector(mode = "logical", length = numberOfPrecursors)
-#   pointsAnalysis[match(x = selectionAnalysisPcaLoadingSet, table = filter)] <- TRUE
-#   pointsFragment <- vector(mode = "logical", length = numberOfPrecursors)
-#   pointsFragment[match(x = selectionFragmentPcaLoadingSet, table = filter)] <- TRUE
-#   pointsSearch <- vector(mode = "logical", length = numberOfPrecursors)
-#   pointsSearch[match(x = selectionSearchPcaLoadingSet, table = filter)] <- TRUE
-#   
-#   
-#   annotatedPoints <- pointColorsAnno != "black"
-#   selectedPoints  <- pointsAnalysis | pointsFragment | pointsSearch
-#   print("entering this line ..2418")
-#   lv1points <-   annotatedPoints  &   selectedPoints
-#   print("enterng this area ...line ...2420")
-#   #print(lv1points)
-#   lv2points <- (!annotatedPoints) &   selectedPoints
-#   print("enterng this area ...line ...2422")
-#   #print(lv2points)
-#   lv3points <-   annotatedPoints  & (!selectedPoints)
-#   print("enterng this area ...line ...2426")
-#   #print(lv3points)
-#   lv4points <- (!annotatedPoints) & (!selectedPoints)
-#   print("enterng this area ...line ...2429")
-#   #print(lv4points)
-#   
-#   #poisX <- c(poisX[!annotatedPoints], poisX[annotatedPoints])
-#   #poisY <- c(poisY[!annotatedPoints], poisY[annotatedPoints])
-#   #pointSizesAnno <- c(pointSizesAnno[!annotatedPoints], pointSizesAnno[annotatedPoints])
-#   #pointColorsAnno <- c(pointColorsAnno[!annotatedPoints], pointColorsAnno[annotatedPoints])
-#   #pointsAnalysis <- c(pointsAnalysis[!annotatedPoints], pointsAnalysis[annotatedPoints])
-#   #pointsFragment <- c(pointsFragment[!annotatedPoints], pointsFragment[annotatedPoints])
-#   #pointsSearch <- c(pointsSearch[!annotatedPoints], pointsSearch[annotatedPoints])
-#   
-#   poisX           <- c(poisX          [lv4points], poisX          [lv3points], poisX          [lv2points], poisX          [lv1points])
-#   print("entering this line ..2440")
-#   #print(poisX)
-#   poisY           <- c(poisY          [lv4points], poisY          [lv3points], poisY          [lv2points], poisY          [lv1points])
-#   print("entering this line ..2444")
-#   #print(poisY)
-#   pointSizesAnno  <- c(pointSizesAnno [lv4points], pointSizesAnno [lv3points], pointSizesAnno [lv2points], pointSizesAnno [lv1points])
-#   print("entering this line ..2433")
-#   #print(pointSizesAnno)
-#   #print(lv4points)
-#   #print(lv3points)
-#   #print(lv2points)
-#   pointColorsAnno <- c(pointColorsAnno[lv4points], pointColorsAnno[lv3points], pointColorsAnno[lv2points], pointColorsAnno[lv1points])
-#   print("entering this line ..2436")
-#   #print(pointColorsAnno)
-#   #print(lv4points)
-#   #print(lv3points)
-#   #print(lv2points)
-#   #print(lv1points)
-#   pointsAnalysis  <- c(pointsAnalysis [lv4points], pointsAnalysis [lv3points], pointsAnalysis [lv2points], pointsAnalysis [lv1points])
-#   print("entering this line ..2459")
-#   #print(pointsAnalysis )
-#   pointsFragment  <- c(pointsFragment [lv4points], pointsFragment [lv3points], pointsFragment [lv2points], pointsFragment [lv1points])
-#   print("entering this line ..2462")
-#   #print(pointsFragment )
-#   pointsSearch    <- c(pointsSearch   [lv4points], pointsSearch   [lv3points], pointsSearch   [lv2points], pointsSearch   [lv1points])
-#   print("entering this line ..2466")
-#   #print(pointsSearch )
-#   
-#   resultObjPoints <- generatePoints(
-#     poisX = poisX, poisY = poisY, 
-#     pointSizesAnno = pointSizesAnno, pointColorsAnno = pointColorsAnno, 
-#     pointsAnalysis = pointsAnalysis, pointsFragment = pointsFragment, pointsSearch = pointsSearch,
-#     pointSizeModifier = NULL
-#   )
-#   ####################################
-#   print("entering this area ..line 2474")
-#   #print(resultObjPoints)
-#   pointSizes    <- resultObjPoints$pointSizes
-#   #### changing the pointColors to TcolR1
-#   #pointColors   <- TcolR1
-#   pointColors   <- resultObjPoints$pointColors
-#   poisXpoints   <- resultObjPoints$poisXpoints
-#   TepoisXpoints   <-names(poisXpoints)
-#   ##########################
-#   print("entering this area..line 2488")
-#   #print(poisXpoints)
-#   #print(TepoisXpoints)
-#   #print(TcolR)
-#   #print(TcolR[intersect(names(TcolR),names(poisXpoints))])
-#   ####### I am adding this new
-#   # TCol<-TcolR[intersect(names(TcolR),names(poisXpoints))]
-#   # T1Col<-poisXpoints[intersect(names(poisXpoints),names(TcolR))]
-#   # TCol1<-TcolR[setdiff(names(TcolR),names(poisXpoints))]
-#   # T1Col1<-poisXpoints[setdiff(names(poisXpoints),names(TcolR))]
-#   # #################################
-#   # TCOl2<-unname(TCol)
-#   # T1COl2<-unname(T1Col)
-#   # TCOl3<-unname(TCol1)
-#   # T1COl3<-unname(T1Col1)
-#   # #################
-#   # #####################################
-#   # poisYpoints   <- resultObjPoints$poisYpoints
-#   # TCol4<-TcolR[intersect(names(TcolR),names(poisYpoints))]
-#   # TCol5<-TcolR[setdiff(names(TcolR),names(poisYpoints))]
-#   # TCOl6<-unname(TCol4)
-#   # TCOl7<-unname(TCol5)
-#   # #### adding this new lines
-#   # TcolR<-resultObjAnno$setOfColors
-#   # TcolR1<-unname(TcolR)
-#   # TannR<-resultObjAnno$setOfAnnotations
-#   # TannR1<-unname(TannR)
-#   ###############################################
-#   ### I am adding this new line
-#   #print("entering this area...line 2503")
-#   #print(TannR[intersect(names(TcolR),names(TannR))])
-#   #print(TcolR1)
-#   #print(TCOl2)
-#   #print(pointColors)
-#   #print(poisXpoints)
-#   #print(length(pointColors))
-#   #print(length(TCOl2))
-#   #print(length(TcolR1))
-#   #print(TCol)
-#   #print(T1Col)
-#   #print(TCOl2)
-#   #print(length(TCOl7))
-#   #print(length(TCOl2))
-#   #print(length(poisYpoints))
-#   #print(TCOl2)
-#   #print(poisYpoints)
-#  # print(length(poisXpoints))
-#   #print(T1Col1)
-#   #print(TCOl2)
-#   #print(T1CO2)
-#   #print(TCOl3)
-#   #print(T1COl3)
-#   #print(setequal(names(poisXpoints),names(poisYpoints)))
-#   #print(length(TcolR))
-#   #print(names(poisXpoints))
-#   #print(names(TcolR))
-#   #print(unname(TcolR))
-#   #print(length(poisXpoints))
-#   #print(length(poisYpoints))
-#   #print(length(TCOl1))
-#   ##############################################
-#   mappingToData <- resultObjPoints$mappingToData
-#   #############
-#   #print("entering this area ..line 2485")
-#   #print(dataList$precursorLabels)
-#   #########################
-#   # TEM<-dataList$precursorLabels
-#   # TEM1<-which(names(TcolR) %in% TEM)
-#   # TEM2<-TcolR[TEM1]
-#   # TEM3<-which(names(TEM2) %in% names(poisXpoints))
-#   # TEM4<-TEM2[TEM3]
-#   # '%ni%' <- Negate('%in%')
-#   # TEM5<-rbind.fill.matrix(t(poisXpoints), t(TEM4))
-#   # TEM6<-TEM5[2,]
-#   # TEM7<-as.vector(TEM6)
-#   
-#   
-#   #print(typeof(unname(TNF5)))
-#   #print(TNF4)
-#   #print(str(dataList))
-#   #print(dataList$colorMatrixDataFrame)
-#   ###############################
-#   print("entring the line ...line 2566")
-#   #print(TEM7)
-#   #print(length(poisXpoints))
-#   #print(length(TEM6))
-#   #TEM3<-which[names(poisXpoints) %ni% names(TEM2)]
-#   #print(which(names(poisXpoints) %ni% names(TEM2)))
-#   #print(TEM3)
-#   #TEM1<-TcolR[intersect(names(TcolR),TEM)]
-#   #TEM2<-TEM1[names(TEM1) %in%  names(poisXpoints)]
-#   #TEM3<-TEM1[intersect(names(TEM1),names(poisXpoints))]
-#   #### CHECK 
-#   #print(poisXpoints[1:10])
-#   #print(head(TEM5,10))
-#  # print(rbind.fill.matrix(t(poisXpoints), t(TEM4)))
-#   #print(poisXpoints[which(names(poisXpoints) %in% names(TEM4))])
-#   #print(TEM)
-#   #print(TEM1)
-#   #print(poisXpoints[1:20])
-#   #print(TEM4[1:20])
-#   #print(TcolR)
-#   #print(match('132.921 / 19.19',names(TcolR)))
-#   #print(match('122.032 /   5.97',names(TcolR)))
-#   #print(TEM2)
-#   #print(TcolR)
-#   #print(TEM2)
-#   #print(TEM3)
-#   #b[names(b) %in%  names(a)]
-#   #print(poisXpoints)
-#   #print("entring the line ...line 2564")
-#   #print(TEM1[names(TEM1) %in%  names(poisXpoints)])
-#   #TEM3<-TEM2[sort(names(TEM2))]
-#   #tspoisXpoints<-poisXpoints[sort(names(poisXpoints))]
-#   #tspoisYpoints<-poisXpoints[sort(names(poisYpoints))]
-#   ##############################################################
-#   #print(TEM3)
-#   #print("enter the poisXpoints ")
-#   #print(tspoisXpoints)
-#   #print("enter the poisypoints ")
-#   #print(tspoisYpoints)
-#   #print(unname(TEM3))
-#   ########################################
-#   #a[sort(names(a))]
-#   #print(length(TEM2))
-#   #print(TEM1)
-#   #print(length(poisXpoints))
-#   #print(length(TEM1))
-#   #print(showLoadingsAbundance)
-#   #print(TcolR[intersect(names(TcolR),TEM)])
-#   #print(TcolR[intersect(names(TcolR),names(TEM))])
-#   #print(length(dataList$precursorLabels))
-#   #print(length(pointColors))
-#   #print(length(poisXpoints))
-#   #print(mappingToData)
-#   #print(typeof(mappingToData))
-#   #print(pointColors)
-#   #print(unname(TcolR))
-#   #print(unname(TannR))
-#   #print(TcolR[1])
-#   ##############################
-#   switch(loadingsLabels,
-#          "None"={## no labels
-#            labels <- NULL
-#          },
-#          "m/z / RT"={## mz/rt
-#            labels <- dataList$precursorLabels[filter]
-#            print("this is entering this area ...2505")
-#            print(labels)
-#            labels <- c(labels[lv4points], labels[lv3points], labels[lv2points], labels[lv1points])
-#            print("this is entering this area ...2508")
-#            print(labels)
-#            #labels <- c(labels[!annotatedPoints], labels[annotatedPoints])
-#          },
-#          "Metabolite name"={## name
-#            labels <- dataList$dataFrameInfos[filter, "Metabolite name"]
-#            print("this is entering this area ...2514")
-#            print(labels)
-#            labels <- c(labels[lv4points], labels[lv3points], labels[lv2points], labels[lv1points])
-#            print("this is entering this area ...2517")
-#            print(labels)
-#            #labels <- c(labels[!annotatedPoints], labels[annotatedPoints])
-#          },
-#          "Metabolite family"={## family
-#            featureFamilies <- dataList$annoArrayOfLists[filter]
-#            labels <- unlist(lapply(X = featureFamilies, FUN = function(x){
-#              ifelse(
-#                test = length(x) == 0, 
-#                yes = "-", 
-#                no = paste(unlist(x), collapse = ", ")
-#              )
-#            }))
-#            labels <- c(labels[lv4points], labels[lv3points], labels[lv2points], labels[lv1points])
-#            print("this is entering this area ...2531")
-#            print(labels)
-#          },
-#          {## unknown state
-#            stop(paste("Unknown loadingsLabels value", loadingsLabels))
-#          }
-#   )## end switch
-#   
-#   ## points
-#   #points(x = poisXpoints, y = poisYpoints, col = pointColors, pch=19, cex=pointSizes)
-#   if(showLoadingsAbundance){
-#     print("entering this line ...2542")
-#     #print(showLoadingsAbundance)
-#     precursorMeansNorm <- dataList$dataFrameMeasurements[filter, "meanAllNormed"]
-#     precursorMeansNorm <- c(precursorMeansNorm[lv4points], precursorMeansNorm[lv3points], precursorMeansNorm[lv2points], precursorMeansNorm[lv1points])
-#     #precursorMeansNorm <- c(precursorMeansNorm[!annotatedPoints], precursorMeansNorm[annotatedPoints])
-#     precursorMeansNorm <- precursorMeansNorm[mappingToData]
-#     #print("entering this line ...2548")
-#     #print(precursorMeansNorm)
-#     pointSizes <- pointSizes * 2 * precursorMeansNorm
-#   }
-#   
-#   ############################################################################################
-#   ## plot
-#   par(mar=c(3 + 0.35, 3, 2, 1), mgp = c(2, 1, 0))  ## c(bottom, left, top, right)
-#   #plot(x = dataDimOne, y = dataDimTwo, xlim = xInterval, ylim = yInterval, xlab = xAxisLabel, ylab = yAxisLabel, main = "Loadings", pch=19, cex=0.7, col = nodeColors)
-#   plot(x = NULL, y = NULL, xlim = xInterval, ylim = yInterval, xlab = xAxisLabel, ylab = yAxisLabel, main = "Loadings")
-#   ######TCOl2 ..changing ...col = pointColors ### this is original ....2650...TEM7
-#   points(x = poisXpoints, y = poisYpoints, col =pointColors, pch=19, cex=pointSizes)
-#   #############
-#   print("entering the line ....2652")
-#   #print(poisXpoints)
-#   #print(TEM1[intersect(names(TEM1),names(poisXpoints))])
-#   #print(setequal(names(poisXpoints),names(TEM2)))
-#   #points(x = poisXpoints, y = poisYpoints, col =unname(TEM3), pch=19, cex=pointSizes)
-#   #points(x = tspoisXpoints, y = tspoisYpoints , col = unname(TEM3) , pch=19, cex=pointSizes)
-#   #################################
-#   
-#   ## axis
-#   xInt <- xMax - xMin
-#   yInt <- yMax - yMin
-#   xl <- xMin - xInt
-#   xr <- xMax + xInt
-#   yl <- yMin - yInt
-#   yr <- yMax + yInt
-#   segments(x0 = xl, x1 = xr, y0 = 0, y1 = 0, col = "black", lwd = 1)
-#   segments(x0 = 0, x1 = 0, y0 = yl, y1 = yr, col = "black", lwd = 1)
-#   
-#   if(all(!is.null(labels), length(labels) > 0))
-#     graphics::text(  x = poisX - 0.0, y = poisY + 0.0, labels = labels, pos = 4)
-#   
-#   uniqueIndeces     <- which(!duplicated(resultObjAnno$setOfAnnotations))
-#   print("entering this area ...line 2570")
-#   #print(uniqueIndeces)
-#   uniqueAnnotations <- resultObjAnno$setOfAnnotations[uniqueIndeces]
-#   print("entering this area ...line 2573")
-#   #print( uniqueAnnotations)
-#   uniqueColors      <- resultObjAnno$setOfColors[uniqueIndeces]
-#   print("entering this area ...line 2576")
-#   #print(uniqueColors)
-#   
-#   resultList <- list(
-#     setOfAnnotations = uniqueAnnotations,
-#     setOfColors      = uniqueColors
-#   )
-#   return(resultList)
-# }
-# generatePoints <- function(poisX, poisY, pointSizesAnno, pointColorsAnno, pointsAnalysis, pointsFragment, pointsSearch, pointSizeModifier){
-#   numberOfPoisDrawn <- length(poisX)
-#   #pointIndeces <- seq_len(numberOfPoisDrawn)
-#   
-#   ## analysis
-#   pointSizesAnalysis  <- vector(mode = "numeric", length = numberOfPoisDrawn)
-#   pointColorsAnalysis <- vector(length = numberOfPoisDrawn)
-#   pointSizesAnalysis [pointsAnalysis] <- clusterNodePointSize1
-#   pointColorsAnalysis[pointsAnalysis] <- "blue"
-#   
-#   ## fragment
-#   pointSizesFragment  <- vector(mode = "numeric", length = numberOfPoisDrawn)
-#   pointColorsFragment <- vector(length = numberOfPoisDrawn)
-#   print("entering this area ...line 2601")
-#   print(pointColorsFragment)
-#   intersection <- pointsAnalysis & pointsFragment
-#   difference   <- pointsFragment & (!intersection)
-#   pointSizesFragment[intersection] <- clusterNodePointSize2
-#   pointSizesFragment[difference] <- clusterNodePointSize1
-#   pointColorsFragment[pointsFragment] <- "green"
-#   
-#   ## search
-#   pointSizesSearch  <- vector(mode = "numeric", length = numberOfPoisDrawn)
-#   pointColorsSearch <- vector(length = numberOfPoisDrawn)
-#   print("entering this area ...line 2612")
-#   print(pointColorsSearch)
-#   intersection  <- pointsAnalysis & pointsFragment & pointsSearch
-#   intersection2 <- (pointsSearch & pointsAnalysis | pointsSearch & pointsFragment) & (!intersection)
-#   difference   <- pointsSearch & (!intersection) & (!intersection2)
-#   pointSizesSearch[intersection]  <- clusterNodePointSize3
-#   pointSizesSearch[intersection2] <- clusterNodePointSize2
-#   pointSizesSearch[difference] <- clusterNodePointSize1
-#   pointColorsSearch[pointsSearch] <- "red"
-#   
-#   if(!is.null(pointSizeModifier)){
-#     pointSizesSearch   <- pointSizesSearch   + pointSizeModifier * dendrogramClusterPointSizeMaximumMultiplier
-#     pointSizesFragment <- pointSizesFragment + pointSizeModifier * dendrogramClusterPointSizeMaximumMultiplier
-#     pointSizesAnalysis <- pointSizesAnalysis + pointSizeModifier * dendrogramClusterPointSizeMaximumMultiplier
-#     pointSizesAnno     <- pointSizesAnno     + pointSizeModifier * dendrogramClusterPointSizeMaximumMultiplier
-#     #pointSizesSearch   <- pointSizesSearch   * (1 + pointSizeModifier * dendrogramClusterPointSizeMaximumMultiplier)
-#     #pointSizesFragment <- pointSizesFragment * (1 + pointSizeModifier * dendrogramClusterPointSizeMaximumMultiplier)
-#     #pointSizesAnalysis <- pointSizesAnalysis * (1 + pointSizeModifier * dendrogramClusterPointSizeMaximumMultiplier)
-#     #pointSizesAnno     <- pointSizesAnno     * (1 + pointSizeModifier * dendrogramClusterPointSizeMaximumMultiplier)
-#   }
-#   
-#   pointSizes        <- c(pointSizesSearch[pointsSearch], pointSizesFragment[pointsFragment], pointSizesAnalysis[pointsAnalysis], pointSizesAnno)
-#   pointColors       <- c(pointColorsSearch[pointsSearch], pointColorsFragment[pointsFragment], pointColorsAnalysis[pointsAnalysis], pointColorsAnno)
-#   print("entering this area ...line 2635")
-#   print(pointColors)
-#   poisXpoints       <- c(poisX[pointsSearch], poisX[pointsFragment], poisX[pointsAnalysis], poisX)
-#   poisYpoints       <- c(poisY[pointsSearch], poisY[pointsFragment], poisY[pointsAnalysis], poisY)
-#   #pointIndecesPoints<- c(pointIndeces[pointsSearch], pointIndeces[pointsFragment], pointIndeces[pointsAnalysis], pointIndeces)
-#   
-#   mappingToData <- c(which(pointsSearch), which(pointsFragment), which(pointsAnalysis), seq_len(length(poisY)))
-#   
-#   resultObj <- list(
-#     mappingToData  = mappingToData,
-#     pointSizes  = pointSizes,
-#     pointColors = pointColors,
-#     poisXpoints = poisXpoints,
-#     poisYpoints = poisYpoints
-#   )
-#   
-#   return(resultObj)
-# }
-
-##########################################################################
-calcPlotPCAloadings1 <- function(
-  pcaObj, dataList, filter, 
-  pcaDimensionOne, pcaDimensionTwo, 
-  selectionFragmentPcaLoadingSet = NULL, selectionAnalysisPcaLoadingSet = NULL, selectionSearchPcaLoadingSet = NULL, 
-  xInterval = NULL, yInterval = NULL, 
-  loadingsLabels = "None", showLoadingsAbundance = FALSE,
-  showLoadingsFeaturesAnnotated = TRUE, showLoadingsFeaturesUnannotated = TRUE, showLoadingsFeaturesSelected = TRUE, showLoadingsFeaturesUnselected = TRUE
-){
-  if(FALSE){
-    pcaObj_ <<- pcaObj
-    dataList_ <<- dataList
-    filter__ <<- filter
-    pcaDimensionOne_ <<- pcaDimensionOne
-    pcaDimensionTwo_ <<- pcaDimensionTwo
-    selectionFragmentPcaLoadingSet_ <<- selectionFragmentPcaLoadingSet
-    selectionAnalysisPcaLoadingSet_ <<- selectionAnalysisPcaLoadingSet
-    selectionSearchPcaLoadingSet_ <<- selectionSearchPcaLoadingSet
-    xInterval_ <<- xInterval
-    yInterval_ <<- yInterval
-    loadingsLabels_ <<- loadingsLabels
-    showLoadingsAbundance_ <<- showLoadingsAbundance
-    showLoadingsFeaturesAnnotated_ <<- showLoadingsFeaturesAnnotated
-    showLoadingsFeaturesUnannotated_ <<- showLoadingsFeaturesUnannotated
-    showLoadingsFeaturesSelected_ <<- showLoadingsFeaturesSelected
-    showLoadingsFeaturesUnselected_ <<- showLoadingsFeaturesUnselected
-  }
-  if(FALSE){
-    pcaObj <- pcaObj_
-    dataList <- dataList_
-    filter <- filter__
-    pcaDimensionOne <- pcaDimensionOne_
-    pcaDimensionTwo <- pcaDimensionTwo_
-    selectionFragmentPcaLoadingSet <- selectionFragmentPcaLoadingSet_
-    selectionAnalysisPcaLoadingSet <- selectionAnalysisPcaLoadingSet_
-    selectionSearchPcaLoadingSet <- selectionSearchPcaLoadingSet_
-    xInterval <- xInterval_
-    yInterval <- yInterval_
-    loadingsLabels <- loadingsLabels_
-    showLoadingsAbundance <- showLoadingsAbundance_
-    showLoadingsFeaturesAnnotated <- showLoadingsFeaturesAnnotated_
-    showLoadingsFeaturesUnannotated <- showLoadingsFeaturesUnannotated_
-    showLoadingsFeaturesSelected <- showLoadingsFeaturesSelected_
-    showLoadingsFeaturesUnselected <- showLoadingsFeaturesUnselected_
   }
   
-  resultObjAnno <- getPrecursorColors(dataList, filter)
-  
-  ## shown loadings features
-  allFeatures <- seq_len(dataList$numberOfPrecursors)
-  annotatedFeatures <- which(resultObjAnno$setOfColors != "black")
-  selectedLoadingsFeatures <- union(union(selectionAnalysisPcaLoadingSet, selectionFragmentPcaLoadingSet), selectionSearchPcaLoadingSet)
-  filter2 <- NULL
-  if(showLoadingsFeaturesAnnotated)
-    ## annotated features
-    filter2 <- c(filter2, annotatedFeatures)
-  if(showLoadingsFeaturesUnannotated)
-    ## unannotated features
-    filter2 <- c(filter2, setdiff(allFeatures, annotatedFeatures))
-  if(showLoadingsFeaturesSelected)
-    ## selected features
-    filter2 <- c(filter2, selectedLoadingsFeatures)
-  if(showLoadingsFeaturesUnselected)
-    ## unselected features
-    filter2 <- c(filter2, setdiff(allFeatures, selectedLoadingsFeatures))
-  
-  filter <- intersect(filter, unique(filter2))
-  
-  resultObjAnno <- getPrecursorColors(dataList, filter)
-  #resultObjAnno$setOfAnnotations <- resultObjAnno$setOfAnnotations[filter]
-  #resultObjAnno$setOfColors      <- resultObjAnno$setOfColors[filter]
-  
-  ## data
-  dataDimOne <- pcaObj$loadings[, pcaDimensionOne]
-  dataDimTwo <- pcaObj$loadings[, pcaDimensionTwo]
-  
-  ## performance
-  resultObj <- getPcaPerformanceIndicator(pcaObj = pcaObj, isScores = TRUE)
-  xAxisLabel <- resultObj$xAxisLabel
-  yAxisLabel <- resultObj$yAxisLabel
-  
-  ## xlim / ylim
-  xMin <- min(dataDimOne)
-  xMax <- max(dataDimOne)
-  yMin <- min(dataDimTwo)
-  yMax <- max(dataDimTwo)
-  
-  if(any(is.na(c(xMin, xMax, yMin, yMax)))){
-    xMin <- 0
-    xMax <- -1
-    yMin <- 0
-    yMax <- -1
-  }
-  
-  if(is.null(xInterval))
-    xInterval <- c(xMin, xMax)
-  if(is.null(yInterval))
-    yInterval <- c(yMin, yMax)
-  
-  dataDimOne <- dataDimOne[filter]
-  dataDimTwo <- dataDimTwo[filter]
-  selectionFragmentPcaLoadingSet <- intersect(selectionFragmentPcaLoadingSet, filter)
-  selectionAnalysisPcaLoadingSet <- intersect(selectionAnalysisPcaLoadingSet, filter)
-  selectionSearchPcaLoadingSet   <- intersect(selectionSearchPcaLoadingSet  , filter)
-  
-  numberOfPrecursors <- length(dataDimOne)
-  poisX <- dataDimOne
-  poisY <- dataDimTwo
-  
-  pointSizesAnno  <- rep(x = clusterNodePointSize0, times = numberOfPrecursors)
-  pointColorsAnno <- resultObjAnno$setOfColors
-  
-  pointsAnalysis <- vector(mode = "logical", length = numberOfPrecursors)
-  pointsAnalysis[match(x = selectionAnalysisPcaLoadingSet, table = filter)] <- TRUE
-  pointsFragment <- vector(mode = "logical", length = numberOfPrecursors)
-  pointsFragment[match(x = selectionFragmentPcaLoadingSet, table = filter)] <- TRUE
-  pointsSearch <- vector(mode = "logical", length = numberOfPrecursors)
-  pointsSearch[match(x = selectionSearchPcaLoadingSet, table = filter)] <- TRUE
-  
-  annotatedPoints <- pointColorsAnno != "black"
-  selectedPoints  <- pointsAnalysis | pointsFragment | pointsSearch
-  lv1points <-   annotatedPoints  &   selectedPoints
-  lv2points <- (!annotatedPoints) &   selectedPoints
-  lv3points <-   annotatedPoints  & (!selectedPoints)
-  lv4points <- (!annotatedPoints) & (!selectedPoints)
-  
-  #poisX <- c(poisX[!annotatedPoints], poisX[annotatedPoints])
-  #poisY <- c(poisY[!annotatedPoints], poisY[annotatedPoints])
-  #pointSizesAnno <- c(pointSizesAnno[!annotatedPoints], pointSizesAnno[annotatedPoints])
-  #pointColorsAnno <- c(pointColorsAnno[!annotatedPoints], pointColorsAnno[annotatedPoints])
-  #pointsAnalysis <- c(pointsAnalysis[!annotatedPoints], pointsAnalysis[annotatedPoints])
-  #pointsFragment <- c(pointsFragment[!annotatedPoints], pointsFragment[annotatedPoints])
-  #pointsSearch <- c(pointsSearch[!annotatedPoints], pointsSearch[annotatedPoints])
-  
-  poisX           <- c(poisX          [lv4points], poisX          [lv3points], poisX          [lv2points], poisX          [lv1points])
-  poisY           <- c(poisY          [lv4points], poisY          [lv3points], poisY          [lv2points], poisY          [lv1points])
-  pointSizesAnno  <- c(pointSizesAnno [lv4points], pointSizesAnno [lv3points], pointSizesAnno [lv2points], pointSizesAnno [lv1points])
-  pointColorsAnno <- c(pointColorsAnno[lv4points], pointColorsAnno[lv3points], pointColorsAnno[lv2points], pointColorsAnno[lv1points])
-  pointsAnalysis  <- c(pointsAnalysis [lv4points], pointsAnalysis [lv3points], pointsAnalysis [lv2points], pointsAnalysis [lv1points])
-  pointsFragment  <- c(pointsFragment [lv4points], pointsFragment [lv3points], pointsFragment [lv2points], pointsFragment [lv1points])
-  pointsSearch    <- c(pointsSearch   [lv4points], pointsSearch   [lv3points], pointsSearch   [lv2points], pointsSearch   [lv1points])
-  
-  resultObjPoints <- generatePoints(
-    poisX = poisX, poisY = poisY, 
-    pointSizesAnno = pointSizesAnno, pointColorsAnno = pointColorsAnno, 
-    pointsAnalysis = pointsAnalysis, pointsFragment = pointsFragment, pointsSearch = pointsSearch,
-    pointSizeModifier = NULL
-  )
-  pointSizes    <- resultObjPoints$pointSizes
-  pointColors   <- resultObjPoints$pointColors
-  poisXpoints   <- resultObjPoints$poisXpoints
-  poisYpoints   <- resultObjPoints$poisYpoints
-  mappingToData <- resultObjPoints$mappingToData
-  
-  switch(loadingsLabels,
-         "None"={## no labels
-           labels <- NULL
-         },
-         "m/z / RT"={## mz/rt
-           labels <- dataList$precursorLabels[filter]
-           labels <- c(labels[lv4points], labels[lv3points], labels[lv2points], labels[lv1points])
-           #labels <- c(labels[!annotatedPoints], labels[annotatedPoints])
-         },
-         "Metabolite name"={## name
-           labels <- dataList$dataFrameInfos[filter, "Metabolite name"]
-           labels <- c(labels[lv4points], labels[lv3points], labels[lv2points], labels[lv1points])
-           #labels <- c(labels[!annotatedPoints], labels[annotatedPoints])
-         },
-         "Metabolite family"={## family
-           featureFamilies <- dataList$annoArrayOfLists[filter]
-           labels <- unlist(lapply(X = featureFamilies, FUN = function(x){
-             ifelse(
-               test = length(x) == 0, 
-               yes = "-", 
-               no = paste(unlist(x), collapse = ", ")
-             )
-           }))
-           labels <- c(labels[lv4points], labels[lv3points], labels[lv2points], labels[lv1points])
-         },
-         {## unknown state
-           stop(paste("Unknown loadingsLabels value", loadingsLabels))
-         }
-  )## end switch
-  
-  ## points
-  #points(x = poisXpoints, y = poisYpoints, col = pointColors, pch=19, cex=pointSizes)
-  if(showLoadingsAbundance){
-    precursorMeansNorm <- dataList$dataFrameMeasurements[filter, "meanAllNormed"]
-    precursorMeansNorm <- c(precursorMeansNorm[lv4points], precursorMeansNorm[lv3points], precursorMeansNorm[lv2points], precursorMeansNorm[lv1points])
-    #precursorMeansNorm <- c(precursorMeansNorm[!annotatedPoints], precursorMeansNorm[annotatedPoints])
-    precursorMeansNorm <- precursorMeansNorm[mappingToData]
-    pointSizes <- pointSizes * 2 * precursorMeansNorm
-  }
-  
-  ############################################################################################
-  ## plot
-  ### commenting the original value for the par
-  ##par(mar=c(3 + 0.35, 3, 2, 1), mgp = c(2, 1, 0))  ## c(bottom, left, top, right)
-  par(mar=c(3+0.15 , 3, 2, 1), mgp = c(2.0, 1, 0))
-  
-  #plot(x = dataDimOne, y = dataDimTwo, xlim = xInterval, ylim = yInterval, xlab = xAxisLabel, ylab = yAxisLabel, main = "Loadings", pch=19, cex=0.7, col = nodeColors)
-  plot(x = NULL, y = NULL, xlim = xInterval, ylim = yInterval, xlab = xAxisLabel, ylab = yAxisLabel, main = "Loadings")
-  points(x = poisXpoints, y = poisYpoints, col = pointColors, pch=19, cex=pointSizes)
-  
-  ## axis
-  ### changing 
-  #xInt <- xMax - xMin
-  #yInt <- yMax - yMin
-  xInt <- xMax - xMin
-  yInt <- yMax - yMin
-  xl <- xMin - xInt
-  xr <- xMax + xInt
-  yl <- yMin - yInt
-  yr <- yMax + yInt
-  segments(x0 = xl, x1 = xr, y0 = 0, y1 = 0, col = "black", lwd = 1)
-  segments(x0 = 0, x1 = 0, y0 = yl, y1 = yr, col = "black", lwd = 1)
-  
-  if(all(!is.null(labels), length(labels) > 0))
-    ### changing pos = 4 to pos =3 
-    graphics::text(  x = poisX - 0.0, y = poisY + 0.0, labels = labels, pos = 2)
-  
-  uniqueIndeces     <- which(!duplicated(resultObjAnno$setOfAnnotations))
-  uniqueAnnotations <- resultObjAnno$setOfAnnotations[uniqueIndeces]
-  uniqueColors      <- resultObjAnno$setOfColors[uniqueIndeces]
+  uniqueIndices     <- which(!duplicated(resultObjAnno$setOfAnnotations))
+  uniqueAnnotations <- resultObjAnno$setOfAnnotations[uniqueIndices]
+  uniqueColors      <- resultObjAnno$setOfColors[uniqueIndices]
   
   resultList <- list(
     setOfAnnotations = uniqueAnnotations,
@@ -4266,242 +2581,6 @@ calcPlotPCAloadings1 <- function(
   )
   return(resultList)
 }
-
-##### adding this new 
-
-
-
-############
-calcPlotPCAloadings2 <- function(
-  pcaObj, dataList, filter, 
-  pcaDimensionOne, pcaDimensionTwo, 
-  selectionFragmentPcaLoadingSet = NULL, selectionAnalysisPcaLoadingSet = NULL, selectionSearchPcaLoadingSet = NULL, 
-  xInterval = NULL, yInterval = NULL, 
-  loadingsLabels = "None", showLoadingsAbundance = FALSE,
-  showLoadingsFeaturesAnnotated = TRUE, showLoadingsFeaturesUnannotated = TRUE, showLoadingsFeaturesSelected = TRUE, showLoadingsFeaturesUnselected = TRUE
-){
-  if(FALSE){
-    pcaObj_ <<- pcaObj
-    dataList_ <<- dataList
-    filter__ <<- filter
-    pcaDimensionOne_ <<- pcaDimensionOne
-    pcaDimensionTwo_ <<- pcaDimensionTwo
-    selectionFragmentPcaLoadingSet_ <<- selectionFragmentPcaLoadingSet
-    selectionAnalysisPcaLoadingSet_ <<- selectionAnalysisPcaLoadingSet
-    selectionSearchPcaLoadingSet_ <<- selectionSearchPcaLoadingSet
-    xInterval_ <<- xInterval
-    yInterval_ <<- yInterval
-    loadingsLabels_ <<- loadingsLabels
-    showLoadingsAbundance_ <<- showLoadingsAbundance
-    showLoadingsFeaturesAnnotated_ <<- showLoadingsFeaturesAnnotated
-    showLoadingsFeaturesUnannotated_ <<- showLoadingsFeaturesUnannotated
-    showLoadingsFeaturesSelected_ <<- showLoadingsFeaturesSelected
-    showLoadingsFeaturesUnselected_ <<- showLoadingsFeaturesUnselected
-  }
-  if(FALSE){
-    pcaObj <- pcaObj_
-    dataList <- dataList_
-    filter <- filter__
-    pcaDimensionOne <- pcaDimensionOne_
-    pcaDimensionTwo <- pcaDimensionTwo_
-    selectionFragmentPcaLoadingSet <- selectionFragmentPcaLoadingSet_
-    selectionAnalysisPcaLoadingSet <- selectionAnalysisPcaLoadingSet_
-    selectionSearchPcaLoadingSet <- selectionSearchPcaLoadingSet_
-    xInterval <- xInterval_
-    yInterval <- yInterval_
-    loadingsLabels <- loadingsLabels_
-    showLoadingsAbundance <- showLoadingsAbundance_
-    showLoadingsFeaturesAnnotated <- showLoadingsFeaturesAnnotated_
-    showLoadingsFeaturesUnannotated <- showLoadingsFeaturesUnannotated_
-    showLoadingsFeaturesSelected <- showLoadingsFeaturesSelected_
-    showLoadingsFeaturesUnselected <- showLoadingsFeaturesUnselected_
-  }
-  
-  resultObjAnno <- getPrecursorColors(dataList, filter)
-  
-  ## shown loadings features
-  allFeatures <- seq_len(dataList$numberOfPrecursors)
-  annotatedFeatures <- which(resultObjAnno$setOfColors != "black")
-  selectedLoadingsFeatures <- union(union(selectionAnalysisPcaLoadingSet, selectionFragmentPcaLoadingSet), selectionSearchPcaLoadingSet)
-  filter2 <- NULL
-  if(showLoadingsFeaturesAnnotated)
-    ## annotated features
-    filter2 <- c(filter2, annotatedFeatures)
-  if(showLoadingsFeaturesUnannotated)
-    ## unannotated features
-    filter2 <- c(filter2, setdiff(allFeatures, annotatedFeatures))
-  if(showLoadingsFeaturesSelected)
-    ## selected features
-    filter2 <- c(filter2, selectedLoadingsFeatures)
-  if(showLoadingsFeaturesUnselected)
-    ## unselected features
-    filter2 <- c(filter2, setdiff(allFeatures, selectedLoadingsFeatures))
-  
-  filter <- intersect(filter, unique(filter2))
-  
-  resultObjAnno <- getPrecursorColors(dataList, filter)
-  #resultObjAnno$setOfAnnotations <- resultObjAnno$setOfAnnotations[filter]
-  #resultObjAnno$setOfColors      <- resultObjAnno$setOfColors[filter]
-  
-  ## data
-  dataDimOne <- pcaObj$loadings[, pcaDimensionOne]
-  dataDimTwo <- pcaObj$loadings[, pcaDimensionTwo]
-  
-  ## performance
-  resultObj <- getPcaPerformanceIndicator(pcaObj = pcaObj, isScores = TRUE)
-  xAxisLabel <- resultObj$xAxisLabel
-  yAxisLabel <- resultObj$yAxisLabel
-  
-  ## xlim / ylim
-  xMin <- min(dataDimOne)
-  xMax <- max(dataDimOne)
-  yMin <- min(dataDimTwo)
-  yMax <- max(dataDimTwo)
-  
-  if(any(is.na(c(xMin, xMax, yMin, yMax)))){
-    xMin <- -1
-    xMax <- 1
-    yMin <- -1
-    yMax <- 1
-  }
-  
-  if(is.null(xInterval))
-    xInterval <- c(xMin, xMax)
-  if(is.null(yInterval))
-    yInterval <- c(yMin, yMax)
-  
-  dataDimOne <- dataDimOne[filter]
-  dataDimTwo <- dataDimTwo[filter]
-  selectionFragmentPcaLoadingSet <- intersect(selectionFragmentPcaLoadingSet, filter)
-  selectionAnalysisPcaLoadingSet <- intersect(selectionAnalysisPcaLoadingSet, filter)
-  selectionSearchPcaLoadingSet   <- intersect(selectionSearchPcaLoadingSet  , filter)
-  
-  numberOfPrecursors <- length(dataDimOne)
-  poisX <- dataDimOne
-  poisY <- dataDimTwo
-  
-  pointSizesAnno  <- rep(x = clusterNodePointSize0, times = numberOfPrecursors)
-  pointColorsAnno <- resultObjAnno$setOfColors
-  
-  pointsAnalysis <- vector(mode = "logical", length = numberOfPrecursors)
-  pointsAnalysis[match(x = selectionAnalysisPcaLoadingSet, table = filter)] <- TRUE
-  pointsFragment <- vector(mode = "logical", length = numberOfPrecursors)
-  pointsFragment[match(x = selectionFragmentPcaLoadingSet, table = filter)] <- TRUE
-  pointsSearch <- vector(mode = "logical", length = numberOfPrecursors)
-  pointsSearch[match(x = selectionSearchPcaLoadingSet, table = filter)] <- TRUE
-  
-  annotatedPoints <- pointColorsAnno != "black"
-  selectedPoints  <- pointsAnalysis | pointsFragment | pointsSearch
-  lv1points <-   annotatedPoints  &   selectedPoints
-  lv2points <- (!annotatedPoints) &   selectedPoints
-  lv3points <-   annotatedPoints  & (!selectedPoints)
-  lv4points <- (!annotatedPoints) & (!selectedPoints)
-  
-  #poisX <- c(poisX[!annotatedPoints], poisX[annotatedPoints])
-  #poisY <- c(poisY[!annotatedPoints], poisY[annotatedPoints])
-  #pointSizesAnno <- c(pointSizesAnno[!annotatedPoints], pointSizesAnno[annotatedPoints])
-  #pointColorsAnno <- c(pointColorsAnno[!annotatedPoints], pointColorsAnno[annotatedPoints])
-  #pointsAnalysis <- c(pointsAnalysis[!annotatedPoints], pointsAnalysis[annotatedPoints])
-  #pointsFragment <- c(pointsFragment[!annotatedPoints], pointsFragment[annotatedPoints])
-  #pointsSearch <- c(pointsSearch[!annotatedPoints], pointsSearch[annotatedPoints])
-  
-  poisX           <- c(poisX          [lv4points], poisX          [lv3points], poisX          [lv2points], poisX          [lv1points])
-  poisY           <- c(poisY          [lv4points], poisY          [lv3points], poisY          [lv2points], poisY          [lv1points])
-  pointSizesAnno  <- c(pointSizesAnno [lv4points], pointSizesAnno [lv3points], pointSizesAnno [lv2points], pointSizesAnno [lv1points])
-  pointColorsAnno <- c(pointColorsAnno[lv4points], pointColorsAnno[lv3points], pointColorsAnno[lv2points], pointColorsAnno[lv1points])
-  pointsAnalysis  <- c(pointsAnalysis [lv4points], pointsAnalysis [lv3points], pointsAnalysis [lv2points], pointsAnalysis [lv1points])
-  pointsFragment  <- c(pointsFragment [lv4points], pointsFragment [lv3points], pointsFragment [lv2points], pointsFragment [lv1points])
-  pointsSearch    <- c(pointsSearch   [lv4points], pointsSearch   [lv3points], pointsSearch   [lv2points], pointsSearch   [lv1points])
-  
-  resultObjPoints <- generatePoints(
-    poisX = poisX, poisY = poisY, 
-    pointSizesAnno = pointSizesAnno, pointColorsAnno = pointColorsAnno, 
-    pointsAnalysis = pointsAnalysis, pointsFragment = pointsFragment, pointsSearch = pointsSearch,
-    pointSizeModifier = NULL
-  )
-  pointSizes    <- resultObjPoints$pointSizes
-  pointColors   <- resultObjPoints$pointColors
-  poisXpoints   <- resultObjPoints$poisXpoints
-  poisYpoints   <- resultObjPoints$poisYpoints
-  mappingToData <- resultObjPoints$mappingToData
-  
-  switch(loadingsLabels,
-         "None"={## no labels
-           labels <- NULL
-         },
-         "m/z / RT"={## mz/rt
-           labels <- dataList$precursorLabels[filter]
-           labels <- c(labels[lv4points], labels[lv3points], labels[lv2points], labels[lv1points])
-           #labels <- c(labels[!annotatedPoints], labels[annotatedPoints])
-         },
-         "Metabolite name"={## name
-           labels <- dataList$dataFrameInfos[filter, "Metabolite name"]
-           labels <- c(labels[lv4points], labels[lv3points], labels[lv2points], labels[lv1points])
-           #labels <- c(labels[!annotatedPoints], labels[annotatedPoints])
-         },
-         "Metabolite family"={## family
-           featureFamilies <- dataList$annoArrayOfLists[filter]
-           labels <- unlist(lapply(X = featureFamilies, FUN = function(x){
-             ifelse(
-               test = length(x) == 0, 
-               yes = "-", 
-               no = paste(unlist(x), collapse = ", ")
-             )
-           }))
-           labels <- c(labels[lv4points], labels[lv3points], labels[lv2points], labels[lv1points])
-         },
-         {## unknown state
-           stop(paste("Unknown loadingsLabels value", loadingsLabels))
-         }
-  )## end switch
-  
-  ## points
-  #points(x = poisXpoints, y = poisYpoints, col = pointColors, pch=19, cex=pointSizes)
-  if(showLoadingsAbundance){
-    precursorMeansNorm <- dataList$dataFrameMeasurements[filter, "meanAllNormed"]
-    precursorMeansNorm <- c(precursorMeansNorm[lv4points], precursorMeansNorm[lv3points], precursorMeansNorm[lv2points], precursorMeansNorm[lv1points])
-    #precursorMeansNorm <- c(precursorMeansNorm[!annotatedPoints], precursorMeansNorm[annotatedPoints])
-    precursorMeansNorm <- precursorMeansNorm[mappingToData]
-    pointSizes <- pointSizes * 2 * precursorMeansNorm
-  }
-  
-  ############################################################################################
-  ## plot
-  par(mar=c(3 + 0.5125, 3+0.125, 2, 1), mgp = c(2, 1, 0))  ## c(bottom, left, top, right)
-  #plot(x = dataDimOne, y = dataDimTwo, xlim = xInterval, ylim = yInterval, xlab = xAxisLabel, ylab = yAxisLabel, main = "Loadings", pch=19, cex=0.7, col = nodeColors)
-  plot(x = NULL, y = NULL, xlim = xInterval, ylim = yInterval, xlab = xAxisLabel, ylab = yAxisLabel, main = "Loadings")
-  ### changing this to 22 and will see what happens...1:length(filterObj$grouXXXps),lty=1,lwd=2
-  points(x = poisXpoints, y = poisYpoints, col = pointColors, pch=19, cex=pointSizes)
-  
-  ## axis
-  xInt <- xMax - xMin
-  yInt <- yMax - yMin
-  xl <- xMin - xInt
-  xr <- xMax + xInt
-  yl <- yMin - yInt
-  yr <- yMax + yInt
-  ##############
-  #segments(x0 = xl, x1 = xr, y0 = 0, y1 = 0, col = "black", lwd = 1)
-  #segments(x0 = 0, x1 = 0, y0 = yl, y1 = yr, col = "black", lwd = 1)
-  #############
-  
-  
-  
-  if(all(!is.null(labels), length(labels) > 0))
-    graphics::text(  x = poisX - 0.0, y = poisY + 0.0, labels = labels, pos = 4)
-  
-  uniqueIndeces     <- which(!duplicated(resultObjAnno$setOfAnnotations))
-  uniqueAnnotations <- resultObjAnno$setOfAnnotations[uniqueIndeces]
-  uniqueColors      <- resultObjAnno$setOfColors[uniqueIndeces]
-  
-  resultList <- list(
-    setOfAnnotations = uniqueAnnotations,
-    setOfColors      = uniqueColors
-  )
-  return(resultList)
-}
-##### adding end ##########
-
 
 
 generatePoints <- function(poisX, poisY, pointSizesAnno, pointColorsAnno, pointsAnalysis, pointsFragment, pointsSearch, pointSizeModifier){

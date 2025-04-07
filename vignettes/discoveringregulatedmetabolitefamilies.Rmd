@@ -41,38 +41,19 @@ First, we load the data and summarise it
 ```{r load-data}
 
 # Load separate files
-
 filePeakMatrixPath <- system.file("extdata/showcase/Metabolite_profile_showcase.txt", package = "MetFamily")
-
 fileSpectra <- system.file("extdata/showcase/MSMS_library_showcase.msp", package = "MetFamily")
+fileAnnotation <- system.file("extdata/testdata/canopus/canopus1680.txt", package = "MetFamily")
 
-fileAnnotation <- system.file("extdata/testdata/canopus/canopusShort.txt", package = "MetFamily")
+parameterSet <- parameterSetDefault()
 
-parameterSetPath <- system.file("extdata/testdata/parameterSet.RData",  package = "MetFamily" )
-load(parameterSetPath)
-
-resultObj <- convertToProjectFile(filePeakMatrixPath, 
-                                 fileSpectra,
-                                 parameterSet = parameterSet, 
-                                 progress = FALSE)
-  
-lines <- sparseMatrixToString(matrixRows = resultObj$matrixRows, matrixCols = resultObj$matrixCols,
-                              matrixVals = resultObj$matrixVals, parameterSet = parameterSet)
-
-dataList0 <- readProjectData(fileLines = lines, progress = FALSE)
-
+dataList <- projectFromFiles(filePeakMatrixPath, 
+                              fileSpectra,
+                              parameterSet = parameterSet,
+                              annot_path =fileAnnotation)
 
 ```
 
-```{r}
-# add qfeatures
-
-dataList <- add_qfeatures(dataList0, qfeatures = resultObj$qfeatures, fileAnnotation)
-
-# *** gp: PR works until here to reproduce previous behavior with a simpler workflow
-
-
-```
 
 ```{r eval=FALSE, include=FALSE}
 
@@ -80,9 +61,6 @@ dataList <- add_qfeatures(dataList0, qfeatures = resultObj$qfeatures, fileAnnota
 
 # fileName <- system.file("extdata/showcase/Project_file_showcase_annotated.csv.gz", package = "MetFamily")
 # project <- readClusterDataFromProjectFile(file = fileName)
-
-project$dataFrameMS1Header$Annotation
-dataList$dataFrameMS1Header$Annotation
 
 
 ```
@@ -94,7 +72,12 @@ We can filter the data to remove low quality data points
 
 ```{r filter-data}
 
-# todo...
+filterObj <- makeFilterObj(dataList, filter_average = 10000, filter_lfc = 2)
+
+# fileName <- system.file("extdata/testdata/canopus/filterPca_canopus.rds", package = "MetFamily")
+# filterObj_file <- readRDS(fileName)
+# identical(filterObj_file, filterObj)
+
 
 ```
 
@@ -104,8 +87,6 @@ We can filter the data to remove low quality data points
 PCA on MS1 in Figure \@ref(fig:pca). 
 
 ```{r pca, fig.cap="PCA of MS1.", echo=FALSE}
-fileName <- system.file("extdata/testdata/filterObj.Rdata", package = "MetFamily")
-load(fileName) 
 
 pca <- calculatePCA(dataList=dataList,
                          filterObj=filterObj, 
@@ -113,44 +94,68 @@ pca <- calculatePCA(dataList=dataList,
                          scaling="None", 
                     logTransform=FALSE)
 
-## Need to be global variables because they are not 
-## passed to getPcaPerformanceIndicator() as parameters. 
-pcaDimensionOne <<- 1
-pcaDimensionTwo <<- 2
+pcaDimensionOne <- 1
+pcaDimensionTwo <- 2
 
-  resultObj <- calcPlotPCAscores(
-    pcaObj = pca, 
-    dataList = dataList, #project, 
-    filterObj = filterObj,
-    pcaDimensionOne = pcaDimensionOne, 
-    pcaDimensionTwo = pcaDimensionTwo, 
-    showScoresLabels = FALSE, 
-    xInterval = NULL, 
-    yInterval = NULL
+# could be easily implemented with ggplot
+resultObj <- calcPlotPCAscores(
+  pcaObj = pca, 
+  dataList = dataList,
+  filterObj = filterObj,
+  pcaDimensionOne = pcaDimensionOne, 
+  pcaDimensionTwo = pcaDimensionTwo, 
+  showScoresLabels = FALSE, 
+  xInterval = NULL, 
+  yInterval = NULL
 )
 
-  # undebug(calcPlotPCAloadings)
-  # undebug(getPrecursorColors)
-  
-  resultObj <- calcPlotPCAloadings(
-    pcaObj = pca, 
-    dataList = dataList, #project, 
-    filter = filterObj, 
-    pcaDimensionOne = pcaDimensionOne, 
-    pcaDimensionTwo = pcaDimensionTwo, 
-    selectionFragmentPcaLoadingSet = NULL,
-    selectionAnalysisPcaLoadingSet = NULL,
-    selectionSearchPcaLoadingSet   = NULL,
-    xInterval = NULL, 
-    yInterval = NULL,
-    loadingsLabels = "None", 
-    showLoadingsAbundance = FALSE, 
-    showLoadingsFeaturesAnnotated   = TRUE,
-    showLoadingsFeaturesUnannotated = TRUE,
-    showLoadingsFeaturesSelected    = TRUE,
-    showLoadingsFeaturesUnselected  = TRUE
-  )
+resultObj <- calcPlotPCAloadings(
+  pcaObj = pca,
+  dataList = dataList,
+  # filter = filterObj$filter, # deprecated
+  pcaDimensionOne = pcaDimensionOne,
+  pcaDimensionTwo = pcaDimensionTwo,
+  selectionFragmentPcaLoadingSet = NULL,
+  selectionAnalysisPcaLoadingSet = NULL,
+  selectionSearchPcaLoadingSet   = NULL,
+  xInterval = NULL,
+  yInterval = NULL,
+  loadingsLabels = "None",
+  showLoadingsAbundance = FALSE,
+  showLoadingsFeaturesAnnotated   = TRUE,
+  showLoadingsFeaturesUnannotated = TRUE,
+  showLoadingsFeaturesSelected    = TRUE,
+  showLoadingsFeaturesUnselected  = TRUE
+)
 
+
+
+# stricter filter, only annotated features
+
+filterObj <- makeFilterObj(dataList, filter_average = 1500, filter_lfc = 0)
+
+pca <- calculatePCA(dataList=dataList,
+                         filterObj=filterObj, 
+                         ms1AnalysisMethod="PCA (Principal Component Analysis)", 
+                         scaling="None", 
+                    logTransform=FALSE)
+
+# could be easily implemented with ggplot
+resultObj <- calcPlotPCAscores(
+  pcaObj = pca, 
+  dataList = dataList,
+  filterObj = filterObj,
+  showScoresLabels = FALSE, 
+)
+
+resultObj <- calcPlotPCAloadings(
+  pcaObj = pca,
+  dataList = dataList,
+  showLoadingsFeaturesAnnotated   = T,
+  showLoadingsFeaturesUnannotated = F,
+  showLoadingsFeaturesSelected    = F,
+  showLoadingsFeaturesUnselected  = F
+)
     
     
 ```
@@ -182,7 +187,7 @@ load(fileName)
 fileName <- system.file("extdata/testdata/hcaFilter.Rdata", package = "MetFamily")
 load(fileName) 
 
-returnObj <- calcPlotDendrogram(dataList=dataList2, #project, 
+returnObj <- calcPlotDendrogram(dataList=dataList, #project, 
                                 filter=filter, 
                                 clusterDataList=clusterDataList, 
                                 annoPresentAnnotationsList = annoPresentAnnotationsList ,
