@@ -1,10 +1,10 @@
 #' Default values
 #'
 #' @returns list parameterSet
-#' @noRd
+#' @export
 importParameterSetInit <- function() {
   
-  importParameterSetInit <- list(
+  list(
     minimumIntensityOfMaximalMS2peak = 2000,
     minimumProportionOfMS2peaks = 0.05,
     neutralLossesPrecursorToFragments = TRUE,

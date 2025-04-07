@@ -2319,7 +2319,7 @@ calcPlotPCAscores <- function(pcaObj, dataList, filterObj,
 #' @export
 calcPlotPCAloadings <- function(
     pcaObj, dataList, filterVec = NULL, 
-    pcaDimensionOne = 1, pcaDimensionTwo = 1, 
+    pcaDimensionOne = 1, pcaDimensionTwo = 2, 
     selectionFragmentPcaLoadingSet = NULL, selectionAnalysisPcaLoadingSet = NULL, 
     selectionSearchPcaLoadingSet = NULL, xInterval = NULL, yInterval = NULL, 
     loadingsLabels = "None", showLoadingsAbundance = FALSE,
@@ -2431,7 +2431,7 @@ calcPlotPCAloadings <- function(
   yMin <- min(dataDimTwo)
   yMax <- max(dataDimTwo)
   
-  # gp: when would these be missing?
+  # i.e. if no data
   if(any(is.na(c(xMin, xMax, yMin, yMax)))){
     xMin <- -1
     xMax <- 1
@@ -2455,7 +2455,7 @@ calcPlotPCAloadings <- function(
   selectionAnalysisPcaLoadingSet <- intersect(selectionAnalysisPcaLoadingSet, filter_full)
   selectionSearchPcaLoadingSet   <- intersect(selectionSearchPcaLoadingSet  , filter_full)
   
-  numberOfPrecursors <- length(dataDimOne)
+  numberOfPrecursors <- length(dataDimOne_f)
   
   poisX <- dataDimOne_f
   poisY <- dataDimTwo_f

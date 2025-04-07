@@ -9,7 +9,7 @@ calcPlotPCAloadings(
   dataList,
   filterVec = NULL,
   pcaDimensionOne = 1,
-  pcaDimensionTwo = 1,
+  pcaDimensionTwo = 2,
   selectionFragmentPcaLoadingSet = NULL,
   selectionAnalysisPcaLoadingSet = NULL,
   selectionSearchPcaLoadingSet = NULL,

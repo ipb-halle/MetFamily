@@ -45,7 +45,7 @@
 #' 
 readMSDial <- function(file, version){
     table <- read.table(file, fill = TRUE, sep = "\t",
-                        quote = "", header = FALSE, colClasses = "character")
+                        quote = "", header = FALSE, colClasses = "character", comment.char = "")
     
     # table <- readr::read_tsv(file, col_names = F, col_types = cols(.default = col_character()))
     

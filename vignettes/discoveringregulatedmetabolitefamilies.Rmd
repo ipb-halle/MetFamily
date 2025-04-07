@@ -88,8 +88,6 @@ PCA on MS1 in Figure \@ref(fig:pca).
 
 ```{r pca, fig.cap="PCA of MS1.", echo=FALSE}
 
-filterObj <- makeFilterObj(dataList, filter_average = 2000, filter_lfc = 1)
-
 pca <- calculatePCA(dataList=dataList,
                          filterObj=filterObj, 
                          ms1AnalysisMethod="PCA (Principal Component Analysis)", 
@@ -130,6 +128,34 @@ resultObj <- calcPlotPCAloadings(
   showLoadingsFeaturesUnselected  = TRUE
 )
 
+
+
+# stricter filter, only annotated features
+
+filterObj <- makeFilterObj(dataList, filter_average = 1500, filter_lfc = 0)
+
+pca <- calculatePCA(dataList=dataList,
+                         filterObj=filterObj, 
+                         ms1AnalysisMethod="PCA (Principal Component Analysis)", 
+                         scaling="None", 
+                    logTransform=FALSE)
+
+# could be easily implemented with ggplot
+resultObj <- calcPlotPCAscores(
+  pcaObj = pca, 
+  dataList = dataList,
+  filterObj = filterObj,
+  showScoresLabels = FALSE, 
+)
+
+resultObj <- calcPlotPCAloadings(
+  pcaObj = pca,
+  dataList = dataList,
+  showLoadingsFeaturesAnnotated   = T,
+  showLoadingsFeaturesUnannotated = F,
+  showLoadingsFeaturesSelected    = F,
+  showLoadingsFeaturesUnselected  = F
+)
     
     
 ```
