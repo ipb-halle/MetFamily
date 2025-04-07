@@ -1796,14 +1796,6 @@ getPrecursorSetFromTreeSelection <- function(clusterDataList, clusterLabel){
 
 #' @export
 getSpectrumStatistics <- function(dataList, precursorSet){
-  if(FALSE){
-    dataList_ <<- dataList
-    precursorSet_ <<- precursorSet
-  }
-  if(FALSE){
-    dataList <- dataList_
-    precursorSet <- precursorSet_
-  }
   
   fragmentCounts <- Matrix::colSums(x = dataList$featureMatrix[precursorSet, , drop=FALSE] != 0)
   theseFragments <- fragmentCounts > 0

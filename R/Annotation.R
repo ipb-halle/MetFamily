@@ -30,21 +30,6 @@
 
 #' @export
 doAnnotation <- function(filePath, propertiesList, featureMatrix, parameterSet, classesWhiteList = NULL, progress = FALSE){
-  if(TRUE){
-    filePath_ <<- filePath
-    propertiesList_ <<- propertiesList
-    featureMatrix_ <<- featureMatrix
-    parameterSet_ <<- parameterSet
-    classesWhiteList_ <<- classesWhiteList
-  }
-  if(FALSE){
-    filePath <- filePath_
-    propertiesList <- propertiesList_
-    featureMatrix <- featureMatrix_
-    parameterSet <- parameterSet_
-    classesWhiteList = classesWhiteList_
-    progress <- FALSE
-  }
   
   if(progress)  incProgress(amount = 0, detail = "Init") else print("Init")
   ################################################
@@ -659,16 +644,6 @@ getAvailableClassifiers <- function(resultFolderForClassifiers){
 
 #' @export
 evaluatePutativeMetaboliteFamiliesOfPrecursorSet <- function(dataList, precursorSet, classToSpectra_class){
-  if(FALSE){
-    dataList_ <<- dataList
-    precursorSet_ <<- precursorSet
-    classToSpectra_class_ <<- classToSpectra_class
-  }
-  if(FALSE){
-    dataList <<- dataList_
-    precursorSet <<- precursorSet_
-    classToSpectra_class <<- classToSpectra_class_
-  }
   
   ## fetch hits of interest
   classesAll  <- character()
@@ -753,16 +728,6 @@ evaluatePutativeMetaboliteFamiliesOfPrecursorSet <- function(dataList, precursor
   return(returnObj)
 }
 evaluatePutativeMetaboliteFamiliesOfPrecursorSet_old <- function(dataList, precursorSet, classToSpectra_class){
-  if(FALSE){
-    dataList_ <<- dataList
-    precursorSet_ <<- precursorSet
-    classToSpectra_class_ <<- classToSpectra_class
-  }
-  if(FALSE){
-    dataList <<- dataList_
-    precursorSet <<- precursorSet_
-    classToSpectra_class <<- classToSpectra_class_
-  }
   
   ## hits: list of 
   hitLists <- list()

@@ -71,35 +71,6 @@ colorLabels <- function(labels, clusterMembers, color, labelsToRemove = NULL, ne
 #' @returns ?
 #' @export
 calcPlotDendrogram <- function(dataList, filter, clusterDataList, annoPresentAnnotationsList, annoPresentColorsList, distanceMeasure, selectionFragmentTreeNodeSet = NULL, selectionAnalysisTreeNodeSet = NULL, selectionSearchTreeNodeSet = NULL, showClusterLabels, hcaPrecursorLabels, xInterval = NULL){
-  if(FALSE){
-    dataList_ <<- dataList
-    filter__ <<- filter
-    clusterDataList_ <<- clusterDataList
-    annoPresentAnnotationsList_ <<- annoPresentAnnotationsList
-    annoPresentColorsList_ <<- annoPresentColorsList
-    distanceMeasure_ <<- distanceMeasure
-    selectionFragmentTreeNodeSet_ <<- selectionFragmentTreeNodeSet
-    selectionAnalysisTreeNodeSet_ <<- selectionAnalysisTreeNodeSet
-    selectionSearchTreeNodeSet_ <<- selectionSearchTreeNodeSet
-    showClusterLabels_ <<- showClusterLabels
-    hcaPrecursorLabels_ <<- hcaPrecursorLabels
-    xInterval_ <<- xInterval
-  }
-  if(FALSE){
-    dataList <<- dataList_
-    filter <<- filter__
-    clusterDataList <<- clusterDataList_
-    annoPresentAnnotationsList <<- annoPresentAnnotationsList_
-    annoPresentColorsList <<- annoPresentColorsList_
-    distanceMeasure <<- distanceMeasure_
-    selectionFragmentTreeNodeSet <<- selectionFragmentTreeNodeSet_
-    selectionAnalysisTreeNodeSet <<- selectionAnalysisTreeNodeSet_
-    selectionSearchTreeNodeSet <<- selectionSearchTreeNodeSet_
-    showClusterLabels <<- showClusterLabels_
-    hcaPrecursorLabels <<- hcaPrecursorLabels_
-    xInterval <<- xInterval_
-  }
-  
   
   if(is.null(xInterval))
     xInterval <- c(1, clusterDataList$numberOfPrecursorsFiltered)
@@ -356,48 +327,8 @@ calcPlotDendrogram_plotly <- function(
   selectionFragmentTreeNodeSet = NULL, selectionAnalysisTreeNodeSet = NULL, selectionSearchTreeNodeSet = NULL, 
   selectedSelection, heatmapContent, heatmapOrdering, heatmapProportion)
   {
-  
-  if(FALSE){
-    dataList_ <<- dataList
-    filterObj_1 <<- filterObj
-    clusterDataList_ <<- clusterDataList
-    #annoPresentAnnotationsList_ <<- annoPresentAnnotationsList
-    #annoPresentColorsList_ <<- annoPresentColorsList
-    distanceMeasure_ <<- distanceMeasure
-    showClusterLabels_ <<- showClusterLabels
-    hcaPrecursorLabels_ <<- hcaPrecursorLabels
-    selectionFragmentTreeNodeSet_ <<- selectionFragmentTreeNodeSet
-    selectionAnalysisTreeNodeSet_ <<- selectionAnalysisTreeNodeSet
-    selectionSearchTreeNodeSet_ <<- selectionSearchTreeNodeSet
-    selectedSelection_ <<- selectedSelection
-    heatmapContent_ <<- heatmapContent
-    heatmapOrdering_ <<- heatmapOrdering
-    heatmapProportion_ <<- heatmapProportion
-    #xInterval_ <<- xInterval
-    #stop()
-  }
-  if(FALSE){
-    dataList <- dataList_
-    filterObj <- filterObj_1
-    clusterDataList <- clusterDataList_
-    #annoPresentAnnotationsList <- annoPresentAnnotationsList_
-    #annoPresentColorsList <- annoPresentColorsList_
-    distanceMeasure <- distanceMeasure_
-    showClusterLabels <- showClusterLabels_
-    hcaPrecursorLabels <- hcaPrecursorLabels_
-    selectionFragmentTreeNodeSet <- selectionFragmentTreeNodeSet_
-    selectionAnalysisTreeNodeSet <- selectionAnalysisTreeNodeSet_
-    selectionSearchTreeNodeSet <- selectionSearchTreeNodeSet_
-    selectedSelection <- selectedSelection_
-    heatmapContent <- heatmapContent_
-    heatmapOrdering <- heatmapOrdering_
-    heatmapProportion <- heatmapProportion_
-    #xInterval <- xInterval_
-  }
-  
-  #stop("hihi")
-  
-  
+ 
+   
   #if(is.null(xInterval))
   #  xInterval <- c(1, clusterDataList$numberOfPrecursorsFiltered)
   
@@ -1229,29 +1160,9 @@ calcPlotDendrogram_plotly <- function(
 calcPlotHeatmap <- function(dataList, filterObj, clusterDataList, selectedTreeNodeSet,
                             frameColor, heatmapContent, heatmapOrdering, xInterval = NULL){
   
-  if(FALSE){
-    dataList_ <<- dataList
-    filterObj_ <<- filterObj
-    clusterDataList_ <<- clusterDataList
-    selectedTreeNodeSet_ <<- selectedTreeNodeSet
-    frameColor_ <<- frameColor
-    heatmapContent_ <<- heatmapContent
-    heatmapOrdering_ <<- heatmapOrdering
-    xInterval_ <<- xInterval
-  }
-  if(FALSE){
-    dataList <- dataList_
-    filterObj <- filterObj_
-    clusterDataList <- clusterDataList_
-    selectedTreeNodeSet <- selectedTreeNodeSet_
-    frameColor <- frameColor_
-    heatmapContent <- heatmapContent_
-    heatmapOrdering <- heatmapOrdering_
-    xInterval <- xInterval_
-  }
-  
-  if(is.null(xInterval))
+  if(is.null(xInterval)) {
     xInterval <- c(1, clusterDataList$numberOfPrecursorsFiltered)
+  }
   
   ####################
   ## heatmap
@@ -1523,16 +1434,7 @@ calcPlotHeatmapOld <- function(dataList, filterObj, clusterDataList, xInterval =
 }
 
 reorderAnnotationsForLegend <- function(annoLabels, annoColors){
-  if(FALSE){
-    annoLabels_ <<- annoLabels
-    annoColors_ <<- annoColors
-  }
-  if(FALSE){
-    annoLabels <<- annoLabels_
-    annoColors <<- annoColors_
-  }
-  
-  
+
   ignoreThere  <- any(annoLabels == "Ignore")
   unknownThere <- any(annoLabels == "Unknown")
   numberOfRealAnnotations <- length(annoLabels)
@@ -1988,32 +1890,7 @@ createTickLabels <- function(maximumNumberOfLabels, max, labelPrefix){
 #' @export
 calcPlotMS2 <- function(dataList, fragmentsX = NULL, fragmentsY = NULL, fragmentsColor = NULL, fragmentsDiscriminativity = NULL, fragmentsX_02 = NULL, fragmentsY_02 = NULL, fragmentsColor_02 = NULL, xInterval = NULL, selectedFragmentIndex = NULL, dendrogramFragmentStatistics = FALSE){
   
-  if(FALSE){
-    dataList_ <<- dataList
-    fragmentsX_ <<- fragmentsX
-    fragmentsY_ <<- fragmentsY
-    fragmentsColor_ <<- fragmentsColor
-    fragmentsDiscriminativity_ <<- fragmentsDiscriminativity
-    fragmentsX_02_ <<- fragmentsX_02
-    fragmentsY_02_ <<- fragmentsY_02
-    fragmentsColor_02_ <<- fragmentsColor_02
-    xInterval_ <<- xInterval
-    selectedFragmentIndex_ <<- selectedFragmentIndex
-  }
-  if(FALSE){
-    dataList <<- dataList_
-    fragmentsX <<- fragmentsX_
-    fragmentsY <<- fragmentsY_
-    fragmentsColor <<- fragmentsColor_
-    fragmentsDiscriminativity <<- fragmentsDiscriminativity_
-    fragmentsX_02 <<- fragmentsX_02_
-    fragmentsY_02 <<- fragmentsY_02_
-    fragmentsColor_02 <<- fragmentsColor_02_
-    xInterval <<- xInterval_
-    selectedFragmentIndex <<- selectedFragmentIndex_
-  }
-  
-  
+
   ####################
   ## fragment spectrum
   if(is.null(xInterval))
@@ -3003,18 +2880,7 @@ plotFragments <- function(masses, numberOfFragments, colors = NULL, numberOfPrec
   return(resultObj)
 }
 plotFragments2 <- function(masses, numberOfFragments, numberOfPrecursors, xInterval = NULL, yInterval = NULL){
-  if(FALSE){
-    masses_ <<- masses
-    numberOfFragments_ <<- numberOfFragments
-    numberOfPrecursors_ <<- numberOfPrecursors
-  }
-  if(FALSE){
-    masses <- masses_
-    numberOfFragments <- numberOfFragments_
-    numberOfPrecursors <- numberOfPrecursors_
-  }
-  
-  
+
   if(is.null(xInterval)){
     xMin <- min(masses)
     xMax <- max(masses)

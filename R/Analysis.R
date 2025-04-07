@@ -690,21 +690,6 @@ calculateDistanceMatrix <- function(dataList, filter, distanceMeasure = "Jaccard
 #' @export
 calculateCluster <- function(dataList, filterObj, distanceMatrix, method, distanceMeasure, progress = FALSE){
   
-  if(FALSE){
-    dataList_ <<- dataList
-    filterObj_ <<- filterObj
-    distanceMatrix_ <<- distanceMatrix
-    method_ <<- method
-    distanceMeasure_ <<- distanceMeasure
-  }
-  if(FALSE){
-    dataList <- dataList_
-    filterObj <- filterObj_
-    distanceMatrix <- distanceMatrix_
-    method <- method_
-    distanceMeasure <- distanceMeasure_
-  }
-  
   numberOfPrecursorsFiltered <- length(filterObj$filter)
   ##########################################
   ## compute gui stuff
