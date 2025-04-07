@@ -881,18 +881,7 @@ performPca <- function(dataList, dataFrame2, ms1AnalysisMethod){
   print("######################################################################################")
   print(ms1AnalysisMethod)
   
-  if(FALSE){
-    dataFrame2_ <<- dataFrame2
-    ms1AnalysisMethod_ <<- ms1AnalysisMethod
-    dataList_ <<- dataList
-  }
-  if(FALSE){
-    dataFrame2 <- dataFrame2_
-    ms1AnalysisMethod <- ms1AnalysisMethod_
-    dataList <- dataList_
-  }
-  
-  
+ 
   ## TODO pcaMethods confidence intervals analog to MetaboAnalyst: pcaMethods:::simpleEllipse
   minimumNumberOfComponents <- 5
   numberOfComponents <- min(minimumNumberOfComponents, nrow(dataFrame2))

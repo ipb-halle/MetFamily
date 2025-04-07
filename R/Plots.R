@@ -2989,27 +2989,7 @@ calcPlotSpectrumVsClass_small <- function(masses_spec, intensity_spec, colors_sp
 
 #' @export
 calcPlotSpectrumVsClass_big <- function(masses_spec, intensity_spec, colors_spec, masses_class, frequency_class, colors_class, singleSpec, xInterval){
-  if(TRUE){
-    masses_spec_ <<- masses_spec
-    intensity_spec_ <<- intensity_spec
-    colors_spec_ <<- colors_spec
-    masses_class_ <<- masses_class
-    frequency_class_ <<- frequency_class
-    colors_class_ <<- colors_class
-    singleSpec_ <<- singleSpec
-    xInterval_ <<- xInterval
-  }
-  if(FALSE){
-    masses_spec <- masses_spec_
-    intensity_spec <- intensity_spec_
-    colors_spec <- colors_spec_
-    masses_class <- masses_class_
-    frequency_class <- frequency_class_
-    colors_class <- colors_class_
-    singleSpec <<- singleSpec_
-    xInterval <- xInterval_
-  }
-  
+
   onlyClass <- is.null(masses_class)
   yInterval <- c(ifelse(test = is.null(masses_class), yes = 0, no = -1), 1)
   
