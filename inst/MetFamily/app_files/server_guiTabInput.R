@@ -149,11 +149,7 @@ obsImportMs2DataFile <- observeEvent(input$ms2DataFile$datapath, {
 })
 
 setImportState <- function(){
-  print("inside setImportState")
-  
-  if (!"sis_n" %in% ls()) sis_n <<- 0
-  sis_n <<- sis_n + 1
-  
+
   fileMs1Path <- input$ms1DataFile$datapath
   fileMs1Name <- input$ms1DataFile$name
   fileMs2Path <- input$ms2DataFile$datapath
@@ -166,21 +162,14 @@ setImportState <- function(){
     shinyjs::disable("importMs1Ms2Data")
   }
   
-  print("setImportState - 1")
-  
   if(!is.null(fileMs2Path)) {
     shinyjs::enable("importMs2Data")
   } else {
     shinyjs::disable("importMs2Data")
   }
   
-  print("setImportState - 2")
-  
-  # browser()
-  
   updateFileInputInfo()
   
-  print("setImportState - 3")
 }
 obsImportMs1Ms2Data <- observeEvent(input$importMs1Ms2Data, {
   disableLoadButtons()
