@@ -132,7 +132,9 @@ sparseMatrixToString <- function(matrixRows, matrixCols, matrixVals, parameterSe
 #'
 #' @returns dataList
 #' @export
-projectFromFiles <- function(ms1_path, ms2_path, annot_path = NULL, parameterSet = NULL) {
+projectFromFiles <- function(ms1_path, ms2_path, annot_path = NULL,
+                             siriusCategory = c("NPC class"),
+                             parameterSet = NULL) {
   
   if (is.null(parameterSet)) {
     parameterSet <- parameterSetDefault()
@@ -147,7 +149,7 @@ projectFromFiles <- function(ms1_path, ms2_path, annot_path = NULL, parameterSet
   dataList <- readProjectData(lines)
   
   if(!is.null(annot_path)) {
-    dataList <- add_qfeatures(dataList, resultObj$qfeatures, annot_path)
+    dataList <- add_qfeatures(dataList, resultObj$qfeatures, annot_path, siriusCategory)
   }
   
   dataList
@@ -858,6 +860,7 @@ readProjectData <- function(fileLines, progress = FALSE)
 
 #' Add qfeatures to dataList
 #' 
+#' 
 #'
 #' @param dataList Output from readProjectData.
 #' @param qfeatures qfeature object, can be taken from resultObj$qfeatures.
@@ -865,16 +868,16 @@ readProjectData <- function(fileLines, progress = FALSE)
 #'
 #' @returns The dataList object with added sirius annotations.
 #' @export
-add_qfeatures <- function(dataList, qfeatures, fileAnnotation = NULL) {
+add_qfeatures <- function(dataList, qfeatures, fileAnnotation = NULL, siriusCategory = "NPC class") {
   # This function takes snippets previously in convertToProjectFile and readProjectData
-  # to streamline the process de declutter the aforementionned functions.
+  # to streamline the process and declutter the aforementionned functions.
   
   # The function does not do anything without annotation file
   if (is.null(fileAnnotation)) {
     return(dataList)
   }
   
-  qfeatures <- addSiriusAnnotations(qfeatures, fileAnnotation)
+  qfeatures <- addSiriusAnnotations(qfeatures, fileAnnotation, siriusCategory = siriusCategory)
   
   # previously used test, not sure if still needed
   if (is.null(attr(rowData(qfeatures[[1]]), "annotation column"))) {

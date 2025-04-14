@@ -1,15 +1,7 @@
 
-#########################################################################################
-#########################################################################################
-## libraries and functions
-
-sourceFolder <- getwd()
-isDevelopment <- FALSE
-errorHunting <- TRUE
-hcaHeatMapNew <- TRUE
-
-#####################################################################################################
 ## handling of errors and warnings
+errorHunting <- TRUE
+
 if(errorHunting){
   options(warn = 2, shiny.error = recover)
   #options(shiny.trace=TRUE)
@@ -24,6 +16,7 @@ if(errorHunting){
   options(shiny.testmode=FALSE)
 }
 
+
 #########################################################################################
 #########################################################################################
 ## server-side logic of the Shiny app
@@ -36,7 +29,8 @@ shinyServer(
     
     ##############################################
     ## constants
-    source("version.R")
+    # gp: added local = TRUE. Did that need to be in global env?
+    source("version.R", local = TRUE)
       
     ## annotation constants
     artifactName   <- "Ignore"

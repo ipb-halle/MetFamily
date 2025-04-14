@@ -811,6 +811,8 @@ parseMSP_chunk <- function(fileLines,
     else            return(x$rt)
   }))
   
+  print("Line814")
+  
   if(!is.na(progress))  if(progress)  incProgress(amount = 0.01, detail = paste("MS/MS file boxing", sep = "")) else print(paste("MS/MS file boxing", sep = ""))
   returnObj <- list()
   returnObj$fileSpectra <- NA
@@ -975,6 +977,8 @@ parseMSP_attributes <- function(fileSpectra, progress = FALSE, flexiblePeakList 
   spectraList[unlist(lapply(X = spectraList, FUN = is.null))] <- NULL
   
   numberOfSpectra <- length(spectraList)
+  
+  print("Line981")
   
   ## postprocess
   if(!is.na(progress))  if(progress)  incProgress(amount = 0.01, detail = paste("MS/MS file postprocessing", sep = "")) else print(paste("MS/MS file postprocessing", sep = ""))
@@ -1361,7 +1365,10 @@ mzClustGeneric <- function(p,
       
       ## xcms:::mzClust_hclust is using 
       ## the fast C implementation: .C("R_mzClust_hclust"
-      mzFragmentGroups <- xcms:::mzClust_hclust(uniqueBin,ppm_error,mzabs)
+      
+      suppressWarnings(suppressPackageStartupMessages(
+        mzFragmentGroups <- xcms:::mzClust_hclust(uniqueBin,ppm_error,mzabs)
+      ))
       mzFragmentGroups2 <- vector(mode = "integer", length = length(bin))
       for(idx in seq_along(uniqueBin))
         mzFragmentGroups2[bin==uniqueBin[[idx]]] <- mzFragmentGroups[[idx]]

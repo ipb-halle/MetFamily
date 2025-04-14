@@ -4,7 +4,12 @@
 \alias{add_qfeatures}
 \title{Add qfeatures to dataList}
 \usage{
-add_qfeatures(dataList, qfeatures, fileAnnotation = NULL)
+add_qfeatures(
+  dataList,
+  qfeatures,
+  fileAnnotation = NULL,
+  siriusCategory = "NPC class"
+)
 }
 \arguments{
 \item{dataList}{Output from readProjectData.}

@@ -7,7 +7,6 @@
 #                                      href = "css/ipb-styles.css")),
 #                  navbarPage(title = "MetFamily",
 
-
 shinyUI(
     ui =  navbarPage(title = div(img(src='img/Metfamily.gif',style="margin-top: -14px; padding-right:10px;padding-bottom:10px", height = 60)),
                      windowTitle="MetFamily",
@@ -229,13 +228,6 @@ shinyUI(
                     label = NULL, #label = 'Choose fragment matrix file',
                     accept = c('text/comma-separated-values', 'text/plain', 'text/tab-separated-values')
                   ),
-                  p("Please choose sirius annotation file"),
-                  fileInput(
-                    multiple = FALSE,
-                    inputId = 'annotationFile', 
-                    label = NULL,
-                    accept = c('text/tab-separated-values')
-                  ),
                   p("Please choose spectral library (MS/MS, .msp)"),
                   bsTooltip(id = "ms2DataFile", title = "Press to choose a MS/MS library", placement = "bottom", trigger = "hover"),
                   fileInput(
@@ -244,6 +236,18 @@ shinyUI(
                     label = NULL, #label = 'Choose fragment matrix file',
                     accept = ".msp" #c('text/plain', 'msp')
                   ),
+                  p("Optional: choose a Sirius annotation file (.tsv)"),
+                  fileInput(
+                    multiple = FALSE,
+                    inputId = 'annotationFile', 
+                    label = NULL,
+                    accept = c('.tsv', '.txt')
+                  ),
+                  p("Type and level of annotations:"),
+                  radioButtons("siriusCategory", label = NULL,
+                               choices = c("NPC class", "NPC superclass", "NPC pathway", "ClassyFire subclass",
+                                           "ClassyFire class", "ClassyFire superclass", "ClassyFire kingdom"),
+                               inline = TRUE),
                   fluidRow(
                     column(width = 6,
                            bsTooltip(id = "importMs1Ms2Data", title = "Press to import the selected metabolite profile and MS/MS library", placement = "bottom", trigger = "hover"),

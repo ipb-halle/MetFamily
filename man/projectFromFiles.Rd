@@ -4,7 +4,13 @@
 \alias{projectFromFiles}
 \title{Create a project dataList}
 \usage{
-projectFromFiles(ms1_path, ms2_path, annot_path = NULL, parameterSet = NULL)
+projectFromFiles(
+  ms1_path,
+  ms2_path,
+  annot_path = NULL,
+  siriusCategory = c("NPC class"),
+  parameterSet = NULL
+)
 }
 \arguments{
 \item{ms1_path}{file for MS1 intensity .txt file}
