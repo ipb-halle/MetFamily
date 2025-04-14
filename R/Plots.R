@@ -1,8 +1,8 @@
 
 #########################################################################################
 ## constants
-minimumProportionOfLeafs <- 0.75
-minimumProportionToShowFragment <- 0.5
+minimumProportionOfLeafs <<- 0.75
+minimumProportionToShowFragment <<- 0.5
 
 ### changing clusterNodePointSize0 from 2 to 1.8
 clusterNodePointSize0 <- 1.7/3
@@ -1601,8 +1601,11 @@ plotLegendWithBalls1 <- function(labels, xPositions, yPositions, circleXPosition
   ## circles
   for(i in seq_len(length(annoColors))){
     
+    ipch <- i
+    if (ipch > 18) ipch <- ipch - 18
+    
     ### I am changing the pch=i to labels[[i]]...col =colorsForReplicates[[i]]
-    points(x=circleXPositions[[i]], y=circleYPositions[[i]],pch=i,col =annoColors[[i]],lty=1,lwd=2)
+    points(x=circleXPositions[[i]], y=circleYPositions[[i]], pch=ipch, col =annoColors[[i]], lty=1, lwd=2)
     ## labelscol = colorsForReplicates[[i]]
     graphics::text(x = xPositions, y = yPositions, labels = labels, pos = 4)}
 }
@@ -2129,6 +2132,8 @@ calcPlotPCAscores <- function(pcaObj, dataList, filterObj,
     par(mar=c(3 +0.015, 3, 2, 1), mgp = c(2.0, 1, 0))
   }
   
+  # wrap to existing symbols
+  symbolsforreplicates <- (symbolsforreplicates - 1) %% 18 + 1
   
   plot(
     x = dataDimOne, y = dataDimTwo, 

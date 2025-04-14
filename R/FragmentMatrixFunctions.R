@@ -607,9 +607,9 @@ parseMSP_chunk <- function(fileLines,
       ms2Peaks_mz_original  <- ms2Peaks_mz
       ms2Peaks_int_original <- ms2Peaks_int
       
-      numberOfMS2PeaksOriginal <- numberOfMS2PeaksOriginal + length(ms2Peaks_mz)
+      numberOfMS2PeaksOriginal <<- numberOfMS2PeaksOriginal + length(ms2Peaks_mz)
       if(length(ms2Peaks_mz) == 0) {
-        numberOfSpectraDiscardedDueToNoPeaks <- numberOfSpectraDiscardedDueToNoPeaks + 1
+        numberOfSpectraDiscardedDueToNoPeaks <<- numberOfSpectraDiscardedDueToNoPeaks + 1
       }
       
       ###################################################################
