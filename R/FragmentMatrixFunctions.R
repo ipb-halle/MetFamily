@@ -319,14 +319,14 @@ parseMSP_chunk <- function(fileLines,
   #fileLines <- readLines(con = fileSpectra)
   numberOfFileLines <- length(fileLines)
   
-  numberOfMS2PeaksOriginal <- 0
-  numberOfMS2PeaksWithNeutralLosses <- 0
-  numberOfTooHeavyFragments <- 0
-  numberOfMS2PeaksAboveThreshold <- 0
-  numberOfMS2PeaksBelowThreshold <- 0
-  numberOfSpectraDiscardedDueToNoPeaks      <- 0
-  numberOfSpectraDiscardedDueToMaxIntensity <- 0
-  numberOfSpectraDiscardedDueToTooHeavy <- 0
+  numberOfMS2PeaksOriginal <<- 0
+  numberOfMS2PeaksWithNeutralLosses <<- 0
+  numberOfTooHeavyFragments <<- 0
+  numberOfMS2PeaksAboveThreshold <<- 0
+  numberOfMS2PeaksBelowThreshold <<- 0
+  numberOfSpectraDiscardedDueToNoPeaks      <<- 0
+  numberOfSpectraDiscardedDueToMaxIntensity <<- 0
+  numberOfSpectraDiscardedDueToTooHeavy <<- 0
   
   ## start with empty lines or not?
   endOfRecord <- TRUE
@@ -625,7 +625,7 @@ parseMSP_chunk <- function(fileLines,
           numberOfSpectraDiscardedDueToTooHeavy <- numberOfSpectraDiscardedDueToTooHeavy + 1
         }
       }
-      numberOfTooHeavyFragments <- numberOfTooHeavyFragments + numberOfTooHeavyFragmentsHere
+      numberOfTooHeavyFragments <<- numberOfTooHeavyFragments + numberOfTooHeavyFragmentsHere
       
       ###################################################################
       ## filter for ms2 peak intensity
@@ -641,12 +641,12 @@ parseMSP_chunk <- function(fileLines,
           
           ms2Peaks_mz  <- ms2Peaks_mz [fragmentsAboveThreshold]
           ms2Peaks_int <- ms2Peaks_int[fragmentsAboveThreshold]
-          numberOfMS2PeaksAboveThreshold <- numberOfMS2PeaksAboveThreshold + sum( fragmentsAboveThreshold)
-          numberOfMS2PeaksBelowThreshold <- numberOfMS2PeaksBelowThreshold + sum(!fragmentsAboveThreshold)
+          numberOfMS2PeaksAboveThreshold <<- numberOfMS2PeaksAboveThreshold + sum( fragmentsAboveThreshold)
+          numberOfMS2PeaksBelowThreshold <<- numberOfMS2PeaksBelowThreshold + sum(!fragmentsAboveThreshold)
         } else {
           ## spectrum is not considered
-          numberOfMS2PeaksBelowThreshold <- numberOfMS2PeaksBelowThreshold + length(ms2Peaks_mz)
-          numberOfSpectraDiscardedDueToMaxIntensity <- numberOfSpectraDiscardedDueToMaxIntensity + 1
+          numberOfMS2PeaksBelowThreshold <<- numberOfMS2PeaksBelowThreshold + length(ms2Peaks_mz)
+          numberOfSpectraDiscardedDueToMaxIntensity <<- numberOfSpectraDiscardedDueToMaxIntensity + 1
           ms2Peaks_mz  <- vector(mode = "numeric")
           ms2Peaks_int <- vector(mode = "numeric")
         }
@@ -735,7 +735,7 @@ parseMSP_chunk <- function(fileLines,
       )
       if(spectrumItem$peakNumber > 0){
         ## add
-        numberOfMS2PeaksWithNeutralLosses <- numberOfMS2PeaksWithNeutralLosses + spectrumItem$peakNumber
+        numberOfMS2PeaksWithNeutralLosses <<- numberOfMS2PeaksWithNeutralLosses + spectrumItem$peakNumber
         return(spectrumItem)
       } else {
         return(NULL)
