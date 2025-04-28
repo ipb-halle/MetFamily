@@ -1,4 +1,9 @@
 
+## constants
+minimumProportionOfLeafs <<- 0.75
+minimumProportionToShowFragment <<- 0.5
+
+
 
 # shinyUI(
 #   ui = fluidPage(titlePanel(ipbheader),

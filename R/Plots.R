@@ -1,8 +1,5 @@
 
 #########################################################################################
-## constants
-minimumProportionOfLeafs <<- 0.75
-minimumProportionToShowFragment <<- 0.5
 
 ### changing clusterNodePointSize0 from 2 to 1.8
 clusterNodePointSize0 <- 1.7/3
