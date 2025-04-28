@@ -3,16 +3,16 @@
 #' 
 #' @param dataList list object
 #' @param filter_average numeric
-#' @param grouXXXps vector of sample classes
+#' @param sampleClasses vector of sample classes
 #'
 #' @returns boolean vector
 #' @export
-filterThreshold <- function(dataList, filter_average, grouXXXps = dataList$grouXXXps) {
+filterThreshold <- function(dataList, filter_average, sampleClasses = dataList$sampleClasses) {
   
   # need to fix code if false
-  stopifnot(identical(grouXXXps, as.vector(grouXXXps)))
+  stopifnot(identical(sampleClasses, as.vector(sampleClasses)))
   
-  mean_colnames <- sapply(X = grouXXXps,
+  mean_colnames <- sapply(X = sampleClasses,
                           FUN = dataList$dataMeanColumnNameFunctionFromName)
   
   unname(
@@ -27,18 +27,18 @@ filterThreshold <- function(dataList, filter_average, grouXXXps = dataList$grouX
 #'
 #' @param dataList list object
 #' @param filter_lfc numeric e.g. 2 or -2
-#' @param grouXXXps vector of names for group1 and group2
+#' @param sampleClasses vector of names for group1 and group2
 #'
 #' @returns boolean vector
 #' @export
-filterLFC <- function(dataList, filter_lfc, grouXXXps = dataList$grouXXXps) {
+filterLFC <- function(dataList, filter_lfc, sampleClasses = dataList$sampleClasses) {
 
-  stopifnot("The number of grouXXXps for LFC is not equal to two!" = length(grouXXXps) == 2)
+  stopifnot("The number of sampleClasses for LFC is not equal to two!" = length(sampleClasses) == 2)
   
   test_lfc <- if(filter_lfc > 0) filter_lfc else -filter_lfc
   
   dataList$dataFrameMeasurements[
-    , dataList$lfcColumnNameFunctionFromName(grouXXXps[[1]], grouXXXps[[2]])] >= test_lfc
+    , dataList$lfcColumnNameFunctionFromName(sampleClasses[[1]], sampleClasses[[2]])] >= test_lfc
   
 }
 
@@ -53,17 +53,17 @@ filterLFC <- function(dataList, filter_lfc, grouXXXps = dataList$grouXXXps) {
 #' @param dataList list object
 #' @param filter_average numeric
 #' @param filter_lfc numeric
-#' @param grouXXXps character vector
+#' @param sampleClasses character vector
 #'
 #' @returns filterObject
 #' @export
-makeFilterObj <- function(dataList, filter_average = NULL, filter_lfc = NULL, grouXXXps = NULL) {
+makeFilterObj <- function(dataList, filter_average = NULL, filter_lfc = NULL, sampleClasses = NULL) {
   
-  if(is.null(grouXXXps)) grouXXXps <- dataList$grouXXXps
+  if(is.null(sampleClasses)) sampleClasses <- dataList$sampleClasses
   sampleSet <- dataList$groupSampleDataFrame$Sample
   
   filterHere <- filterData(
-    dataList, grouXXXps = dataList$grouXXXps, 
+    dataList, sampleClasses = dataList$sampleClasses, 
     sampleSet = sampleSet, filterBySamples = FALSE,
     filter_average = filter_average, filter_lfc = filter_lfc,
     filterList_ms2_masses = NULL, filter_ms2_ppm = NULL, 
@@ -73,7 +73,7 @@ makeFilterObj <- function(dataList, filter_average = NULL, filter_lfc = NULL, gr
   # gp: the rest is brute force to reproduce saved filterObj
   filterHere$filter <- filterHere$filter %>% purrr::set_names(dataList$precursorLabels[.])
   
-  filterHere$groupSetOriginal <- grouXXXps
+  filterHere$groupSetOriginal <- sampleClasses
   filterHere$sampleSetOriginal <- sampleSet
   filterHere$filterBySamplesOriginal <- FALSE
   
@@ -97,7 +97,7 @@ makeFilterObj <- function(dataList, filter_average = NULL, filter_lfc = NULL, gr
 #' Filter a dataList
 #'
 #' @param dataList List object
-#' @param grouXXXps sample class
+#' @param sampleClasses sample class
 #' @param sampleSet ?
 #' @param filterBySamples boolean
 #' @param filter_average numeric Features that have a mean intensity below that threshold are filtered out.
@@ -111,7 +111,7 @@ makeFilterObj <- function(dataList, filter_average = NULL, filter_lfc = NULL, gr
 #'
 #' @returns A filtered dataList object
 #' @export
-filterData <- function(dataList, grouXXXps, sampleSet = NULL, filterBySamples = FALSE, filter_average = NULL,
+filterData <- function(dataList, sampleClasses, sampleSet = NULL, filterBySamples = FALSE, filter_average = NULL,
                        filter_lfc = NULL, filterList_ms2_masses = NULL, filter_ms2_ppm = NULL, 
                        filter_ms1_masses = NULL, filter_ms1_ppm = NULL, 
                        includeIgnoredPrecursors = FALSE, progress = FALSE){
@@ -122,14 +122,14 @@ filterData <- function(dataList, grouXXXps, sampleSet = NULL, filterBySamples = 
   ## filter_average
   if(!is.null(filter_average)){
     # CHECK gp: Does it need to consider filterBySamples?
-    filter <- filter & filterThreshold(dataList, filter_average, grouXXXps)
+    filter <- filter & filterThreshold(dataList, filter_average, sampleClasses)
   }
   
   ## filter_lfc
   if(!is.null(filter_lfc)){
     # CHECK gp: strange condition, leaving it for now
     if(filter_lfc != 0){
-      filter <- filter & filterLFC(dataList, filter_lfc, grouXXXps)
+      filter <- filter & filterLFC(dataList, filter_lfc, sampleClasses)
     }
   }
   
@@ -187,17 +187,17 @@ filterData <- function(dataList, grouXXXps, sampleSet = NULL, filterBySamples = 
   resultObj$numberOfPrecursors <- dataList$numberOfPrecursors
   resultObj$numberOfPrecursorsFiltered <- length(filter)
   
-  if(is.null(grouXXXps)){
-    resultObj$grouXXXps    <- list()
+  if(is.null(sampleClasses)){
+    resultObj$sampleClasses    <- list()
     resultObj$sampleSet <- list()
     resultObj$filterBySamples <- NA
   } else {
-    resultObj$grouXXXps    <- grouXXXps
+    resultObj$sampleClasses    <- sampleClasses
     resultObj$sampleSet <- sampleSet
     resultObj$filterBySamples <- filterBySamples
   }
   
-  #resultObj$grouXXXps                   <- ifelse(test = is.null(grouXXXps),                   yes = NA, no = grouXXXps)
+  #resultObj$sampleClasses                   <- ifelse(test = is.null(sampleClasses),                   yes = NA, no = sampleClasses)
   resultObj$filter_average           <- ifelse(test = is.null(filter_average),           yes = 0, no = filter_average)
   resultObj$filter_lfc               <- ifelse(test = is.null(filter_lfc),               yes = 0, no = filter_lfc)
   if(is.null(filterList_ms2_masses)){
@@ -690,21 +690,6 @@ calculateDistanceMatrix <- function(dataList, filter, distanceMeasure = "Jaccard
 #' @export
 calculateCluster <- function(dataList, filterObj, distanceMatrix, method, distanceMeasure, progress = FALSE){
   
-  if(FALSE){
-    dataList_ <<- dataList
-    filterObj_ <<- filterObj
-    distanceMatrix_ <<- distanceMatrix
-    method_ <<- method
-    distanceMeasure_ <<- distanceMeasure
-  }
-  if(FALSE){
-    dataList <- dataList_
-    filterObj <- filterObj_
-    distanceMatrix <- distanceMatrix_
-    method <- method_
-    distanceMeasure <- distanceMeasure_
-  }
-  
   numberOfPrecursorsFiltered <- length(filterObj$filter)
   ##########################################
   ## compute gui stuff
@@ -896,18 +881,7 @@ performPca <- function(dataList, dataFrame2, ms1AnalysisMethod){
   print("######################################################################################")
   print(ms1AnalysisMethod)
   
-  if(FALSE){
-    dataFrame2_ <<- dataFrame2
-    ms1AnalysisMethod_ <<- ms1AnalysisMethod
-    dataList_ <<- dataList
-  }
-  if(FALSE){
-    dataFrame2 <- dataFrame2_
-    ms1AnalysisMethod <- ms1AnalysisMethod_
-    dataList <- dataList_
-  }
-  
-  
+ 
   ## TODO pcaMethods confidence intervals analog to MetaboAnalyst: pcaMethods:::simpleEllipse
   minimumNumberOfComponents <- 5
   numberOfComponents <- min(minimumNumberOfComponents, nrow(dataFrame2))
@@ -1101,7 +1075,7 @@ performPca <- function(dataList, dataFrame2, ms1AnalysisMethod){
   #.. ..$ : chr [1:5] "Dim.1" "Dim.2" "Dim.3" "Dim.4" ...
   #$ variance: num [1:18] 35.96 21.67 11.66 8.15 4.56 ...
   #
-  ## artificial data two grouXXXps
+  ## artificial data two sampleClasses
   #$ scores  : num [1:2, 1] 0 0
   #..- attr(*, "dimnames")=List of 2
   #.. ..$ : chr [1:2] "A_1" "B_2"
@@ -1178,7 +1152,7 @@ calculatePCA <- function(dataList, filterObj, ms1AnalysisMethod, scaling, logTra
   if(filterObj$filterBySamples){
     dataFrame <- dataList$dataFrameMeasurements[filterObj$filter, filterObj$sampleSet]
   } else {
-    dataFrame <- dataList$dataFrameMeasurements[filterObj$filter, dataList$dataColumnsNameFunctionFromGroupNames(grouXXXps = filterObj$grouXXXps, sampleNamesToExclude = dataList$excludedSamples(dataList$groupSampleDataFrame))]
+    dataFrame <- dataList$dataFrameMeasurements[filterObj$filter, dataList$dataColumnsNameFunctionFromGroupNames(sampleClasses = filterObj$sampleClasses, sampleNamesToExclude = dataList$excludedSamples(dataList$groupSampleDataFrame))]
   }
   dataFrame <- t(dataFrame)
   

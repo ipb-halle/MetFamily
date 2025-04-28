@@ -108,23 +108,7 @@ createActionButtonInputFields2 <- function(FUN, id, itemCount, iconUp, iconDown,
 ## for classifier
 createPlotOutput <- function(dataList, id, frequentFragments, characteristicFragments, precursorIndeces, tableCounter, mappingSpectraToClassDf) {
   
-  if(FALSE){
-    dataList_ <<- dataList
-    id_ <<- id
-    frequentFragments_ <<- frequentFragments
-    characteristicFragments_ <<- characteristicFragments
-    precursorIndeces_ <<- precursorIndeces
-    tableCounter_ <<- tableCounter
-  }
-  if(FALSE){
-    dataList <<- dataList_
-    id <<- id_
-    frequentFragments <<- frequentFragments_
-    characteristicFragments <<- characteristicFragments_
-    precursorIndeces <<- precursorIndeces_
-    tableCounter <<- tableCounter_
-  }
-  
+ 
   ## running id
   id <- paste(id, tableCounter, sep = "_")
   
@@ -191,22 +175,6 @@ createPlotOutput <- function(dataList, id, frequentFragments, characteristicFrag
   return(returnObj)
 }
 getNumberOfHits <- function(dataList, frequentFragments, characteristicFragments, precursorIndeces, mappingSpectraToClassDf, properties_class) {
-  if(TRUE){
-    dataList_ <<- dataList
-    frequentFragments_ <<- frequentFragments
-    characteristicFragments_ <<- characteristicFragments
-    precursorIndeces_ <<- precursorIndeces
-    mappingSpectraToClassDf_ <<- mappingSpectraToClassDf
-    properties_class_ <<- properties_class
-  }
-  if(FALSE){
-    dataList <- dataList_
-    frequentFragments <- frequentFragments_
-    characteristicFragments <- characteristicFragments_
-    precursorIndeces <- precursorIndeces_
-    mappingSpectraToClassDf <- mappingSpectraToClassDf_
-    properties_class <- properties_class_
-  }
   
   ## class statistics for class plot
   frequentMasses       <- as.numeric(names(frequentFragments)) 

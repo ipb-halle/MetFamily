@@ -42,10 +42,10 @@ Imports:
   dplyr,
   magrittr,
   rlang,
-  Matrix
+  Matrix,
+  BiocStyle
 Suggests:
   knitr,
-  BiocStyle,
   testthat,
   shinytest2,
   FactoMineR,

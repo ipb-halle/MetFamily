@@ -608,8 +608,9 @@ parseMSP_chunk <- function(fileLines,
       ms2Peaks_int_original <- ms2Peaks_int
       
       numberOfMS2PeaksOriginal <<- numberOfMS2PeaksOriginal + length(ms2Peaks_mz)
-      if(length(ms2Peaks_mz) == 0)
+      if(length(ms2Peaks_mz) == 0) {
         numberOfSpectraDiscardedDueToNoPeaks <<- numberOfSpectraDiscardedDueToNoPeaks + 1
+      }
       
       ###################################################################
       ## filter fragments with mass greater than precursor
@@ -620,8 +621,9 @@ parseMSP_chunk <- function(fileLines,
         ms2Peaks_int <- ms2Peaks_int[!tooHeavy]
         numberOfTooHeavyFragmentsHere <- sum(tooHeavy)
         
-        if(length(ms2Peaks_mz) == 0 & numberOfTooHeavyFragmentsHere > 0)
-          numberOfSpectraDiscardedDueToTooHeavy <<- numberOfSpectraDiscardedDueToTooHeavy + 1
+        if(length(ms2Peaks_mz) == 0 & numberOfTooHeavyFragmentsHere > 0) {
+          numberOfSpectraDiscardedDueToTooHeavy <- numberOfSpectraDiscardedDueToTooHeavy + 1
+        }
       }
       numberOfTooHeavyFragments <<- numberOfTooHeavyFragments + numberOfTooHeavyFragmentsHere
       
@@ -735,8 +737,9 @@ parseMSP_chunk <- function(fileLines,
         ## add
         numberOfMS2PeaksWithNeutralLosses <<- numberOfMS2PeaksWithNeutralLosses + spectrumItem$peakNumber
         return(spectrumItem)
-      } else
+      } else {
         return(NULL)
+      }
     })
   )
   
@@ -807,6 +810,8 @@ parseMSP_chunk <- function(fileLines,
     if(is.null(x))  return(NULL)
     else            return(x$rt)
   }))
+  
+  print("Line814")
   
   if(!is.na(progress))  if(progress)  incProgress(amount = 0.01, detail = paste("MS/MS file boxing", sep = "")) else print(paste("MS/MS file boxing", sep = ""))
   returnObj <- list()
@@ -972,6 +977,8 @@ parseMSP_attributes <- function(fileSpectra, progress = FALSE, flexiblePeakList 
   spectraList[unlist(lapply(X = spectraList, FUN = is.null))] <- NULL
   
   numberOfSpectra <- length(spectraList)
+  
+  print("Line981")
   
   ## postprocess
   if(!is.na(progress))  if(progress)  incProgress(amount = 0.01, detail = paste("MS/MS file postprocessing", sep = "")) else print(paste("MS/MS file postprocessing", sep = ""))
@@ -1358,7 +1365,10 @@ mzClustGeneric <- function(p,
       
       ## xcms:::mzClust_hclust is using 
       ## the fast C implementation: .C("R_mzClust_hclust"
-      mzFragmentGroups <- xcms:::mzClust_hclust(uniqueBin,ppm_error,mzabs)
+      
+      suppressWarnings(suppressPackageStartupMessages(
+        mzFragmentGroups <- xcms:::mzClust_hclust(uniqueBin,ppm_error,mzabs)
+      ))
       mzFragmentGroups2 <- vector(mode = "integer", length = length(bin))
       for(idx in seq_along(uniqueBin))
         mzFragmentGroups2[bin==uniqueBin[[idx]]] <- mzFragmentGroups[[idx]]

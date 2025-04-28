@@ -4,14 +4,18 @@
 \alias{filterThreshold}
 \title{Filter dataset based on intensity mean values}
 \usage{
-filterThreshold(dataList, filter_average, grouXXXps = dataList$grouXXXps)
+filterThreshold(
+  dataList,
+  filter_average,
+  sampleClasses = dataList$sampleClasses
+)
 }
 \arguments{
 \item{dataList}{list object}
 
 \item{filter_average}{numeric}
 
-\item{grouXXXps}{vector of sample classes}
+\item{sampleClasses}{vector of sample classes}
 }
 \value{
 boolean vector

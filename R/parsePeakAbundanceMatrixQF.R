@@ -200,18 +200,25 @@ parsePeakAbundanceMatrixQF <- function(qfeatures,
 addSiriusAnnotations <- function(qfeatures,
                                  siriusFile,
                                  rowData_col = "Alignment ID",
-                                 sirius_col = "featureId") {
+                                 sirius_col = "featureId",
+                                 siriusCategory = "NPC class") {
   #TODO: specify more parameters in read delim
   annotation <- read.delim(siriusFile)
  
+  sirCat <- stringr::str_replace(siriusCategory, " ", "\\.")
+  stopifnot(sirCat %in% colnames(annotation))
+  
   rowDat <- rowData(qfeatures[[1]])
   
   # Print for debugging
   print(paste("Merging by:", sirius_col, "and", rowData_col))
   
+  stopifnot(sirius_col %in% colnames(annotation))
+  # rowData_col %in% colnames(rowDat[1]),
+
   # Merge the data frames
   annotatedRowData <- S4Vectors::merge(rowDat, annotation,
-                             by.x = rowData_col, by.y = sirius_col,  all.x = TRUE)
+                                  by.x = rowData_col, by.y = sirius_col,  all.x = TRUE)
 
   #TODO: ? check for duplicate columns ?
   annotation_cols <- colnames(annotation)[colnames(annotation) != rowData_col]
@@ -226,8 +233,8 @@ addSiriusAnnotations <- function(qfeatures,
   }
   
   # Set the annotation column
-  attr(annotatedRowData, "annotation column") <- "ClassyFire.subclass"
-  
+  attr(annotatedRowData, "annotation column") <- sirCat
+
   rowData(qfeatures[[1]]) <- annotatedRowData
   return(qfeatures)
 }

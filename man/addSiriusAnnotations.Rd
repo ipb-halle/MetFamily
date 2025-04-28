@@ -8,7 +8,8 @@ addSiriusAnnotations(
   qfeatures,
   siriusFile,
   rowData_col = "Alignment ID",
-  sirius_col = "featureId"
+  sirius_col = "featureId",
+  siriusCategory = "NPC class"
 )
 }
 \arguments{

@@ -149,23 +149,27 @@ obsImportMs2DataFile <- observeEvent(input$ms2DataFile$datapath, {
 })
 
 setImportState <- function(){
+
   fileMs1Path <- input$ms1DataFile$datapath
   fileMs1Name <- input$ms1DataFile$name
   fileMs2Path <- input$ms2DataFile$datapath
   fileMs2Name <- input$ms2DataFile$name
   print(paste("Observe import MS2 file", fileMs2Name))
   
-  if(all(!is.null(fileMs1Path), !is.null(fileMs2Path)))
+  if(all(!is.null(fileMs1Path), !is.null(fileMs2Path))) {
     shinyjs::enable("importMs1Ms2Data")
-  else
+  } else {
     shinyjs::disable("importMs1Ms2Data")
+  }
   
-  if(!is.null(fileMs2Path))
+  if(!is.null(fileMs2Path)) {
     shinyjs::enable("importMs2Data")
-  else
+  } else {
     shinyjs::disable("importMs2Data")
+  }
   
   updateFileInputInfo()
+  
 }
 obsImportMs1Ms2Data <- observeEvent(input$importMs1Ms2Data, {
   disableLoadButtons()
@@ -252,74 +256,74 @@ importData <- function(importMS1andMS2data){
   #################################################
   ## check params
   error <- FALSE
-  if(any(is.null(minimumIntensityOfMaximalMS2peak), length(minimumIntensityOfMaximalMS2peak) == 0, nchar(minimumIntensityOfMaximalMS2peak) == 0))
+  if(any(is.null(minimumIntensityOfMaximalMS2peak), length(minimumIntensityOfMaximalMS2peak) == 0, nchar(minimumIntensityOfMaximalMS2peak) == 0)) {
     error <- TRUE
-  else{
+  } else {
     minimumIntensityOfMaximalMS2peak <- as.numeric(minimumIntensityOfMaximalMS2peak)
     error <- error | is.na(minimumIntensityOfMaximalMS2peak)
   }
-  if(any(is.null(minimumProportionOfMS2peaks), length(minimumProportionOfMS2peaks) == 0, nchar(minimumProportionOfMS2peaks) == 0))
+  if(any(is.null(minimumProportionOfMS2peaks), length(minimumProportionOfMS2peaks) == 0, nchar(minimumProportionOfMS2peaks) == 0)) {
     error <- TRUE
-  else{
+  } else {
     minimumProportionOfMS2peaks <- as.numeric(minimumProportionOfMS2peaks)
     error <- error | is.na(minimumProportionOfMS2peaks)
   }
-  if(any(is.null(mzDeviationAbsolute_grouping), length(mzDeviationAbsolute_grouping) == 0, nchar(mzDeviationAbsolute_grouping) == 0))
+  if(any(is.null(mzDeviationAbsolute_grouping), length(mzDeviationAbsolute_grouping) == 0, nchar(mzDeviationAbsolute_grouping) == 0)) {
     error <- TRUE
-  else{
+  } else {
     mzDeviationAbsolute_grouping <- as.numeric(mzDeviationAbsolute_grouping)
     error <- error | is.na(mzDeviationAbsolute_grouping)
   }
-  if(any(is.null(mzDeviationInPPM_grouping), length(mzDeviationInPPM_grouping) == 0, nchar(mzDeviationInPPM_grouping) == 0))
+  if(any(is.null(mzDeviationInPPM_grouping), length(mzDeviationInPPM_grouping) == 0, nchar(mzDeviationInPPM_grouping) == 0)) {
     error <- TRUE
-  else{
+  } else {
     mzDeviationInPPM_grouping <- as.numeric(mzDeviationInPPM_grouping)
     error <- error | is.na(mzDeviationInPPM_grouping)
   }
   if(doPrecursorDeisotoping){
-    if(any(is.null(mzDeviationAbsolute_precursorDeisotoping), length(mzDeviationAbsolute_precursorDeisotoping) == 0, nchar(mzDeviationAbsolute_precursorDeisotoping) == 0))
+    if(any(is.null(mzDeviationAbsolute_precursorDeisotoping), length(mzDeviationAbsolute_precursorDeisotoping) == 0, nchar(mzDeviationAbsolute_precursorDeisotoping) == 0)) {
       error <- TRUE
-    else{
+    } else {
       mzDeviationAbsolute_precursorDeisotoping <- as.numeric(mzDeviationAbsolute_precursorDeisotoping)
       error <- error | is.na(mzDeviationAbsolute_precursorDeisotoping)
     }
-    if(any(is.null(mzDeviationInPPM_precursorDeisotoping), length(mzDeviationInPPM_precursorDeisotoping) == 0, nchar(mzDeviationInPPM_precursorDeisotoping) == 0))
+    if(any(is.null(mzDeviationInPPM_precursorDeisotoping), length(mzDeviationInPPM_precursorDeisotoping) == 0, nchar(mzDeviationInPPM_precursorDeisotoping) == 0)) {
       error <- TRUE
-    else{
+    } else {
       mzDeviationInPPM_precursorDeisotoping <- as.numeric(mzDeviationInPPM_precursorDeisotoping)
       error <- error | is.na(mzDeviationInPPM_precursorDeisotoping)
     }
   }
-  if(any(is.null(maximumRtDifference), length(maximumRtDifference) == 0, nchar(maximumRtDifference) == 0))
+  if(any(is.null(maximumRtDifference), length(maximumRtDifference) == 0, nchar(maximumRtDifference) == 0)) {
     error <- TRUE
-  else{
+  } else {
     maximumRtDifference <- as.numeric(maximumRtDifference)
     error <- error | is.na(maximumRtDifference)
   }
   if(doMs2PeakGroupDeisotoping){
-    if(any(is.null(mzDeviationAbsolute_ms2PeakGroupDeisotoping), length(mzDeviationAbsolute_ms2PeakGroupDeisotoping) == 0, nchar(mzDeviationAbsolute_ms2PeakGroupDeisotoping) == 0))
+    if(any(is.null(mzDeviationAbsolute_ms2PeakGroupDeisotoping), length(mzDeviationAbsolute_ms2PeakGroupDeisotoping) == 0, nchar(mzDeviationAbsolute_ms2PeakGroupDeisotoping) == 0)) {
       error <- TRUE
-    else{
+    } else {
       mzDeviationAbsolute_ms2PeakGroupDeisotoping <- as.numeric(mzDeviationAbsolute_ms2PeakGroupDeisotoping)
       error <- error | is.na(mzDeviationAbsolute_ms2PeakGroupDeisotoping)
     }
-    if(any(is.null(mzDeviationInPPM_ms2PeakGroupDeisotoping), length(mzDeviationInPPM_ms2PeakGroupDeisotoping) == 0, nchar(mzDeviationInPPM_ms2PeakGroupDeisotoping) == 0))
+    if(any(is.null(mzDeviationInPPM_ms2PeakGroupDeisotoping), length(mzDeviationInPPM_ms2PeakGroupDeisotoping) == 0, nchar(mzDeviationInPPM_ms2PeakGroupDeisotoping) == 0)) {
       error <- TRUE
-    else{
+    } else {
       mzDeviationInPPM_ms2PeakGroupDeisotoping <- as.numeric(mzDeviationInPPM_ms2PeakGroupDeisotoping)
       error <- error | is.na(mzDeviationInPPM_ms2PeakGroupDeisotoping)
     }
   }
   
-  if(any(is.null(proportionOfMatchingPeaks_ms2PeakGroupDeisotopingHere), length(proportionOfMatchingPeaks_ms2PeakGroupDeisotopingHere) == 0, nchar(proportionOfMatchingPeaks_ms2PeakGroupDeisotopingHere) == 0))
+  if(any(is.null(proportionOfMatchingPeaks_ms2PeakGroupDeisotopingHere), length(proportionOfMatchingPeaks_ms2PeakGroupDeisotopingHere) == 0, nchar(proportionOfMatchingPeaks_ms2PeakGroupDeisotopingHere) == 0)) {
     error <- TRUE
-  else{
+  } else {
     proportionOfMatchingPeaks_ms2PeakGroupDeisotopingHere <- as.numeric(proportionOfMatchingPeaks_ms2PeakGroupDeisotopingHere)
     error <- error | is.na(proportionOfMatchingPeaks_ms2PeakGroupDeisotopingHere)
   }
-  if(any(is.null(mzDeviationAbsolute_mappingHere), length(mzDeviationAbsolute_mappingHere) == 0, nchar(mzDeviationAbsolute_mappingHere) == 0))
+  if(any(is.null(mzDeviationAbsolute_mappingHere), length(mzDeviationAbsolute_mappingHere) == 0, nchar(mzDeviationAbsolute_mappingHere) == 0)) {
     error <- TRUE
-  else{
+  } else {
     mzDeviationAbsolute_mappingHere <- as.numeric(mzDeviationAbsolute_mappingHere)
     error <- error | is.na(mzDeviationAbsolute_mappingHere)
   }
@@ -409,8 +413,11 @@ importData <- function(importMS1andMS2data){
     
     dataList <<- tryCatch({
         readProjectData(fileLines = lines, progress = TRUE) %>% 
+        # browser()
         add_qfeatures(qfeatures = resultObj$qfeatures,
-                      fileAnnotation = fileAnnotPath)
+                      fileAnnotation = fileAnnotPath,
+                      siriusCategory = input$siriusCategory
+                      )
       }, error = function(e) {
         error <<- e
       }
@@ -506,10 +513,11 @@ importData <- function(importMS1andMS2data){
   
   resetWorkspace()
   
-  if(importMS1andMS2data)
+  if(importMS1andMS2data) {
     state_tabInput$importedOrLoadedFile_s_ <<- c(fileMs1Name, fileMs2Name)
-  else
+  } else {
     state_tabInput$importedOrLoadedFile_s_ <<- c(fileMs2Name)
+  }
   updateFileInputInfo()
   
   setImportState()

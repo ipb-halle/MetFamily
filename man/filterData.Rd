@@ -6,7 +6,7 @@
 \usage{
 filterData(
   dataList,
-  grouXXXps,
+  sampleClasses,
   sampleSet = NULL,
   filterBySamples = FALSE,
   filter_average = NULL,
@@ -22,7 +22,7 @@ filterData(
 \arguments{
 \item{dataList}{List object}
 
-\item{grouXXXps}{sample class}
+\item{sampleClasses}{sample class}
 
 \item{sampleSet}{?}
 
