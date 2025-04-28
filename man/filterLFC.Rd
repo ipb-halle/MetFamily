@@ -4,14 +4,14 @@
 \alias{filterLFC}
 \title{Filter dataset based on LFC of two groups}
 \usage{
-filterLFC(dataList, filter_lfc, grouXXXps = dataList$grouXXXps)
+filterLFC(dataList, filter_lfc, sampleClasses = dataList$sampleClasses)
 }
 \arguments{
 \item{dataList}{list object}
 
 \item{filter_lfc}{numeric e.g. 2 or -2}
 
-\item{grouXXXps}{vector of names for group1 and group2}
+\item{sampleClasses}{vector of names for group1 and group2}
 }
 \value{
 boolean vector

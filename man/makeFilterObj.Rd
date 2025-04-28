@@ -8,7 +8,7 @@ makeFilterObj(
   dataList,
   filter_average = NULL,
   filter_lfc = NULL,
-  grouXXXps = NULL
+  sampleClasses = NULL
 )
 }
 \arguments{
@@ -18,7 +18,7 @@ makeFilterObj(
 
 \item{filter_lfc}{numeric}
 
-\item{grouXXXps}{character vector}
+\item{sampleClasses}{character vector}
 }
 \value{
 filterObject

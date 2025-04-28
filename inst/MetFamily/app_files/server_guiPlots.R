@@ -204,7 +204,7 @@ drawAnnotationLegendForImagePCAimpl <- function(){
   calcPlotAnnoLegendForImage(state_tabPca$annotationsPca$setOfAnnotations, state_tabPca$annotationsPca$setOfColors)
 }
 drawScoresGroupsLegendImpl <- function(){
-  calcPlotScoresGroupsLegend(scoresGroups$grouXXXps, scoresGroups$colors)
+  calcPlotScoresGroupsLegend(scoresGroups$sampleClasses, scoresGroups$colors)
 }
 
 drawMS2PlotImpl <- function(){

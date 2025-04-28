@@ -117,7 +117,7 @@ test_that("Project reading works", {
   #   $ importParameterSet                     :List of 19
   # $ numberOfPrecursors                     : int 2585
   # $ numberOfDuplicatedPrecursors           : int 0
-  # $ grouXXXps                              : chr [1:2] "TRI" "LVS"
+  # $ sampleClasses                              : chr [1:2] "TRI" "LVS"
   # $ columnGroupLabels                      : chr [1:3, 1:2] "TRI" "TRI" "TRI" "LVS" ...
   # ..- attr(*, "dimnames")=List of 2
   # $ groupSampleDataFrame                   :'data.frame':	6 obs. of  4 variables:
@@ -143,7 +143,7 @@ test_that("Project reading works", {
   #   $ dataColumnsNameFunctionFromGroupIndex  :function (groupIdx, sampleNamesToExclude)  
   #     ..- attr(*, "srcref")= 'srcref' int [1:8] 662 44 664 3 44 3 3782 3784
   # .. ..- attr(*, "srcfile")=Classes 'srcfilealias', 'srcfile' <environment: 0x555c0c5c55d0> 
-  #   $ dataColumnsNameFunctionFromGroupNames  :function (grouXXXps, sampleNamesToExclude)  
+  #   $ dataColumnsNameFunctionFromGroupNames  :function (sampleClasses, sampleNamesToExclude)  
   #     ..- attr(*, "srcref")= 'srcref' int [1:8] 670 44 674 3 44 3 3790 3794
   # .. ..- attr(*, "srcfile")=Classes 'srcfilealias', 'srcfile' <environment: 0x555c0c5c55d0> 
   #   $ groupNameFunctionFromDataColumnName    :function (dataColumnName, sampleNamesToExclude)  
@@ -197,10 +197,10 @@ test_that("Project reading works", {
   # $ orderColumnNames                       :function (groupSampleDataFrame, columnNames)  
   #   ..- attr(*, "srcref")= 'srcref' int [1:8] 685 23 691 3 23 3 3805 3811
   # .. ..- attr(*, "srcfile")=Classes 'srcfilealias', 'srcfile' <environment: 0x555c0c5c55d0> 
-  #   $ excludedSamples                        :function (groupSampleDataFrame, grouXXXps = dataList$grouXXXps)  
+  #   $ excludedSamples                        :function (groupSampleDataFrame, sampleClasses = dataList$sampleClasses)  
   #     ..- attr(*, "srcref")= 'srcref' int [1:8] 695 22 700 3 22 3 3815 3820
   # .. ..- attr(*, "srcfile")=Classes 'srcfilealias', 'srcfile' <environment: 0x555c0c5c55d0> 
-  #   $ includedSamples                        :function (groupSampleDataFrame, grouXXXps = dataList$grouXXXps)  
+  #   $ includedSamples                        :function (groupSampleDataFrame, sampleClasses = dataList$sampleClasses)  
   #     ..- attr(*, "srcref")= 'srcref' int [1:8] 702 22 707 3 22 3 3822 3827
   # .. ..- attr(*, "srcfile")=Classes 'srcfilealias', 'srcfile' <environment: 0x555c0c5c55d0> 
   #   $ includedGroups                         :function (groupSampleDataFrame, samples = dataList$groupSampleDataFrame[, "Sample"])  

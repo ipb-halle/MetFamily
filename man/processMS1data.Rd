@@ -8,7 +8,7 @@ processMS1data(
   sampleNamesToExclude,
   numberOfMS1features,
   precursorLabels,
-  grouXXXps,
+  sampleClasses,
   metaboliteProfileColumnNames,
   dataColumnIndecesFunctionFromGroupIndex,
   dataColumnsNameFunctionFromGroupIndex,
@@ -27,7 +27,7 @@ processMS1data(
 
 \item{precursorLabels}{}
 
-\item{grouXXXps}{}
+\item{sampleClasses}{}
 
 \item{metaboliteProfileColumnNames}{}
 

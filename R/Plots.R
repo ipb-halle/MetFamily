@@ -578,35 +578,35 @@ calcPlotDendrogram_plotly <- function(
   ## heatmap
   
   ## heatmap data
-  grouXXXps <- dataList$grouXXXps
-  print(grouXXXps)
+  sampleClasses <- dataList$sampleClasses
+  print(sampleClasses)
   print("enetring this area ...plots.r..line 611")
   switch(heatmapContent,
          "Log-fold-change"={## log-fold-change
            columnsOfInterest <- c(
-             dataList$dataMeanColumnNameFunctionFromName(filterObj$grouXXXps[[1]]), 
-             dataList$dataMeanColumnNameFunctionFromName(filterObj$grouXXXps[[2]]), 
-             dataList$lfcColumnNameFunctionFromName(filterObj$grouXXXps[[1]], filterObj$grouXXXps[[2]])
+             dataList$dataMeanColumnNameFunctionFromName(filterObj$sampleClasses[[1]]), 
+             dataList$dataMeanColumnNameFunctionFromName(filterObj$sampleClasses[[2]]), 
+             dataList$lfcColumnNameFunctionFromName(filterObj$sampleClasses[[1]], filterObj$sampleClasses[[2]])
            )
            columnsOfInterestAbs <- columnsOfInterest[1:2]
            columnsOfInterestLFC <- columnsOfInterest[3]
-           labels = c(filterObj$grouXXXps[[1]], filterObj$grouXXXps[[2]], "LFC")
+           labels = c(filterObj$sampleClasses[[1]], filterObj$sampleClasses[[2]], "LFC")
            labelsAbs <- labels[1:2]
            labelsLFC <- labels[3]
          },
-         "Abundance by group"={## grouXXXps
-           columnsOfInterest <- unlist(lapply(X = grouXXXps, FUN = function(x){
+         "Abundance by group"={## sampleClasses
+           columnsOfInterest <- unlist(lapply(X = sampleClasses, FUN = function(x){
              dataList$dataMeanColumnNameFunctionFromName(x)
            }))
            columnsOfInterest <- rev(columnsOfInterest) ## plot is bottom to top
            columnsOfInterestAbs <- columnsOfInterest
            columnsOfInterestLFC <- NULL
-           labels <- grouXXXps
+           labels <- sampleClasses
            labelsAbs <- labels[1:2]
            labelsLFC <- NULL
          },
          "Abundance by sample"={## samples
-           columnsOfInterest <- dataList$dataColumnsNameFunctionFromGroupNames(grouXXXps = grouXXXps, sampleNamesToExclude = dataList$excludedSamples(dataList$groupSampleDataFrame))
+           columnsOfInterest <- dataList$dataColumnsNameFunctionFromGroupNames(sampleClasses = sampleClasses, sampleNamesToExclude = dataList$excludedSamples(dataList$groupSampleDataFrame))
            columnsOfInterest <- dataList$orderColumnNames(groupSampleDataFrame = dataList$groupSampleDataFrame, columnNames = columnsOfInterest)
            columnsOfInterest <- rev(columnsOfInterest) ## plot is bottom to top
            columnsOfInterestAbs <- columnsOfInterest
@@ -1163,25 +1163,25 @@ calcPlotHeatmap <- function(dataList, filterObj, clusterDataList, selectedTreeNo
   
   ####################
   ## heatmap
-  grouXXXps <- dataList$grouXXXps
+  sampleClasses <- dataList$sampleClasses
   switch(heatmapContent,
          "Log-fold-change"={## log-fold-change
            columnsOfInterest <- c(
-             dataList$dataMeanColumnNameFunctionFromName(filterObj$grouXXXps[[1]]), 
-             dataList$dataMeanColumnNameFunctionFromName(filterObj$grouXXXps[[2]]), 
-             dataList$lfcColumnNameFunctionFromName(filterObj$grouXXXps[[1]], filterObj$grouXXXps[[2]])
+             dataList$dataMeanColumnNameFunctionFromName(filterObj$sampleClasses[[1]]), 
+             dataList$dataMeanColumnNameFunctionFromName(filterObj$sampleClasses[[2]]), 
+             dataList$lfcColumnNameFunctionFromName(filterObj$sampleClasses[[1]], filterObj$sampleClasses[[2]])
            )
-           labels = c(filterObj$grouXXXps[[1]], filterObj$grouXXXps[[2]], "LFC")
+           labels = c(filterObj$sampleClasses[[1]], filterObj$sampleClasses[[2]], "LFC")
          },
-         "Abundance by group"={## grouXXXps
-           columnsOfInterest <- unlist(lapply(X = grouXXXps, FUN = function(x){
+         "Abundance by group"={## sampleClasses
+           columnsOfInterest <- unlist(lapply(X = sampleClasses, FUN = function(x){
              dataList$dataMeanColumnNameFunctionFromName(x)
            }))
            #columnsOfInterest <- rev(columnsOfInterest) ## plot is bottom to top
-           labels <- grouXXXps
+           labels <- sampleClasses
          },
          "Abundance by sample"={## samples
-           columnsOfInterest <- dataList$dataColumnsNameFunctionFromGroupNames(grouXXXps = grouXXXps, sampleNamesToExclude = dataList$excludedSamples(dataList$groupSampleDataFrame))
+           columnsOfInterest <- dataList$dataColumnsNameFunctionFromGroupNames(sampleClasses = sampleClasses, sampleNamesToExclude = dataList$excludedSamples(dataList$groupSampleDataFrame))
            columnsOfInterest <- dataList$orderColumnNames(groupSampleDataFrame = dataList$groupSampleDataFrame, columnNames = columnsOfInterest)
            #columnsOfInterest <- rev(columnsOfInterest) ## plot is bottom to top
            ### this is original labels
@@ -1395,9 +1395,9 @@ calcPlotHeatmapOld <- function(dataList, filterObj, clusterDataList, xInterval =
   ####################
   ## heatmap
   columnsOfInterest <- c(
-    dataList$dataMeanColumnNameFunctionFromName(filterObj$grouXXXps[[1]]), 
-    dataList$dataMeanColumnNameFunctionFromName(filterObj$grouXXXps[[2]]), 
-    dataList$lfcColumnNameFunctionFromName(filterObj$grouXXXps[[1]], filterObj$grouXXXps[[2]])
+    dataList$dataMeanColumnNameFunctionFromName(filterObj$sampleClasses[[1]]), 
+    dataList$dataMeanColumnNameFunctionFromName(filterObj$sampleClasses[[2]]), 
+    dataList$lfcColumnNameFunctionFromName(filterObj$sampleClasses[[1]], filterObj$sampleClasses[[2]])
   )
   
   par(mar=c(0,4,0,0), mgp = c(3, 1, 0))  ## c(bottom, left, top, right) ## c(title, axis, label)
@@ -1424,7 +1424,7 @@ calcPlotHeatmapOld <- function(dataList, filterObj, clusterDataList, xInterval =
     #  rect(xleft = i - 0.5, xright = i + 0.5, ybottom = 1, ytop = 2, col = colorOne[[i]], border = NA)
     #  rect(xleft = i - 0.5, xright = i + 0.5, ybottom = 0, ytop = 1, col = colorTwo[[i]], border = NA)
     #}
-    axis(side = 2, at = c(0.5, 1.5, 2.5), labels = c(filterObj$grouXXXps[[2]], filterObj$grouXXXps[[1]], "LFC"), las = 2, tick = TRUE)
+    axis(side = 2, at = c(0.5, 1.5, 2.5), labels = c(filterObj$sampleClasses[[2]], filterObj$sampleClasses[[1]], "LFC"), las = 2, tick = TRUE)
   }
   
   return(columnsOfInterest)
@@ -1478,9 +1478,9 @@ calcPlotAnnoLegend <- function(annoLabels, annoColors){
 
 
 #' @export
-calcPlotScoresGroupsLegend <- function(grouXXXps, colors){
+calcPlotScoresGroupsLegend <- function(sampleClasses, colors){
   ## get and reorder annotations
-  calcPlotLegend(grouXXXps, colors, "Scores")
+  calcPlotLegend(sampleClasses, colors, "Scores")
 }
 
 
@@ -1515,9 +1515,9 @@ calcPlotAnnoLegendForImage <- function(annoLabels, annoColors, maximumNumberOfLi
 }
 
 #' @export
-calcPlotScoresGroupsLegendForImage <- function(grouXXXps, colors, maximumNumberOfLines=20){
+calcPlotScoresGroupsLegendForImage <- function(sampleClasses, colors, maximumNumberOfLines=20){
   ## get and reorder annotations
-  calcPlotLegendForImage(grouXXXps, colors, "Scores", maximumNumberOfLines)
+  calcPlotLegendForImage(sampleClasses, colors, "Scores", maximumNumberOfLines)
 }
 
 
@@ -1578,14 +1578,14 @@ plotLegendWithBalls1 <- function(labels, xPositions, yPositions, circleXPosition
   palette <- colorPaletteScores()
   
   # if(filterObj$filterBySamples){
-  #   colorsForReplicates <- palette[unlist(lapply(X = filterObj$grouXXXps, FUN = function(x){ 
+  #   colorsForReplicates <- palette[unlist(lapply(X = filterObj$sampleClasses, FUN = function(x){ 
   #     groupIdx <- dataList$groupIdxFromGroupName(x)
   #     samples <- dataList$dataColumnsNameFunctionFromGroupName(x, sampleNamesToExclude = dataList$excludedSamples(dataList$groupSampleDataFrame))
   #     samples <- intersect(samples, filterObj$sampleSet)
   #     rep(x = groupIdx, times = length(samples))
   #   }))]
   # } else {
-  #   colorsForReplicates <- palette[unlist(lapply(X = filterObj$grouXXXps, FUN = function(x){ 
+  #   colorsForReplicates <- palette[unlist(lapply(X = filterObj$sampleClasses, FUN = function(x){ 
   #     groupIdx <- dataList$groupIdxFromGroupName(x)
   #     rep(x = groupIdx, times = length(dataList$dataColumnsNameFunctionFromGroupName(x, sampleNamesToExclude = dataList$excludedSamples(dataList$groupSampleDataFrame))))
   #   }))]
@@ -2067,14 +2067,14 @@ calcPlotPCAscores <- function(pcaObj, dataList, filterObj,
   palette <- colorPaletteScores()
   
   if(filterObj$filterBySamples){
-    colorsForReplicates <- palette[unlist(lapply(X = filterObj$grouXXXps, FUN = function(x){ 
+    colorsForReplicates <- palette[unlist(lapply(X = filterObj$sampleClasses, FUN = function(x){ 
       groupIdx <- dataList$groupIdxFromGroupName(x)
       samples <- dataList$dataColumnsNameFunctionFromGroupName(x, sampleNamesToExclude = dataList$excludedSamples(dataList$groupSampleDataFrame))
       samples <- intersect(samples, filterObj$sampleSet)
       rep(x = groupIdx, times = length(samples))
     }))]
     
-    symbolsforreplicates<-unlist(lapply(X = filterObj$grouXXXps, FUN = function(x){ 
+    symbolsforreplicates<-unlist(lapply(X = filterObj$sampleClasses, FUN = function(x){ 
       groupIdx <- dataList$groupIdxFromGroupName(x)
       samples <- dataList$dataColumnsNameFunctionFromGroupName(x, sampleNamesToExclude = dataList$excludedSamples(dataList$groupSampleDataFrame))
       samples <- intersect(samples, filterObj$sampleSet)
@@ -2082,12 +2082,12 @@ calcPlotPCAscores <- function(pcaObj, dataList, filterObj,
     }))
     
   } else {
-    colorsForReplicates <- palette[unlist(lapply(X = filterObj$grouXXXps, FUN = function(x){ 
+    colorsForReplicates <- palette[unlist(lapply(X = filterObj$sampleClasses, FUN = function(x){ 
       groupIdx <- dataList$groupIdxFromGroupName(x)
       rep(x = groupIdx, times = length(dataList$dataColumnsNameFunctionFromGroupName(x, sampleNamesToExclude = dataList$excludedSamples(dataList$groupSampleDataFrame))))
     }))]
     
-    symbolsforreplicates<-unlist(lapply(X = filterObj$grouXXXps, FUN = function(x){ 
+    symbolsforreplicates<-unlist(lapply(X = filterObj$sampleClasses, FUN = function(x){ 
       groupIdx <- dataList$groupIdxFromGroupName(x)
       rep(x = groupIdx, times = length(dataList$dataColumnsNameFunctionFromGroupName(x, sampleNamesToExclude = dataList$excludedSamples(dataList$groupSampleDataFrame))))
     }))
@@ -2152,10 +2152,10 @@ calcPlotPCAscores <- function(pcaObj, dataList, filterObj,
   if(showScoresLabels){
     
     if(filterObj$filterBySamples){
-      labels <- dataList$dataColumnsNameFunctionFromGroupNames(filterObj$grouXXXps, sampleNamesToExclude = dataList$excludedSamples(dataList$groupSampleDataFrame))
+      labels <- dataList$dataColumnsNameFunctionFromGroupNames(filterObj$sampleClasses, sampleNamesToExclude = dataList$excludedSamples(dataList$groupSampleDataFrame))
       labels <- intersect(labels, filterObj$sampleSet)
     } else {
-      labels <- dataList$dataColumnsNameFunctionFromGroupNames(filterObj$grouXXXps, sampleNamesToExclude = dataList$excludedSamples(dataList$groupSampleDataFrame))
+      labels <- dataList$dataColumnsNameFunctionFromGroupNames(filterObj$sampleClasses, sampleNamesToExclude = dataList$excludedSamples(dataList$groupSampleDataFrame))
     }
     
     if (downloadLayout==FALSE) {
@@ -2215,7 +2215,7 @@ calcPlotPCAloadings <- function(
   # gp: this step should not be necessary, and it ignores filtering by LFC
   # see filterLFC()
   threshold <- pcaObj$filterObj$filter_averageOriginal %>% as.numeric
-  kept <- filterThreshold(dataList, threshold, pcaObj$filterObj$grouXXXps)
+  kept <- filterThreshold(dataList, threshold, pcaObj$filterObj$sampleClasses)
   filt_feat <- dataList$precursorLabels[kept] %>% stringr::str_squish()
   
   # filter already applied in pca so use that
