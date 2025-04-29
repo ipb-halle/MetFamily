@@ -201,11 +201,11 @@ addSiriusAnnotations <- function(qfeatures,
                                  siriusFile,
                                  rowData_col = "Alignment ID",
                                  sirius_col = "featureId",
-                                 siriusCategory = "NPC class") {
+                                 siriusFileColumnName = "NPC class") {
   #TODO: specify more parameters in read delim
   annotation <- read.delim(siriusFile)
  
-  sirCat <- stringr::str_replace(siriusCategory, " ", "\\.")
+  sirCat <- stringr::str_replace(siriusFileColumnName, " ", "\\.")
   stopifnot(sirCat %in% colnames(annotation))
   
   rowDat <- rowData(qfeatures[[1]])

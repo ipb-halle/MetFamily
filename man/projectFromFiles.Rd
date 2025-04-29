@@ -8,7 +8,7 @@ projectFromFiles(
   ms1_path,
   ms2_path,
   annot_path = NULL,
-  siriusCategory = c("NPC class"),
+  siriusFileColumnName = c("NPC class"),
   parameterSet = NULL
 )
 }

@@ -9,7 +9,7 @@ addSiriusAnnotations(
   siriusFile,
   rowData_col = "Alignment ID",
   sirius_col = "featureId",
-  siriusCategory = "NPC class"
+  siriusFileColumnName = "NPC class"
 )
 }
 \arguments{

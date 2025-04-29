@@ -416,7 +416,7 @@ importData <- function(importMS1andMS2data){
         # browser()
         add_qfeatures(qfeatures = resultObj$qfeatures,
                       fileAnnotation = fileAnnotPath,
-                      siriusCategory = input$siriusCategory
+                      siriusFileColumnName = input$siriusFileColumnName
                       )
       }, error = function(e) {
         error <<- e
