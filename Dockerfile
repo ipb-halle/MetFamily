@@ -1,5 +1,5 @@
 #FROM sneumann/metfamily-base:latest
-FROM sneumann/metfamily-base:4.4
+FROM sneumann/metfamily-base:4.5
 #FROM sneumann/metfamily-base:4.3.2
 #FROM sneumann/metfamily-base:4.0.5
 #FROM sneumann/metfamily-base:3.6.3
