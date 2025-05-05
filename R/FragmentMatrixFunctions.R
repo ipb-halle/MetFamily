@@ -1638,7 +1638,6 @@ convertToProjectFile2 <- function(filePeakMatrixQF,
   numberOfUnmappedPrecursorsMz <- 0
   numberOfUnmappedPrecursorsRt <- 0
   
-  # HERE crash?
   for(i in seq_len(numberOfPrecursors)){
     numberOfItems <- length(allHits[[i]])
     if(numberOfItems == 1)

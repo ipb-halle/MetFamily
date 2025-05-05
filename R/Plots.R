@@ -54,7 +54,7 @@ colorLabels <- function(labels, clusterMembers, color, labelsToRemove = NULL, ne
 #'
 #' @param dataList 
 #' @param filter 
-#' @param clusterDataList 
+#' @param clusterDataList from `calculateCluster()`
 #' @param annoPresentAnnotationsList 
 #' @param annoPresentColorsList 
 #' @param distanceMeasure 
@@ -210,8 +210,13 @@ calcPlotDendrogram <- function(dataList, filter, clusterDataList, annoPresentAnn
   leafColors <- resultObjAnno$setOfColors
   
   innerNodeColors      <<- vector(length = numberOfInnerNodes)
-  innerNodeAnnotations <<- vector(length = numberOfInnerNodes)
-  colorSubTreeForAnnotations(cluster = clusterDataList$cluster, index = rootIndex, innerNodeAnnotations = innerNodeFeaturesAnnotations, setOfColorSets = setOfColorSets, parentIndex = NULL, parentAnnotation = "Unknown", parentColor = "black")
+  innerNodeAnnotationsGlob <<- vector(length = numberOfInnerNodes)
+  
+  colorSubTreeForAnnotations(
+    cluster = clusterDataList$cluster, index = rootIndex, 
+    innerNodeAnnotations = innerNodeFeaturesAnnotations, 
+    setOfColorSets = setOfColorSets, parentIndex = NULL, 
+    parentAnnotation = "Unknown", parentColor = "black")
   
   ## coloring of nodes by annotation
   pointSizesAnno  <- rep(x = clusterNodePointSize0, times = numberOfPoisDrawn)
@@ -280,7 +285,7 @@ calcPlotDendrogram <- function(dataList, filter, clusterDataList, annoPresentAnn
     graphics::text(x = poisXlabels - 0.0, y = poisYlabels + poiLabelShift, labels = poiLabels, pos = 4) ## pos: 1 below, 2 left, 3 above, 4 right
   }
   
-  allAnnotations <- c(resultObjAnno$setOfAnnotations, innerNodeAnnotations)
+  allAnnotations <- c(resultObjAnno$setOfAnnotations, innerNodeAnnotationsGlob)
   allColors      <- c(resultObjAnno$setOfColors, innerNodeColors)
   
   uniqueIndeces     <- which(!duplicated(allAnnotations))
@@ -517,7 +522,7 @@ calcPlotDendrogram_plotly <- function(
   leafColors <- resultObjAnno$setOfColors
   
   innerNodeColors      <<- vector(length = numberOfInnerNodes)
-  innerNodeAnnotations <<- vector(length = numberOfInnerNodes)
+  innerNodeAnnotationsGlob <<- vector(length = numberOfInnerNodes)
   segmentListAnno <- colorSubTreeForAnnotations(cluster = clusterDataList$cluster, index = rootIndex, innerNodeAnnotations = innerNodeFeaturesAnnotations, setOfColorSets = setOfColorSets, parentIndex = NULL, parentAnnotation = "Unknown", parentColor = "black")
   
   ## coloring of nodes by annotation

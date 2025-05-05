@@ -187,6 +187,9 @@ parsePeakAbundanceMatrixQF <- function(qfeatures,
 
 #' Add Sirius Annotations
 #'
+#' Missing values in the Sirius file create empty character values "" in the annotation,
+#' while missing features have NA values. All are transformed to "" later in `add_qfeatures`.
+#'
 #' @param qfeatures dataset
 #' @param siriusFile file path
 #' @param rowData_col character Qfeatures column to match
@@ -202,6 +205,10 @@ addSiriusAnnotations <- function(qfeatures,
                                  rowData_col = "Alignment ID",
                                  sirius_col = "featureId",
                                  siriusFileColumnName = "NPC class") {
+  
+  stopifnot(siriusFileColumnName %in% c("NPC class", "NPC superclass", "NPC pathway", "ClassyFire subclass",
+                                        "ClassyFire class", "ClassyFire superclass", "ClassyFire kingdom"))
+  
   #TODO: specify more parameters in read delim
   annotation <- read.delim(siriusFile)
  

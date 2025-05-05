@@ -19,6 +19,9 @@ projectFromFiles(
 
 \item{annot_path}{file for annotations (.csv or .tsv)}
 
+\item{siriusFileColumnName}{One of "NPC class", "NPC superclass", "NPC pathway", "ClassyFire subclass",
+"ClassyFire class", "ClassyFire superclass"}
+
 \item{parameterSet}{list of parameters to use}
 }
 \value{

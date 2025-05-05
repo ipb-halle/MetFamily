@@ -40,6 +40,18 @@ analyzeTreeFromRoot <- function(dataList, cluster, filter){
   
   return(resultObj)
 }
+
+
+#' Analyze tree
+#' 
+#' Recursive function.
+#'
+#' @param dataList list object
+#' @param cluster cluster object
+#' @param filter filter
+#' @param nodeIdx numeric
+#'
+#' @returns list object
 analyzeTree <- function(dataList, cluster, filter, nodeIdx){
   if(nodeIdx < 0){
     ###################################
@@ -296,6 +308,8 @@ getSetOfSubTrees <- function(filter, clusterDataList, yesNoFunction, index){
   #print(paste(index, result$criterionFulfilled, paste(result$results, collapse = ";")))
   return(result)
 }
+
+
 colorSubTree <- function(cluster, index, lwd = 1, lty = 1, col = "black"){
   if(index<0){ # it is a leaf
     a2r_counter <<- a2r_counter + 1
@@ -335,8 +349,29 @@ colorSubTree <- function(cluster, index, lwd = 1, lty = 1, col = "black"){
   
   list(x=x.m)
 }
+
+
+#' colorSubTreeForAnnotations
+#'
+#' This function is called recursively.
+#
+#' `innerNodeAnnotationsGlob`and `innerNodeColors` are global variables
+#'
+#' @param cluster cluster object calculated from `calculateCluster()`
+#' @param index numeric
+#' @param innerNodeAnnotations list
+#' @param setOfColorSets list
+#' @param parentIndex single numeric, NULL if no parent
+#' @param parentAnnotation single character
+#' @param parentColor single color
+#' @param lwd numeric linewidth
+#' @param lty numeric linetype
+#'
+#' @returns list, but can be called for side-effects only
+#' @noRd
 colorSubTreeForAnnotations <- function(cluster, index, innerNodeAnnotations, setOfColorSets, parentIndex, parentAnnotation, parentColor, lwd = 1, lty = 1){
   #########################################################################################
+  
   ## leaf case
   if(index<0){ # it is a leaf
     a2r_counter <<- a2r_counter + 1
@@ -349,21 +384,22 @@ colorSubTreeForAnnotations <- function(cluster, index, innerNodeAnnotations, set
   ## determine color by annotations
   
   ## parent annotations
-  if(any(is.null(parentIndex), length(innerNodeAnnotations) < parentIndex))
+  if(any(is.null(parentIndex), length(innerNodeAnnotations) < parentIndex)) {
     ## no parent or no annotation entry
     parentAnnotations <- NULL
-  else
+  } else {
     ## there is annotation entry - possibly NULL
     parentAnnotations <- innerNodeAnnotations[[parentIndex]]
+  }
   
   ## current annotations
-  if(length(innerNodeAnnotations) < index)
+  if(length(innerNodeAnnotations) < index) {
     ## no annotation entry
     currentAnnotations <- NULL
-  else
+  } else {
     ## there is annotation entry - possibly NULL
     currentAnnotations <- innerNodeAnnotations[[index]]
-  
+  }
   ## calculate the current color
   newAnnotations <- setdiff(x = currentAnnotations, y = parentAnnotations)
   
@@ -378,7 +414,7 @@ colorSubTreeForAnnotations <- function(cluster, index, innerNodeAnnotations, set
       annotation <- parentAnnotation
       color      <- parentColor
     }
-  } else{
+  } else {
     ## there are new annotations -> take the first new annotation
     #color <- setOfColorSets[[index]][[1]]
     #color <- setOfColorSets[[index]][[length(setOfColorSets[[index]])]]
@@ -391,7 +427,7 @@ colorSubTreeForAnnotations <- function(cluster, index, innerNodeAnnotations, set
     color      <- newColors[[1]]
   }
   
-  innerNodeAnnotations[[index]] <<- annotation
+  innerNodeAnnotationsGlob[[index]] <<- annotation
   innerNodeColors[[index]] <<- color
   
   #########################################################################################
@@ -403,13 +439,24 @@ colorSubTreeForAnnotations <- function(cluster, index, innerNodeAnnotations, set
   
   h.l <- if(index.l<0) 0 else cluster$height[index.l]
   
-  out.l   <- colorSubTreeForAnnotations(cluster = cluster, index = index.l, innerNodeAnnotations = innerNodeAnnotations, setOfColorSets = setOfColorSets, parentIndex = index, parentAnnotation = annotation, parentColor = color, lty=lty, lwd=lwd)
+  out.l   <- colorSubTreeForAnnotations(
+    cluster = cluster, index = index.l, 
+    innerNodeAnnotations = innerNodeAnnotations, 
+    setOfColorSets = setOfColorSets, parentIndex = index, 
+    parentAnnotation = annotation, parentColor = color, 
+    lty=lty, lwd=lwd)
   x.l     <- out.l$x
   
   #~~~~~~~~~~~~~~~~~~~~~~~~~~~ do right
   index.r  <- cluster$merge[index,2]
   h.r <- if(index.r<0) 0 else cluster$height[index.r]
-  out.r   <- colorSubTreeForAnnotations(cluster = cluster, index = index.r, innerNodeAnnotations = innerNodeAnnotations, setOfColorSets = setOfColorSets, parentIndex = index, parentAnnotation = annotation, parentColor = color, lty=lty, lwd=lwd)
+  
+  out.r   <- colorSubTreeForAnnotations(
+    cluster = cluster, index = index.r, 
+    innerNodeAnnotations = innerNodeAnnotations, 
+    setOfColorSets = setOfColorSets, parentIndex = index, 
+    parentAnnotation = annotation, parentColor = color, 
+    lty=lty, lwd=lwd)
   x.r     <- out.r$x
   
   #~~~~~~~~~~~~~~~~~~~~~~~~~~~ draw what you have to draw
@@ -440,6 +487,8 @@ colorSubTreeForAnnotations <- function(cluster, index, innerNodeAnnotations, set
     col = col
   )
 }
+
+
 drawDendrogram <- function(cluster, index, lwd = 1, lty = 1){
   #########################################################################################
   ## leaf case

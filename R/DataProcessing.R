@@ -129,7 +129,8 @@ sparseMatrixToString <- function(matrixRows, matrixCols, matrixVals, parameterSe
 #' @param ms2_path file for MS2 .msp file
 #' @param annot_path file for annotations (.csv or .tsv)
 #' @param parameterSet list of parameters to use
-#'
+#' @param siriusFileColumnName One of "NPC class", "NPC superclass", "NPC pathway", "ClassyFire subclass",
+#'  "ClassyFire class", "ClassyFire superclass"
 #' @returns dataList
 #' @export
 projectFromFiles <- function(ms1_path, ms2_path, annot_path = NULL,
@@ -149,7 +150,8 @@ projectFromFiles <- function(ms1_path, ms2_path, annot_path = NULL,
   dataList <- readProjectData(lines)
   
   if(!is.null(annot_path)) {
-    dataList <- add_qfeatures(dataList, resultObj$qfeatures, annot_path, siriusFileColumnName)
+    dataList <- add_qfeatures(dataList, qfeatures = resultObj$qfeatures, 
+                              fileAnnotation = annot_path, siriusFileColumnName)
   }
   
   dataList
@@ -877,7 +879,8 @@ add_qfeatures <- function(dataList, qfeatures, fileAnnotation = NULL, siriusFile
     return(dataList)
   }
   
-  qfeatures <- addSiriusAnnotations(qfeatures, fileAnnotation, siriusFileColumnName = siriusFileColumnName)
+  qfeatures <- addSiriusAnnotations(qfeatures, siriusFile = fileAnnotation, 
+                                    siriusFileColumnName = siriusFileColumnName)
   
   # previously used test, not sure if still needed
   if (is.null(attr(rowData(qfeatures[[1]]), "annotation column"))) {
@@ -905,7 +908,11 @@ add_qfeatures <- function(dataList, qfeatures, fileAnnotation = NULL, siriusFile
   #adding HEX color codes from external annotations to the annotationColorsMapInitValue of dataFrameHeader
   
   # Copy the selected column by user, Remove duplicates and exclude the first row
-  uniqueAnnotations0 <- unique(unlist(strsplit(metaboliteProfile$Annotation, ",")))
+  
+  ## gp: This line was causing issues because some annotations contain commas on purpose.
+  ## Not clear is which cases the strsplit was needed
+  # uniqueAnnotations0 <- unique(unlist(strsplit(metaboliteProfile$Annotation, ",")))
+  uniqueAnnotations0 <- unique(metaboliteProfile$Annotation)
   
   uniqueAnnotations <- paste0(uniqueAnnotations0, "=")
   # Add a random string from the hex color list to each element of uniqueAnnotions

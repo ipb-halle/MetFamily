@@ -413,7 +413,7 @@ importData <- function(importMS1andMS2data){
     
     dataList <<- tryCatch({
         readProjectData(fileLines = lines, progress = TRUE) %>% 
-        # browser()
+        
         add_qfeatures(qfeatures = resultObj$qfeatures,
                       fileAnnotation = fileAnnotPath,
                       siriusFileColumnName = input$siriusFileColumnName

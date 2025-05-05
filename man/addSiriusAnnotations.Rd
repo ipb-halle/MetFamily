@@ -25,5 +25,6 @@ addSiriusAnnotations(
 qfeatures object
 }
 \description{
-Add Sirius Annotations
+Missing values in the Sirius file create empty character values "" in the annotation,
+while missing features have NA values. All are transformed to "" later in \code{add_qfeatures}.
 }
