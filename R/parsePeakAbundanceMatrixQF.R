@@ -194,6 +194,8 @@ parsePeakAbundanceMatrixQF <- function(qfeatures,
 #' @param siriusFile file path
 #' @param rowData_col character Qfeatures column to match
 #' @param sirius_col character Sirius column to match
+#' @param siriusFileColumnName One of "NPC class", "NPC superclass", "NPC pathway", "ClassyFire subclass",
+#'  "ClassyFire class", "ClassyFire superclass"
 #'
 #' @return qfeatures object
 #' @importFrom utils read.delim

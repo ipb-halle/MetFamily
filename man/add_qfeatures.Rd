@@ -17,6 +17,9 @@ add_qfeatures(
 \item{qfeatures}{qfeature object, can be taken from resultObj$qfeatures.}
 
 \item{fileAnnotation}{character Path for sirius annotation file.}
+
+\item{siriusFileColumnName}{One of "NPC class", "NPC superclass", "NPC pathway", "ClassyFire subclass",
+"ClassyFire class", "ClassyFire superclass"}
 }
 \value{
 The dataList object with added sirius annotations.

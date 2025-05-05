@@ -20,6 +20,9 @@ addSiriusAnnotations(
 \item{rowData_col}{character Qfeatures column to match}
 
 \item{sirius_col}{character Sirius column to match}
+
+\item{siriusFileColumnName}{One of "NPC class", "NPC superclass", "NPC pathway", "ClassyFire subclass",
+"ClassyFire class", "ClassyFire superclass"}
 }
 \value{
 qfeatures object

@@ -867,7 +867,8 @@ readProjectData <- function(fileLines, progress = FALSE)
 #' @param dataList Output from readProjectData.
 #' @param qfeatures qfeature object, can be taken from resultObj$qfeatures.
 #' @param fileAnnotation character Path for sirius annotation file.
-#'
+#' @param siriusFileColumnName One of "NPC class", "NPC superclass", "NPC pathway", "ClassyFire subclass",
+#'  "ClassyFire class", "ClassyFire superclass"
 #' @returns The dataList object with added sirius annotations.
 #' @export
 add_qfeatures <- function(dataList, qfeatures, fileAnnotation = NULL, siriusFileColumnName = "NPC class") {
