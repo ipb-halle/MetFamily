@@ -249,9 +249,9 @@ shinyUI(
                     accept = c('.tsv', '.txt')
                   ),
                   p("Type and level of annotations:"),
-                  radioButtons("siriusCategory", label = NULL,
-                               choices = c("NPC class", "NPC superclass", "NPC pathway", "ClassyFire subclass",
-                                           "ClassyFire class", "ClassyFire superclass", "ClassyFire kingdom"),
+                  radioButtons("siriusFileColumnName", label = NULL,
+                               choices = c("ClassyFire superclass", "ClassyFire class", "ClassyFire subclass", 
+                                           "NPC pathway", "NPC superclass", "NPC class"),
                                inline = TRUE),
                   fluidRow(
                     column(width = 6,

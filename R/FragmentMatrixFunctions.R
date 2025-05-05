@@ -811,8 +811,6 @@ parseMSP_chunk <- function(fileLines,
     else            return(x$rt)
   }))
   
-  print("Line814")
-  
   if(!is.na(progress))  if(progress)  incProgress(amount = 0.01, detail = paste("MS/MS file boxing", sep = "")) else print(paste("MS/MS file boxing", sep = ""))
   returnObj <- list()
   returnObj$fileSpectra <- NA
@@ -977,8 +975,6 @@ parseMSP_attributes <- function(fileSpectra, progress = FALSE, flexiblePeakList 
   spectraList[unlist(lapply(X = spectraList, FUN = is.null))] <- NULL
   
   numberOfSpectra <- length(spectraList)
-  
-  print("Line981")
   
   ## postprocess
   if(!is.na(progress))  if(progress)  incProgress(amount = 0.01, detail = paste("MS/MS file postprocessing", sep = "")) else print(paste("MS/MS file postprocessing", sep = ""))
@@ -1642,7 +1638,6 @@ convertToProjectFile2 <- function(filePeakMatrixQF,
   numberOfUnmappedPrecursorsMz <- 0
   numberOfUnmappedPrecursorsRt <- 0
   
-  # HERE crash?
   for(i in seq_len(numberOfPrecursors)){
     numberOfItems <- length(allHits[[i]])
     if(numberOfItems == 1)

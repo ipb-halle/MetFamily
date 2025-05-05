@@ -295,6 +295,8 @@ obsDrawHCA <- observeEvent(input$drawHCAplots, {
   })
   session$sendCustomMessage("enableButton", "drawHCAplots")
 })
+
+
 if(FALSE){
 obsDendrogramHover <- observeEvent(input$plotDendrogram_hover, {
   hoverX <- input$plotDendrogram_hover$x

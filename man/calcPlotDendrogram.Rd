@@ -24,7 +24,7 @@ calcPlotDendrogram(
 
 \item{filter}{}
 
-\item{clusterDataList}{}
+\item{clusterDataList}{from \code{calculateCluster()}}
 
 \item{annoPresentAnnotationsList}{}
 

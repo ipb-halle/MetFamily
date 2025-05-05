@@ -687,6 +687,16 @@ calculateDistanceMatrix <- function(dataList, filter, distanceMeasure = "Jaccard
   return(returnObj)
 }
 
+#' Create cluster object
+#'
+#' @param dataList 
+#' @param filterObj 
+#' @param distanceMatrix 
+#' @param method 
+#' @param distanceMeasure 
+#' @param progress 
+#'
+#' @returns clusterDataList object
 #' @export
 calculateCluster <- function(dataList, filterObj, distanceMatrix, method, distanceMeasure, progress = FALSE){
   
@@ -796,14 +806,16 @@ calculateCluster <- function(dataList, filterObj, distanceMatrix, method, distan
   ##########################################
   ## calculate ms2 spectra
   if(!is.na(progress))  if(progress)  incProgress(amount = 0.1, detail = "Calculate spectrum information for leaves")
-  ms2spectrumInfoForLeaves <<- list()
-  for(leafIdx in seq_len(numberOfPrecursorsFiltered))
+  ms2spectrumInfoForLeaves <- list()
+  for(leafIdx in seq_len(numberOfPrecursorsFiltered)) {
     ms2spectrumInfoForLeaves[[leafIdx]] <- getMS2spectrumInfoForPrecursorLeaf(dataList, clusterDataList, treeLabel = -leafIdx, outAdductWarning = FALSE)
+  }
   
   if(!is.na(progress))  if(progress)  incProgress(amount = 0.1, detail = "Calculate consensus spectra for clusters")
-  ms2spectrumInfoForClusters <<- list()
-  for(clusterIdx in seq_len(numberOfInnerNodes))
+  ms2spectrumInfoForClusters <- list()
+  for(clusterIdx in seq_len(numberOfInnerNodes)) {
     ms2spectrumInfoForClusters[[clusterIdx]] <- getMS2spectrumInfoForCluster(dataList, clusterDataList, treeLabel = clusterIdx)
+  }
   
   ## calculate cluster discriminativity
   if(!is.na(progress))  if(progress)  incProgress(amount = 0.1, detail = "Calculate cluster discriminativity")
@@ -826,6 +838,8 @@ calculateCluster <- function(dataList, filterObj, distanceMatrix, method, distan
   
   return(clusterDataList)
 }
+
+
 preprocessDataForPca <- function(dataFrame, scaling, logTransform){
   
   if(logTransform){

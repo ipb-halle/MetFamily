@@ -9,7 +9,7 @@ addSiriusAnnotations(
   siriusFile,
   rowData_col = "Alignment ID",
   sirius_col = "featureId",
-  siriusCategory = "NPC class"
+  siriusFileColumnName = "NPC class"
 )
 }
 \arguments{
@@ -20,10 +20,14 @@ addSiriusAnnotations(
 \item{rowData_col}{character Qfeatures column to match}
 
 \item{sirius_col}{character Sirius column to match}
+
+\item{siriusFileColumnName}{One of "NPC class", "NPC superclass", "NPC pathway", "ClassyFire subclass",
+"ClassyFire class", "ClassyFire superclass"}
 }
 \value{
 qfeatures object
 }
 \description{
-Add Sirius Annotations
+Missing values in the Sirius file create empty character values "" in the annotation,
+while missing features have NA values. All are transformed to "" later in \code{add_qfeatures}.
 }
