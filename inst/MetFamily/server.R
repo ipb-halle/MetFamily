@@ -324,6 +324,8 @@ shinyServer(
     session$onSessionEnded(function() {
       print("Suspending observers")
       traceback()
+      print("With print: ")
+      print(traceback())
       for(suspendOnExitFunction in suspendOnExitFunctions)
         suspendOnExitFunction()
       # stops shiny running when closing the browser
