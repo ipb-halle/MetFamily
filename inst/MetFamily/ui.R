@@ -2,7 +2,7 @@
 ## constants
 minimumProportionOfLeafs <<- 0.75
 minimumProportionToShowFragment <<- 0.5
-
+crashButton = T
 
 
 # shinyUI(
@@ -1250,10 +1250,18 @@ shinyUI(
       wellPanel(
         h4(HTML("<b>Session info</b>")),
         verbatimTextOutput(outputId = "rInfo")
+      ),
+      if (crashButton) {
+      wellPanel(
+        h4(HTML("<b>Crash the app</b>")),
+        actionButton(inputId = "crashApp", label = "Do not press", icon = icon("bomb"), 
+                     style="color: #fff; background-color: #ff0000")
       )## well panel
+      }
     )## tab
   )#,## navBar
   # Application footer
   #fluidRow(ipbfooter)
   #)## fluidPage
 )## shinyUI
+

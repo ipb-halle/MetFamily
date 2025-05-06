@@ -4,7 +4,7 @@ errorHunting <- TRUE
 
 if(errorHunting){
   options(warn = 2, shiny.error = recover)
-  #options(shiny.trace=TRUE)
+  # options(shiny.trace=TRUE)
   options(shiny.trace=FALSE)
   options(shiny.fullstacktrace=TRUE)
   options(shiny.testmode=TRUE)
@@ -323,6 +323,7 @@ shinyServer(
     ## suspend observer
     session$onSessionEnded(function() {
       print("Suspending observers")
+      traceback()
       for(suspendOnExitFunction in suspendOnExitFunctions)
         suspendOnExitFunction()
       # stops shiny running when closing the browser
@@ -447,5 +448,13 @@ shinyServer(
     outputOptions(output, 'plotHcaShown',            suspendWhenHidden=FALSE)
     outputOptions(output, 'plotPcaShown',            suspendWhenHidden=FALSE)
     outputOptions(output, 'plotAnnotationShown',     suspendWhenHidden=FALSE)
+    
+
+    # Force crash for testing
+    observeEvent(input$crashApp, {
+      stop("A terrible error occured. It was your fault.")
+    })
+    
+    
   }## function(input, output, session)
 )## shinyServer
