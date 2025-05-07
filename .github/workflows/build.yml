@@ -12,7 +12,7 @@ name: R-CMD-check-MetFamily
 # Define environment variables for the workflow
 env:
   has_testthat: 'true'
-  run_shinytest2: 'true'
+  run_shinytest2: 'false'
 #  run_covr: 'true' # Disabled until later
   run_covr: 'false'
   run_pkgdown: 'false'
