@@ -17,15 +17,11 @@ shinyUI(
                      windowTitle="MetFamily",
                      footer = HTML(readLines("www/ipbfooter.html")),
                     
-    ##########################################################################################
-    ##########################################################################################
-    ##########################################################################################
-    ##########################################################################################
-    ## tab run
+    ## tab run ----
     tabPanel(
       shinyjs::useShinyjs(),
-      ##############################################################################################
-      ## enable / disable actionButtons while process is running
+      
+      ## enable / disable actionButtons while process is running ----
       singleton(tags$head(HTML(
         '
           <script type="text/javascript">
@@ -64,19 +60,16 @@ shinyUI(
                                      href = "css/ipb-styles.css"))),
         
       title = "Run",
-      ##############################################################################################
-      ##############################################################################################
-      ##############################################################################################
-      ## side panel
+      
+      ## side panel ----
       fluidRow(
       conditionalPanel(
         condition = "output.showSideBar",
         column(width = 4,
           tabsetPanel(
             id = "runTabs",
-            ##############################################################################################
-            ##############################################################################################
-            ## file input
+            
+            ## file input ----
             tabPanel(
               title = "Input",
               wellPanel(
@@ -328,20 +321,19 @@ shinyUI(
               )#,## well panel
               #uiOutput("errorPopupDialog")
             ),## tab panel
-            ##############################################################################################
-            ##############################################################################################
-            ## global MS2 filter
+            
+            ## global MS2 filter ----
             #navbarMenu("Filter",
             tabPanel(
               title = "MS/MS filter",
               conditionalPanel(
                 condition = "output.showGUI",
                 wellPanel(
-                  ##############################################################################################
-                  ## MS2 filter
+
+                  ### MS2 filter ----
                   h4("Global MS/MS filter"),
-                  ##############################################################################################
-                  ## MS2 plot
+                  
+                  ### MS2 plot ----
                   fluidRow(
                     column(width = 6,
                            div(style="float:left",
@@ -406,8 +398,8 @@ shinyUI(
                   ),
                   bsTooltip(id = "globalFilter_ms2_ppm", title = "The MS/MS feature matching allows this error in PPM (<b>p</b>arts <b>p</b>er <b>m</b>illion)", placement = "bottom", trigger = "hover"),
                   textInput(inputId = "globalFilter_ms2_ppm", placeholder = 'PPM number here', label = "PPM"),
-                  ##############################################################################################
-                  ## filter button
+                  
+                  ## filter button ----
                   fluidRow(
                     column(width = 6,
                            div(style="float:left;width:100%",
@@ -440,16 +432,15 @@ shinyUI(
                 )
               )## conditional panel
             ),## tab panel
-            ##############################################################################################
-            ##############################################################################################
-            ## sample selection
+            
+            ## sample selection ----
             tabPanel(
               title = "Sample filter", 
               conditionalPanel(
                 condition = "output.showGUI",
                 wellPanel(
-                  ##############################################################################################
-                  ## sample table
+                  
+                  ### sample table ----
                   DT::dataTableOutput("sampleTable"),
                   bsTooltip(id = "updateSampleTable", title = "Updates the order and the exclusion status of samples", placement = "bottom", trigger = "hover"),
                   actionButton(inputId = "updateSampleTable", label = "Apply sample order and exclusion status", class="btn-success")
@@ -463,16 +454,15 @@ shinyUI(
               )## conditional panel
             ),## tab panel
             #),
-            ##############################################################################################
-            ##############################################################################################
-            ## PCA
+
+            ## PCA ----
             tabPanel(
               title = "PCA", 
               conditionalPanel(
                 condition = "output.showGUI && output.globalMS2filterValid",
                 wellPanel(
-                  ##############################################################################################
-                  ## HCA group and abundance filter
+                
+                  ## PCA group and abundance filter ----
                   fluidRow(
                     column(width = 7,
                            div(style="float:left",
@@ -536,8 +526,8 @@ shinyUI(
                     
                     bsTooltip(id = "pcaFilterIncludeIgnoredPrecursors", title = "Include or filter out ignored MS\u00B9 features, i.e. MS\u00B9 features which have been annotated as \\'Ignore\\'", placement = "bottom", trigger = "hover"),
                     checkboxInput(inputId = "pcaFilterIncludeIgnoredPrecursors", label = "Include ignored MS\u00B9 features", value = FALSE),
-                    ##############################################################################################
-                    ## filter button
+                    
+                    ## filter button ----
                     fluidRow(
                       column(width = 6,
                              div(style="float:left;width:100%",
@@ -573,8 +563,8 @@ shinyUI(
                       "PLS-DA (Partial Least Squares Discriminant Analysis)", 
                       "sPLS-DA (Sparse Partial Least Squares Discriminant Analysis)"
                     ), selectize = FALSE),
-                    ##############################################################################################
-                    ## PCA properties
+                    
+                    ## PCA properties ----
                     fluidRow(
                       column(width = 6,
                              div(style="float:left",
@@ -640,16 +630,15 @@ shinyUI(
                 )## well panel
               )## conditional panel
             ),## tab panel
-            ##############################################################################################
-            ##############################################################################################
-            ## HCA
+            
+            ## HCA ----
             tabPanel(
               title = "HCA", 
               conditionalPanel(
                 condition = "output.showGUI && output.globalMS2filterValid",
                 wellPanel(
-                  ##############################################################################################
-                  ## HCA group and abundance filter
+                  
+                  ## HCA group and abundance filter ----
                   fluidRow(
                     column(width = 7,
                            div(style="float:left",
@@ -689,8 +678,8 @@ shinyUI(
                     ),
                     bsTooltip(id = "hcaFilterIncludeIgnoredPrecursors", title = "Include or filter out ignored MS\u00B9 features, i.e. MS\u00B9 features which have been annotated as \\'Ignore\\'", placement = "bottom", trigger = "hover"),
                     checkboxInput(inputId = "hcaFilterIncludeIgnoredPrecursors", label = "Include ignored MS\u00B9 features", value = FALSE),
-                    ##############################################################################################
-                    ## filter button
+                    
+                    ## filter button ----
                     fluidRow(
                       column(width = 6, 
                              div(style="float:left;width:100%",
@@ -724,8 +713,8 @@ shinyUI(
                 conditionalPanel(
                   condition = "output.hcaFilterValid",
                   wellPanel(
-                    ##############################################################################################
-                    ## HCA properties
+                    
+                    ## HCA properties ----
                     fluidRow(
                       column(width = 6,
                              div(style="float:left",
@@ -791,9 +780,8 @@ shinyUI(
                 )## well panel
               )## conditional panel
             ),## tab panel
-            ##############################################################################################
-            ##############################################################################################
-            ## search
+            
+            ## search ----
             tabPanel(
               title = "Search",
               conditionalPanel(
@@ -1177,23 +1165,18 @@ shinyUI(
           )## tab set panel
         )## column
       ),##conditional
-      ##############################################################################################
-      ##############################################################################################
-      ##############################################################################################
-      ## plots
+ 
+      ## plots ----
       #uiOutput("runRightColumn")
       source(file = "app_files/ui_rightColumn.R", local = TRUE)$value
     ),## tab
     ),
-    ##########################################################################################
-    ##########################################################################################
-    ##########################################################################################
-    ##########################################################################################
-    ## tab about
+
+    ## tab about ----
     tabPanel(
       title = "About",
-      ##############################################################################################
-      ## intro
+      
+      ## intro ----
       wellPanel(
         h4(HTML("<b>MetFamily 1.0</b>")),
         fluidRow(
