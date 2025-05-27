@@ -59,6 +59,7 @@ getSelectedPOI_XY <- function(mouseX, mouseY, poiCoordinatesX, poiCoordinatesY, 
 
 
 drawDendrogramPlotImpl <- function(){
+  
   resultObj <- calcPlotDendrogram(
     dataList = dataList, 
     filter = filterHca$filter, 
@@ -204,7 +205,7 @@ drawAnnotationLegendForImagePCAimpl <- function(){
   calcPlotAnnoLegendForImage(state_tabPca$annotationsPca$setOfAnnotations, state_tabPca$annotationsPca$setOfColors)
 }
 drawScoresGroupsLegendImpl <- function(){
-  calcPlotScoresGroupsLegend(scoresGroups$grouXXXps, scoresGroups$colors)
+  calcPlotScoresGroupsLegend(scoresGroups$sampleClasses, scoresGroups$colors)
 }
 
 drawMS2PlotImpl <- function(){

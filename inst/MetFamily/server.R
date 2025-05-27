@@ -1,24 +1,10 @@
 
-#########################################################################################
-#########################################################################################
-## libraries and functions
-
-sourceFolder <- getwd()
-isDevelopment <- FALSE
-errorHunting <- FALSE
-hcaHeatMapNew <- TRUE
-
-##
-## Load dependency libraries. Formerly in sourceTheCode()
-##
-library(MetFamily)
-load_metfamily_dependencies()
-
-#####################################################################################################
 ## handling of errors and warnings
+errorHunting <- TRUE
+
 if(errorHunting){
   options(warn = 2, shiny.error = recover)
-  #options(shiny.trace=TRUE)
+  # options(shiny.trace=TRUE)
   options(shiny.trace=FALSE)
   options(shiny.fullstacktrace=TRUE)
   options(shiny.testmode=TRUE)
@@ -30,19 +16,21 @@ if(errorHunting){
   options(shiny.testmode=FALSE)
 }
 
+
 #########################################################################################
 #########################################################################################
 ## server-side logic of the Shiny app
 shinyServer(
   func = function(input, output, session) {
-    show_modal_spinner(spin = "self-building-square", text="Loading libraries")
+    shinybusy::show_modal_spinner(spin = "self-building-square", text="Loading libraries")
     #########################################################################################
     #########################################################################################
     ## global variables per user
     
     ##############################################
     ## constants
-    source("version.R")
+    # gp: added local = TRUE. Did that need to be in global env?
+    source("version.R", local = TRUE)
       
     ## annotation constants
     artifactName   <- "Ignore"
@@ -147,7 +135,7 @@ shinyServer(
     #########################################################################################
     #########################################################################################
     ## observer
-    remove_modal_spinner() #Remove preparing message
+    shinybusy::remove_modal_spinner() #Remove preparing message
     
     ## controls
     obsTabs <- observeEvent(input$runTabs, {
@@ -214,8 +202,8 @@ shinyServer(
               #scrollY = "600px",
               scrollX = "40vh",
               scrollY = "60vh",
-              preDrawCallback = JS('function() { Shiny.unbindAll(this.api().table().node()); }'),
-              drawCallback    = JS('function() { Shiny.bindAll(  this.api().table().node()); }'),
+              preDrawCallback = DT::JS('function() { Shiny.unbindAll(this.api().table().node()); }'),
+              drawCallback    = DT::JS('function() { Shiny.bindAll(  this.api().table().node()); }'),
               iDisplayLength=nrow(availableClassifiersDf),       # initial number of records
               ordering = F,              # row ordering
               sDom  = 't'
@@ -314,14 +302,14 @@ shinyServer(
     
     ## display of tabs
     observe({
-      toggle(condition = !is.null(state_tabInput$importedOrLoadedFile_s_), selector = "#runTabs li a[data-value='MS/MS filter']")
-      toggle(condition = !is.null(state_tabInput$importedOrLoadedFile_s_), selector = "#runTabs li a[data-value='Sample filter']")
-      toggle(condition = !is.null(state_tabInput$importedOrLoadedFile_s_), selector = "#runTabs li a[data-value='PCA']")
-      toggle(condition = !is.null(state_tabInput$importedOrLoadedFile_s_), selector = "#runTabs li a[data-value='HCA']")
-      toggle(condition = !is.null(state_tabInput$importedOrLoadedFile_s_), selector = "#runTabs li a[data-value='Search']")
-      toggle(condition = !is.null(state_tabInput$importedOrLoadedFile_s_), selector = "#runTabs li a[data-value='Classifiers']")
-      toggle(condition = !is.null(state_tabInput$importedOrLoadedFile_s_), selector = "#runTabs li a[data-value='Annotations']")
-      toggle(condition = !is.null(state_tabInput$importedOrLoadedFile_s_), selector = "#runTabs li a[data-value='Project']")
+      shinyjs::toggle(condition = !is.null(state_tabInput$importedOrLoadedFile_s_), selector = "#runTabs li a[data-value='MS/MS filter']")
+      shinyjs::toggle(condition = !is.null(state_tabInput$importedOrLoadedFile_s_), selector = "#runTabs li a[data-value='Sample filter']")
+      shinyjs::toggle(condition = !is.null(state_tabInput$importedOrLoadedFile_s_), selector = "#runTabs li a[data-value='PCA']")
+      shinyjs::toggle(condition = !is.null(state_tabInput$importedOrLoadedFile_s_), selector = "#runTabs li a[data-value='HCA']")
+      shinyjs::toggle(condition = !is.null(state_tabInput$importedOrLoadedFile_s_), selector = "#runTabs li a[data-value='Search']")
+      shinyjs::toggle(condition = !is.null(state_tabInput$importedOrLoadedFile_s_), selector = "#runTabs li a[data-value='Classifiers']")
+      shinyjs::toggle(condition = !is.null(state_tabInput$importedOrLoadedFile_s_), selector = "#runTabs li a[data-value='Annotations']")
+      shinyjs::toggle(condition = !is.null(state_tabInput$importedOrLoadedFile_s_), selector = "#runTabs li a[data-value='Project']")
     })
     
     
@@ -335,8 +323,16 @@ shinyServer(
     ## suspend observer
     session$onSessionEnded(function() {
       print("Suspending observers")
+      traceback()
+      print("With print: ")
+      print(traceback())
       for(suspendOnExitFunction in suspendOnExitFunctions)
         suspendOnExitFunction()
+      # stops shiny running when closing the browser
+      # potential issue when multiples instances of the app are running simultaneously
+      # see https://stackoverflow.com/questions/35306295/how-to-stop-running-shiny-app-by-closing-the-browser-window
+      # answer from user "until" for single-user button alternative
+      stopApp()
     })
     
     #########################################################################################
@@ -454,5 +450,13 @@ shinyServer(
     outputOptions(output, 'plotHcaShown',            suspendWhenHidden=FALSE)
     outputOptions(output, 'plotPcaShown',            suspendWhenHidden=FALSE)
     outputOptions(output, 'plotAnnotationShown',     suspendWhenHidden=FALSE)
+    
+
+    # Force crash for testing
+    observeEvent(input$crashApp, {
+      stop("A terrible error occured. It was your fault.")
+    })
+    
+    
   }## function(input, output, session)
 )## shinyServer

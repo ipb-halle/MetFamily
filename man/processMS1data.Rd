@@ -8,7 +8,7 @@ processMS1data(
   sampleNamesToExclude,
   numberOfMS1features,
   precursorLabels,
-  grouXXXps,
+  sampleClasses,
   metaboliteProfileColumnNames,
   dataColumnIndecesFunctionFromGroupIndex,
   dataColumnsNameFunctionFromGroupIndex,
@@ -27,7 +27,7 @@ processMS1data(
 
 \item{precursorLabels}{}
 
-\item{grouXXXps}{}
+\item{sampleClasses}{}
 
 \item{metaboliteProfileColumnNames}{}
 
@@ -47,7 +47,10 @@ processMS1data(
 
 \item{progress}{}
 }
+\value{
+?
+}
 \description{
-Processing of MS-Dial-like MS1 data.frame. Includes calculation 
+Processing of MS-Dial-like MS1 data.frame. Includes calculation
 of MS1 data mean and log-fold-change (LFC) data
 }

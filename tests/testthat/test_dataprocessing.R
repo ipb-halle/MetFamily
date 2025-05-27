@@ -9,7 +9,7 @@ test_that("metaboliteProfileParsing works", {
   result <- processMS1data(sampleNamesToExclude=sampleNamesToExclude,
                            numberOfMS1features=numberOfMS1features,
                            precursorLabels=precursorLabels,
-                           grouXXXps=c("TRI", "LVS"),
+                           sampleClasses=c("TRI", "LVS"),
                            metaboliteProfileColumnNames=metaboliteProfileColumnNames,
                            dataColumnIndecesFunctionFromGroupIndex=dataColumnIndecesFunctionFromGroupIndex,
                            dataColumnsNameFunctionFromGroupIndex=dataColumnsNameFunctionFromGroupIndex,

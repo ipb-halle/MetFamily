@@ -81,7 +81,7 @@ updateSampleOrderAndExclusion <- function(){
   sampleNamesToExclude <- dataList$groupSampleDataFrame[sampleExclusion_tmp, "Sample"]
   
   returnObj <- processMS1data(sampleNamesToExclude=sampleNamesToExclude, numberOfMS1features=dataList$numberOfPrecursors, precursorLabels=dataList$precursorLabels, 
-                              grouXXXps=dataList$grouXXXps, metaboliteProfileColumnNames=dataList$metaboliteProfileColumnNames, tagsSector = dataList$tagsSector, 
+                              sampleClasses=dataList$sampleClasses, metaboliteProfileColumnNames=dataList$metaboliteProfileColumnNames, tagsSector = dataList$tagsSector, 
                               dataColumnIndecesFunctionFromGroupIndex=dataList$dataColumnIndecesFunctionFromGroupIndex, dataColumnsNameFunctionFromGroupIndex=dataList$dataColumnsNameFunctionFromGroupIndex, dataColumnsNameFunctionFromGroupName=dataList$dataColumnsNameFunctionFromGroupName, dataColumnsNameFunctionFromGroupNames=dataList$dataColumnsNameFunctionFromGroupNames, groupNameFunctionFromDataColumnName=dataList$groupNameFunctionFromDataColumnName,
                               metaboliteProfile=dataList$dataFrameInfos, progress=FALSE)
   
@@ -154,8 +154,8 @@ setSampleTable <- function(){
     options = list(
       #scrollY = "600px",
       scrollY = "65vh",
-      preDrawCallback = JS('function() { Shiny.unbindAll(this.api().table().node()); }'),
-      drawCallback    = JS('function() { Shiny.bindAll(  this.api().table().node()); }'),
+      preDrawCallback = DT::JS('function() { Shiny.unbindAll(this.api().table().node()); }'),
+      drawCallback    = DT::JS('function() { Shiny.bindAll(  this.api().table().node()); }'),
       iDisplayLength=nrow(sampleTable),       # initial number of records
       #aLengthMenu = c(5,10),    # records/page options
       #bLengthChange =0,        # show/hide records per page dropdown

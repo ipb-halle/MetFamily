@@ -1,38 +1,143 @@
 
-#########################################################################################
-## constants
-filterData <- function(dataList, grouXXXps, sampleSet, filterBySamples, filter_average, filter_lfc, filterList_ms2_masses, filter_ms2_ppm, filter_ms1_masses, filter_ms1_ppm, includeIgnoredPrecursors, progress = FALSE){
-  ##########################################
+#' Filter dataset based on intensity mean values
+#' 
+#' @param dataList list object
+#' @param filter_average numeric
+#' @param sampleClasses vector of sample classes
+#'
+#' @returns boolean vector
+#' @export
+filterThreshold <- function(dataList, filter_average, sampleClasses = dataList$sampleClasses) {
+  
+  # need to fix code if false
+  stopifnot(identical(sampleClasses, as.vector(sampleClasses)))
+  
+  mean_colnames <- sapply(X = sampleClasses,
+                          FUN = dataList$dataMeanColumnNameFunctionFromName)
+  
+  unname(
+    apply(X = dataList$dataFrameMeasurements[, mean_colnames],
+          MARGIN = 1, FUN = mean) >= filter_average
+  )
+
+}
+
+
+#' Filter dataset based on LFC of two groups
+#'
+#' @param dataList list object
+#' @param filter_lfc numeric e.g. 2 or -2
+#' @param sampleClasses vector of names for group1 and group2
+#'
+#' @returns boolean vector
+#' @export
+filterLFC <- function(dataList, filter_lfc, sampleClasses = dataList$sampleClasses) {
+
+  stopifnot("The number of sampleClasses for LFC is not equal to two!" = length(sampleClasses) == 2)
+  
+  test_lfc <- if(filter_lfc > 0) filter_lfc else -filter_lfc
+  
+  dataList$dataFrameMeasurements[
+    , dataList$lfcColumnNameFunctionFromName(sampleClasses[[1]], sampleClasses[[2]])] >= test_lfc
+  
+}
+
+#' Create a filterObject for console use
+#' 
+#' Mixes code from filterData() and doPerformFiltering_impl() to provide
+#' a simple way to create a compatible filterObj in a script.
+#' 
+#' doPerformFiltering_impl() relies on a DataList in the global environment, 
+#' so it can't be used in a script.
+#'
+#' @param dataList list object
+#' @param filter_average numeric
+#' @param filter_lfc numeric
+#' @param sampleClasses character vector
+#'
+#' @returns filterObject
+#' @export
+makeFilterObj <- function(dataList, filter_average = NULL, filter_lfc = NULL, sampleClasses = NULL) {
+  
+  if(is.null(sampleClasses)) sampleClasses <- dataList$sampleClasses
+  sampleSet <- dataList$groupSampleDataFrame$Sample
+  
+  filterHere <- filterData(
+    dataList, sampleClasses = dataList$sampleClasses, 
+    sampleSet = sampleSet, filterBySamples = FALSE,
+    filter_average = filter_average, filter_lfc = filter_lfc,
+    filterList_ms2_masses = NULL, filter_ms2_ppm = NULL, 
+    filter_ms1_masses = NULL, filter_ms1_ppm = NULL, 
+    includeIgnoredPrecursors = FALSE, progress = FALSE)
+  
+  # gp: the rest is brute force to reproduce saved filterObj
+  filterHere$filter <- filterHere$filter %>% purrr::set_names(dataList$precursorLabels[.])
+  
+  filterHere$groupSetOriginal <- sampleClasses
+  filterHere$sampleSetOriginal <- sampleSet
+  filterHere$filterBySamplesOriginal <- FALSE
+  
+  filterHere$filter_averageOriginal <- if(is.null(filter_average)) 0 else as.character(filter_average)
+  filterHere$filter_lfcOriginal <- if (is.null(filter_lfc)) 0 else as.character(filter_lfc)
+  
+  filterHere$filter_ms2_masses1Original <- list()
+  filterHere$filter_ms2_masses2Original <- list()
+  filterHere$filter_ms2_masses3Original <- list()
+  filterHere$filter_ms2_ppmOriginal <- ""
+  filterHere$filter_ms1_massesOriginal <- list()
+  filterHere$filter_ms1_ppmOriginal <- ""
+  
+  filterHere$includeIgnoredPrecursorsOriginal <- FALSE
+  
+  filterHere
+  
+}
+
+
+#' Filter a dataList
+#'
+#' @param dataList List object
+#' @param sampleClasses sample class
+#' @param sampleSet ?
+#' @param filterBySamples boolean
+#' @param filter_average numeric Features that have a mean intensity below that threshold are filtered out.
+#' @param filter_lfc numeric Log-fold-change threshold between two treatments. Only implement when exactly two groups are present.
+#' @param filterList_ms2_masses ?
+#' @param filter_ms2_ppm ?
+#' @param filter_ms1_masses ?
+#' @param filter_ms1_ppm ?
+#' @param includeIgnoredPrecursors boolean
+#' @param progress boolean
+#'
+#' @returns A filtered dataList object
+#' @export
+filterData <- function(dataList, sampleClasses, sampleSet = NULL, filterBySamples = FALSE, filter_average = NULL,
+                       filter_lfc = NULL, filterList_ms2_masses = NULL, filter_ms2_ppm = NULL, 
+                       filter_ms1_masses = NULL, filter_ms1_ppm = NULL, 
+                       includeIgnoredPrecursors = FALSE, progress = FALSE){
+  
   ## filter
   filter <- rep(x = TRUE, times = dataList$numberOfPrecursors)
   
   ## filter_average
   if(!is.null(filter_average)){
-    #print("this is entering the line 11")
-    #if(filterBySamples){
-    #  filter <- filter & apply(X = as.data.frame(dataList$dataFrameMeasurements[, sapply(X = as.vector(grouXXXps), FUN = dataList$dataMeanColumnNameFunctionFromName)]), MARGIN = 1, FUN = mean) >= filter_average
-    #} else {
-      filter <- filter & apply(X = as.data.frame(dataList$dataFrameMeasurements[, sapply(X = as.vector(grouXXXps), FUN = dataList$dataMeanColumnNameFunctionFromName)]), MARGIN = 1, FUN = mean) >= filter_average
-      #print(filter)
-      #print(names(filter)[unname(filter)])
-    #}
+    # CHECK gp: Does it need to consider filterBySamples?
+    filter <- filter & filterThreshold(dataList, filter_average, sampleClasses)
   }
   
   ## filter_lfc
   if(!is.null(filter_lfc)){
+    # CHECK gp: strange condition, leaving it for now
     if(filter_lfc != 0){
-      if(length(grouXXXps) != 2){  stop("The number of grouXXXps for LFC is not equal to two!") }
-      if(filter_lfc > 0)
-        filter <- filter & dataList$dataFrameMeasurements[, dataList$lfcColumnNameFunctionFromName(grouXXXps[[1]], grouXXXps[[2]])] >= filter_lfc
-      else
-        filter <- filter & dataList$dataFrameMeasurements[, dataList$lfcColumnNameFunctionFromName(grouXXXps[[1]], grouXXXps[[2]])] <= filter_lfc
+      filter <- filter & filterLFC(dataList, filter_lfc, sampleClasses)
     }
   }
   
   ## filter_ms2_masses, filter_ms2_ppm
-  if(!is.null(filterList_ms2_masses) & !is.null(filter_ms2_ppm) & length(filterList_ms2_masses) > 0){
+  if(!is.null(filterList_ms2_masses) && !is.null(filter_ms2_ppm) && length(filterList_ms2_masses) > 0){
     error <- abs(dataList$fragmentMasses) * filter_ms2_ppm / 1E6
     filterFragmentLists <- rep(x = FALSE, times = dataList$numberOfPrecursors)
+    # BUG filter_ms2_masses not defined anywhere!!!
     for(filter_ms2_masses in filterList_ms2_masses){
       filterTempFragmentList <- rep(x = TRUE, times = dataList$numberOfPrecursors)
       for(fragmentIndex in seq_len(length(filter_ms2_masses))){
@@ -56,7 +161,7 @@ filterData <- function(dataList, grouXXXps, sampleSet, filterBySamples, filter_a
   }
   
   ## filter_ms1_masses, filter_ms1_ppm
-  if(!is.null(filter_ms1_masses) & !is.null(filter_ms1_ppm) & length(filter_ms1_masses) > 0){
+  if(!is.null(filter_ms1_masses) && !is.null(filter_ms1_ppm) && length(filter_ms1_masses) > 0){
     precursorMasses <- as.numeric(dataList$dataFrameInfos$"m/z")
     error <- precursorMasses * filter_ms1_ppm / 1E6
     
@@ -71,8 +176,9 @@ filterData <- function(dataList, grouXXXps, sampleSet, filterBySamples, filter_a
   }
   
   ## include ignored precursors
-  if(!includeIgnoredPrecursors)
+  if(!includeIgnoredPrecursors) {
     filter <- filter & !dataList$annoArrayIsArtifact
+  }
   
   filter <- which(filter)
   
@@ -80,16 +186,18 @@ filterData <- function(dataList, grouXXXps, sampleSet, filterBySamples, filter_a
   resultObj$filter <- filter
   resultObj$numberOfPrecursors <- dataList$numberOfPrecursors
   resultObj$numberOfPrecursorsFiltered <- length(filter)
-  if(is.null(grouXXXps)){
-    resultObj$grouXXXps    <- list()
+  
+  if(is.null(sampleClasses)){
+    resultObj$sampleClasses    <- list()
     resultObj$sampleSet <- list()
     resultObj$filterBySamples <- NA
   } else {
-    resultObj$grouXXXps    <- grouXXXps
+    resultObj$sampleClasses    <- sampleClasses
     resultObj$sampleSet <- sampleSet
     resultObj$filterBySamples <- filterBySamples
   }
-  #resultObj$grouXXXps                   <- ifelse(test = is.null(grouXXXps),                   yes = NA, no = grouXXXps)
+  
+  #resultObj$sampleClasses                   <- ifelse(test = is.null(sampleClasses),                   yes = NA, no = sampleClasses)
   resultObj$filter_average           <- ifelse(test = is.null(filter_average),           yes = 0, no = filter_average)
   resultObj$filter_lfc               <- ifelse(test = is.null(filter_lfc),               yes = 0, no = filter_lfc)
   if(is.null(filterList_ms2_masses)){
@@ -110,6 +218,8 @@ filterData <- function(dataList, grouXXXps, sampleSet, filterBySamples, filter_a
   
   return (resultObj)
 }
+
+#' @export
 calculateDistanceMatrix <- function(dataList, filter, distanceMeasure = "Jaccard", progress = FALSE){
   numberOfPrecursors <- length(filter)
   
@@ -576,22 +686,19 @@ calculateDistanceMatrix <- function(dataList, filter, distanceMeasure = "Jaccard
   
   return(returnObj)
 }
+
+#' Create cluster object
+#'
+#' @param dataList 
+#' @param filterObj 
+#' @param distanceMatrix 
+#' @param method 
+#' @param distanceMeasure 
+#' @param progress 
+#'
+#' @returns clusterDataList object
+#' @export
 calculateCluster <- function(dataList, filterObj, distanceMatrix, method, distanceMeasure, progress = FALSE){
-  
-  if(FALSE){
-    dataList_ <<- dataList
-    filterObj_ <<- filterObj
-    distanceMatrix_ <<- distanceMatrix
-    method_ <<- method
-    distanceMeasure_ <<- distanceMeasure
-  }
-  if(FALSE){
-    dataList <- dataList_
-    filterObj <- filterObj_
-    distanceMatrix <- distanceMatrix_
-    method <- method_
-    distanceMeasure <- distanceMeasure_
-  }
   
   numberOfPrecursorsFiltered <- length(filterObj$filter)
   ##########################################
@@ -699,14 +806,16 @@ calculateCluster <- function(dataList, filterObj, distanceMatrix, method, distan
   ##########################################
   ## calculate ms2 spectra
   if(!is.na(progress))  if(progress)  incProgress(amount = 0.1, detail = "Calculate spectrum information for leaves")
-  ms2spectrumInfoForLeaves <<- list()
-  for(leafIdx in seq_len(numberOfPrecursorsFiltered))
+  ms2spectrumInfoForLeaves <- list()
+  for(leafIdx in seq_len(numberOfPrecursorsFiltered)) {
     ms2spectrumInfoForLeaves[[leafIdx]] <- getMS2spectrumInfoForPrecursorLeaf(dataList, clusterDataList, treeLabel = -leafIdx, outAdductWarning = FALSE)
+  }
   
   if(!is.na(progress))  if(progress)  incProgress(amount = 0.1, detail = "Calculate consensus spectra for clusters")
-  ms2spectrumInfoForClusters <<- list()
-  for(clusterIdx in seq_len(numberOfInnerNodes))
+  ms2spectrumInfoForClusters <- list()
+  for(clusterIdx in seq_len(numberOfInnerNodes)) {
     ms2spectrumInfoForClusters[[clusterIdx]] <- getMS2spectrumInfoForCluster(dataList, clusterDataList, treeLabel = clusterIdx)
+  }
   
   ## calculate cluster discriminativity
   if(!is.na(progress))  if(progress)  incProgress(amount = 0.1, detail = "Calculate cluster discriminativity")
@@ -729,6 +838,8 @@ calculateCluster <- function(dataList, filterObj, distanceMatrix, method, distan
   
   return(clusterDataList)
 }
+
+
 preprocessDataForPca <- function(dataFrame, scaling, logTransform){
   
   if(logTransform){
@@ -770,25 +881,23 @@ preprocessDataForPca <- function(dataFrame, scaling, logTransform){
   
   return(dataFrame2)
 }
-minimumNumberOfComponents <- 5
+
+#' Run PCA
+#'
+#' @param dataList List object 
+#' @param dataFrame2 
+#' @param ms1AnalysisMethod 
+#'
+#' @returns A PCA list object
+#' @export
 performPca <- function(dataList, dataFrame2, ms1AnalysisMethod){
   
   print("######################################################################################")
   print(ms1AnalysisMethod)
   
-  if(FALSE){
-    dataFrame2_ <<- dataFrame2
-    ms1AnalysisMethod_ <<- ms1AnalysisMethod
-    dataList_ <<- dataList
-  }
-  if(FALSE){
-    dataFrame2 <- dataFrame2_
-    ms1AnalysisMethod <- ms1AnalysisMethod_
-    dataList <- dataList_
-  }
-  
-  
+ 
   ## TODO pcaMethods confidence intervals analog to MetaboAnalyst: pcaMethods:::simpleEllipse
+  minimumNumberOfComponents <- 5
   numberOfComponents <- min(minimumNumberOfComponents, nrow(dataFrame2))
   
   returnObj <- list()
@@ -859,11 +968,11 @@ performPca <- function(dataList, dataFrame2, ms1AnalysisMethod){
            returnObj$variance <- pca@sDev
            
            returnObj$R2 <- pca@R2
-           #returnObj$Q2 <- Q2(object = pca, fold=2)
+           #returnObj$Q2 <- pcaMethods::Q2(object = pca, fold=2)
            returnObj$Q2 <- tryCatch(
              {
                #Q2(object = pca, fold=2)
-               Q2(object = pca, verbose = FALSE)
+               pcaMethods::Q2(object = pca, verbose = FALSE)
              },
              error=function(cond) {
                rep(x = "N/A", times = numberOfComponents)
@@ -881,6 +990,12 @@ performPca <- function(dataList, dataFrame2, ms1AnalysisMethod){
          },
          "mixOmics_spca"={
            ## pca from "mixOmics" package
+           
+           # FIX error: 
+           # Error in mixOmics::spca: (converted from warning) data
+           # contain missing values which will be set to zero for calculations.
+           # Consider using center = TRUE for better performance, or impute
+           # missing values using 'impute.nipals' function.
            pca = mixOmics::spca(X = dataFrame2, ncomp = numberOfComponents, center = FALSE, scale = FALSE)
            returnObj$scores   <- pca$variates[[1]]
            returnObj$loadings <- pca$loadings[[1]]
@@ -888,8 +1003,8 @@ performPca <- function(dataList, dataFrame2, ms1AnalysisMethod){
            #returnObj$R2 <- 
            #returnObj$Q2 <- 
            
-           #performance <- perf(pca, validation = "loo", progressBar = FALSE)
-           #val <- perf(pca, criterion = c("R2", "Q2"))
+           #performance <- mixOmics::perf(pca, validation = "loo", progressBar = FALSE)
+           #val <- mixOmics::perf(pca, criterion = c("R2", "Q2"))
            
          },
          "mixOmics_plsda"={
@@ -908,12 +1023,12 @@ performPca <- function(dataList, dataFrame2, ms1AnalysisMethod){
            returnObj$loadings <- pca$loadings[[1]]
            returnObj$variance <- pca$explained_variance$X
            
-           #performance <- perf(pca, validation = "loo", progressBar = FALSE)
+           #performance <- mixOmics::perf(pca, validation = "loo", progressBar = FALSE)
            #performance$choice.ncomp
            
            if(FALSE){## R2 and Q2?
-             performance <- perf(pca, validation = "Mfold", folds = 2, progressBar = FALSE, tol = 1e-20)
-             performance <- perf(pca, validation = "loo", progressBar = FALSE, tol = 1e-20)
+             performance <- mixOmics::perf(pca, validation = "Mfold", folds = 2, progressBar = FALSE, tol = 1e-20)
+             performance <- mixOmics::perf(pca, validation = "loo", progressBar = FALSE, tol = 1e-20)
              
              pca = mixOmics::pca(X = dataFrame2, ncomp = numberOfComponents, center = FALSE, scale = FALSE)
              loadings <- pca$loadings[[1]]
@@ -933,9 +1048,9 @@ performPca <- function(dataList, dataFrame2, ms1AnalysisMethod){
              returnObj$loadings <- pca$loadings[[1]]
              returnObj$variance <- pca$explained_variance
              
-             performance <- perf(pca, validation = "Mfold", folds = 2, progressBar = FALSE, tol = 1e-20)
-             performance <- perf(pca, validation = "loo", progressBar = FALSE)
-             perf(pca, validation = "loo", progressBar = FALSE)
+             performance <- mixOmics::perf(pca, validation = "Mfold", folds = 2, progressBar = FALSE, tol = 1e-20)
+             performance <- mixOmics::perf(pca, validation = "loo", progressBar = FALSE)
+             mixOmics::perf(pca, validation = "loo", progressBar = FALSE)
            }
            
            #returnObj$R2 <- performance$R2
@@ -974,7 +1089,7 @@ performPca <- function(dataList, dataFrame2, ms1AnalysisMethod){
   #.. ..$ : chr [1:5] "Dim.1" "Dim.2" "Dim.3" "Dim.4" ...
   #$ variance: num [1:18] 35.96 21.67 11.66 8.15 4.56 ...
   #
-  ## artificial data two grouXXXps
+  ## artificial data two sampleClasses
   #$ scores  : num [1:2, 1] 0 0
   #..- attr(*, "dimnames")=List of 2
   #.. ..$ : chr [1:2] "A_1" "B_2"
@@ -1034,27 +1149,24 @@ leaveOneOutCrossValidation_plsda <- function(dataFrame2, groupLabels, numberOfCo
   
   return(accurracyContribution_comp)
 }
+
+#' Calculate PCA
+#'
+#' @param dataList listObject
+#' @param filterObj filterObject
+#' @param ms1AnalysisMethod 
+#' @param scaling 
+#' @param logTransform 
+#'
+#' @returns PCA object
+#' @export
 calculatePCA <- function(dataList, filterObj, ms1AnalysisMethod, scaling, logTransform){
-  if(FALSE){
-    dataList_ <<- dataList
-    filterObj_ <<- filterObj
-    ms1AnalysisMethod_ <<- ms1AnalysisMethod
-    scaling_ <<- scaling
-    logTransform_ <<- logTransform
-  }
-  if(FALSE){
-    dataList <<- dataList_
-    filterObj <<- filterObj_
-    ms1AnalysisMethod <<- ms1AnalysisMethod_
-    scaling <<- scaling_
-    logTransform <<- logTransform_
-  }
-  
+
   ## data selection
   if(filterObj$filterBySamples){
     dataFrame <- dataList$dataFrameMeasurements[filterObj$filter, filterObj$sampleSet]
   } else {
-    dataFrame <- dataList$dataFrameMeasurements[filterObj$filter, dataList$dataColumnsNameFunctionFromGroupNames(grouXXXps = filterObj$grouXXXps, sampleNamesToExclude = dataList$excludedSamples(dataList$groupSampleDataFrame))]
+    dataFrame <- dataList$dataFrameMeasurements[filterObj$filter, dataList$dataColumnsNameFunctionFromGroupNames(sampleClasses = filterObj$sampleClasses, sampleNamesToExclude = dataList$excludedSamples(dataList$groupSampleDataFrame))]
   }
   dataFrame <- t(dataFrame)
   

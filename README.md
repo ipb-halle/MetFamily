@@ -8,12 +8,19 @@ The image `sneumann/metfamily-base` contains all dependencies
 for the MetFamily web application.
 
 ## Building the container(s)
-Build via `docker build -t sneumann/metfamily-base -f Dockerfile-base . `
+Build via `docker build -t sneumann/metfamily-base -f Dockerfile-base . `or with the correct tagging:
+```
+echo docker build -t sneumann/metfamily-base:`grep ^FROM Dockerfile-base | cut -d: -f 2 | tr -d " "` -f Dockerfile-base .
+```
+
 
 The image `sneumann/metfamily` is built on top and contains
 the actual MetFamily code and web application.
 
-Build via `docker build -t sneumann/metfamily . `
+Build via `docker build -t sneumann/metfamily . ` or with the correct tagging:
+```
+docker build -t sneumann/metfamily:`grep ^FROM Dockerfile | cut -d: -f 2 | tr -d " "`-`grep Version DESCRIPTION | cut -d: -f 2 | tr -d " "`-`grep metFamilyAppVersion inst/MetFamily/version.R | cut -d'"' -f2` .
+```
 
 The build of the metfamily-base image https://hub.docker.com/r/sneumann/metfamily-base is triggerd whenever in the `master` branch a tag `basechange-<date>` e.g. `basechange-20190804` is specified.
 

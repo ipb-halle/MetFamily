@@ -2,13 +2,16 @@
 % Please edit documentation in R/Plots.R
 \name{calcPlotHeatmapLegend}
 \alias{calcPlotHeatmapLegend}
-\title{Title}
+\title{Prep Heatmap Legend}
 \usage{
 calcPlotHeatmapLegend(dataList)
 }
 \arguments{
 \item{dataList}{}
 }
+\value{
+?
+}
 \description{
-Title
+Prep Heatmap Legend
 }

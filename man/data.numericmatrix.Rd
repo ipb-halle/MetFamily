@@ -14,7 +14,7 @@ A matrix with all columns converted to numeric
 }
 \description{
 The data.numericmatrix() function works similar to base::data.matrix()
-before R-4.0.0 converting character columns to numeric without converting 
+before R-4.0.0 converting character columns to numeric without converting
 to factor first, thus returning the actual numeric values.
 }
 \examples{

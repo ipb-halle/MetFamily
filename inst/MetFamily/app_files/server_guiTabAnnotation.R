@@ -44,15 +44,15 @@ updateAnnotationOverview <- function(){
     "Count"  = annoCounts
   )
   
-  dataTable <- datatable(
+  dataTable <- DT::datatable(
     data = metaboliteFamiliesDf, 
     escape = FALSE, rownames = FALSE,
     selection = list(mode = "single"),#, selected = selected), 
     options = list(
       #scrollY = "600px",
       scrollY = "20vh",
-      preDrawCallback = JS('function() { Shiny.unbindAll(this.api().table().node()); }'),
-      drawCallback    = JS('function() { Shiny.bindAll(  this.api().table().node()); }'),
+      preDrawCallback = DT::JS('function() { Shiny.unbindAll(this.api().table().node()); }'),
+      drawCallback    = DT::JS('function() { Shiny.bindAll(  this.api().table().node()); }'),
       #rowCallback = JS(
       #  "function(nRow, aData, iDisplayIndex, iDisplayIndexFull) {",
       #  "var full_text = classes[[nRow]]",
@@ -71,7 +71,7 @@ updateAnnotationOverview <- function(){
     ))
   
   output$familySelectionTable <- DT::renderDataTable(
-    expr = formatStyle(table = dataTable, columns = "Color", target = "cell", backgroundColor = styleEqual(levels = allAnnotationColors, values = allAnnotationColors)),
+    expr = DT::formatStyle(table = dataTable, columns = "Color", target = "cell", backgroundColor = DT::styleEqual(levels = allAnnotationColors, values = allAnnotationColors)),
     server = FALSE
   )
   
@@ -112,8 +112,8 @@ obsFamilySelectionTable_rows_selected <- observeEvent(eventExpr = input$familySe
     expr = ms1FeatureDf,
     server = FALSE, escape = FALSE, selection = "none",
     options = list(
-      preDrawCallback = JS('function() { Shiny.unbindAll(this.api().table().node()); }'),
-      drawCallback    = JS('function() { Shiny.bindAll(  this.api().table().node()); }')
+      preDrawCallback = DT::JS('function() { Shiny.unbindAll(this.api().table().node()); }'),
+      drawCallback    = DT::JS('function() { Shiny.bindAll(  this.api().table().node()); }')
     )
   )
 }, ignoreNULL = FALSE)
@@ -322,7 +322,7 @@ openAnnotaionNameColorDialog <- function(predefinedClassName, predefinedClassCol
                              bsTooltip(id = itemIdValue, title = "The name of this annotation", placement = "bottom", trigger = "hover"),
                              textInput(inputId = itemIdValue, placeholder = 'Metabolite family name here', label = "Type new annotation", value = predefinedClassName),
                              bsTooltip(id = itemIdColor, title = "The color of this annotation", placement = "bottom", trigger = "hover"),
-                             colourInput(inputId = itemIdColor, label = "Select annotation color", palette = "limited", showColour = "background", allowedCols = colorPalette(), value = predefinedClassColor),
+                             colourpicker::colourInput(inputId = itemIdColor, label = "Select annotation color", palette = "limited", showColour = "background", allowedCols = colorPalette(), value = predefinedClassColor),
                              bsTooltip(id = itemIdButton, title = "Adds this annotation to the set of selected MS\u00B9 features", placement = "bottom", trigger = "hover"),
                              actionButton(inputId = itemIdButton, label = confirmButtonText, class="btn-success")
   )

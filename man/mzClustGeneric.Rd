@@ -29,10 +29,13 @@ mzClustGeneric(
 
 \item{progress}{}
 }
+\value{
+?
+}
 \description{
 adapted from R package xcms: xcms_1.44.0, package path: R/mzClust.R
-Reference: 
+Reference:
 Alignment of high resolution mass spectra: development of a heuristic approach for metabolomics
 Metabolomics June 2006, Volume 2, Issue 2, pp 75-83
-http://link.springer.com/article/10.1007%2Fs11306-006-0021-7
+http://link.springer.com/article/10.1007\%2Fs11306-006-0021-7
 }

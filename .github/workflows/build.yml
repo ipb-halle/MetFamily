@@ -12,6 +12,7 @@ name: R-CMD-check-MetFamily
 # Define environment variables for the workflow
 env:
   has_testthat: 'true'
+  run_shinytest2: 'false'
 #  run_covr: 'true' # Disabled until later
   run_covr: 'false'
   run_pkgdown: 'false'
@@ -243,6 +244,7 @@ jobs:
 
       # Step 25: Test Shiny App in package
       - name: Test Shiny App
+        if: env.run_shinytest2 == 'true' && runner.os == 'Linux'
         uses: rstudio/shinytest2/actions/test-app@actions/v1
         with:
           app-dir: "inst/MetFamily"

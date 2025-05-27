@@ -1,3 +1,64 @@
+#' Default values
+#'
+#' @returns list parameterSet
+#' @export
+importParameterSetInit <- function() {
+  
+  list(
+    minimumIntensityOfMaximalMS2peak = 2000,
+    minimumProportionOfMS2peaks = 0.05,
+    neutralLossesPrecursorToFragments = TRUE,
+    neutralLossesFragmentsToFragments = FALSE,
+    mzDeviationAbsolute_grouping = 0.01,
+    mzDeviationInPPM_grouping = 10,
+    showImportParametersAdvanced = FALSE,
+    doPrecursorDeisotoping = TRUE,
+    mzDeviationAbsolute_precursorDeisotoping = 0.01,
+    mzDeviationInPPM_precursorDeisotoping = 10,
+    maximumRtDifference = 0.05,
+    doMs2PeakGroupDeisotoping = TRUE,
+    mzDeviationAbsolute_ms2PeakGroupDeisotoping = 0.01,
+    mzDeviationInPPM_ms2PeakGroupDeisotoping = 10
+  )
+
+}
+
+
+#' Create a parameterSet object
+#'
+#' To use in a script
+#'
+#' @returns a parameterSet list object of default values used by the app
+#' @export
+parameterSetDefault <- function() {
+  
+  ipsi <- importParameterSetInit()
+ 
+  c(
+    list(
+      projectName = paste0("MetFamily project (created ", 
+                           gsub(" ", "_", gsub(":", ".", Sys.time())),
+                           ")"),
+      projectDescription = "",
+      toolVersion = "MetFamily 1.0"
+    ),
+    
+    # assigned from app input in ui.R
+    ipsi[c(1, 2, 5, 6, 8, 9, 10, 11, 12, 13, 14)],
+    
+    # fixed parameters, see server_guiTabInput
+    list(
+      proportionOfMatchingPeaks_ms2PeakGroupDeisotoping = 0.9,
+      mzDeviationAbsolute_mapping = 0.01
+    ),
+    
+    # more app inputs
+    ipsi[3:4]
+  )
+}
+
+
+
 #' Convert data.frame columns to numeric
 #'
 #' The data.numericmatrix() function works similar to base::data.matrix()
@@ -25,6 +86,18 @@ data.numericmatrix <- function(x) {
 
 #########################################################################################
 ## annotate and process matrix
+
+#' Flatten listObject to string for export
+#' 
+#' Also used before running readProjectData
+#'
+#' @param matrixRows 
+#' @param matrixCols 
+#' @param matrixVals 
+#' @param parameterSet 
+#'
+#' @returns big string object
+#' @export
 sparseMatrixToString <- function(matrixRows, matrixCols, matrixVals, parameterSet){
   matrixRows <- c(matrixRows, 1)
   matrixCols <- c(matrixCols, 1)
@@ -46,6 +119,46 @@ sparseMatrixToString <- function(matrixRows, matrixCols, matrixVals, parameterSe
   return(lines)
 }
 
+
+
+#' Create a project dataList
+#' 
+#' Wrapper for a clunky workflow
+#'
+#' @param ms1_path file for MS1 intensity .txt file
+#' @param ms2_path file for MS2 .msp file
+#' @param annot_path file for annotations (.csv or .tsv)
+#' @param parameterSet list of parameters to use
+#' @param siriusFileColumnName One of "NPC class", "NPC superclass", "NPC pathway", "ClassyFire subclass",
+#'  "ClassyFire class", "ClassyFire superclass"
+#' @returns dataList
+#' @export
+projectFromFiles <- function(ms1_path, ms2_path, annot_path = NULL,
+                             siriusFileColumnName = c("NPC class"),
+                             parameterSet = NULL) {
+  
+  if (is.null(parameterSet)) {
+    parameterSet <- parameterSetDefault()
+  }
+  
+  resultObj <- convertToProjectFile(filePeakMatrixPath = ms1_path, 
+                                    fileSpectra = ms2_path, parameterSet) 
+  
+  lines <- sparseMatrixToString(resultObj$matrixRows, resultObj$matrixCols,
+                                resultObj$matrixVals, parameterSet)
+  
+  dataList <- readProjectData(lines)
+  
+  if(!is.null(annot_path)) {
+    dataList <- add_qfeatures(dataList, qfeatures = resultObj$qfeatures, 
+                              fileAnnotation = annot_path, siriusFileColumnName)
+  }
+  
+  dataList
+}
+
+
+
 #' Read MetFamily Project data saved by the export function
 #'
 #' Supports reading from plain and gzip'ed files
@@ -57,8 +170,6 @@ sparseMatrixToString <- function(matrixRows, matrixCols, matrixVals, parameterSe
 #' 
 #' @seealso [readProjectData]
 #' @export
-#'
-#' @examples
 readClusterDataFromProjectFile <- function(file, progress = FALSE)
 {
   if(!is.na(progress))  
@@ -67,7 +178,7 @@ readClusterDataFromProjectFile <- function(file, progress = FALSE)
   else 
     print("Parsing")
   
-  extension <- file_ext(file)
+  extension <- tools::file_ext(file)
   
   if(extension == "gz") {
     file <- gzfile(file, "r")
@@ -97,8 +208,6 @@ readClusterDataFromProjectFile <- function(file, progress = FALSE)
 #' @seealso [processMS1data]
 #' @export
 #' @importFrom stringr str_split
-#'
-#' @examples
 readProjectData <- function(fileLines, progress = FALSE)
 {
   allowedTags <- c("ID")
@@ -133,6 +242,7 @@ readProjectData <- function(fileLines, progress = FALSE)
   importParameters <- line1Tokens[[1]]
   if(nchar(importParameters) == 0){
     ## import parameterSet not there: backward compatibility - add if not there
+    # FIX doesn't match app defaults
     importParameters <- "ImportParameters={projectName=MetFamily project; projectDescription=; toolVersion=MetFamily 1.0; minimumIntensityOfMaximalMS2peak=2000; minimumProportionOfMS2peaks=0.05; mzDeviationAbsolute_grouping=0.01; mzDeviationInPPM_grouping=10; doPrecursorDeisotoping=TRUE; mzDeviationAbsolute_precursorDeisotoping=0.001; mzDeviationInPPM_precursorDeisotoping=10; maximumRtDifference=0.02; doMs2PeakGroupDeisotoping=FALSE; mzDeviationAbsolute_ms2PeakGroupDeisotoping=0.01; mzDeviationInPPM_ms2PeakGroupDeisotoping=10; proportionOfMatchingPeaks_ms2PeakGroupDeisotoping=0.9; mzDeviationAbsolute_mapping=0.01; minimumNumberOfMS2PeaksPerGroup=1; neutralLossesPrecursorToFragments=TRUE; neutralLossesFragmentsToFragments=FALSE}"
   }
   groupSampleDataFrameFieldValue <- line1Tokens[[2]]
@@ -410,7 +520,7 @@ readProjectData <- function(fileLines, progress = FALSE)
   ms2PlotDataAverageAbundance  <- fragmentGroupsAverageIntensity
   ms2PlotDataFragmentMasses    <- fragmentGroupsAverageMass
   maxNumberOfFragments <- max(ms2PlotDataNumberOfFragments)
-  ms2PlotDataColorMapFragmentData  <- makecmap(
+  ms2PlotDataColorMapFragmentData  <- squash::makecmap(
     x = c(0, maxNumberOfFragments), n = 100, 
     colFn = colorRampPalette(c('grey', 'black'))
   )
@@ -448,31 +558,31 @@ readProjectData <- function(fileLines, progress = FALSE)
   sampleColumns <- which(sampleColumns)
   sampleColumnsStartEnd <- c(min(sampleColumns), max(sampleColumns))
   
-  grouXXXps <- unique(tagsSector[sampleColumns])
-  numberOfGroups <- length(grouXXXps)
+  sampleClasses <- unique(tagsSector[sampleColumns])
+  numberOfGroups <- length(sampleClasses)
   
   sampleNamesToExclude <- NULL
   
   
   dataColumnIndecesFunctionFromGroupIndex <- function(groupIdx, sampleNamesToExclude = NULL){
-    which(tagsSector == grouXXXps[[groupIdx]] & !(metaboliteProfileColumnNames %in% sampleNamesToExclude))
+    which(tagsSector == sampleClasses[[groupIdx]] & !(metaboliteProfileColumnNames %in% sampleNamesToExclude))
   }
   dataColumnsNameFunctionFromGroupIndex <- function(groupIdx, sampleNamesToExclude = NULL){
     sampleNames = metaboliteProfileColumnNames[dataColumnIndecesFunctionFromGroupIndex(groupIdx = groupIdx, sampleNamesToExclude = sampleNamesToExclude)]
     return(sampleNames)
   }
   dataColumnsNameFunctionFromGroupName <- function(group, sampleNamesToExclude = NULL){
-    dataColumnsNameFunctionFromGroupIndex(groupIdx = match(x = group, table = grouXXXps), sampleNamesToExclude = sampleNamesToExclude)
+    dataColumnsNameFunctionFromGroupIndex(groupIdx = match(x = group, table = sampleClasses), sampleNamesToExclude = sampleNamesToExclude)
   }
-  dataColumnsNameFunctionFromGroupNames <- function(grouXXXps, sampleNamesToExclude = NULL){
-    unlist(lapply(X = grouXXXps, FUN = function(x){dataColumnsNameFunctionFromGroupName(group = x, sampleNamesToExclude = sampleNamesToExclude)}))
+  dataColumnsNameFunctionFromGroupNames <- function(sampleClasses, sampleNamesToExclude = NULL){
+    unlist(lapply(X = sampleClasses, FUN = function(x){dataColumnsNameFunctionFromGroupName(group = x, sampleNamesToExclude = sampleNamesToExclude)}))
   }
   groupNameFunctionFromDataColumnName <- function(dataColumnName, sampleNamesToExclude = NULL){
-    groupIdx <- which(unlist(lapply(X = grouXXXps, FUN = function(x){
+    groupIdx <- which(unlist(lapply(X = sampleClasses, FUN = function(x){
       dataColumnNames <- dataColumnsNameFunctionFromGroupName(group = x, sampleNamesToExclude = sampleNamesToExclude)
       any(dataColumnNames == dataColumnName)
     })))
-    grouXXXps[[groupIdx]]
+    sampleClasses[[groupIdx]]
   }
   lfcColumnNameFunctionFromString <- function(columnName){
     tokens <- strsplit(x = columnName, split = "_vs_")[[1]]
@@ -504,7 +614,7 @@ readProjectData <- function(fileLines, progress = FALSE)
   
   returnObj <- processMS1data(
     sampleNamesToExclude=sampleNamesToExclude, numberOfMS1features=numberOfMS1features, precursorLabels=precursorLabels, 
-    grouXXXps=grouXXXps, metaboliteProfileColumnNames=metaboliteProfileColumnNames, tagsSector = tagsSector, 
+    sampleClasses=sampleClasses, metaboliteProfileColumnNames=metaboliteProfileColumnNames, tagsSector = tagsSector, 
     dataColumnIndecesFunctionFromGroupIndex=dataColumnIndecesFunctionFromGroupIndex, 
     dataColumnsNameFunctionFromGroupIndex=dataColumnsNameFunctionFromGroupIndex, 
     dataColumnsNameFunctionFromGroupName=dataColumnsNameFunctionFromGroupName, 
@@ -616,7 +726,7 @@ readProjectData <- function(fileLines, progress = FALSE)
   dataList$importParameterSet <- importParameterSet
   dataList$numberOfPrecursors <- numberOfMS1features
   dataList$numberOfDuplicatedPrecursors <- numberOfDuplicated
-  dataList$grouXXXps <- grouXXXps
+  dataList$sampleClasses <- sampleClasses
   dataList$columnGroupLabels <- columnGroupLabels
   dataList$groupSampleDataFrame <- groupSampleDataFrame
   dataList$metaboliteProfileColumnNames <- metaboliteProfileColumnNames
@@ -676,7 +786,7 @@ readProjectData <- function(fileLines, progress = FALSE)
   
   ## redefine MS1 column functions
   dataColumnIndecesFunctionFromGroupIndex <- function(groupIdx, sampleNamesToExclude){
-    which(dataList$tagsSector == dataList$grouXXXps[[groupIdx]] & !(dataList$metaboliteProfileColumnNames %in% sampleNamesToExclude))
+    which(dataList$tagsSector == dataList$sampleClasses[[groupIdx]] & !(dataList$metaboliteProfileColumnNames %in% sampleNamesToExclude))
   }
   dataList$dataColumnIndecesFunctionFromGroupIndex <- dataColumnIndecesFunctionFromGroupIndex
   
@@ -686,23 +796,23 @@ readProjectData <- function(fileLines, progress = FALSE)
   dataList$dataColumnsNameFunctionFromGroupIndex <- dataColumnsNameFunctionFromGroupIndex
   
   dataColumnsNameFunctionFromGroupName <- function(group, sampleNamesToExclude){
-    dataColumns <- dataList$dataColumnsNameFunctionFromGroupIndex(groupIdx = match(x = group, table = dataList$grouXXXps), sampleNamesToExclude = sampleNamesToExclude)
+    dataColumns <- dataList$dataColumnsNameFunctionFromGroupIndex(groupIdx = match(x = group, table = dataList$sampleClasses), sampleNamesToExclude = sampleNamesToExclude)
   }
   dataList$dataColumnsNameFunctionFromGroupName <- dataColumnsNameFunctionFromGroupName
   
-  dataColumnsNameFunctionFromGroupNames <- function(grouXXXps, sampleNamesToExclude){
-    unlist(lapply(X = grouXXXps, FUN = function(x){
+  dataColumnsNameFunctionFromGroupNames <- function(sampleClasses, sampleNamesToExclude){
+    unlist(lapply(X = sampleClasses, FUN = function(x){
       dataList$dataColumnsNameFunctionFromGroupName(group = x, sampleNamesToExclude = sampleNamesToExclude)
     }))
   }
   dataList$dataColumnsNameFunctionFromGroupNames <- dataColumnsNameFunctionFromGroupNames
   
   groupNameFunctionFromDataColumnName <- function(dataColumnName, sampleNamesToExclude){
-    groupIdx <- which(unlist(lapply(X = dataList$grouXXXps, FUN = function(x){
+    groupIdx <- which(unlist(lapply(X = dataList$sampleClasses, FUN = function(x){
       dataColumnNames <- dataList$dataColumnsNameFunctionFromGroupName(group = x, sampleNamesToExclude = sampleNamesToExclude)
       any(dataColumnNames == dataColumnName)
     })))
-    dataList$grouXXXps[[groupIdx]]
+    dataList$sampleClasses[[groupIdx]]
   }
   dataList$groupNameFunctionFromDataColumnName <- groupNameFunctionFromDataColumnName
   
@@ -716,18 +826,18 @@ readProjectData <- function(fileLines, progress = FALSE)
   dataList$orderColumnNames <- orderColumnNames
   
   ## define sample in-/exclusion functions
-  excludedSamples <- function(groupSampleDataFrame, grouXXXps = dataList$grouXXXps){
+  excludedSamples <- function(groupSampleDataFrame, sampleClasses = dataList$sampleClasses){
     samples    =  groupSampleDataFrame[, "Sample"]
     isExcluded =  groupSampleDataFrame[, "Exclude"]
-    isGroup    =  groupSampleDataFrame[, "Group"] %in% grouXXXps
+    isGroup    =  groupSampleDataFrame[, "Group"] %in% sampleClasses
     return(samples[isExcluded & isGroup])
   }
   dataList$excludedSamples <- excludedSamples
   
-  includedSamples <- function(groupSampleDataFrame, grouXXXps = dataList$grouXXXps){
+  includedSamples <- function(groupSampleDataFrame, sampleClasses = dataList$sampleClasses){
     samples    =  groupSampleDataFrame[, "Sample"]
     isIncluded = !groupSampleDataFrame[, "Exclude"]
-    isGroup    =  groupSampleDataFrame[, "Group"] %in% grouXXXps
+    isGroup    =  groupSampleDataFrame[, "Group"] %in% sampleClasses
     return(samples[isIncluded & isGroup])
   }
   dataList$includedSamples <- includedSamples
@@ -740,7 +850,7 @@ readProjectData <- function(fileLines, progress = FALSE)
   dataList$includedGroups <- includedGroups
   
   excludedGroups <- function(groupSampleDataFrame, samples = dataList$groupSampleDataFrame[, "Sample"]){
-    setdiff(dataList$grouXXXps, dataList$includedGroups(groupSampleDataFrame, samples)) 
+    setdiff(dataList$sampleClasses, dataList$includedGroups(groupSampleDataFrame, samples)) 
   }
   dataList$excludedGroups <- excludedGroups
   
@@ -750,23 +860,26 @@ readProjectData <- function(fileLines, progress = FALSE)
 
 #' Add qfeatures to dataList
 #' 
+#' 
 #'
 #' @param dataList Output from readProjectData.
 #' @param qfeatures qfeature object, can be taken from resultObj$qfeatures.
 #' @param fileAnnotation character Path for sirius annotation file.
-#'
+#' @param siriusFileColumnName One of "NPC class", "NPC superclass", "NPC pathway", "ClassyFire subclass",
+#'  "ClassyFire class", "ClassyFire superclass"
 #' @returns The dataList object with added sirius annotations.
 #' @export
-add_qfeatures <- function(dataList, qfeatures, fileAnnotation = NULL) {
+add_qfeatures <- function(dataList, qfeatures, fileAnnotation = NULL, siriusFileColumnName = "NPC class") {
   # This function takes snippets previously in convertToProjectFile and readProjectData
-  # to streamline the process de declutter the aforementionned functions.
+  # to streamline the process and declutter the aforementionned functions.
   
   # The function does not do anything without annotation file
   if (is.null(fileAnnotation)) {
     return(dataList)
   }
   
-  qfeatures <- addSiriusAnnotations(qfeatures, fileAnnotation)
+  qfeatures <- addSiriusAnnotations(qfeatures, siriusFile = fileAnnotation, 
+                                    siriusFileColumnName = siriusFileColumnName)
   
   # previously used test, not sure if still needed
   if (is.null(attr(rowData(qfeatures[[1]]), "annotation column"))) {
@@ -794,9 +907,13 @@ add_qfeatures <- function(dataList, qfeatures, fileAnnotation = NULL) {
   #adding HEX color codes from external annotations to the annotationColorsMapInitValue of dataFrameHeader
   
   # Copy the selected column by user, Remove duplicates and exclude the first row
-  uniqueAnnotations <- unique(unlist(strsplit(metaboliteProfile$Annotation, ",")))
   
-  uniqueAnnotations <- paste0(uniqueAnnotations, "=")
+  ## gp: This line was causing issues because some annotations contain commas on purpose.
+  ## Not clear is which cases the strsplit was needed
+  # uniqueAnnotations0 <- unique(unlist(strsplit(metaboliteProfile$Annotation, ",")))
+  uniqueAnnotations0 <- unique(metaboliteProfile$Annotation)
+  
+  uniqueAnnotations <- paste0(uniqueAnnotations0, "=")
   # Add a random string from the hex color list to each element of uniqueAnnotions
   # strings_list <- c("#000000", "#FFFFFF", "#FF0000", "#00FF00", "#0000FF", "#FFFF00", "#FF00FF", "#00FFFF", "#800000", "#008000", "#000080", "#808000", "#800080", "#008080", "#808080", "#C0C0C0", "#FFA500", "#FFC0CB", "#FFD700", "#A52A2A")
   # uniqueAnnotations <- paste0(uniqueAnnotations, sample(strings_list, length(uniqueAnnotations), replace = TRUE))
@@ -810,7 +927,7 @@ add_qfeatures <- function(dataList, qfeatures, fileAnnotation = NULL) {
   uniqueAnnotations1 <- paste(uniqueAnnotations, collapse = ", ")
   #uniqueAnnotationsHexs <- paste("AnnotationColors={", paste(uniqueAnnotations1, collapse = ","), "}")# this line introduces a space after the first Item of the object, therefore, replaced with the following to remove the space
   uniqueAnnotationsHexs <- gsub("AnnotationColors=\\{\\s+", "AnnotationColors={", paste0("AnnotationColors={", paste(uniqueAnnotations1, collapse = ","), "}"))
-  # Assuming dataFrameHeader is your data frame
+  # Put back in dataFrameHeader
   dataList$dataFrameHeader$Annotation[2] <- uniqueAnnotationsHexs
   
   
@@ -825,13 +942,13 @@ add_qfeatures <- function(dataList, qfeatures, fileAnnotation = NULL) {
   
   # annoArrayOfLists - brute force
   annoArrayOfLists1 <- 
-    split(metaboliteProfile$Annotation, seq_along(metaboliteProfile$Annotation))[!metaboliteProfile$Annotation == ""] %>% 
+    base::split(metaboliteProfile$Annotation, seq_along(metaboliteProfile$Annotation))[!metaboliteProfile$Annotation == ""] %>% 
     unname
-  annoArrayOfLists2 <- split(annoArrayOfLists1, seq_along(annoArrayOfLists1))
+  annoArrayOfLists2 <- base::split(annoArrayOfLists1, seq_along(annoArrayOfLists1))
   dataList$annoArrayOfLists[!metaboliteProfile$Annotation == ""] <- annoArrayOfLists2
   
   # annoPresentAnnotationsList
-  dataList$annoPresentAnnotationsList <- c(list("Ignore"), annoArrayOfLists1)
+  dataList$annoPresentAnnotationsList <- c(list("Ignore"), uniqueAnnotations0 %>% as.list)
   
   # annoPresentColorsList
   dataList$annoPresentColorsList <- c(list("red"), uniqueAnnotations %>% strsplit("=") %>% lapply(function(x) x[2]))
@@ -849,7 +966,7 @@ add_qfeatures <- function(dataList, qfeatures, fileAnnotation = NULL) {
 #' @param sampleNamesToExclude 
 #' @param numberOfMS1features 
 #' @param precursorLabels 
-#' @param grouXXXps 
+#' @param sampleClasses 
 #' @param metaboliteProfileColumnNames 
 #' @param dataColumnIndecesFunctionFromGroupIndex 
 #' @param dataColumnsNameFunctionFromGroupIndex 
@@ -860,15 +977,13 @@ add_qfeatures <- function(dataList, qfeatures, fileAnnotation = NULL) {
 #' @param metaboliteProfile 
 #' @param progress 
 #'
-#' @return
+#' @return ?
 #' @export
 #' @importFrom grDevices colorRampPalette rainbow
-#'
-#' @examples
 processMS1data <- function(sampleNamesToExclude, 
                            numberOfMS1features, 
                            precursorLabels, 
-                           grouXXXps, 
+                           sampleClasses, 
                            metaboliteProfileColumnNames, 
                            dataColumnIndecesFunctionFromGroupIndex, 
                            dataColumnsNameFunctionFromGroupIndex, 
@@ -879,7 +994,7 @@ processMS1data <- function(sampleNamesToExclude,
                            metaboliteProfile, 
                            progress=FALSE)
 {
-  numberOfGroups <- length(grouXXXps)
+  numberOfGroups <- length(sampleClasses)
   
   ####################
   ## MS1 measurement data: mean and LFC
@@ -905,7 +1020,7 @@ processMS1data <- function(sampleNamesToExclude,
   else 
     print("Coloring naming functions")
   
-  ## store data of grouXXXps
+  ## store data of sampleClasses
   dataColumnNames <- list()
   for(groupIdx in seq_len(numberOfGroups)){
     dataColumnNamesHere <- dataColumnsNameFunctionFromGroupIndex(groupIdx = groupIdx, 
@@ -922,7 +1037,7 @@ processMS1data <- function(sampleNamesToExclude,
   }
   
   dataMeanColumnNameFunctionFromIndex  <- function(groupIdx){
-    return(dataMeanColumnNameFunctionFromName(grouXXXps[[groupIdx]]))
+    return(dataMeanColumnNameFunctionFromName(sampleClasses[[groupIdx]]))
   }
   
   lfcColumnNameFunctionFromName <- function(groupOne, groupTwo){
@@ -930,15 +1045,15 @@ processMS1data <- function(sampleNamesToExclude,
   }
   
   lfcColumnNameFunctionFromIndex <- function(groupIdxOne, groupIdxTwo){
-    lfcColumnNameFunctionFromName(grouXXXps[[groupIdxOne]], grouXXXps[[groupIdxTwo]])
+    lfcColumnNameFunctionFromName(sampleClasses[[groupIdxOne]], sampleClasses[[groupIdxTwo]])
   }
   
   groupNameFromGroupIndex <- function(groupIdx){
-    return(grouXXXps[[groupIdx]])
+    return(sampleClasses[[groupIdx]])
   }
   
   groupIdxFromGroupName <- function(group){
-    return(match(x = group, table = grouXXXps))
+    return(match(x = group, table = sampleClasses))
   }
   
   if(!is.na(progress))  
@@ -972,7 +1087,7 @@ processMS1data <- function(sampleNamesToExclude,
   if(meanAllMax != 0)
     dataFrameMeasurements[, "meanAllNormed"] <- dataFrameMeasurements[, "meanAllNormed"] / meanAllMax
   
-  ## log fold change between grouXXXps
+  ## log fold change between sampleClasses
   lfcColumnNames <- list()
   for(groupIdx1 in seq_len(numberOfGroups))
     for(groupIdx2 in seq_len(numberOfGroups)){
@@ -1016,16 +1131,16 @@ processMS1data <- function(sampleNamesToExclude,
     logFoldChangeMax <- 1
   
   ## maps
-  colorMapAbsoluteData  <- makecmap(
+  colorMapAbsoluteData  <- squash::makecmap(
     x = c(logAbsMin, logAbsMax), n = 100, 
     colFn = colorRampPalette(rainbow(18)[10:1])
   )
-  colorMapLogFoldChange <- makecmap(
+  colorMapLogFoldChange <- squash::makecmap(
     x = c(-logFoldChangeMax, logFoldChangeMax), n = 100, 
     colFn = colorRampPalette(c('blue', 'white', 'red'))
   )
   
-  columnGroupLabels <- sapply(X = grouXXXps, 
+  columnGroupLabels <- sapply(X = sampleClasses, 
                               FUN = function(x){ 
                                 rep(x = x, 
                                     times = length(dataColumnsNameFunctionFromGroupName(group = x, 
@@ -1033,16 +1148,17 @@ processMS1data <- function(sampleNamesToExclude,
                               })
   
   ## translate and box colors
-  if(!is.na(progress))  
-    if(progress)  
-      incProgress(amount = 0, detail = "Coloring box") 
-  else 
+  if(!is.na(progress)) {
+    if(progress) incProgress(amount = 0, detail = "Coloring box")
+  } else {
     print("Coloring box")
+  }
   
+  # TODO document why all the colors
   colorDataFrame <- dataFrameMeasurements
-  colorDataFrame[, dataColumnNames    ] <- cmap(x = matrixDataFrame[, dataColumnNames    ], map = colorMapAbsoluteData)
-  colorDataFrame[, dataMeanColumnNames] <- cmap(x = matrixDataFrame[, dataMeanColumnNames], map = colorMapAbsoluteData)
-  colorDataFrame[, lfcColumnNames]      <- cmap(x = matrixDataFrame[, lfcColumnNames     ], map = colorMapLogFoldChange)
+  colorDataFrame[, dataColumnNames    ] <- squash::cmap(x = matrixDataFrame[, dataColumnNames    ], map = colorMapAbsoluteData)
+  colorDataFrame[, dataMeanColumnNames] <- squash::cmap(x = matrixDataFrame[, dataMeanColumnNames], map = colorMapAbsoluteData)
+  colorDataFrame[, lfcColumnNames]      <- squash::cmap(x = matrixDataFrame[, lfcColumnNames     ], map = colorMapLogFoldChange)
   colorMatrixDataFrame <- as.matrix(colorDataFrame)
   
   returnObj <- list(
@@ -1067,6 +1183,8 @@ processMS1data <- function(sampleNamesToExclude,
   )
 }
 
+
+#' @export
 serializeSampleSelectionAndOrder <- function(groupSampleDataFrame)
 {
   ## wrap columns
@@ -1113,6 +1231,8 @@ deserializeSampleSelectionAndOrder <- function(groupSampleDataFrameFieldValue){
   return(groupSampleDataFrame)
 }
 
+
+#' @export
 serializeParameterSetFile <- function(importParameterSet, toolName, toolVersion){
   ## wrap
   importParametersValue <- paste(names(importParameterSet), importParameterSet, sep = "=", collapse = "\n")
@@ -1129,6 +1249,8 @@ serializeParameterSetFile <- function(importParameterSet, toolName, toolVersion)
   return(importParametersFileValue)
 }
 
+
+#' @export
 deserializeParameterSetFile <- function(importParametersFileContent){
   ## remove comments
   importParametersValuePairs <- importParametersFileContent[-grep(pattern = "#.*", x = importParametersFileContent)]
@@ -1195,8 +1317,6 @@ deserializeParameterSetKeyValuePairs <- function(importParametersValuePairs){
 #'
 #' @return list of the same lenght with logical's and numeric's casted
 #' @export
-#'
-#' @examples
 castListEntries <- function(list){
   ## cast logical's and numeric's
   suppressWarnings(
@@ -1221,35 +1341,58 @@ castListEntries <- function(list){
 precursorSetToSetOfAnnotationSets <- function(dataList, precursorSet){
   setOfAnnotationSets <- lapply(X = precursorSet, FUN = function(x){
     annotationSet <- dataList$annoArrayOfLists[[x]]
-    if(dataList$annoArrayIsArtifact[[x]])
+    if(dataList$annoArrayIsArtifact[[x]]) {
       annotationSet <- c(annotationSet, "Ignore")
+    }
     return(unlist(annotationSet))
   })
   return(setOfAnnotationSets)
 }
+
+#' Find color for annotations
+#'
+#' @param dataList dataList object
+#' @param setOfAnnotationSets list of features with annotation class
+#'
+#' @returns list of annotations and colors
+#' @noRd
 setOfAnnotationSetsToSetOfColorSets <- function(dataList, setOfAnnotationSets){
-  setOfColorSets <- lapply(X = setOfAnnotationSets, FUN = function(x){
-    if(is.null(x))
+  # setOfAnnotationSets %>% unlist %>% table  
+  
+  makeColorSet <- function(x){
+    if(is.null(x)) {
       ## no annotation
       colors <- "black"
-    else
+    } else {
       ## at least one annotation
-      colors <- unlist(lapply(X = x, FUN = function(y){
-        dataList$annoPresentColorsList[[match(x = y, table = dataList$annoPresentAnnotationsList)]] }
-      ))
-    
+      matchColor <- function(y) {
+        dataList$annoPresentColorsList[[match(x = y, table = dataList$annoPresentAnnotationsList)]]
+      }
+      colors <- unlist(lapply(x, matchColor))
+    }
     return(colors)
-  })
+  }
+  
+  setOfColorSets <- lapply(X = setOfAnnotationSets, FUN = makeColorSet)
   return(setOfColorSets)
 }
+
+
+#' Create annotation colors
+#'
+#' @param dataList list object
+#' @param precursorSet vector
+#'
+#' @returns list with colors and annotations
+#' @export
 getPrecursorColors <- function(dataList, precursorSet){
   setOfAnnotationSets <- precursorSetToSetOfAnnotationSets(dataList, precursorSet)
   setOfColorSets      <- setOfAnnotationSetsToSetOfColorSets(dataList, setOfAnnotationSets)
   setOfColors <- lapply(X = setOfColorSets, FUN = function(x){
-    if(any(x == "red"))
+    if(any(x == "red")) {
       ## at least one annotation is ignore --> take ignore
       color <- "red"
-    else{
+    } else {
       switch(as.character(length(x)),
              "0"={## no annotation
                color <- "black"
@@ -1264,10 +1407,10 @@ getPrecursorColors <- function(dataList, precursorSet){
     }## end else
   })## end lapply
   setOfAnnotations <- lapply(X = setOfAnnotationSets, FUN = function(x){
-    if(any(x == "Ignore"))
+    if(any(x == "Ignore")) {
       ## at least one annotation is ignore --> take ignore
       annotation <- "Ignore"
-    else{
+    } else {
       switch(as.character(length(x)),
              "0"={## no annotation
                annotation <- "Unknown"
@@ -1293,6 +1436,8 @@ getPrecursorColors <- function(dataList, precursorSet){
 
 #########################################################################################
 ## data fetching
+
+#' @export
 getMetFragLink <- function(dataList, precursorIndex, outAdductWarning = TRUE){
   features <- dataList$featureIndeces[[precursorIndex]]
   fragmentsX <- dataList$fragmentMasses[features]
@@ -1392,6 +1537,8 @@ getMetFragLink <- function(dataList, precursorIndex, outAdductWarning = TRUE){
   
   return(returObj)
 }
+
+#' @export
 getMS2spectrum <- function(dataList, clusterDataList, treeLabel){
   if(treeLabel < 0){
     ###############################################
@@ -1405,6 +1552,7 @@ getMS2spectrum <- function(dataList, clusterDataList, treeLabel){
     return(clusterDataList$ms2spectrumInfoForClusters[[treeLabel]])
   }
 }
+
 getMS2spectrumInfoForPrecursorLeaf <- function(dataList, clusterDataList, treeLabel, outAdductWarning = TRUE){
   if(treeLabel >= 0)
     return(NULL)
@@ -1413,6 +1561,8 @@ getMS2spectrumInfoForPrecursorLeaf <- function(dataList, clusterDataList, treeLa
   precursorIndex <- clusterDataList$filterObj$filter[[-treeLabel]]
   return(getMS2spectrumInfoForPrecursor(dataList, precursorIndex, outAdductWarning))
 }
+
+#' @export
 getMS2spectrumInfoForPrecursor <- function(dataList, precursorIndex, outAdductWarning = TRUE){
   
   precursorSet <- precursorIndex
@@ -1576,13 +1726,15 @@ getMS2spectrumInfoForCluster <- function(dataList, clusterDataList, treeLabel){
   return(resultObj)
 }
 ## XXX adapt getTableFromTreeSelection
+
+#' @export
 getTableFromPrecursorSet <- function(dataList, precursorSet){
   ###############################################
   ## table data
   numberOfPrecursors <- length(precursorSet)
   
   ## measurements
-  columnNames <- unlist(lapply(X = dataList$grouXXXps, FUN = dataList$dataMeanColumnNameFunctionFromName))
+  columnNames <- unlist(lapply(X = dataList$sampleClasses, FUN = dataList$dataMeanColumnNameFunctionFromName))
   dataFrameMeasurements     <- data.frame(dataList$dataFrameMeasurements[precursorSet, columnNames, drop=FALSE])
   colnames(dataFrameMeasurements) <- columnNames
   rownames(dataFrameMeasurements) <- dataList$precursorLabels[precursorSet]
@@ -1626,12 +1778,16 @@ getTableFromPrecursorSet <- function(dataList, precursorSet){
   
   return(resultObj)
 }
+
+#' @export
 getPrecursorSetFromTreeSelections <- function(clusterDataList, clusterLabels){
   precursorSet <- NULL
   for(clusterLabel in clusterLabels)
     precursorSet <- c(precursorSet, getPrecursorSetFromTreeSelection(clusterDataList, clusterLabel))
   return(precursorSet)
 }
+
+#' @export
 getPrecursorSetFromTreeSelection <- function(clusterDataList, clusterLabel){
   if(clusterLabel < 0){
     ###############################################
@@ -1646,15 +1802,9 @@ getPrecursorSetFromTreeSelection <- function(clusterDataList, clusterLabel){
   }
   return(precursorSet)
 }
+
+#' @export
 getSpectrumStatistics <- function(dataList, precursorSet){
-  if(FALSE){
-    dataList_ <<- dataList
-    precursorSet_ <<- precursorSet
-  }
-  if(FALSE){
-    dataList <- dataList_
-    precursorSet <- precursorSet_
-  }
   
   fragmentCounts <- Matrix::colSums(x = dataList$featureMatrix[precursorSet, , drop=FALSE] != 0)
   theseFragments <- fragmentCounts > 0
@@ -1704,9 +1854,31 @@ regExExtraction = function(pattern, x, ...) {
     return(cap)
   }, re, x, SIMPLIFY=F)
 }
+
+#' @export
 numericVectorToStringForEval <- function(vec){
   return(paste("c(", paste(vec, collapse = ","), ")", sep = ""))
 }
+
+#' @export
 colorVectorToStringForEval <- function(vec){
   return(paste("c('", paste(vec, collapse = "','"), "')", sep = ""))
+}
+
+#' Swap a vector's names and values
+#' 
+#' Similar to `searchable::invert()`
+#'
+#' @param x vector
+#'
+#' @returns string
+swap_names_and_values <- function(x) {
+  
+  if( is.null( names(x) ) ) stop( "vector does not have names.")
+  
+  v <- names(x)
+  names(v) <- as.character(x)
+  
+  return(v)
+  
 }

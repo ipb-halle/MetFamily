@@ -96,11 +96,11 @@ obsDoAnnotation <- observeEvent(input$doAnnotation, {
   
   if(length(classToSpectra_class) == 0){
     output$noAnnotationsPopupDialog <- renderUI({
-      bsModal(id = "noAnnotationsPopupDialog", title = "No annotations detected", trigger = "", size = "large",
+      shinyBS::bsModal(id = "noAnnotationsPopupDialog", title = "No annotations detected", trigger = "", size = "large",
               HTML("No MS\u00B9 feature could be annotated with one or more metabolite families.")
       )
     })
-    toggleModal(session = session, modalId = "noAnnotationsPopupDialog", toggle = "open")
+    shinyBS::toggleModal(session = session, modalId = "noAnnotationsPopupDialog", toggle = "open")
     
     return()
   }
@@ -190,8 +190,8 @@ obsDoAnnotation <- observeEvent(input$doAnnotation, {
     options = list(
       #scrollY = "600px",
       scrollY = "30vh",
-      preDrawCallback = JS('function() { Shiny.unbindAll(this.api().table().node()); }'),
-      drawCallback    = JS('function() { Shiny.bindAll(  this.api().table().node()); }'),
+      preDrawCallback = DT::JS('function() { Shiny.unbindAll(this.api().table().node()); }'),
+      drawCallback    = DT::JS('function() { Shiny.bindAll(  this.api().table().node()); }'),
       #rowCallback = JS(
       #  "function(nRow, aData, iDisplayIndex, iDisplayIndexFull) {",
       #  "var full_text = classes[[nRow]]",
@@ -350,8 +350,8 @@ classSelected <- function(selectedRowIdx){
     options = list(
       #scrollY = "600px",
       scrollY = "30vh",
-      preDrawCallback = JS('function() { Shiny.unbindAll(this.api().table().node()); }'),
-      drawCallback    = JS('function() { Shiny.bindAll(  this.api().table().node()); }'),
+      preDrawCallback = DT::JS('function() { Shiny.unbindAll(this.api().table().node()); }'),
+      drawCallback    = DT::JS('function() { Shiny.bindAll(  this.api().table().node()); }'),
       #rowCallback = JS(
       #  "function(nRow, aData, iDisplayIndex, iDisplayIndexFull) {",
       #  "var full_text = classes[[nRow]]",

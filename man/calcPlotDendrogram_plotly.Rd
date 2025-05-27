@@ -2,7 +2,7 @@
 % Please edit documentation in R/Plots.R
 \name{calcPlotDendrogram_plotly}
 \alias{calcPlotDendrogram_plotly}
-\title{Title}
+\title{Prepare Dendrogram for Plotly}
 \usage{
 calcPlotDendrogram_plotly(
   dataList,
@@ -47,6 +47,9 @@ calcPlotDendrogram_plotly(
 
 \item{heatmapProportion}{}
 }
+\value{
+?
+}
 \description{
-Title
+Prepare Dendrogram for Plotly
 }

@@ -1,6 +1,11 @@
 
-load_metfamily_dependencies <- function() 
-{
+#' Run library for all packages
+#'
+#' Deprecated function, kept for documentation
+#'
+#' @returns NULL
+#' @noRd
+load_metfamily_dependencies <- function() {
   ##############################################################################################################
   ## GUI
   library("shiny")
@@ -11,11 +16,11 @@ load_metfamily_dependencies <- function()
   library("shinyBS")
   library("shinybusy")
   library(egg)
-  
+
   ##############################################################################################################
   ## mass spectrometry
   library("xcms")
-  
+
   ##############################################################################################################
   ## MS1 analyses
   library("FactoMineR")
@@ -30,15 +35,17 @@ load_metfamily_dependencies <- function()
   library("tools")
   library("stringr")
   library("slam")
-  
+
   ##############################################################################################################
   ## pdf report
   library("knitr")
-  
+
   ##############################################################################################################
   ## plot
   library("cba")
   library("squash")
   library("plotrix")
   library("RColorBrewer")
+
+  invisible(NULL)
 }

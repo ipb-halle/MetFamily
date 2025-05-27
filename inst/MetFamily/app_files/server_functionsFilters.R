@@ -19,12 +19,13 @@ resetWorkspaceFunctions <- c(resetWorkspaceFunctions, function(){
   
   #########################################################################################
   ## update filter
-  sampleSet <- dataList$grouXXXpsampleDataFrame[, "Sample"][!dataList$groupSampleDataFrame[, "Exclude"]]
-  filter <- doPerformFiltering(dataList$grouXXXps, sampleSet, FALSE, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, TRUE)$filter
-  if(length(dataList$grouXXXps) == 1)
-    filter2 <- doPerformFiltering(c(dataList$grouXXXps[[1]], dataList$grouXXXps[[1]]), NULL, FALSE, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, TRUE)$filter
-  else
+  sampleSet <- dataList$sampleClassesampleDataFrame[, "Sample"][!dataList$groupSampleDataFrame[, "Exclude"]]
+  filter <- doPerformFiltering(dataList$sampleClasses, sampleSet, FALSE, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, TRUE)$filter
+  if(length(dataList$sampleClasses) == 1) {
+    filter2 <- doPerformFiltering(c(dataList$sampleClasses[[1]], dataList$sampleClasses[[1]]), NULL, FALSE, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, TRUE)$filter
+  } else{
     filter2 <- filter
+  }
   
   filterGlobal <<- filter
   filterHca    <<- filter2
@@ -48,18 +49,18 @@ resetWorkspaceFunctions <- c(resetWorkspaceFunctions, function(){
   #########################################################################################
   ## update filter input values
   
-  ## grouXXXps
-  switch(as.character(length(dataList$grouXXXps)), 
+  ## sampleClasses
+  switch(as.character(length(dataList$sampleClasses)), 
          "0"={
-           stop("No grouXXXps available")
+           stop("No sampleClasses available")
          },
          "1"={
-           selectedOne <- dataList$grouXXXps[[1]]
-           selectedTwo <- dataList$grouXXXps[[1]]
+           selectedOne <- dataList$sampleClasses[[1]]
+           selectedTwo <- dataList$sampleClasses[[1]]
          },
          {
-           selectedOne <- dataList$grouXXXps[[1]]
-           selectedTwo <- dataList$grouXXXps[[2]]
+           selectedOne <- dataList$sampleClasses[[1]]
+           selectedTwo <- dataList$sampleClasses[[2]]
          }
   )
   
@@ -72,14 +73,14 @@ resetWorkspaceFunctions <- c(resetWorkspaceFunctions, function(){
   updateTextInput(session = session, inputId = "globalFilter_ms2_ppm", value = "20")
   
   ## input fields: HCA filter
-  updateRadioButtons(session = session, inputId = "hcaFilterGroupOne", choices = dataList$grouXXXps, selected = selectedOne)
-  updateRadioButtons(session = session, inputId = "hcaFilterGroupTwo", choices = dataList$grouXXXps, selected = selectedTwo)
+  updateRadioButtons(session = session, inputId = "hcaFilterGroupOne", choices = dataList$sampleClasses, selected = selectedOne)
+  updateRadioButtons(session = session, inputId = "hcaFilterGroupTwo", choices = dataList$sampleClasses, selected = selectedTwo)
   updateTextInput(session = session, inputId = "hcaFilter_average", value = "0")
   updateTextInput(session = session, inputId = "hcaFilter_lfc", value = "0")
   updateCheckboxInput(session = session, inputId = "hcaFilterIncludeIgnoredPrecursors", value = FALSE)
   
   ## input fields: PCA filter
-  updateCheckboxGroupInput(session = session, inputId = "pcaGroups",   choices = dataList$grouXXXps, selected = dataList$grouXXXps)
+  updateCheckboxGroupInput(session = session, inputId = "pcaGroups",   choices = dataList$sampleClasses, selected = dataList$sampleClasses)
   updateCheckboxGroupInput(session = session, inputId = "pcaSamples",  choices = sampleNames,     selected = sampleNames)
   updateTextInput(session = session, inputId = "pcaFilter_average", value = "0")
   updateTextInput(session = session, inputId = "pcaFilter_lfc", value = "0")
@@ -171,7 +172,17 @@ doPerformFiltering <- function(groupSet, sampleSet, filterBySamples, filter_aver
     doPerformFiltering_impl(groupSet, sampleSet, filterBySamples, filter_average, filter_lfc, filter_ms2_masses1, filter_ms2_masses2, filter_ms2_masses3, filter_ms2_ppm, filter_ms1_masses, filter_ms1_ppm, includeIgnoredPrecursors, preFilter)
   )
 }
-doPerformFiltering_impl <- function(groupSet, sampleSet, filterBySamples, filter_average, filter_lfc, filter_ms2_masses1, filter_ms2_masses2, filter_ms2_masses3, filter_ms2_ppm, filter_ms1_masses, filter_ms1_ppm, includeIgnoredPrecursors, preFilter = NULL){
+
+#' Main internal filtering function
+#' 
+#' Called from `doPerformFiltering()`. Takes dataList from global environment.
+#'
+#' @returns filterObject
+#' @noRd
+doPerformFiltering_impl <- function(
+    groupSet, sampleSet, filterBySamples, filter_average, filter_lfc, filter_ms2_masses1, 
+    filter_ms2_masses2, filter_ms2_masses3, filter_ms2_ppm, filter_ms1_masses, 
+    filter_ms1_ppm, includeIgnoredPrecursors, preFilter = NULL){
   print(paste("Observe applyFilters1", "gs", paste(groupSet, collapse = "-"), "a", filter_average, "lfc", filter_lfc, "ms2_1", filter_ms2_masses1, "ms2_2", filter_ms2_masses2, "ms2_3", filter_ms2_masses3, "ppm", filter_ms2_ppm, "ig", includeIgnoredPrecursors))
   
   groupSetOriginal                 <- groupSet
@@ -194,50 +205,53 @@ doPerformFiltering_impl <- function(groupSet, sampleSet, filterBySamples, filter
   
   #################################################
   ## sanity checks
-  if(all(!is.null(filter_lfc), !is.na(filter_lfc), filter_lfc != 0) & length(groupSet) != 2)
+  if(all(!is.null(filter_lfc), !is.na(filter_lfc), filter_lfc != 0) & length(groupSet) != 2) {
     stop("lfc filter for not exactly two groups")
+  }
   
   #################################################
   ## check for errors in inputs amd process ms2
   error <- FALSE
-  if(any(is.null(groupSet), is.na(groupSet), length(groupSet) == 0, any(nchar(groupSet) == 0)))
+  if(any(is.null(groupSet), is.na(groupSet), length(groupSet) == 0, any(nchar(groupSet) == 0))) {
     error <- TRUE
+  }
   
-  if(any(is.null(filter_average), is.na(filter_average), length(filter_average) == 0, nchar(filter_average) == 0))
+  if(any(is.null(filter_average), is.na(filter_average), length(filter_average) == 0, nchar(filter_average) == 0)) {
     filter_average <- NULL
-  else{
+  } else {
     filter_average <- as.numeric(filter_average)
     error <- error | is.na(filter_average)
   }
   
-  if(any(is.null(filter_lfc), is.na(filter_lfc), length(filter_lfc) == 0, nchar(filter_lfc) == 0))
+  if(any(is.null(filter_lfc), is.na(filter_lfc), length(filter_lfc) == 0, nchar(filter_lfc) == 0)) {
     filter_lfc <- NULL
-  else{
+  } else {
     filter_lfc <- as.numeric(filter_lfc)
     error <- error | is.na(filter_lfc)
   }
   
-  if(any(is.null(filter_ms2_masses1), is.na(filter_ms2_masses1), length(filter_ms2_masses1) == 0, nchar(filter_ms2_masses1) == 0))
+  if(any(is.null(filter_ms2_masses1), is.na(filter_ms2_masses1), length(filter_ms2_masses1) == 0, nchar(filter_ms2_masses1) == 0)) {
     filter_ms2_masses1 <- NULL
-  else{
+  } else {
     ms2Masses <- strsplit(x = filter_ms2_masses1, split = "[,; ]+")[[1]]
     filter_ms2_masses1 <- vector(mode = "numeric", length = length(ms2Masses))
-    for(idx in 1:length(ms2Masses))
+    for(idx in 1:length(ms2Masses)) {
       filter_ms2_masses1[[idx]] <- as.numeric(ms2Masses[[idx]])
+    }
     error <- error | any(is.na(filter_ms2_masses1))
   }
-  if(any(is.null(filter_ms2_masses2), is.na(filter_ms2_masses2), length(filter_ms2_masses2) == 0, nchar(filter_ms2_masses2) == 0))
+  if(any(is.null(filter_ms2_masses2), is.na(filter_ms2_masses2), length(filter_ms2_masses2) == 0, nchar(filter_ms2_masses2) == 0)){
     filter_ms2_masses2 <- NULL
-  else{
+  } else {
     ms2Masses <- strsplit(x = filter_ms2_masses2, split = "[,; ]+")[[1]]
     filter_ms2_masses2 <- vector(mode = "numeric", length = length(ms2Masses))
     for(idx in 1:length(ms2Masses))
       filter_ms2_masses2[[idx]] <- as.numeric(ms2Masses[[idx]])
     error <- error | any(is.na(filter_ms2_masses2))
   }
-  if(any(is.null(filter_ms2_masses3), is.na(filter_ms2_masses3), length(filter_ms2_masses3) == 0, nchar(filter_ms2_masses3) == 0))
+  if(any(is.null(filter_ms2_masses3), is.na(filter_ms2_masses3), length(filter_ms2_masses3) == 0, nchar(filter_ms2_masses3) == 0)) {
     filter_ms2_masses3 <- NULL
-  else{
+  } else {
     ms2Masses <- strsplit(x = filter_ms2_masses3, split = "[,; ]+")[[1]]
     filter_ms2_masses3 <- vector(mode = "numeric", length = length(ms2Masses))
     for(idx in 1:length(ms2Masses))
@@ -245,16 +259,16 @@ doPerformFiltering_impl <- function(groupSet, sampleSet, filterBySamples, filter
     error <- error | any(is.na(filter_ms2_masses3))
   }
   
-  if(any(is.null(filter_ms2_ppm), is.na(filter_ms2_ppm), length(filter_ms2_ppm) == 0, nchar(filter_ms2_ppm) == 0))
+  if(any(is.null(filter_ms2_ppm), is.na(filter_ms2_ppm), length(filter_ms2_ppm) == 0, nchar(filter_ms2_ppm) == 0)) {
     filter_ms2_ppm <- NULL
-  else{
+  } else {
     filter_ms2_ppm <- as.numeric(filter_ms2_ppm)
     error <- error | is.na(filter_ms2_ppm)
   }
   
-  if(any(is.null(filter_ms1_masses), is.na(filter_ms1_masses), length(filter_ms1_masses) == 0, nchar(filter_ms1_masses) == 0))
+  if(any(is.null(filter_ms1_masses), is.na(filter_ms1_masses), length(filter_ms1_masses) == 0, nchar(filter_ms1_masses) == 0)) {
     filter_ms1_masses <- NULL
-  else{
+  } else {
     ms1Masses <- strsplit(x = filter_ms1_masses, split = "[,; ]+")[[1]]
     filter_ms1_masses <- vector(mode = "numeric", length = length(ms1Masses))
     for(idx in 1:length(ms1Masses))
@@ -262,9 +276,9 @@ doPerformFiltering_impl <- function(groupSet, sampleSet, filterBySamples, filter
     error <- error | any(is.na(filter_ms1_masses))
   }
   
-  if(any(is.null(filter_ms1_ppm), is.na(filter_ms1_ppm), length(filter_ms1_ppm) == 0, nchar(filter_ms1_ppm) == 0))
+  if(any(is.null(filter_ms1_ppm), is.na(filter_ms1_ppm), length(filter_ms1_ppm) == 0, nchar(filter_ms1_ppm) == 0)) {
     filter_ms1_ppm <- NULL
-  else{
+  } else {
     filter_ms1_ppm <- as.numeric(filter_ms1_ppm)
     error <- error | is.na(filter_ms1_ppm)
   }
@@ -295,7 +309,7 @@ doPerformFiltering_impl <- function(groupSet, sampleSet, filterBySamples, filter
     filterHere <- filterData(
       dataList = dataList, 
       #groupOne = groupOne, groupTwo = groupTwo, 
-      grouXXXps = groupSet, sampleSet, filterBySamples, filter_average = filter_average, filter_lfc = filter_lfc, 
+      sampleClasses = groupSet, sampleSet, filterBySamples, filter_average = filter_average, filter_lfc = filter_lfc, 
       filterList_ms2_masses = filterList_ms2_masses, filter_ms2_ppm = filter_ms2_ppm, 
       filter_ms1_masses = filter_ms1_masses, filter_ms1_ppm = filter_ms1_ppm,
       includeIgnoredPrecursors = includeIgnoredPrecursors,
@@ -382,7 +396,7 @@ checkPcaFilterValidity <- function(numberOfPrecursorsFiltered){
 }
 
 applyGlobalMS2filters <- function(filter_ms2_masses1, filter_ms2_masses2, filter_ms2_masses3, filter_ms2_ppm){
-  groupSet        <- dataList$grouXXXps
+  groupSet        <- dataList$sampleClasses
   filter_average  <- NULL
   filter_lfc      <- NULL
   includeIgnoredPrecursors  <- TRUE
@@ -504,10 +518,10 @@ obsApplyPcaFilters <- observeEvent(input$applyPcaFilters, {
   includeIgnoredPrecursors  <- input$pcaFilterIncludeIgnoredPrecursors
   
   if(filterBySamples){
-    ## update grouXXXps and samples mutually
+    ## update sampleClasses and samples mutually
     
-    ## grouXXXps which are covered by at least one sample
-    groupsFromSamples <- unlist(lapply(X = dataList$grouXXXps, FUN = function(x){
+    ## sampleClasses which are covered by at least one sample
+    groupsFromSamples <- unlist(lapply(X = dataList$sampleClasses, FUN = function(x){
       samplesOfGroups <- dataList$dataColumnsNameFunctionFromGroupName(group = x, sampleNamesToExclude = dataList$excludedSamples(dataList$groupSampleDataFrame))
       if(any(samplesOfGroups %in% sampleSet))
         return(x)
@@ -516,7 +530,7 @@ obsApplyPcaFilters <- observeEvent(input$applyPcaFilters, {
     }))
     
     ## samples which ae covered by a group
-    samplesFromGroups <- dataList$dataColumnsNameFunctionFromGroupNames(grouXXXps = groupSet, sampleNamesToExclude = dataList$excludedSamples(dataList$groupSampleDataFrame))
+    samplesFromGroups <- dataList$dataColumnsNameFunctionFromGroupNames(sampleClasses = groupSet, sampleNamesToExclude = dataList$excludedSamples(dataList$groupSampleDataFrame))
     groupSet  <- intersect(groupSet, groupsFromSamples)
     sampleSet <- intersect(sampleSet, samplesFromGroups)
   } else {
@@ -543,7 +557,7 @@ obsClearPcaFilters <- observeEvent(input$clearPcaFilters, {
   
   #################################################
   ## get inputs
-  groupSet        <- dataList$grouXXXps
+  groupSet        <- dataList$sampleClasses
   sampleSet       <- dataList$groupSampleDataFrame[, "Sample"][!dataList$groupSampleDataFrame[, "Exclude"]]
   filterByPCAgroupSamples <- TRUE
   filter_average  <- ""
