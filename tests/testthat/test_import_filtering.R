@@ -3,7 +3,7 @@ filePeakMatrixPath <- system.file("extdata/showcase/Metabolite_profile_showcase.
 
 fileSpectra <- system.file("extdata/showcase/MSMS_library_showcase.msp", package = "MetFamily")
 
-fileAnnotation <- system.file("extdata/testdata/canopus/canopusShort.txt", package = "MetFamily")
+fileAnnotation <- system.file("extdata/testdata/canopus/canopus1680.txt", package = "MetFamily")
 
 parameterSetPath <- system.file("extdata/testdata/parameterSet.RData",  package = "MetFamily" )
 load(parameterSetPath)
@@ -14,7 +14,7 @@ resultObj <- convertToProjectFile(filePeakMatrixPath,
                                   progress = FALSE)
 
 test_that("Data import produces the expected numbers", {
-  dataList <<- list()
+  dataList <- list()
   
   # Test the message
   #2460 / 5824 spectra were imported successfully 
@@ -51,7 +51,7 @@ lines <- sparseMatrixToString(matrixRows = resultObj$matrixRows, matrixCols = re
 
 dataList0 <- readProjectData(fileLines = lines, progress = FALSE)
 
-dataList <- add_qfeatures(dataList0, qfeatures = resultObj$qfeatures, fileAnnotation)
+dataList <- add_qfeatures(dataList = dataList0, qfeatures = resultObj$qfeatures, fileAnnotation)
 
 filterObjPath <- system.file("extdata/testdata/canopus/filterPca_canopus.rds", package = "MetFamily")
 filterObj <- readRDS(filterObjPath)
@@ -61,7 +61,7 @@ test_that("Filtering functions work with annotation data", {
   # Test filtering using filterObj
   filteredResult <- filterData(
     dataList = dataList,
-    grouXXXps = filterObj$groupSet,
+    sampleClasses = filterObj$groupSet,
     sampleSet = filterObj$sampleSet,
     filterBySamples = filterObj$filterBySamples,
     filter_average = filterObj$filter_average,
@@ -84,7 +84,7 @@ test_that("Filtering functions work without annotation data", {
   # Test filtering using filterObj
   filteredResult <- filterData(
     dataList = dataList0,
-    grouXXXps = filterObj$groupSet,
+    sampleClasses = filterObj$groupSet,
     sampleSet = filterObj$sampleSet,
     filterBySamples = filterObj$filterBySamples,
     filter_average = filterObj$filter_average,
