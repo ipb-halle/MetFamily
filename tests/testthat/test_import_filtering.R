@@ -116,10 +116,10 @@ test_that("Example data properly integrates with filtering functions", {
     progress = FALSE
   )
   
-  load(filterObjPath)
+  filterObj <- readRDS(filterObjPath)
   filteredResult <- filterData(
     dataList = dataList,
-    grouXXXps = filterObj$groupSet,
+    sampleClasses = filterObj$groupSet,
     sampleSet = filterObj$sampleSet,
     filterBySamples = filterObj$filterBySamples,
     filter_average = filterObj$filter_average,
@@ -133,8 +133,6 @@ test_that("Example data properly integrates with filtering functions", {
   )
   
   expect_true(filteredResult$numberOfPrecursorsFiltered > 0)
-  expect_true(filteredResult$numberOfPrecursorsFiltered, 209)
+  # there is a known difference between loading the project file (219) and the example data from separate files (209)
+  expect_equal(filteredResult$numberOfPrecursorsFiltered, 219)
 })
-
-
-
