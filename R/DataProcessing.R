@@ -367,10 +367,8 @@ readProjectData <- function(fileLines, progress = FALSE)
     
     dataFrameHeader[2, target + 1] <- annotationColorsMapInitValue
     dataFrameHeader[3, target + 1] <- annotationColumnName
-  }
+  }  # gp: Previous location of "Start of importing annotation part2 from two"
 
-  # gp: Previous location of "Start of importing annotation part2 from two"
-  
   annotationColumnIndex <- which(metaboliteProfileColumnNames == annotationColumnName)
   annotationColorsValue <- dataFrameHeader[2, annotationColumnIndex]
   

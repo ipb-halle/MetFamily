@@ -622,7 +622,7 @@ parseMSP_chunk <- function(fileLines,
         numberOfTooHeavyFragmentsHere <- sum(tooHeavy)
         
         if(length(ms2Peaks_mz) == 0 & numberOfTooHeavyFragmentsHere > 0) {
-          numberOfSpectraDiscardedDueToTooHeavy <- numberOfSpectraDiscardedDueToTooHeavy + 1
+          numberOfSpectraDiscardedDueToTooHeavy <<- numberOfSpectraDiscardedDueToTooHeavy + 1
         }
       }
       numberOfTooHeavyFragments <<- numberOfTooHeavyFragments + numberOfTooHeavyFragmentsHere
