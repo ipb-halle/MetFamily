@@ -310,9 +310,6 @@ readProjectData <- function(fileLines, progress = FALSE)
   listMatrixRows <- NULL
   listMatrixCols <- NULL
 
-<<<<<<< HEAD
-  # gp: Previous location of "Start of importing annotation part1 from two"
-=======
   
   ################################################################################
   #Start of importing  annotation part1 from two
@@ -350,7 +347,6 @@ readProjectData <- function(fileLines, progress = FALSE)
   }
   #####################################################################################################################################
   #end of importing  annotation part1 from two
->>>>>>> f249a6bac35fb1dbaded0542ad86972efef16585
   
   listMatrixVals <- NULL
   
@@ -409,10 +405,6 @@ readProjectData <- function(fileLines, progress = FALSE)
     dataFrameHeader[3, target + 1] <- annotationColumnName
   }
 
-<<<<<<< HEAD
-  # gp: Previous location of "Start of importing annotation part2 from two"
-  
-=======
   ## STN: Disabled. 
   if(!is.null(qfeatures)){
   if (!is.null(attr(rowData(qfeatures[[1]]), "annotation column"))) {
@@ -443,7 +435,6 @@ readProjectData <- function(fileLines, progress = FALSE)
 #End of importing  annotation part2 from two
   }
   }
->>>>>>> f249a6bac35fb1dbaded0542ad86972efef16585
   annotationColumnIndex <- which(metaboliteProfileColumnNames == annotationColumnName)
   annotationColorsValue <- dataFrameHeader[2, annotationColumnIndex]
   
