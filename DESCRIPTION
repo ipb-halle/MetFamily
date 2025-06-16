@@ -43,7 +43,10 @@ Imports:
   magrittr,
   rlang,
   Matrix,
-  BiocStyle
+  BiocStyle,
+  future,
+  promises,
+  bslib
 Suggests:
   knitr,
   testthat,
