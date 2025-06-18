@@ -172,11 +172,13 @@ projectFromFiles <- function(ms1_path, ms2_path, annot_path = NULL,
 #' @export
 readClusterDataFromProjectFile <- function(file, progress = FALSE)
 {
-  if(!is.na(progress))  
-    if(progress)  
-      setProgress(value = 0, detail = "Parsing") 
-  else 
-    print("Parsing")
+  if(!is.na(progress)) {
+    if(progress) {
+      setProgress(value = 0, detail = "Parsing")
+    } else {
+      print("Parsing")
+    }
+  }
   
   extension <- tools::file_ext(file)
   
@@ -290,7 +292,7 @@ readProjectData <- function(fileLines, progress = FALSE)
     }
     
     lineIdx <- rowIdx + 3
-    tokens <- str_split(string = fileLines[[lineIdx]], pattern = "\t")[[1]]
+    tokens <- stringr::str_split(string = fileLines[[lineIdx]], pattern = "\t")[[1]]
     
     ## metabolite profile
     metaboliteProfile[rowIdx, ] <- tokens[seq_len(numberOfMetaboliteProfileColumns)]
@@ -478,8 +480,9 @@ readProjectData <- function(fileLines, progress = FALSE)
       
       ## remove row from matrix
       indeces1 <- which(matrixRows == duplicatedRowIdx)
-      if(length(indeces1) == 0)
+      if(length(indeces1) == 0) {
         next
+      }
       
       matrixRows <- matrixRows[-indeces1]
       matrixCols <- matrixCols[-indeces1]
@@ -908,9 +911,8 @@ add_qfeatures <- function(dataList, qfeatures, fileAnnotation = NULL, siriusFile
   
   # Copy the selected column by user, Remove duplicates and exclude the first row
   
-  ## gp: This line was causing issues because some annotations contain commas on purpose.
-  ## Not clear is which cases the strsplit was needed
-  # uniqueAnnotations0 <- unique(unlist(strsplit(metaboliteProfile$Annotation, ",")))
+  # Split annotations based on ;
+  uniqueAnnotations0 <- unique(unlist(strsplit(metaboliteProfile$Annotation, ";")))
   uniqueAnnotations0 <- unique(metaboliteProfile$Annotation)
   
   uniqueAnnotations <- paste0(uniqueAnnotations0, "=")

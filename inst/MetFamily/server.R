@@ -33,7 +33,7 @@ shinyServer(
     ## constants
     # gp: added local = TRUE. Did that need to be in global env?
     source("version.R", local = TRUE)
-      
+    
     ## annotation constants
     artifactName   <- "Ignore"
     artifactColor  <- "red"
@@ -338,13 +338,15 @@ shinyServer(
       traceback()
       print("With print: ")
       print(traceback())
-      for(suspendOnExitFunction in suspendOnExitFunctions)
+      for(suspendOnExitFunction in suspendOnExitFunctions) {
         suspendOnExitFunction()
-      # stops shiny running when closing the browser
-      # potential issue when multiples instances of the app are running simultaneously
+      }
+      # if running locally, stops shiny running when closing the browser
       # see https://stackoverflow.com/questions/35306295/how-to-stop-running-shiny-app-by-closing-the-browser-window
-      # answer from user "until" for single-user button alternative
-      stopApp()
+      if (!stringr::str_starts(Sys.info()["nodename"], "metfamily-")) {
+        stopApp()
+      }
+
     })
     
     #########################################################################################
