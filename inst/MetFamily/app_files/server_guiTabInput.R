@@ -1,16 +1,8 @@
-# configure future backend
-library(future)
-if (interactive()) {
-  future::plan(multisession, workers = 2)
-  print("Future plan created")
-} else {
-  future::plan(sequential)
-}
-
+#TODO: Error messages 
+#TODO: check function for just MS2 Input 
 #Extended task für Datenimport
 importDataTask <- ExtendedTask$new(function(fileMs1Path, fileMs2Path, fileAnnotPath, 
                                             parameterSet, siriusFileColumnName) {
-  browser()
   promise_result <- promises::future_promise({
     resultObj <- tryCatch({
       convertToProjectFile(
@@ -438,24 +430,7 @@ importData <- function(importMS1andMS2data){
   
   # error handling
   tryCatch({
-    # Check if ExtendedTask is available
-    if (!exists("ExtendedTask")) {
-      stop("ExtendedTask not available")
-    }
     
-    # Check if importDataTask is properly initialized
-    if (is.null(importDataTask)) {
-      stop("importDataTask not initialized")
-    }
-    
-    # Pre-invocation validation
-    if (is.null(fileMs1Path) || !file.exists(fileMs1Path)) {
-      stop("MS1 file is missing or doesn't exist: ", fileMs1Path)
-    }
-    if (is.null(fileMs2Path) || !file.exists(fileMs2Path)) {
-      stop("MS2 file is missing or doesn't exist: ", fileMs2Path)
-    }
-    browser()
     importDataTask$invoke(
       fileMs1Path = fileMs1Path,
       fileMs2Path = fileMs2Path, 

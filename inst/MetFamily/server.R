@@ -90,7 +90,15 @@ shinyServer(
     resetWorkspaceFunctions <- list()
     suspendOnExitFunctions <- list()
     
-    future::plan(multisession, workers = 2)
+    # configure future backend
+    library(future)
+    if (interactive()) {
+      future::plan("multisession", workers = 2)
+      print("Future plan created")
+    } else {
+      future::plan(sequential)
+    }
+    
     source(file = "app_files/server_functionsFilters.R", local = TRUE)$value
     source(file = "app_files/server_functionsSelections.R", local = TRUE)$value
     source(file = "app_files/server_functionsTableGui.R", local = TRUE)$value
