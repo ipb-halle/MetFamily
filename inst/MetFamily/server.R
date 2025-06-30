@@ -93,8 +93,7 @@ shinyServer(
     # configure future backend
     library(future)
     if (interactive()) {
-      future::plan("multisession", workers = 2)
-      print("Future plan created")
+      future::plan("multisession", workers = 3) #up to 3 users/session wo blocking 
     } else {
       future::plan(sequential)
     }

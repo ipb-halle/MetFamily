@@ -1,6 +1,5 @@
-#TODO: Error messages 
-#TODO: check function for just MS2 Input 
-#Extended task für Datenimport
+
+#Extended task for Dataimport
 importDataTask <- ExtendedTask$new(function(fileMs1Path, fileMs2Path, fileAnnotPath, 
                                             parameterSet, siriusFileColumnName) {
   promise_result <- promises::future_promise({
@@ -241,7 +240,7 @@ obsImportMs1Ms2Data <- observeEvent(input$importMs1Ms2Data, {
   disableLoadButtons()
   
   importData(TRUE)
-  # enableLoadButtons() - REMOVED: ExtendedTask observer handles this
+  # enableLoadButtons() now handeled by ExtendedTask observer
 })
 obsImportMs2Data <- observeEvent(input$importMs2Data, {
   disableLoadButtons()  # Move to start - disable buttons first
@@ -256,7 +255,7 @@ obsImportMs2Data <- observeEvent(input$importMs2Data, {
   #importMs2DataButtonValue <<- importMs2Data
   
   importData(FALSE)
-  # disableLoadButtons() - REMOVED: ExtendedTask observer handles this
+  # disableLoadButtons() now handeled by ExtendedTask observer
 })
 
 importData <- function(importMS1andMS2data){
@@ -466,10 +465,10 @@ observe({
   } else if (status == "running") {
     # Task is running - disable buttons and show progress
     disableLoadButtons()
-    output$fileInfo <- renderText("⚙️ Processing data asynchronously... Please wait while we process your files.")
+    output$fileInfo <- renderText("⚙️ Processing data ... Please wait")
     
   } else if (status == "success") {
-    # Task completed successfully - run the rest of importData logic
+    # importDataTask completed successfully - run rest of importData logic
     result <- tryCatch({
       importDataTask$result()
     }, error = function(e) {
@@ -561,12 +560,10 @@ observe({
   } else if (status == "error") {
     # Task failed - handle error
     tryCatch({
-      importDataTask$result()  # This will throw the error
+      importDataTask$result()  # error
     }, error = function(e) {
-      # Enhanced error classification with specific troubleshooting
-      if (grepl("multisession.*must never be called directly", e$message)) {
-        msg <- e$message
-      } else if (grepl("file.*not found|cannot open", e$message, ignore.case = TRUE)) {
+      # error classification 
+      if (grepl("file.*not found|cannot open", e$message, ignore.case = TRUE)) {
         msg <- paste("File Access Error:", e$message, "- Please check that your files exist and are readable.")
         
       } else if (grepl("convertToProjectFile", e$message)) {
