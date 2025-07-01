@@ -9,11 +9,13 @@ if(errorHunting){
   options(shiny.fullstacktrace=TRUE)
   options(shiny.testmode=TRUE)
   options(shiny.sanitize.errors = FALSE)
+  options(future.debug = TRUE)
 } else {
   options(warn = 1, shiny.error = NULL)
   options(shiny.trace=FALSE)
   options(shiny.fullstacktrace=FALSE)
   options(shiny.testmode=FALSE)
+  options(future.debug = FALSE)
 }
 
 
@@ -88,6 +90,14 @@ shinyServer(
     resetWorkspaceFunctions <- list()
     suspendOnExitFunctions <- list()
     
+    # configure future backend
+    library(future)
+    if (interactive()) {
+      future::plan("multisession", workers = 3) #up to 3 users/session wo blocking 
+    } else {
+      future::plan(sequential)
+    }
+    
     source(file = "app_files/server_functionsFilters.R", local = TRUE)$value
     source(file = "app_files/server_functionsSelections.R", local = TRUE)$value
     source(file = "app_files/server_functionsTableGui.R", local = TRUE)$value
@@ -107,6 +117,8 @@ shinyServer(
     source(file = "app_files/server_guiTabExport.R", local = TRUE)$value
     source(file = "app_files/server_guiPlotControls.R", local = TRUE)$value
     source(file = "app_files/server_guiMs2plot.R", local = TRUE)$value
+    
+    
 
     ## Parse the input file
     resetWorkspace <- function(){
