@@ -219,7 +219,27 @@ filterData <- function(dataList, sampleClasses, sampleSet = NULL, filterBySample
   return (resultObj)
 }
 
+#' Calculate a distance matrix between MS/MS spectra
+#'
+#' Computes a distance matrix between MS/MS spectra using various distance or similarity measures.
+#' The function supports multiple distance metrics, including Jaccard, intensity-weighted Jaccard,
+#' Manhattan, and normalized dot product (NDP), among others.
+#'
+#' @param dataList List object containing precursor, feature and MS/MS data.
+#' @param filter Logical or integer vector indicating for which precursors to include the MS/MS spectra.
+#' @param distanceMeasure Character string specifying the distance metric to use.
+#'        Supported values include "Jaccard", "Jaccard (intensity-weighted)", "Manhatten",
+#'        "NDP (Normalized dot product)", and others.
+#' @param progress Logical or NA. If TRUE, progress is reported via incProgress().
+#'
+#' @return A list with elements:
+#'   \describe{
+#'     \item{distanceMatrix}{A numeric matrix of pairwise distances.}
+#'     \item{filter}{The filter vector used, same as the input parameter.}
+#'     \item{distanceMeasure}{The distance metric used, same as the input parameter.}
+#'   }
 #' @export
+
 calculateDistanceMatrix <- function(dataList, filter, distanceMeasure = "Jaccard", progress = FALSE){
   numberOfPrecursors <- length(filter)
   
@@ -242,16 +262,12 @@ calculateDistanceMatrix <- function(dataList, filter, distanceMeasure = "Jaccard
                lastPrecursor <- i
                if(!is.na(progress))  if(progress)  incProgress(amount = precursorProgress,     detail = paste("Distance ", i, " / ", numberOfPrecursors, sep = "")) else print(paste("Distance ", i, " / ", numberOfPrecursors, sep = ""))
              }
-             #if(numberOfPrecursors >= 10 & ((i %% (as.integer(numberOfPrecursors/10))) == 0))
-             #  if(progress)  incProgress(amount = 1 / 10, detail = paste("Distances ", i, " / ", numberOfPrecursors, sep = ""))
+
              for(j in seq_len(numberOfPrecursors)){
                if(i == j){
                  distanceMatrix[i, j] <- 0
                  next
                }
-               
-               #distanceMatrix[i, j] <- 1 - length(which(featureMatrixBinary[i, ] & featureMatrixBinary[j, ])) / length(which(featureMatrixBinary[i, ] | featureMatrixBinary[j, ]))
-               #distanceMatrix[i, j] <- 1 - sum(featureMatrixBinary[i, ] & featureMatrixBinary[j, ]) / sum(featureMatrixBinary[i, ] | featureMatrixBinary[j, ])
                
                intersectionCount <- sum(featureIndeces[[i]] %in% featureIndeces[[j]])
                distanceMatrix[i, j] <- 1 - intersectionCount / (length(featureIndeces[[i]]) + length(featureIndeces[[j]]) - intersectionCount)
@@ -329,7 +345,7 @@ calculateDistanceMatrix <- function(dataList, filter, distanceMeasure = "Jaccard
              onlyJs[is.na(onlyJs)] <- FALSE
              
              sumOnlyIs  <- apply(X = onlyIs, MARGIN = 2, FUN = function(x){ sum(featureMatrix[i, ] & x) })
-             #sumOnlyIs <- apply(X = onlyIs, MARGIN = 2, FUN = function(x){ sum(featureMatrix[i, x]) })
+
              featureMatrix2 <- featureMatrix
              featureMatrix2[!t(onlyJs)] <- 0
              sumOnlyJs <- apply(X = featureMatrix2, MARGIN = 1, FUN = sum )
@@ -357,22 +373,6 @@ calculateDistanceMatrix <- function(dataList, filter, distanceMeasure = "Jaccard
            featureMatrix[featureMatrix <  0.4 & featureMatrix >= 0.20] <- 0.2
            featureMatrix[featureMatrix >= 0.4] <- 1
            featureMatrix <- as.matrix(featureMatrix)
-           # intensityMapping <- function(x){
-           #   if(x == 0){
-           #     ## x = 0
-           #     return(0)
-           #   } else if(x < 0.2){
-           #     ## 0 <= x < 0.2
-           #     return(0.01)
-           #   } else if(x < 0.4){
-           #     ## 0.2 <= x < 0.4
-           #     return(0.2)
-           #   } else {
-           #     ## 0.4 <= x <= Inf
-           #     return(1)
-           #   }
-           # }
-           # intensityMapping <- Vectorize(FUN = intensityMapping, vectorize.args = "x")
            
            distanceMatrix <- matrix(nrow = numberOfPrecursors, ncol = numberOfPrecursors)
            for(i in seq_len(numberOfPrecursors)){
@@ -410,78 +410,8 @@ calculateDistanceMatrix <- function(dataList, filter, distanceMeasure = "Jaccard
                    sumOnlyJ <- sum(featureMatrix[j, onlyJ, drop = FALSE])
                  }
                  
-                 #maxIntensity <- apply(X = as.matrix(featureMatrix[c(i, j), intersection, drop = FALSE]), MARGIN = 2, FUN = max)
                  maxIntensity <- apply(X = featureMatrix[c(i, j), intersection, drop = FALSE], MARGIN = 2, FUN = max)
-                 #maxIntensity <- featureMatrix[i, intersection]
                  intersectionSum <- sum(maxIntensity)
-                 unionSum <- intersectionSum + sumOnlyI + sumOnlyJ
-                 distance <- 1 - intersectionSum / unionSum
-               }
-               
-               distanceMatrix[i, j] <- distance
-             }
-           }
-         },
-         "Jaccard (intensity-weighted map) saveOld"={
-           ## intersection i and j: featureIndeces[[i]][featureIndeces[[i]] %in% featureIndeces[[j]]]
-           ## diff i - j: featureIndeces[[i]][!featureIndeces[[i]] %in% featureIndeces[[j]]]
-           ## diff j - i: featureIndeces[[j]][!featureIndeces[[j]] %in% featureIndeces[[i]]]
-           ## union i or j: c(featureIndeces[[i]][!featureIndeces[[i]] %in% featureIndeces[[j]]], featureIndeces[[j]])
-           featureIndeces <- dataList$featureIndeces[filter]
-           featureMatrix <- dataList$featureMatrix[filter, ]
-           intensityMapping <- function(x){
-             if(x == 0){
-               ## x = 0
-               return(0)
-             } else if(x < 0.2){
-               ## 0 <= x < 0.2
-               return(0.01)
-             } else if(x < 0.4){
-               ## 0.2 <= x < 0.4
-               return(0.2)
-             } else {
-               ## 0.4 <= x <= Inf
-               return(1)
-             }
-           }
-           intensityMapping <- Vectorize(FUN = intensityMapping, vectorize.args = "x")
-           
-           distanceMatrix <- matrix(nrow = numberOfPrecursors, ncol = numberOfPrecursors)
-           for(i in seq_len(numberOfPrecursors)){
-             time <- proc.time()["user.self"]
-             if(time - lastOut > 1){
-               lastOut <- time
-               precursorProgress <- (i - lastPrecursor) / numberOfPrecursors
-               lastPrecursor <- i
-               if(!is.na(progress))  if(progress)  incProgress(amount = precursorProgress,     detail = paste("Distance ", i, " / ", numberOfPrecursors, sep = "")) else print(paste("Distance ", i, " / ", numberOfPrecursors, sep = ""))
-             }
-             for(j in seq_len(numberOfPrecursors)){
-               if(i == j){
-                 distanceMatrix[i, j] <- 0
-                 next
-               }
-               
-               intersection <- featureIndeces[[i]][featureIndeces[[i]] %in% featureIndeces[[j]]]
-               
-               if(length(intersection) == 0){
-                 distance <- 1#sumOnlyI + sumOnlyJ
-               } else {
-                 onlyI <- featureIndeces[[i]][!featureIndeces[[i]] %in% featureIndeces[[j]]]
-                 onlyJ <- featureIndeces[[j]][!featureIndeces[[j]] %in% featureIndeces[[i]]]
-                 
-                 if(length(onlyI) == 0){
-                   sumOnlyI <- 0
-                 } else {
-                   sumOnlyI <- sum(sapply(X = featureMatrix[i, onlyI], FUN = intensityMapping))
-                 }
-                 if(length(onlyJ) == 0){
-                   sumOnlyJ <- 0
-                 } else {
-                   sumOnlyJ <- sum(sapply(X = featureMatrix[j, onlyJ], FUN = intensityMapping))
-                 }
-                 
-                 maxIntensity <- apply(X = as.matrix(featureMatrix[c(i, j), intersection]), MARGIN = 2, FUN = max)
-                 intersectionSum <- sum(sapply(X = maxIntensity, FUN = intensityMapping))
                  unionSum <- intersectionSum + sumOnlyI + sumOnlyJ
                  distance <- 1 - intersectionSum / unionSum
                }
@@ -662,7 +592,6 @@ calculateDistanceMatrix <- function(dataList, filter, distanceMeasure = "Jaccard
                }
                
                intersection    <- featureIndeces[[i]][featureIndeces[[i]] %in% featureIndeces[[j]]]
-               #intersection    <- intersect(x = featureIndeces[[i]], y = featureIndeces[[j]])
                intersectionSum <- sum(sqrt(featureMatrix[i, intersection]) * dataList$fragmentMasses[intersection]^2 * sqrt(featureMatrix[j, intersection]) * dataList$fragmentMasses[intersection]^2)^2
                iSum            <- sum((sqrt(featureMatrix[i, featureIndeces[[i]]]) * dataList$fragmentMasses[featureIndeces[[i]]]^2)^2)
                jSum            <- sum((sqrt(featureMatrix[j, featureIndeces[[j]]]) * dataList$fragmentMasses[featureIndeces[[j]]]^2)^2)
