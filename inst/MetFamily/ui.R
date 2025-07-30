@@ -2,9 +2,8 @@
 library(shinyBS)
 
 ## constants
-minimumProportionOfLeafs <<- 0.75
-minimumProportionToShowFragment <<- 0.5
-crashButton = T
+
+crashButton = F
 
 
 navbarPage(

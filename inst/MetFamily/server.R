@@ -1,6 +1,8 @@
 
+
 ## handling of errors and warnings
 errorHunting <- TRUE
+
 
 if(errorHunting){
   options(warn = 2, shiny.error = recover)
@@ -53,6 +55,12 @@ shinyServer(
     ### change the anno legend height ... 20 to 18
     annoLegendEntryHeight <- 18
     maximumNumberOfTableEntries <- 50
+    
+    ### HCA constants
+    minimumProportionToShowFragment <- 0.5
+    
+    ### variables that shouldn't be global
+    dataFrame <- NULL
     
     ##############################################
     ## program state
