@@ -1625,7 +1625,8 @@ getMS2spectrumInfoForPrecursor <- function(dataList, precursorIndex, outAdductWa
   
   return(resultObj)
 }
-getMS2spectrumInfoForCluster <- function(dataList, clusterDataList, treeLabel){
+getMS2spectrumInfoForCluster <- function(dataList, clusterDataList, treeLabel,
+                                         minimumProportionOfLeafs = 0.75, minimumProportionToShowFragment = 0.5){
   if(treeLabel < 0)
     return(NULL)
   ###############################################
@@ -1730,7 +1731,7 @@ getMS2spectrumInfoForCluster <- function(dataList, clusterDataList, treeLabel){
 ## XXX adapt getTableFromTreeSelection
 
 #' @export
-getTableFromPrecursorSet <- function(dataList, precursorSet){
+getTableFromPrecursorSet <- function(dataList, precursorSet, minimumProportionToShowFragment = 0.5){
   ###############################################
   ## table data
   numberOfPrecursors <- length(precursorSet)
