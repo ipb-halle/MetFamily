@@ -46,7 +46,8 @@ Imports:
   BiocStyle,
   future,
   promises,
-  bslib
+  bslib,
+  clue
 Suggests:
   knitr,
   testthat,

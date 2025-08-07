@@ -254,8 +254,10 @@ filterData <- function(dataList, sampleClasses, sampleSet = NULL, filterBySample
 #'     \item{distanceMeasure}{The distance metric used, same as the input parameter.}
 #'   }
 #' @export
-
-calculateDistanceMatrix <- function(dataList, filter, distanceMeasure = "Jaccard", progress = FALSE){
+calculateDistanceMatrix <- function(dataList, filter, distanceMeasure = "Jaccard", progress = FALSE) {
+  
+  stopifnot(is.logical(progress))
+  
   numberOfPrecursors <- length(filter)
   
   if(!is.na(progress))  if(progress)  incProgress(amount = 0, detail = paste("Distances 0 / ", numberOfPrecursors, sep = ""))
@@ -616,6 +618,27 @@ calculateDistanceMatrix <- function(dataList, filter, distanceMeasure = "Jaccard
            }
            distanceMatrix <- max(similarityMatrix) - similarityMatrix
          },
+         # (Modified) Cosine (with NL)
+         "Cosine" = {
+           distanceMatrix <- 
+             impl_cosine_similarity(dataList, filter, progress = progress,
+                                    allow_shift = FALSE, nl = FALSE)
+         },
+         "Cosine (with NL)" = {
+           distanceMatrix <- 
+             impl_cosine_similarity(dataList, filter, progress = progress,
+                                    allow_shift = FALSE, nl = TRUE)
+         },
+         "Modified Cosine" = {
+           distanceMatrix <- 
+             impl_cosine_similarity(dataList, filter, progress = progress,
+                                    allow_shift = TRUE, nl = FALSE)
+         },
+         "Modified Cosine (with NL)" = {
+           distanceMatrix <- 
+             impl_cosine_similarity(dataList, filter, progress = progress,
+                                    allow_shift = TRUE, nl = TRUE)
+         },
          stop(paste("Unknown distance (", distance, ")!", sep = ""))
   )
   
@@ -630,6 +653,142 @@ calculateDistanceMatrix <- function(dataList, filter, distanceMeasure = "Jaccard
   
   return(returnObj)
 }
+
+
+#' Implement Cosine Similarity
+#'
+#' @param dataList dataset
+#' @param filter filter vector
+#' @param progress boolena
+#' @param allow_shift boolean
+#' @param nl boolean
+#'
+#' @returns distance matrix
+#' @export
+impl_cosine_similarity <- function(dataList, filter, progress = FALSE,
+                        allow_shift = FALSE, nl = FALSE) {
+  
+  numberOfPrecursors <- length(filter)
+  
+  featureIndeces <- dataList$featureIndeces[filter]
+  featureMatrix <- dataList$featureMatrix[filter, ]
+  
+  distanceMatrix <- matrix(nrow = numberOfPrecursors, ncol = numberOfPrecursors)
+  for(i in seq_len(numberOfPrecursors)){
+    time <- proc.time()["user.self"]
+    if(time - lastOut > 1){
+      lastOut <- time
+      precursorProgress <- (i - lastPrecursor) / numberOfPrecursors
+      lastPrecursor <- i
+      if(!is.na(progress))  if(progress)  incProgress(amount = precursorProgress, detail = paste("Distance ", i, " / ", numberOfPrecursors)) else print(paste("Distance ", i, " / ", numberOfPrecursors))
+    }
+    
+    for(j in seq_len(numberOfPrecursors)){
+      if(i == j){
+        distanceMatrix[i, j] <- 0
+        next
+      }
+      
+      # Get fragments mz and normalized intensities
+      mz1 <- dataList$fragmentMasses[featureIndeces[[i]]]
+      mz2 <- dataList$fragmentMasses[featureIndeces[[j]]]
+      intensity1 <- featureMatrix[i,]
+      intensity2 <- featureMatrix[j,]
+      precursorMasses <- as.numeric(dataList$dataFrameInfos$`m/z`)[filter]
+      precursor_mz1 <- precursorMasses[i]
+      precursor_mz2 <- precursorMasses[j]
+      
+      # Calculate cosine score: 
+      cosine_score <- 
+        cosine_similarity(mz1, intensity1, precursor_mz1, 
+                          mz2, intensity2, precursor_mz2, 
+                          fragment_mz_tolerance = 0.01, allow_shift = allow_shift, 
+                          nl = nl, normalize = FALSE)
+      
+      # Convert similarity to distance
+      distanceMatrix[i, j] <- 1 - cosine_score
+    }
+  }
+  
+  distanceMatrix
+  
+}
+
+
+#' Calculate cosine/modified cosine score
+#'
+#' @param mz1 numeric vector
+#' @param intensity1 numeric vector
+#' @param precursor_mz1 numeric
+#' @param mz2 numeric vector
+#' @param intensity2 numeric vector
+#' @param precursor_mz2 numeric
+#' @param fragment_mz_tolerance numeric
+#' @param allow_shift boolean
+#' @param nl boolean
+#' @param normalize boolean
+#' 
+#' @importFrom clue solve_LSAP
+#'
+#' @returns score
+#' @export
+cosine_similarity <- function(
+    mz1, intensity1, precursor_mz1, 
+    mz2, intensity2, precursor_mz2, 
+    fragment_mz_tolerance = 0.01,
+    allow_shift = TRUE,
+    nl = FALSE,
+    normalize = FALSE) {
+  
+  # Determine if including neutral loss
+  if (!nl){
+    fragidx1 <- which(mz1>0)
+    fragidx2 <- which(mz2>0) 
+    mz1 <- mz1[fragidx1]
+    intensity1 <- intensity2[fragidx1]
+    mz2 <- mz2[fragidx2]
+    intensity2 <- intensity2[fragidx2]
+  }
+  
+  # Normalize intensity vectors to unit norm (if needed)
+  if (normalize){
+    norm1 <- sqrt(sum(intensity1^2))
+    norm2 <- sqrt(sum(intensity2^2))
+    if (norm1 == 0 || norm2 == 0) return(0)
+    intensity1 <- intensity1 / norm1
+    intensity2 <- intensity2 / norm2
+  }
+  
+  # Determine if shifting (modified cosine) is used
+  mass_diff <- 0
+  precursor_mass_diff <- precursor_mz2 - precursor_mz1
+  if (allow_shift && abs(precursor_mass_diff) >= fragment_mz_tolerance) {
+    mass_diff <- c(0, precursor_mass_diff) 
+  }
+  
+  # Build cost matrix
+  cost_matrix <- matrix(0, nrow = length(mz1), ncol = length(mz2))
+  
+  for (i in seq_along(mz1)) {
+    for (z in seq_along(mass_diff)) {
+      mz2_shifted <- mz2 - mass_diff[z]
+      delta <- abs(mz1[i] - mz2_shifted)
+      matched <- which(delta <= fragment_mz_tolerance)
+      if (length(matched) >= 0) {
+        cost_matrix[i, matched] <- intensity1[i] * intensity2[matched]
+      }
+    }
+  }
+  
+  # Solve linear sum assignment
+  if(nrow(cost_matrix) > ncol(cost_matrix)) cost_matrix <- t(cost_matrix)
+  assignment <- clue::solve_LSAP(cost_matrix, maximum = TRUE)
+  matched_scores <- cost_matrix[cbind(seq_len(nrow(cost_matrix)), assignment)]
+  score <- sum(matched_scores[matched_scores > 0])
+  
+  return(score)
+}
+
 
 #' Create cluster object
 #'
