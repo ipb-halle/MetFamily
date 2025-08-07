@@ -743,9 +743,10 @@ cosine_similarity <- function(
   # Determine if including neutral loss
   if (!nl){
     fragidx1 <- which(mz1>0)
-    fragidx2 <- which(mz2>0) 
     mz1 <- mz1[fragidx1]
-    intensity1 <- intensity2[fragidx1]
+    intensity1 <- intensity1[fragidx1]
+    
+    fragidx2 <- which(mz2>0) 
     mz2 <- mz2[fragidx2]
     intensity2 <- intensity2[fragidx2]
   }
