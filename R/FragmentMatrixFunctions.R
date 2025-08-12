@@ -178,7 +178,7 @@ parsePeakAbundanceMatrix <- function(filePeakMatrix,
 
 ####################################################################################
 ## parse MS/MS spectra
-#' Title
+#' Read MS2 spectra from MSP file
 #'
 #' @param fileSpectra path
 #' @param minimumIntensityOfMaximalMS2peak numeric
@@ -187,8 +187,8 @@ parsePeakAbundanceMatrix <- function(filePeakMatrix,
 #' @param neutralLossesFragmentsToFragments boolean
 #' @param progress boolean
 #'
-#' @returns
-#' @noRd
+#' @returns list object
+#' @export
 parseMSP <- function(fileSpectra, 
                      minimumIntensityOfMaximalMS2peak, 
                      minimumProportionOfMS2peaks, 
@@ -305,8 +305,7 @@ parseMSP_chunk <- function(fileLines,
                            neutralLossesPrecursorToFragments, 
                            neutralLossesFragmentsToFragments, 
                            offset = 0, 
-                           progress = FALSE)
-{
+                           progress = FALSE) {
   
   ## LC-MS/MS entry:
   ## NAME: Unknown
@@ -632,6 +631,7 @@ parseMSP_chunk <- function(fileLines,
       ## filter fragments with mass greater than precursor
       numberOfTooHeavyFragmentsHere <- 0
       if(all(!is.null(mz), !is.na(mz))){
+        # + 0.1 otherwise half of precursor fragments are removed
         tooHeavy <- ms2Peaks_mz > (mz + 0.1)
         ms2Peaks_mz  <- ms2Peaks_mz [!tooHeavy]
         ms2Peaks_int <- ms2Peaks_int[!tooHeavy]

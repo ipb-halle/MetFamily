@@ -673,6 +673,9 @@ impl_cosine_similarity <- function(dataList, filter, progress = FALSE,
   featureIndeces <- dataList$featureIndeces[filter]
   featureMatrix <- dataList$featureMatrix[filter, ]
   
+  lastOut <- proc.time()["user.self"]
+  lastPrecursor <- 1
+  
   distanceMatrix <- matrix(nrow = numberOfPrecursors, ncol = numberOfPrecursors)
   for(i in seq_len(numberOfPrecursors)){
     time <- proc.time()["user.self"]
