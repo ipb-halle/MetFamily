@@ -1,54 +1,52 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
-  <url>
-    <loc>http://ipb-halle.github.io/MetFamily/404.html</loc>
-  </url>
-  <url>
-    <loc>http://ipb-halle.github.io/MetFamily/LICENSE-text.html</loc>
-  </url>
-  <url>
-    <loc>http://ipb-halle.github.io/MetFamily/articles/discoveringregulatedmetabolitefamilies.html</loc>
-  </url>
-  <url>
-    <loc>http://ipb-halle.github.io/MetFamily/articles/index.html</loc>
-  </url>
-  <url>
-    <loc>http://ipb-halle.github.io/MetFamily/authors.html</loc>
-  </url>
-  <url>
-    <loc>http://ipb-halle.github.io/MetFamily/index.html</loc>
-  </url>
-  <url>
-    <loc>http://ipb-halle.github.io/MetFamily/reference/calcPlotDendrogram_plotly.html</loc>
-  </url>
-  <url>
-    <loc>http://ipb-halle.github.io/MetFamily/reference/calcPlotHeatmapLegend.html</loc>
-  </url>
-  <url>
-    <loc>http://ipb-halle.github.io/MetFamily/reference/castListEntries.html</loc>
-  </url>
-  <url>
-    <loc>http://ipb-halle.github.io/MetFamily/reference/data.numericmatrix.html</loc>
-  </url>
-  <url>
-    <loc>http://ipb-halle.github.io/MetFamily/reference/index.html</loc>
-  </url>
-  <url>
-    <loc>http://ipb-halle.github.io/MetFamily/reference/metaboliteFamilyVersusClass.html</loc>
-  </url>
-  <url>
-    <loc>http://ipb-halle.github.io/MetFamily/reference/mzClustGeneric.html</loc>
-  </url>
-  <url>
-    <loc>http://ipb-halle.github.io/MetFamily/reference/processMS1data.html</loc>
-  </url>
-  <url>
-    <loc>http://ipb-halle.github.io/MetFamily/reference/readClusterDataFromProjectFile.html</loc>
-  </url>
-  <url>
-    <loc>http://ipb-halle.github.io/MetFamily/reference/readProjectData.html</loc>
-  </url>
-  <url>
-    <loc>http://ipb-halle.github.io/MetFamily/reference/runMetFamily.html</loc>
-  </url>
+<urlset xmlns = 'http://www.sitemaps.org/schemas/sitemap/0.9'>
+<url><loc>http://ipb-halle.github.io/MetFamily/404.html</loc></url>
+<url><loc>http://ipb-halle.github.io/MetFamily/LICENSE.html</loc></url>
+<url><loc>http://ipb-halle.github.io/MetFamily/articles/discoveringregulatedmetabolitefamilies.html</loc></url>
+<url><loc>http://ipb-halle.github.io/MetFamily/articles/index.html</loc></url>
+<url><loc>http://ipb-halle.github.io/MetFamily/authors.html</loc></url>
+<url><loc>http://ipb-halle.github.io/MetFamily/index.html</loc></url>
+<url><loc>http://ipb-halle.github.io/MetFamily/reference/MetFamily-package.html</loc></url>
+<url><loc>http://ipb-halle.github.io/MetFamily/reference/addSiriusAnnotations.html</loc></url>
+<url><loc>http://ipb-halle.github.io/MetFamily/reference/add_qfeatures.html</loc></url>
+<url><loc>http://ipb-halle.github.io/MetFamily/reference/analyzeTree.html</loc></url>
+<url><loc>http://ipb-halle.github.io/MetFamily/reference/calcPlotDendrogram.html</loc></url>
+<url><loc>http://ipb-halle.github.io/MetFamily/reference/calcPlotDendrogram_plotly.html</loc></url>
+<url><loc>http://ipb-halle.github.io/MetFamily/reference/calcPlotHeatmap.html</loc></url>
+<url><loc>http://ipb-halle.github.io/MetFamily/reference/calcPlotHeatmapLegend.html</loc></url>
+<url><loc>http://ipb-halle.github.io/MetFamily/reference/calcPlotMS2.html</loc></url>
+<url><loc>http://ipb-halle.github.io/MetFamily/reference/calcPlotMS2Legend.html</loc></url>
+<url><loc>http://ipb-halle.github.io/MetFamily/reference/calcPlotPCAloadings.html</loc></url>
+<url><loc>http://ipb-halle.github.io/MetFamily/reference/calcPlotPCAscores.html</loc></url>
+<url><loc>http://ipb-halle.github.io/MetFamily/reference/calculateCluster.html</loc></url>
+<url><loc>http://ipb-halle.github.io/MetFamily/reference/calculatePCA.html</loc></url>
+<url><loc>http://ipb-halle.github.io/MetFamily/reference/castListEntries.html</loc></url>
+<url><loc>http://ipb-halle.github.io/MetFamily/reference/colorPaletteScores.html</loc></url>
+<url><loc>http://ipb-halle.github.io/MetFamily/reference/convertToProjectFile.html</loc></url>
+<url><loc>http://ipb-halle.github.io/MetFamily/reference/data.numericmatrix.html</loc></url>
+<url><loc>http://ipb-halle.github.io/MetFamily/reference/filterData.html</loc></url>
+<url><loc>http://ipb-halle.github.io/MetFamily/reference/filterLFC.html</loc></url>
+<url><loc>http://ipb-halle.github.io/MetFamily/reference/filterThreshold.html</loc></url>
+<url><loc>http://ipb-halle.github.io/MetFamily/reference/getAvailableClassifiers.html</loc></url>
+<url><loc>http://ipb-halle.github.io/MetFamily/reference/getPrecursorColors.html</loc></url>
+<url><loc>http://ipb-halle.github.io/MetFamily/reference/importParameterSetInit.html</loc></url>
+<url><loc>http://ipb-halle.github.io/MetFamily/reference/index.html</loc></url>
+<url><loc>http://ipb-halle.github.io/MetFamily/reference/makeFilterObj.html</loc></url>
+<url><loc>http://ipb-halle.github.io/MetFamily/reference/metaboliteFamilyVersusClass.html</loc></url>
+<url><loc>http://ipb-halle.github.io/MetFamily/reference/mzClustGeneric.html</loc></url>
+<url><loc>http://ipb-halle.github.io/MetFamily/reference/parameterSetDefault.html</loc></url>
+<url><loc>http://ipb-halle.github.io/MetFamily/reference/parseMSP_attributes.html</loc></url>
+<url><loc>http://ipb-halle.github.io/MetFamily/reference/parsePeakAbundanceMatrixQF.html</loc></url>
+<url><loc>http://ipb-halle.github.io/MetFamily/reference/performPca.html</loc></url>
+<url><loc>http://ipb-halle.github.io/MetFamily/reference/pipe.html</loc></url>
+<url><loc>http://ipb-halle.github.io/MetFamily/reference/processMS1data.html</loc></url>
+<url><loc>http://ipb-halle.github.io/MetFamily/reference/projectFromFiles.html</loc></url>
+<url><loc>http://ipb-halle.github.io/MetFamily/reference/readClusterDataFromProjectFile.html</loc></url>
+<url><loc>http://ipb-halle.github.io/MetFamily/reference/readMSDial.html</loc></url>
+<url><loc>http://ipb-halle.github.io/MetFamily/reference/readMetaboscape.html</loc></url>
+<url><loc>http://ipb-halle.github.io/MetFamily/reference/readProjectData.html</loc></url>
+<url><loc>http://ipb-halle.github.io/MetFamily/reference/reexports.html</loc></url>
+<url><loc>http://ipb-halle.github.io/MetFamily/reference/runMetFamily.html</loc></url>
+<url><loc>http://ipb-halle.github.io/MetFamily/reference/sparseMatrixToString.html</loc></url>
+<url><loc>http://ipb-halle.github.io/MetFamily/reference/swap_names_and_values.html</loc></url>
 </urlset>
+
