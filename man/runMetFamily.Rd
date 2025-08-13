@@ -4,7 +4,12 @@
 \alias{runMetFamily}
 \title{Start the web app in browser}
 \usage{
-runMetFamily()
+runMetFamily(launch.browser = TRUE, ...)
+}
+\arguments{
+\item{launch.browser}{Launch web browser to open MetFamily}
+
+\item{...}{pass additional parameters down to runApp(), e.g. host="0.0.0.0", port=3838}
 }
 \description{
 Run the web app in browser

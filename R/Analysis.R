@@ -1,38 +1,143 @@
 
-#########################################################################################
-## constants
-filterData <- function(dataList, grouXXXps, sampleSet, filterBySamples, filter_average, filter_lfc, filterList_ms2_masses, filter_ms2_ppm, filter_ms1_masses, filter_ms1_ppm, includeIgnoredPrecursors, progress = FALSE){
-  ##########################################
+#' Filter dataset based on intensity mean values
+#' 
+#' @param dataList list object
+#' @param filter_average numeric
+#' @param sampleClasses vector of sample classes
+#'
+#' @returns boolean vector
+#' @export
+filterThreshold <- function(dataList, filter_average, sampleClasses = dataList$sampleClasses) {
+  
+  # need to fix code if false
+  stopifnot(identical(sampleClasses, as.vector(sampleClasses)))
+  
+  mean_colnames <- sapply(X = sampleClasses,
+                          FUN = dataList$dataMeanColumnNameFunctionFromName)
+  
+  unname(
+    apply(X = dataList$dataFrameMeasurements[, mean_colnames],
+          MARGIN = 1, FUN = mean) >= filter_average
+  )
+
+}
+
+
+#' Filter dataset based on LFC of two groups
+#'
+#' @param dataList list object
+#' @param filter_lfc numeric e.g. 2 or -2
+#' @param sampleClasses vector of names for group1 and group2
+#'
+#' @returns boolean vector
+#' @export
+filterLFC <- function(dataList, filter_lfc, sampleClasses = dataList$sampleClasses) {
+
+  stopifnot("The number of sampleClasses for LFC is not equal to two!" = length(sampleClasses) == 2)
+  
+  test_lfc <- if(filter_lfc > 0) filter_lfc else -filter_lfc
+  
+  dataList$dataFrameMeasurements[
+    , dataList$lfcColumnNameFunctionFromName(sampleClasses[[1]], sampleClasses[[2]])] >= test_lfc
+  
+}
+
+#' Create a filterObject for console use
+#' 
+#' Mixes code from filterData() and doPerformFiltering_impl() to provide
+#' a simple way to create a compatible filterObj in a script.
+#' 
+#' doPerformFiltering_impl() relies on a DataList in the global environment, 
+#' so it can't be used in a script.
+#'
+#' @param dataList list object
+#' @param filter_average numeric
+#' @param filter_lfc numeric
+#' @param sampleClasses character vector
+#'
+#' @returns filterObject
+#' @export
+makeFilterObj <- function(dataList, filter_average = NULL, filter_lfc = NULL, sampleClasses = NULL) {
+  
+  if(is.null(sampleClasses)) sampleClasses <- dataList$sampleClasses
+  sampleSet <- dataList$groupSampleDataFrame$Sample
+  
+  filterHere <- filterData(
+    dataList, sampleClasses = dataList$sampleClasses, 
+    sampleSet = sampleSet, filterBySamples = FALSE,
+    filter_average = filter_average, filter_lfc = filter_lfc,
+    filterList_ms2_masses = NULL, filter_ms2_ppm = NULL, 
+    filter_ms1_masses = NULL, filter_ms1_ppm = NULL, 
+    includeIgnoredPrecursors = FALSE, progress = FALSE)
+  
+  # gp: the rest is brute force to reproduce saved filterObj
+  filterHere$filter <- filterHere$filter %>% purrr::set_names(dataList$precursorLabels[.])
+  
+  filterHere$groupSetOriginal <- sampleClasses
+  filterHere$sampleSetOriginal <- sampleSet
+  filterHere$filterBySamplesOriginal <- FALSE
+  
+  filterHere$filter_averageOriginal <- if(is.null(filter_average)) 0 else as.character(filter_average)
+  filterHere$filter_lfcOriginal <- if (is.null(filter_lfc)) 0 else as.character(filter_lfc)
+  
+  filterHere$filter_ms2_masses1Original <- list()
+  filterHere$filter_ms2_masses2Original <- list()
+  filterHere$filter_ms2_masses3Original <- list()
+  filterHere$filter_ms2_ppmOriginal <- ""
+  filterHere$filter_ms1_massesOriginal <- list()
+  filterHere$filter_ms1_ppmOriginal <- ""
+  
+  filterHere$includeIgnoredPrecursorsOriginal <- FALSE
+  
+  filterHere
+  
+}
+
+
+#' Filter a dataList
+#'
+#' @param dataList List object
+#' @param sampleClasses sample class
+#' @param sampleSet ?
+#' @param filterBySamples boolean
+#' @param filter_average numeric Features that have a mean intensity below that threshold are filtered out.
+#' @param filter_lfc numeric Log-fold-change threshold between two treatments. Only implement when exactly two groups are present.
+#' @param filterList_ms2_masses ?
+#' @param filter_ms2_ppm ?
+#' @param filter_ms1_masses ?
+#' @param filter_ms1_ppm ?
+#' @param includeIgnoredPrecursors boolean
+#' @param progress boolean
+#'
+#' @returns A filtered dataList object
+#' @export
+filterData <- function(dataList, sampleClasses, sampleSet = NULL, filterBySamples = FALSE, filter_average = NULL,
+                       filter_lfc = NULL, filterList_ms2_masses = NULL, filter_ms2_ppm = NULL, 
+                       filter_ms1_masses = NULL, filter_ms1_ppm = NULL, 
+                       includeIgnoredPrecursors = FALSE, progress = FALSE){
+  
   ## filter
   filter <- rep(x = TRUE, times = dataList$numberOfPrecursors)
   
   ## filter_average
   if(!is.null(filter_average)){
-    #print("this is entering the line 11")
-    #if(filterBySamples){
-    #  filter <- filter & apply(X = as.data.frame(dataList$dataFrameMeasurements[, sapply(X = as.vector(grouXXXps), FUN = dataList$dataMeanColumnNameFunctionFromName)]), MARGIN = 1, FUN = mean) >= filter_average
-    #} else {
-      filter <- filter & apply(X = as.data.frame(dataList$dataFrameMeasurements[, sapply(X = as.vector(grouXXXps), FUN = dataList$dataMeanColumnNameFunctionFromName)]), MARGIN = 1, FUN = mean) >= filter_average
-      #print(filter)
-      #print(names(filter)[unname(filter)])
-    #}
+    # CHECK gp: Does it need to consider filterBySamples?
+    filter <- filter & filterThreshold(dataList, filter_average, sampleClasses)
   }
   
   ## filter_lfc
   if(!is.null(filter_lfc)){
+    # CHECK gp: strange condition, leaving it for now
     if(filter_lfc != 0){
-      if(length(grouXXXps) != 2){  stop("The number of grouXXXps for LFC is not equal to two!") }
-      if(filter_lfc > 0)
-        filter <- filter & dataList$dataFrameMeasurements[, dataList$lfcColumnNameFunctionFromName(grouXXXps[[1]], grouXXXps[[2]])] >= filter_lfc
-      else
-        filter <- filter & dataList$dataFrameMeasurements[, dataList$lfcColumnNameFunctionFromName(grouXXXps[[1]], grouXXXps[[2]])] <= filter_lfc
+      filter <- filter & filterLFC(dataList, filter_lfc, sampleClasses)
     }
   }
   
   ## filter_ms2_masses, filter_ms2_ppm
-  if(!is.null(filterList_ms2_masses) & !is.null(filter_ms2_ppm) & length(filterList_ms2_masses) > 0){
+  if(!is.null(filterList_ms2_masses) && !is.null(filter_ms2_ppm) && length(filterList_ms2_masses) > 0){
     error <- abs(dataList$fragmentMasses) * filter_ms2_ppm / 1E6
     filterFragmentLists <- rep(x = FALSE, times = dataList$numberOfPrecursors)
+    # BUG filter_ms2_masses not defined anywhere!!!
     for(filter_ms2_masses in filterList_ms2_masses){
       filterTempFragmentList <- rep(x = TRUE, times = dataList$numberOfPrecursors)
       for(fragmentIndex in seq_len(length(filter_ms2_masses))){
@@ -56,7 +161,7 @@ filterData <- function(dataList, grouXXXps, sampleSet, filterBySamples, filter_a
   }
   
   ## filter_ms1_masses, filter_ms1_ppm
-  if(!is.null(filter_ms1_masses) & !is.null(filter_ms1_ppm) & length(filter_ms1_masses) > 0){
+  if(!is.null(filter_ms1_masses) && !is.null(filter_ms1_ppm) && length(filter_ms1_masses) > 0){
     precursorMasses <- as.numeric(dataList$dataFrameInfos$"m/z")
     error <- precursorMasses * filter_ms1_ppm / 1E6
     
@@ -71,8 +176,9 @@ filterData <- function(dataList, grouXXXps, sampleSet, filterBySamples, filter_a
   }
   
   ## include ignored precursors
-  if(!includeIgnoredPrecursors)
+  if(!includeIgnoredPrecursors) {
     filter <- filter & !dataList$annoArrayIsArtifact
+  }
   
   filter <- which(filter)
   
@@ -80,16 +186,18 @@ filterData <- function(dataList, grouXXXps, sampleSet, filterBySamples, filter_a
   resultObj$filter <- filter
   resultObj$numberOfPrecursors <- dataList$numberOfPrecursors
   resultObj$numberOfPrecursorsFiltered <- length(filter)
-  if(is.null(grouXXXps)){
-    resultObj$grouXXXps    <- list()
+  
+  if(is.null(sampleClasses)){
+    resultObj$sampleClasses    <- list()
     resultObj$sampleSet <- list()
     resultObj$filterBySamples <- NA
   } else {
-    resultObj$grouXXXps    <- grouXXXps
+    resultObj$sampleClasses    <- sampleClasses
     resultObj$sampleSet <- sampleSet
     resultObj$filterBySamples <- filterBySamples
   }
-  #resultObj$grouXXXps                   <- ifelse(test = is.null(grouXXXps),                   yes = NA, no = grouXXXps)
+  
+  #resultObj$sampleClasses                   <- ifelse(test = is.null(sampleClasses),                   yes = NA, no = sampleClasses)
   resultObj$filter_average           <- ifelse(test = is.null(filter_average),           yes = 0, no = filter_average)
   resultObj$filter_lfc               <- ifelse(test = is.null(filter_lfc),               yes = 0, no = filter_lfc)
   if(is.null(filterList_ms2_masses)){
@@ -110,6 +218,43 @@ filterData <- function(dataList, grouXXXps, sampleSet, filterBySamples, filter_a
   
   return (resultObj)
 }
+
+#' Calculate a distance matrix between MS/MS spectra in the MetFamily feature Matrix
+#'
+#' Computes a distance matrix between MS/MS spectra in the feature matrix representation using
+#' various distance or similarity measures.
+#' The function supports multiple distance metrics, of which the following are also available 
+#' in the MetFamily GUI: "Jaccard", "Jaccard (intensity-weighted)", "Jaccard (fragment-count-weighted)"
+#' and "NDP (Normalized dot product)". The following list defines the metrics and their characteristics:
+#'
+#' - "Jaccard": Jaccard distance \eqn{1 - |A \cap B| / |A \cup B|}: the fraction of matching fragments among all fragments,
+#'   where A and B are MS/MS features of two different precursors.
+#'
+#' - "Jaccard (intensity-weighted)": Jaccard distance weighted by the intensity of 
+#'   features. First, intensities are discretized: [0.01-0.2[ are set down to 0.01, [0.2, 0.4[ down to 0.2, 
+#'   and >= 0.4 increased to 1. For matching fragments the higher intensity is used. Then, Jacard becomes the sum of matching intensities among the sum of all intensities in A and B.
+#'   \eqn{1 - \sum_{i\in matches} max(A_i, B_i) / (sum(A) + sum(B))}
+#'
+#' - "Jaccard (fragment-count-weighted)": Jaccard distance weighted by relative occurance of the fragments among the precursors after filtering
+#'   counts: \eqn{1 - \sum_{i\in matches} freq(A_i) / (sum_{\notin matches} freq(A) + sum_{\notin matches}(B))}
+#'
+#' - "NDP (Normalized dot product)": Normalized dot product similarity: \eqn{NDP = \frac{\left( \sum_{i}^{\text{S1\&S2}} W_{\text{S1},i} W_{\text{S2},i} \right)^2}{\sum_i W_{\text{S1},i}^2 \sum_i W_{\text{S2},i}^2}}
+#'   as described in Gaquerel et al. 2015. (10.1073/pnas.1610218113)[https://www.pnas.org/doi/10.1073/pnas.1610218113#sec-4-5]
+#'
+#' @param dataList List object containing precursor, feature and MS/MS data.
+#' @param filter Logical or integer vector indicating for which precursors to include the MS/MS spectra.
+#' @param distanceMeasure Character string specifying the distance metric to use.
+#'        Supported values include "Jaccard", "Manhatten", "NDP (Normalized dot product)", and others.
+#' @param progress Logical or NA. If TRUE, progress is reported via incProgress().
+#'
+#' @return A list with elements:
+#'   \describe{
+#'     \item{distanceMatrix}{A numeric matrix of pairwise distances.}
+#'     \item{filter}{The filter vector used, same as the input parameter.}
+#'     \item{distanceMeasure}{The distance metric used, same as the input parameter.}
+#'   }
+#' @export
+
 calculateDistanceMatrix <- function(dataList, filter, distanceMeasure = "Jaccard", progress = FALSE){
   numberOfPrecursors <- length(filter)
   
@@ -132,16 +277,12 @@ calculateDistanceMatrix <- function(dataList, filter, distanceMeasure = "Jaccard
                lastPrecursor <- i
                if(!is.na(progress))  if(progress)  incProgress(amount = precursorProgress,     detail = paste("Distance ", i, " / ", numberOfPrecursors, sep = "")) else print(paste("Distance ", i, " / ", numberOfPrecursors, sep = ""))
              }
-             #if(numberOfPrecursors >= 10 & ((i %% (as.integer(numberOfPrecursors/10))) == 0))
-             #  if(progress)  incProgress(amount = 1 / 10, detail = paste("Distances ", i, " / ", numberOfPrecursors, sep = ""))
+
              for(j in seq_len(numberOfPrecursors)){
                if(i == j){
                  distanceMatrix[i, j] <- 0
                  next
                }
-               
-               #distanceMatrix[i, j] <- 1 - length(which(featureMatrixBinary[i, ] & featureMatrixBinary[j, ])) / length(which(featureMatrixBinary[i, ] | featureMatrixBinary[j, ]))
-               #distanceMatrix[i, j] <- 1 - sum(featureMatrixBinary[i, ] & featureMatrixBinary[j, ]) / sum(featureMatrixBinary[i, ] | featureMatrixBinary[j, ])
                
                intersectionCount <- sum(featureIndeces[[i]] %in% featureIndeces[[j]])
                distanceMatrix[i, j] <- 1 - intersectionCount / (length(featureIndeces[[i]]) + length(featureIndeces[[j]]) - intersectionCount)
@@ -219,7 +360,7 @@ calculateDistanceMatrix <- function(dataList, filter, distanceMeasure = "Jaccard
              onlyJs[is.na(onlyJs)] <- FALSE
              
              sumOnlyIs  <- apply(X = onlyIs, MARGIN = 2, FUN = function(x){ sum(featureMatrix[i, ] & x) })
-             #sumOnlyIs <- apply(X = onlyIs, MARGIN = 2, FUN = function(x){ sum(featureMatrix[i, x]) })
+
              featureMatrix2 <- featureMatrix
              featureMatrix2[!t(onlyJs)] <- 0
              sumOnlyJs <- apply(X = featureMatrix2, MARGIN = 1, FUN = sum )
@@ -247,22 +388,6 @@ calculateDistanceMatrix <- function(dataList, filter, distanceMeasure = "Jaccard
            featureMatrix[featureMatrix <  0.4 & featureMatrix >= 0.20] <- 0.2
            featureMatrix[featureMatrix >= 0.4] <- 1
            featureMatrix <- as.matrix(featureMatrix)
-           # intensityMapping <- function(x){
-           #   if(x == 0){
-           #     ## x = 0
-           #     return(0)
-           #   } else if(x < 0.2){
-           #     ## 0 <= x < 0.2
-           #     return(0.01)
-           #   } else if(x < 0.4){
-           #     ## 0.2 <= x < 0.4
-           #     return(0.2)
-           #   } else {
-           #     ## 0.4 <= x <= Inf
-           #     return(1)
-           #   }
-           # }
-           # intensityMapping <- Vectorize(FUN = intensityMapping, vectorize.args = "x")
            
            distanceMatrix <- matrix(nrow = numberOfPrecursors, ncol = numberOfPrecursors)
            for(i in seq_len(numberOfPrecursors)){
@@ -284,7 +409,7 @@ calculateDistanceMatrix <- function(dataList, filter, distanceMeasure = "Jaccard
                
                if(length(intersection) == 0){
                  ## max distance
-                 distance <- 1#sumOnlyI + sumOnlyJ
+                 distance <- 1 # sumOnlyI + sumOnlyJ
                } else {
                  onlyI <- featureIndeces[[i]][!featureIndeces[[i]] %in% featureIndeces[[j]]]
                  onlyJ <- featureIndeces[[j]][!featureIndeces[[j]] %in% featureIndeces[[i]]]
@@ -300,78 +425,8 @@ calculateDistanceMatrix <- function(dataList, filter, distanceMeasure = "Jaccard
                    sumOnlyJ <- sum(featureMatrix[j, onlyJ, drop = FALSE])
                  }
                  
-                 #maxIntensity <- apply(X = as.matrix(featureMatrix[c(i, j), intersection, drop = FALSE]), MARGIN = 2, FUN = max)
                  maxIntensity <- apply(X = featureMatrix[c(i, j), intersection, drop = FALSE], MARGIN = 2, FUN = max)
-                 #maxIntensity <- featureMatrix[i, intersection]
                  intersectionSum <- sum(maxIntensity)
-                 unionSum <- intersectionSum + sumOnlyI + sumOnlyJ
-                 distance <- 1 - intersectionSum / unionSum
-               }
-               
-               distanceMatrix[i, j] <- distance
-             }
-           }
-         },
-         "Jaccard (intensity-weighted map) saveOld"={
-           ## intersection i and j: featureIndeces[[i]][featureIndeces[[i]] %in% featureIndeces[[j]]]
-           ## diff i - j: featureIndeces[[i]][!featureIndeces[[i]] %in% featureIndeces[[j]]]
-           ## diff j - i: featureIndeces[[j]][!featureIndeces[[j]] %in% featureIndeces[[i]]]
-           ## union i or j: c(featureIndeces[[i]][!featureIndeces[[i]] %in% featureIndeces[[j]]], featureIndeces[[j]])
-           featureIndeces <- dataList$featureIndeces[filter]
-           featureMatrix <- dataList$featureMatrix[filter, ]
-           intensityMapping <- function(x){
-             if(x == 0){
-               ## x = 0
-               return(0)
-             } else if(x < 0.2){
-               ## 0 <= x < 0.2
-               return(0.01)
-             } else if(x < 0.4){
-               ## 0.2 <= x < 0.4
-               return(0.2)
-             } else {
-               ## 0.4 <= x <= Inf
-               return(1)
-             }
-           }
-           intensityMapping <- Vectorize(FUN = intensityMapping, vectorize.args = "x")
-           
-           distanceMatrix <- matrix(nrow = numberOfPrecursors, ncol = numberOfPrecursors)
-           for(i in seq_len(numberOfPrecursors)){
-             time <- proc.time()["user.self"]
-             if(time - lastOut > 1){
-               lastOut <- time
-               precursorProgress <- (i - lastPrecursor) / numberOfPrecursors
-               lastPrecursor <- i
-               if(!is.na(progress))  if(progress)  incProgress(amount = precursorProgress,     detail = paste("Distance ", i, " / ", numberOfPrecursors, sep = "")) else print(paste("Distance ", i, " / ", numberOfPrecursors, sep = ""))
-             }
-             for(j in seq_len(numberOfPrecursors)){
-               if(i == j){
-                 distanceMatrix[i, j] <- 0
-                 next
-               }
-               
-               intersection <- featureIndeces[[i]][featureIndeces[[i]] %in% featureIndeces[[j]]]
-               
-               if(length(intersection) == 0){
-                 distance <- 1#sumOnlyI + sumOnlyJ
-               } else {
-                 onlyI <- featureIndeces[[i]][!featureIndeces[[i]] %in% featureIndeces[[j]]]
-                 onlyJ <- featureIndeces[[j]][!featureIndeces[[j]] %in% featureIndeces[[i]]]
-                 
-                 if(length(onlyI) == 0){
-                   sumOnlyI <- 0
-                 } else {
-                   sumOnlyI <- sum(sapply(X = featureMatrix[i, onlyI], FUN = intensityMapping))
-                 }
-                 if(length(onlyJ) == 0){
-                   sumOnlyJ <- 0
-                 } else {
-                   sumOnlyJ <- sum(sapply(X = featureMatrix[j, onlyJ], FUN = intensityMapping))
-                 }
-                 
-                 maxIntensity <- apply(X = as.matrix(featureMatrix[c(i, j), intersection]), MARGIN = 2, FUN = max)
-                 intersectionSum <- sum(sapply(X = maxIntensity, FUN = intensityMapping))
                  unionSum <- intersectionSum + sumOnlyI + sumOnlyJ
                  distance <- 1 - intersectionSum / unionSum
                }
@@ -552,7 +607,6 @@ calculateDistanceMatrix <- function(dataList, filter, distanceMeasure = "Jaccard
                }
                
                intersection    <- featureIndeces[[i]][featureIndeces[[i]] %in% featureIndeces[[j]]]
-               #intersection    <- intersect(x = featureIndeces[[i]], y = featureIndeces[[j]])
                intersectionSum <- sum(sqrt(featureMatrix[i, intersection]) * dataList$fragmentMasses[intersection]^2 * sqrt(featureMatrix[j, intersection]) * dataList$fragmentMasses[intersection]^2)^2
                iSum            <- sum((sqrt(featureMatrix[i, featureIndeces[[i]]]) * dataList$fragmentMasses[featureIndeces[[i]]]^2)^2)
                jSum            <- sum((sqrt(featureMatrix[j, featureIndeces[[j]]]) * dataList$fragmentMasses[featureIndeces[[j]]]^2)^2)
@@ -576,22 +630,19 @@ calculateDistanceMatrix <- function(dataList, filter, distanceMeasure = "Jaccard
   
   return(returnObj)
 }
+
+#' Create cluster object
+#'
+#' @param dataList 
+#' @param filterObj 
+#' @param distanceMatrix 
+#' @param method 
+#' @param distanceMeasure 
+#' @param progress 
+#'
+#' @returns clusterDataList object
+#' @export
 calculateCluster <- function(dataList, filterObj, distanceMatrix, method, distanceMeasure, progress = FALSE){
-  
-  if(FALSE){
-    dataList_ <<- dataList
-    filterObj_ <<- filterObj
-    distanceMatrix_ <<- distanceMatrix
-    method_ <<- method
-    distanceMeasure_ <<- distanceMeasure
-  }
-  if(FALSE){
-    dataList <- dataList_
-    filterObj <- filterObj_
-    distanceMatrix <- distanceMatrix_
-    method <- method_
-    distanceMeasure <- distanceMeasure_
-  }
   
   numberOfPrecursorsFiltered <- length(filterObj$filter)
   ##########################################
@@ -699,14 +750,16 @@ calculateCluster <- function(dataList, filterObj, distanceMatrix, method, distan
   ##########################################
   ## calculate ms2 spectra
   if(!is.na(progress))  if(progress)  incProgress(amount = 0.1, detail = "Calculate spectrum information for leaves")
-  ms2spectrumInfoForLeaves <<- list()
-  for(leafIdx in seq_len(numberOfPrecursorsFiltered))
+  ms2spectrumInfoForLeaves <- list()
+  for(leafIdx in seq_len(numberOfPrecursorsFiltered)) {
     ms2spectrumInfoForLeaves[[leafIdx]] <- getMS2spectrumInfoForPrecursorLeaf(dataList, clusterDataList, treeLabel = -leafIdx, outAdductWarning = FALSE)
+  }
   
   if(!is.na(progress))  if(progress)  incProgress(amount = 0.1, detail = "Calculate consensus spectra for clusters")
-  ms2spectrumInfoForClusters <<- list()
-  for(clusterIdx in seq_len(numberOfInnerNodes))
+  ms2spectrumInfoForClusters <- list()
+  for(clusterIdx in seq_len(numberOfInnerNodes)) {
     ms2spectrumInfoForClusters[[clusterIdx]] <- getMS2spectrumInfoForCluster(dataList, clusterDataList, treeLabel = clusterIdx)
+  }
   
   ## calculate cluster discriminativity
   if(!is.na(progress))  if(progress)  incProgress(amount = 0.1, detail = "Calculate cluster discriminativity")
@@ -729,6 +782,8 @@ calculateCluster <- function(dataList, filterObj, distanceMatrix, method, distan
   
   return(clusterDataList)
 }
+
+
 preprocessDataForPca <- function(dataFrame, scaling, logTransform){
   
   if(logTransform){
@@ -770,25 +825,23 @@ preprocessDataForPca <- function(dataFrame, scaling, logTransform){
   
   return(dataFrame2)
 }
-minimumNumberOfComponents <- 5
+
+#' Run PCA
+#'
+#' @param dataList List object 
+#' @param dataFrame2 
+#' @param ms1AnalysisMethod 
+#'
+#' @returns A PCA list object
+#' @export
 performPca <- function(dataList, dataFrame2, ms1AnalysisMethod){
   
   print("######################################################################################")
   print(ms1AnalysisMethod)
   
-  if(FALSE){
-    dataFrame2_ <<- dataFrame2
-    ms1AnalysisMethod_ <<- ms1AnalysisMethod
-    dataList_ <<- dataList
-  }
-  if(FALSE){
-    dataFrame2 <- dataFrame2_
-    ms1AnalysisMethod <- ms1AnalysisMethod_
-    dataList <- dataList_
-  }
-  
-  
+ 
   ## TODO pcaMethods confidence intervals analog to MetaboAnalyst: pcaMethods:::simpleEllipse
+  minimumNumberOfComponents <- 5
   numberOfComponents <- min(minimumNumberOfComponents, nrow(dataFrame2))
   
   returnObj <- list()
@@ -859,11 +912,11 @@ performPca <- function(dataList, dataFrame2, ms1AnalysisMethod){
            returnObj$variance <- pca@sDev
            
            returnObj$R2 <- pca@R2
-           #returnObj$Q2 <- Q2(object = pca, fold=2)
+           #returnObj$Q2 <- pcaMethods::Q2(object = pca, fold=2)
            returnObj$Q2 <- tryCatch(
              {
                #Q2(object = pca, fold=2)
-               Q2(object = pca, verbose = FALSE)
+               pcaMethods::Q2(object = pca, verbose = FALSE)
              },
              error=function(cond) {
                rep(x = "N/A", times = numberOfComponents)
@@ -881,6 +934,12 @@ performPca <- function(dataList, dataFrame2, ms1AnalysisMethod){
          },
          "mixOmics_spca"={
            ## pca from "mixOmics" package
+           
+           # FIX error: 
+           # Error in mixOmics::spca: (converted from warning) data
+           # contain missing values which will be set to zero for calculations.
+           # Consider using center = TRUE for better performance, or impute
+           # missing values using 'impute.nipals' function.
            pca = mixOmics::spca(X = dataFrame2, ncomp = numberOfComponents, center = FALSE, scale = FALSE)
            returnObj$scores   <- pca$variates[[1]]
            returnObj$loadings <- pca$loadings[[1]]
@@ -888,8 +947,8 @@ performPca <- function(dataList, dataFrame2, ms1AnalysisMethod){
            #returnObj$R2 <- 
            #returnObj$Q2 <- 
            
-           #performance <- perf(pca, validation = "loo", progressBar = FALSE)
-           #val <- perf(pca, criterion = c("R2", "Q2"))
+           #performance <- mixOmics::perf(pca, validation = "loo", progressBar = FALSE)
+           #val <- mixOmics::perf(pca, criterion = c("R2", "Q2"))
            
          },
          "mixOmics_plsda"={
@@ -908,12 +967,12 @@ performPca <- function(dataList, dataFrame2, ms1AnalysisMethod){
            returnObj$loadings <- pca$loadings[[1]]
            returnObj$variance <- pca$explained_variance$X
            
-           #performance <- perf(pca, validation = "loo", progressBar = FALSE)
+           #performance <- mixOmics::perf(pca, validation = "loo", progressBar = FALSE)
            #performance$choice.ncomp
            
            if(FALSE){## R2 and Q2?
-             performance <- perf(pca, validation = "Mfold", folds = 2, progressBar = FALSE, tol = 1e-20)
-             performance <- perf(pca, validation = "loo", progressBar = FALSE, tol = 1e-20)
+             performance <- mixOmics::perf(pca, validation = "Mfold", folds = 2, progressBar = FALSE, tol = 1e-20)
+             performance <- mixOmics::perf(pca, validation = "loo", progressBar = FALSE, tol = 1e-20)
              
              pca = mixOmics::pca(X = dataFrame2, ncomp = numberOfComponents, center = FALSE, scale = FALSE)
              loadings <- pca$loadings[[1]]
@@ -933,9 +992,9 @@ performPca <- function(dataList, dataFrame2, ms1AnalysisMethod){
              returnObj$loadings <- pca$loadings[[1]]
              returnObj$variance <- pca$explained_variance
              
-             performance <- perf(pca, validation = "Mfold", folds = 2, progressBar = FALSE, tol = 1e-20)
-             performance <- perf(pca, validation = "loo", progressBar = FALSE)
-             perf(pca, validation = "loo", progressBar = FALSE)
+             performance <- mixOmics::perf(pca, validation = "Mfold", folds = 2, progressBar = FALSE, tol = 1e-20)
+             performance <- mixOmics::perf(pca, validation = "loo", progressBar = FALSE)
+             mixOmics::perf(pca, validation = "loo", progressBar = FALSE)
            }
            
            #returnObj$R2 <- performance$R2
@@ -974,7 +1033,7 @@ performPca <- function(dataList, dataFrame2, ms1AnalysisMethod){
   #.. ..$ : chr [1:5] "Dim.1" "Dim.2" "Dim.3" "Dim.4" ...
   #$ variance: num [1:18] 35.96 21.67 11.66 8.15 4.56 ...
   #
-  ## artificial data two grouXXXps
+  ## artificial data two sampleClasses
   #$ scores  : num [1:2, 1] 0 0
   #..- attr(*, "dimnames")=List of 2
   #.. ..$ : chr [1:2] "A_1" "B_2"
@@ -1034,27 +1093,24 @@ leaveOneOutCrossValidation_plsda <- function(dataFrame2, groupLabels, numberOfCo
   
   return(accurracyContribution_comp)
 }
+
+#' Calculate PCA
+#'
+#' @param dataList listObject
+#' @param filterObj filterObject
+#' @param ms1AnalysisMethod 
+#' @param scaling 
+#' @param logTransform 
+#'
+#' @returns PCA object
+#' @export
 calculatePCA <- function(dataList, filterObj, ms1AnalysisMethod, scaling, logTransform){
-  if(FALSE){
-    dataList_ <<- dataList
-    filterObj_ <<- filterObj
-    ms1AnalysisMethod_ <<- ms1AnalysisMethod
-    scaling_ <<- scaling
-    logTransform_ <<- logTransform
-  }
-  if(FALSE){
-    dataList <<- dataList_
-    filterObj <<- filterObj_
-    ms1AnalysisMethod <<- ms1AnalysisMethod_
-    scaling <<- scaling_
-    logTransform <<- logTransform_
-  }
-  
+
   ## data selection
   if(filterObj$filterBySamples){
     dataFrame <- dataList$dataFrameMeasurements[filterObj$filter, filterObj$sampleSet]
   } else {
-    dataFrame <- dataList$dataFrameMeasurements[filterObj$filter, dataList$dataColumnsNameFunctionFromGroupNames(grouXXXps = filterObj$grouXXXps, sampleNamesToExclude = dataList$excludedSamples(dataList$groupSampleDataFrame))]
+    dataFrame <- dataList$dataFrameMeasurements[filterObj$filter, dataList$dataColumnsNameFunctionFromGroupNames(sampleClasses = filterObj$sampleClasses, sampleNamesToExclude = dataList$excludedSamples(dataList$groupSampleDataFrame))]
   }
   dataFrame <- t(dataFrame)
   

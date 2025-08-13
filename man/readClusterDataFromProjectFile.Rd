@@ -18,5 +18,5 @@ A big dataList.
 Supports reading from plain and gzip'ed files
 }
 \seealso{
-[readProjectData]
+\link{readProjectData}
 }

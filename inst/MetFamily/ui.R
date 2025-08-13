@@ -1,41 +1,21 @@
 
-library(htmltools)
-library(shiny)
-library(shinyBS)
-library(shinyjs)
-library(DT)
+## constants
+minimumProportionOfLeafs <<- 0.75
+minimumProportionToShowFragment <<- 0.5
+crashButton = T
 
-ipbfooter <- HTML(readLines("www/ipbfooter.html"))
 
-importParameterSetInit <- list(
-  minimumIntensityOfMaximalMS2peak = 2000,
-  minimumProportionOfMS2peaks = 0.05,
-  neutralLossesPrecursorToFragments = TRUE,
-  neutralLossesFragmentsToFragments = FALSE,
-  mzDeviationAbsolute_grouping = 0.01,
-  mzDeviationInPPM_grouping = 10,
-  showImportParametersAdvanced = FALSE,
-  doPrecursorDeisotoping = TRUE,
-  mzDeviationAbsolute_precursorDeisotoping = 0.01,
-  mzDeviationInPPM_precursorDeisotoping = 10,
-  maximumRtDifference = 0.05,
-  doMs2PeakGroupDeisotoping = TRUE,
-  mzDeviationAbsolute_ms2PeakGroupDeisotoping = 0.01,
-  mzDeviationInPPM_ms2PeakGroupDeisotoping = 10
-)
-
-#shinyUI(
- # ui = fluidPage(titlePanel(ipbheader),
-#                 # IPB header 
- #                tags$head(tags$link(rel = "stylesheet", type = "text/css", 
-#                                     href = "css/ipb-styles.css")),
-#                 navbarPage(title = "MetFamily", 
-
+# shinyUI(
+#   ui = fluidPage(titlePanel(ipbheader),
+#                  # IPB header
+#                  tags$head(tags$link(rel = "stylesheet", type = "text/css",
+#                                      href = "css/ipb-styles.css")),
+#                  navbarPage(title = "MetFamily",
 
 shinyUI(
     ui =  navbarPage(title = div(img(src='img/Metfamily.gif',style="margin-top: -14px; padding-right:10px;padding-bottom:10px", height = 60)),
                      windowTitle="MetFamily",
-                     footer = ipbfooter,
+                     footer = HTML(readLines("www/ipbfooter.html")),
                     
     ##########################################################################################
     ##########################################################################################
@@ -120,7 +100,7 @@ shinyUI(
                   fluidRow(
                     column(width = 6,
                            bsTooltip(id = "loadProjectData", title = "Press to load the selected project file", placement = "bottom", trigger = "hover"),
-                           disabled(actionButton(inputId = "loadProjectData", label = "Load project data", class="btn-success", width = "100%"))
+                           shinyjs::disabled(actionButton(inputId = "loadProjectData", label = "Load project data", class="btn-success", width = "100%"))
                     ),##column
                     column(width = 6
                            
@@ -164,33 +144,33 @@ shinyUI(
                     fluidRow(
                       column(width = 6,
                              bsTooltip(id = "minimumIntensityOfMaximalMS2peak", title = "A MS/MS spectrum is considered iff the MS/MS feature with maximum intensity is greater or equal than this value", placement = "bottom", trigger = "hover"),
-                             textInput(inputId = "minimumIntensityOfMaximalMS2peak", label = "Min. spectrum intensity", value = importParameterSetInit$minimumIntensityOfMaximalMS2peak)
+                             textInput(inputId = "minimumIntensityOfMaximalMS2peak", label = "Min. spectrum intensity", value = importParameterSetInit()$minimumIntensityOfMaximalMS2peak)
                       ),##column
                       column(width = 6,
                              bsTooltip(id = "minimumProportionOfMS2peaks", title = "A MS/MS feature is considered iff the intensity is greater or equal than the maximum intensity times this value", placement = "bottom", trigger = "hover"),
-                             textInput(inputId = "minimumProportionOfMS2peaks", label = "MS/MS peak proportion", value = importParameterSetInit$minimumProportionOfMS2peaks)
+                             textInput(inputId = "minimumProportionOfMS2peaks", label = "MS/MS peak proportion", value = importParameterSetInit()$minimumProportionOfMS2peaks)
                       )##column
                     ),##row
                     h5("Neutral losses"),
                     fluidRow(
                       column(width = 6,
                              bsTooltip(id = "neutralLossesPrecursorToFragments", title = "Include neutral losses relative to the precursor ion, i.e. the m/z difference between the m/z of the precursor ion and the m/z of each fragment ion of the corresponding MS/MS spectrum", placement = "bottom", trigger = "hover"),
-                             checkboxInput(inputId = "neutralLossesPrecursorToFragments", label = "Fragment vs. precursor", value = importParameterSetInit$neutralLossesPrecursorToFragments)
+                             checkboxInput(inputId = "neutralLossesPrecursorToFragments", label = "Fragment vs. precursor", value = importParameterSetInit()$neutralLossesPrecursorToFragments)
                       ),##column
                       column(width = 6,
                              bsTooltip(id = "neutralLossesFragmentsToFragments", title = "Include neutral losses amongst fragment ions, i.e. the m/z difference between the m/z of all pairs of fragment ions within each MS/MS spectrum; this involves the incorporation of potentially nonexistent neutral losses and needs more time for processing", placement = "bottom", trigger = "hover"),
-                             checkboxInput(inputId = "neutralLossesFragmentsToFragments", label = "Fragment vs. fragment", value = importParameterSetInit$neutralLossesFragmentsToFragments)
+                             checkboxInput(inputId = "neutralLossesFragmentsToFragments", label = "Fragment vs. fragment", value = importParameterSetInit()$neutralLossesFragmentsToFragments)
                       )##column
                     ),##row
                     h5("Fragment grouping"),
                     fluidRow(
                       column(width = 6,
                              bsTooltip(id = "mzDeviationAbsolute_grouping", title = "A MS/MS feature is added to a fragment group if the absolute m/z difference is smaller or equal than this value", placement = "bottom", trigger = "hover"),
-                             textInput(inputId = "mzDeviationAbsolute_grouping", label = "m/z deviation (abs.)", value = importParameterSetInit$mzDeviationAbsolute_grouping)
+                             textInput(inputId = "mzDeviationAbsolute_grouping", label = "m/z deviation (abs.)", value = importParameterSetInit()$mzDeviationAbsolute_grouping)
                       ),##column
                       column(width = 6,
                              bsTooltip(id = "mzDeviationInPPM_grouping", title = "A MS/MS feature is added to a fragment group if the absolute m/z difference is smaller or equal than the m/z times this value divided by 1,000,000 (<b>p</b>arts <b>p</b>er <b>m</b>illion)", placement = "bottom", trigger = "hover"),
-                             textInput(inputId = "mzDeviationInPPM_grouping", label = "m/z deviation (PPM)", value = importParameterSetInit$mzDeviationInPPM_grouping)
+                             textInput(inputId = "mzDeviationInPPM_grouping", label = "m/z deviation (PPM)", value = importParameterSetInit()$mzDeviationInPPM_grouping)
                       )##column
                     ),##row
                     fluidRow(
@@ -210,35 +190,35 @@ shinyUI(
                       condition = "input.showImportParametersAdvanced",
                       h5("MS\u00B9 feature deisotoping"),
                       bsTooltip(id = "doPrecursorDeisotoping", title = "If checked, the set of MS\u00B9 features is deisotoped", placement = "bottom", trigger = "hover"),
-                      checkboxInput(inputId = "doPrecursorDeisotoping", label = "MS\u00B9 feature deisotoping", value = importParameterSetInit$doPrecursorDeisotoping),
+                      checkboxInput(inputId = "doPrecursorDeisotoping", label = "MS\u00B9 feature deisotoping", value = importParameterSetInit()$doPrecursorDeisotoping),
                       conditionalPanel(
                         condition = "input.doPrecursorDeisotoping",
                         fluidRow(
                           column(width = 6,
                                  bsTooltip(id = "mzDeviationAbsolute_precursorDeisotoping", title = "A MS\u00B9 feature is considered an +1 isotopic peak if the absolute of the m/z difference to the (putative) monoisotopic peak minus 1.0033548378 (=<sup>13</sup>C - <sup>12</sup>C) is smaller or equal than this value (analog for the +2 isotopic peak)", placement = "bottom", trigger = "hover"),
-                                 textInput(inputId = "mzDeviationAbsolute_precursorDeisotoping", label = "m/z deviation (abs.)", value = importParameterSetInit$mzDeviationAbsolute_precursorDeisotoping)
+                                 textInput(inputId = "mzDeviationAbsolute_precursorDeisotoping", label = "m/z deviation (abs.)", value = importParameterSetInit()$mzDeviationAbsolute_precursorDeisotoping)
                           ),##column
                           column(width = 6,
                                  bsTooltip(id = "mzDeviationInPPM_precursorDeisotoping", title = "A MS\u00B9 feature is considered an +1 isotopic peak if the absolute of the m/z difference to the (putative) monoisotopic peak minus 1.0033548378 (=<sup>13</sup>C - <sup>12</sup>C) is smaller or equal than the m/z times this value divided by 1,000,000 (<b>p</b>arts <b>p</b>er <b>m</b>illion, analog for the +2 isotopic peak)", placement = "bottom", trigger = "hover"),
-                                 textInput(inputId = "mzDeviationInPPM_precursorDeisotoping", label = "m/z deviation (PPM)", value = importParameterSetInit$mzDeviationInPPM_precursorDeisotoping)
+                                 textInput(inputId = "mzDeviationInPPM_precursorDeisotoping", label = "m/z deviation (PPM)", value = importParameterSetInit()$mzDeviationInPPM_precursorDeisotoping)
                           )##column
                         )##row
                       ),##conditional
                       bsTooltip(id = "maximumRtDifference", title = "A MS\u00B9 feature is considered an isotopic peak if the absolute of the retention time difference to the (putative) monoisotopic peak is smaller or equal than this value (in minutes)", placement = "bottom", trigger = "hover"),
-                      textInput(inputId = "maximumRtDifference", label = "Retention time difference", value = importParameterSetInit$maximumRtDifference),
+                      textInput(inputId = "maximumRtDifference", label = "Retention time difference", value = importParameterSetInit()$maximumRtDifference),
                       h5("Fragment deisotoping"),
                       bsTooltip(id = "doMs2PeakGroupDeisotoping", title = "If checked, the set of MS/MS features is deisotoped", placement = "bottom", trigger = "hover"),
-                      checkboxInput(inputId = "doMs2PeakGroupDeisotoping", label = "Fragment deisotoping", value = importParameterSetInit$doMs2PeakGroupDeisotoping),
+                      checkboxInput(inputId = "doMs2PeakGroupDeisotoping", label = "Fragment deisotoping", value = importParameterSetInit()$doMs2PeakGroupDeisotoping),
                       conditionalPanel(
                         condition = "input.doMs2PeakGroupDeisotoping",
                         fluidRow(
                           column(width = 6,
                                  bsTooltip(id = "mzDeviationAbsolute_ms2PeakGroupDeisotoping", title = "_A MS/MS feature is considered an +1 isotopic peak if the absolute of the m/z difference to the (putative) monoisotopic peak minus 1.0033548378 (=<sup>13</sup>C - <sup>12</sup>C) is smaller or equal than this value", placement = "bottom", trigger = "hover"),
-                                 textInput(inputId = "mzDeviationAbsolute_ms2PeakGroupDeisotoping", label = "m/z deviation (abs.)", value = importParameterSetInit$mzDeviationAbsolute_ms2PeakGroupDeisotoping)
+                                 textInput(inputId = "mzDeviationAbsolute_ms2PeakGroupDeisotoping", label = "m/z deviation (abs.)", value = importParameterSetInit()$mzDeviationAbsolute_ms2PeakGroupDeisotoping)
                           ),##column
                           column(width = 6,
                                  bsTooltip(id = "mzDeviationInPPM_ms2PeakGroupDeisotoping", title = "A MS/MS feature is considered an +1 isotopic peak if the absolute of the m/z difference to the (putative) monoisotopic peak minus 1.0033548378 (=<sup>13</sup>C - <sup>12</sup>C) is smaller or equal than the m/z times this value divided by 1,000,000 (<b>p</b>arts <b>p</b>er <b>m</b>illion)", placement = "bottom", trigger = "hover"),
-                                 textInput(inputId = "mzDeviationInPPM_ms2PeakGroupDeisotoping", label = "m/z deviation (PPM)", value = importParameterSetInit$mzDeviationInPPM_ms2PeakGroupDeisotoping)
+                                 textInput(inputId = "mzDeviationInPPM_ms2PeakGroupDeisotoping", label = "m/z deviation (PPM)", value = importParameterSetInit()$mzDeviationInPPM_ms2PeakGroupDeisotoping)
                           )##column
                         )##row
                       )##conditional
@@ -253,29 +233,34 @@ shinyUI(
                     label = NULL, #label = 'Choose fragment matrix file',
                     accept = c('text/comma-separated-values', 'text/plain', 'text/tab-separated-values')
                   ),
-                  p("Please choose sirius annotation file"),
-                  fileInput(
-                    multiple = FALSE,
-                    inputId = 'annotationFile', 
-                    label = NULL,
-                    accept = c('text/tab-separated-values', 'text/plain')
-                  ),
                   p("Please choose spectral library (MS/MS, .msp)"),
                   bsTooltip(id = "ms2DataFile", title = "Press to choose a MS/MS library", placement = "bottom", trigger = "hover"),
                   fileInput(
                     multiple = FALSE,
                     inputId = 'ms2DataFile', 
                     label = NULL, #label = 'Choose fragment matrix file',
-                    accept = c('text/plain', 'msp')
+                    accept = ".msp" #c('text/plain', 'msp')
                   ),
+                  p("Optional: choose a Sirius annotation file (.tsv)"),
+                  fileInput(
+                    multiple = FALSE,
+                    inputId = 'annotationFile', 
+                    label = NULL,
+                    accept = c('.tsv', '.txt')
+                  ),
+                  p("Type and level of annotations:"),
+                  radioButtons("siriusFileColumnName", label = NULL,
+                               choices = c("ClassyFire superclass", "ClassyFire class", "ClassyFire subclass", 
+                                           "NPC pathway", "NPC superclass", "NPC class"),
+                               inline = TRUE),
                   fluidRow(
                     column(width = 6,
                            bsTooltip(id = "importMs1Ms2Data", title = "Press to import the selected metabolite profile and MS/MS library", placement = "bottom", trigger = "hover"),
-                           disabled(actionButton(inputId = "importMs1Ms2Data", label = "Import MS\u00B9 and MS/MS data", class="btn-success", width = "100%"))
+                           shinyjs::disabled(actionButton(inputId = "importMs1Ms2Data", label = "Import MS\u00B9 and MS/MS data", class="btn-success", width = "100%"))
                     ),##column
                     column(width = 6,
                            bsTooltip(id = "importMs2Data", title = "Press to import the selected MS/MS library without a metabolite profile", placement = "bottom", trigger = "hover"),
-                           disabled(actionButton(inputId = "importMs2Data", label = "Import MS/MS data", class="btn-success", width = "100%"))
+                           shinyjs::disabled(actionButton(inputId = "importMs2Data", label = "Import MS/MS data", class="btn-success", width = "100%"))
                     )##column
                   )##row
                 ),## conditional
@@ -915,7 +900,7 @@ shinyUI(
                   verbatimTextOutput(outputId = "classifierCount"),
                   DT::dataTableOutput("classifierSelectionTable"),
                   bsTooltip(id = "doAnnotation", title = "Press to automatically annotate metabolite families to spectra ", placement = "bottom", trigger = "hover"),
-                  disabled(actionButton(inputId = "doAnnotation", label = "Perform scan", class="btn-success", width = "100%"))
+                  shinyjs::disabled(actionButton(inputId = "doAnnotation", label = "Perform scan", class="btn-success", width = "100%"))
                 )
               ),
               conditionalPanel(
@@ -1265,10 +1250,18 @@ shinyUI(
       wellPanel(
         h4(HTML("<b>Session info</b>")),
         verbatimTextOutput(outputId = "rInfo")
+      ),
+      if (crashButton) {
+      wellPanel(
+        h4(HTML("<b>Crash the app</b>")),
+        actionButton(inputId = "crashApp", label = "Do not press", icon = icon("bomb"), 
+                     style="color: #fff; background-color: #ff0000")
       )## well panel
+      }
     )## tab
   )#,## navBar
   # Application footer
   #fluidRow(ipbfooter)
   #)## fluidPage
 )## shinyUI
+

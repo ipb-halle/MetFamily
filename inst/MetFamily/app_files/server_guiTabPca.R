@@ -171,10 +171,10 @@ calculatePca <- function(ms1AnalysisMethod, pcaScaling, pcaLogTransform, pcaDime
   drawAnnotationLegendPCA(consoleInfo = "init output$plotAnnoLegend")
   
   scoresGroups <<- list(
-    grouXXXps = filterPca$grouXXXps,
-    colors = colorPaletteScores()[unlist(lapply(X = filterPca$grouXXXps, FUN = dataList$groupIdxFromGroupName))]
+    sampleClasses = filterPca$sampleClasses,
+    colors = colorPaletteScores()[unlist(lapply(X = filterPca$sampleClasses, FUN = dataList$groupIdxFromGroupName))]
   )
-  state_tabPca$scoresGroupsLegendHeight <<- scoresGroupsLegendEntryHeight * (length(scoresGroups$grouXXXps) + 1)
+  state_tabPca$scoresGroupsLegendHeight <<- scoresGroupsLegendEntryHeight * (length(scoresGroups$sampleClasses) + 1)
   drawScoresGroupsLegend(consoleInfo = "init output$plotScoresGroupsLegend")
   
   if(!state$anyPlotDrawn){
@@ -303,7 +303,7 @@ obsPCAscoresHover <- observeEvent(input$plotPcaScores_hover, {
   }
   else{
     dataColumnName <- filterPca$sampleSet[[minimumIndex]]
-    #dataColumnName <- dataList$dataColumnsNameFunctionFromGroupNames(grouXXXps = filterPca$grouXXXps, sampleNamesToExclude = dataList$excludedSamples(dataList$groupSampleDataFrame))[[minimumIndex]]
+    #dataColumnName <- dataList$dataColumnsNameFunctionFromGroupNames(sampleClasses = filterPca$sampleClasses, sampleNamesToExclude = dataList$excludedSamples(dataList$groupSampleDataFrame))[[minimumIndex]]
     group <- dataList$groupNameFunctionFromDataColumnName(dataColumnName = dataColumnName, sampleNamesToExclude = dataList$excludedSamples(dataList$groupSampleDataFrame))
     output$information <- renderText({
       print(paste("update output$information PCA scores hover", sep = ""))
@@ -543,14 +543,14 @@ observeGroupSet <- observeEvent(input$pcaGroups, {
   
   if(FALSE){
     ## update samples
-    sampleNames <- dataList$dataColumnsNameFunctionFromGroupNames(grouXXXps = input$pcaGroups, sampleNamesToExclude = dataList$excludedSamples(dataList$groupSampleDataFrame))
+    sampleNames <- dataList$dataColumnsNameFunctionFromGroupNames(sampleClasses = input$pcaGroups, sampleNamesToExclude = dataList$excludedSamples(dataList$groupSampleDataFrame))
     updateCheckboxGroupInput(session = session, inputId = "pcaSamples",                         selected = sampleNames)
   }
 })
 observeSampleSet <- observeEvent(input$pcaSamples, {
   print(paste("observe samples change", paste(input$pcaSamples, collapse = "-"), length(input$pcaSamples)))
   
-  groupsFromSamples <- unlist(lapply(X = dataList$grouXXXps, FUN = function(x){
+  groupsFromSamples <- unlist(lapply(X = dataList$sampleClasses, FUN = function(x){
     samplesOfGroups <- dataList$dataColumnsNameFunctionFromGroupName(group = x, sampleNamesToExclude = dataList$excludedSamples(dataList$groupSampleDataFrame))
     if(any(samplesOfGroups %in% input$pcaSamples))
       return(x)
@@ -580,15 +580,15 @@ observeSampleSet <- observeEvent(input$pcaSamples, {
 
 observeSelectAllPCAGroups <- observeEvent(input$selectAllPCAGroups, {
   print(paste("observe selectAllPCAGroups"))
-  updateCheckboxGroupInput(session = session, inputId = "pcaGroups",   choices = dataList$grouXXXps, selected = dataList$grouXXXps)
+  updateCheckboxGroupInput(session = session, inputId = "pcaGroups",   choices = dataList$sampleClasses, selected = dataList$sampleClasses)
 })
 observeSelectNoPCAGroups <- observeEvent(input$selectNoPCAGroups, {
   print(paste("observe selectNoPCAGroups"))
-  updateCheckboxGroupInput(session = session, inputId = "pcaGroups",   choices = dataList$grouXXXps, selected = NULL)
+  updateCheckboxGroupInput(session = session, inputId = "pcaGroups",   choices = dataList$sampleClasses, selected = NULL)
 })
 observeSelectInvertedPCAGroups <- observeEvent(input$selectInvertedPCAGroups, {
   print(paste("observe selectInvertedPCAGroups"))
-  updateCheckboxGroupInput(session = session, inputId = "pcaGroups",   choices = dataList$grouXXXps, selected = setdiff(dataList$grouXXXps, input$pcaGroups))
+  updateCheckboxGroupInput(session = session, inputId = "pcaGroups",   choices = dataList$sampleClasses, selected = setdiff(dataList$sampleClasses, input$pcaGroups))
 })
 
 output$plotPcaScores_hover_info <- renderUI({
@@ -620,7 +620,7 @@ output$plotPcaScores_hover_info <- renderUI({
   
   ## compile information
   dataColumnName <- filterPca$sampleSet[[minimumIndex]]
-  #dataColumnName <- dataList$dataColumnsNameFunctionFromGroupNames(grouXXXps = filterPca$grouXXXps, sampleNamesToExclude = dataList$excludedSamples(dataList$groupSampleDataFrame))[[minimumIndex]]
+  #dataColumnName <- dataList$dataColumnsNameFunctionFromGroupNames(sampleClasses = filterPca$sampleClasses, sampleNamesToExclude = dataList$excludedSamples(dataList$groupSampleDataFrame))[[minimumIndex]]
   group <- dataList$groupNameFunctionFromDataColumnName(dataColumnName = dataColumnName, sampleNamesToExclude = dataList$excludedSamples(dataList$groupSampleDataFrame))
   info <- paste(
     "<b>Sample: ", "</b>", dataColumnName, "<br>",

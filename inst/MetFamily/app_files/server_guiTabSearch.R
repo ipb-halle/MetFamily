@@ -81,7 +81,7 @@ obsApplySearch <- observeEvent(input$applySearch, {
 doApplySearch <- function(filter_ms2_masses1 = NULL, filter_ms2_masses2 = NULL, filter_ms2_masses3 = NULL, filter_ms2_ppm = NULL, filter_ms1_masses = NULL, filter_ms1_ppm = NULL, includeIgnoredPrecursors){
   filter_lfc      <- NULL
   filter_average  <- NULL
-  groupSet        <- dataList$grouXXXps
+  groupSet        <- dataList$sampleClasses
   
   #################################################
   ## do filtering

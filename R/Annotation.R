@@ -27,22 +27,9 @@
 ## propertiesList <- list($library= "2018-02-13_09:14:10_pos_21908_MoNA-export-LC-MS-MS_Spectra.msp", maximumNumberOfScores= "10000", removeRareFragments= "FALSE", mergeDuplicatedSpectra= "TRUE", takeSpectraWithMaximumNumberOfPeaks= "FALSE", classOfClass= "ChemOnt|AllClasses", minimumNumberOfPosSpectraPerClass= "10", minimumNumberOfNegSpectraPerClass= "10", numberOfDataSetDecompositions= "10", proportionTraining= "0.7", unitResolution= "FALSE", methodName= "ColSumsPos", paramsString= "smoothIntensities=FALSE", algoName= "method=ColSumsPos; smoothIntensities=FALSE")
 ## featureMatrix <- dataList$featureMatrix
 ## parameterSet <- dataList$importParameterSet
+
+#' @export
 doAnnotation <- function(filePath, propertiesList, featureMatrix, parameterSet, classesWhiteList = NULL, progress = FALSE){
-  if(TRUE){
-    filePath_ <<- filePath
-    propertiesList_ <<- propertiesList
-    featureMatrix_ <<- featureMatrix
-    parameterSet_ <<- parameterSet
-    classesWhiteList_ <<- classesWhiteList
-  }
-  if(FALSE){
-    filePath <- filePath_
-    propertiesList <- propertiesList_
-    featureMatrix <- featureMatrix_
-    parameterSet <- parameterSet_
-    classesWhiteList = classesWhiteList_
-    progress <- FALSE
-  }
   
   if(progress)  incProgress(amount = 0, detail = "Init") else print("Init")
   ################################################
@@ -397,8 +384,8 @@ getAlgorithms <- function(){
   methods <- list(
     ## scores
     "CosinusDistance"  = predict_CosinusDistance,
-    "ColSums"          = colSums_classifier,
-    "ColSumsPos"       = colSumsPos_classifier,
+    "ColSums"          = colSums_classifier(),
+    "ColSumsPos"       = colSumsPos_classifier(),
     "Prod"             = predict_Prod,
     "Jaccard"          = predict_Jaccard,
     "JaccardWeighted"  = predict_JaccardWeighted,
@@ -584,8 +571,16 @@ getClassifierProperties <- function(propertiesFile){
   
   return(propertiesList)
 }
+
 ## resultFolderForClassifiers <- "/home/htreutle/Code/Java/MetFam/inst/data/classifiers"
 ## resultFolderForClassifiers <- "/home/htreutle/Code/Java/MetFam/inst/data/classifier"
+
+#' Classifiers
+#'
+#' @param resultFolderForClassifiers 
+#'
+#' @returns ?
+#' @export
 getAvailableClassifiers <- function(resultFolderForClassifiers){
   
   resultFolderForClassifiers <- gsub(x = resultFolderForClassifiers, pattern = "app/data/classifier", replacement = "inst/data/classifier")
@@ -646,17 +641,9 @@ getAvailableClassifiers <- function(resultFolderForClassifiers){
   return(resultObj)
 }
 
+
+#' @export
 evaluatePutativeMetaboliteFamiliesOfPrecursorSet <- function(dataList, precursorSet, classToSpectra_class){
-  if(FALSE){
-    dataList_ <<- dataList
-    precursorSet_ <<- precursorSet
-    classToSpectra_class_ <<- classToSpectra_class
-  }
-  if(FALSE){
-    dataList <<- dataList_
-    precursorSet <<- precursorSet_
-    classToSpectra_class <<- classToSpectra_class_
-  }
   
   ## fetch hits of interest
   classesAll  <- character()
@@ -741,16 +728,6 @@ evaluatePutativeMetaboliteFamiliesOfPrecursorSet <- function(dataList, precursor
   return(returnObj)
 }
 evaluatePutativeMetaboliteFamiliesOfPrecursorSet_old <- function(dataList, precursorSet, classToSpectra_class){
-  if(FALSE){
-    dataList_ <<- dataList
-    precursorSet_ <<- precursorSet
-    classToSpectra_class_ <<- classToSpectra_class
-  }
-  if(FALSE){
-    dataList <<- dataList_
-    precursorSet <<- precursorSet_
-    classToSpectra_class <<- classToSpectra_class_
-  }
   
   ## hits: list of 
   hitLists <- list()
@@ -834,12 +811,9 @@ evaluatePutativeMetaboliteFamiliesOfPrecursorSet_old <- function(dataList, precu
 #' @param mappingSpectraToClassDf 
 #' @param addClassifierConsensusSpectrum 
 #'
-#' @return
+#' @return ?
 #' @export
 #' @importFrom grDevices colorRampPalette
-#' 
-#'
-#' @examples
 metaboliteFamilyVersusClass <- function(dataList, precursorSet, classToSpectra_class, properties_class, classifierClass, mappingSpectraToClassDf, addClassifierConsensusSpectrum){
   returnObj <- getSpectrumStatistics(dataList = dataList, precursorSet = precursorSet)
   masses_spec <- returnObj$fragmentMasses
@@ -887,6 +861,8 @@ metaboliteFamilyVersusClass <- function(dataList, precursorSet, classToSpectra_c
   )
   return(returnObj)
 }
+
+#' @export
 preprocessClassPlot <- function(frequentFragments, characteristicFragments){
   frequentMasses       <- as.numeric(names(frequentFragments)) 
   characteristicMasses <- as.numeric(names(characteristicFragments))
@@ -897,11 +873,11 @@ preprocessClassPlot <- function(frequentFragments, characteristicFragments){
   
   characteristics_class <- rep(x = 0., times = length(masses_class))
   characteristics_class[match(x = characteristicMasses, table = masses_class)] <- unname(characteristicFragments)
-  classDataColorMapFragmentData  <- makecmap(
+  classDataColorMapFragmentData  <- squash::makecmap(
     x = c(0, 1), n = 100, 
     colFn = colorRampPalette(c('grey', 'black'))
   )
-  colors_class <- cmap(x = characteristics_class, map = classDataColorMapFragmentData)
+  colors_class <- squash::cmap(x = characteristics_class, map = classDataColorMapFragmentData)
   
   returnObj <- list(
     masses_class = masses_class,
@@ -910,6 +886,8 @@ preprocessClassPlot <- function(frequentFragments, characteristicFragments){
   )
   return(returnObj)
 }
+
+#' @export
 preprocessSpectrumVsClassPlot <- function(dataList, precursorIndeces, masses_class, mappingSpectraToClassDf, yType){
   if(length(precursorIndeces) == 1){
     resultObj   <- getMS2spectrumInfoForPrecursor(dataList = dataList, precursorIndex = precursorIndeces)

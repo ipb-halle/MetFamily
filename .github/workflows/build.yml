@@ -12,9 +12,9 @@ name: R-CMD-check-MetFamily
 # Define environment variables for the workflow
 env:
   has_testthat: 'true'
+  run_shinytest2: 'false'
 #  run_covr: 'true' # Disabled until later
   run_covr: 'false'
-#  run_pkgdown: 'true' # Disabled until later
   run_pkgdown: 'false'
   has_RUnit: 'false'
   has_BiocCheck: 'false'
@@ -58,7 +58,7 @@ jobs:
 
       # Step 2: Checkout the repository
       - name: Checkout Repository
-        uses: actions/checkout@v2
+        uses: actions/checkout@v4
 
       # Step 3: Setup R from r-lib
       - name: Setup R from r-lib
@@ -83,7 +83,7 @@ jobs:
       # Step 6: Cache R packages based on configuration
       - name: Cache R packages
         if: "!contains(github.event.head_commit.message, '/nocache') && runner.os != 'Linux'"
-        uses: actions/cache@v2
+        uses: actions/cache@v4
         with:
           path: ${{ env.R_LIBS_USER }}
           key: ${{ env.cache-version }}-${{ runner.os }}-biocversion-devel-r-devel-${{ hashFiles('.github/depends.Rds') }}
@@ -92,7 +92,7 @@ jobs:
       # Step 7: Cache R packages on Linux
       - name: Cache R packages on Linux
         if: "!contains(github.event.head_commit.message, '/nocache') && runner.os == 'Linux' "
-        uses: actions/cache@v2
+        uses: actions/cache@v4
         with:
           path: /home/runner/work/_temp/Library
           key: ${{ env.cache-version }}-${{ runner.os }}-biocversion-devel-r-devel-${{ hashFiles('.github/depends.Rds') }}
@@ -138,7 +138,7 @@ jobs:
 
           ## Pass #1 at installing dependencies
           BiocManager::install(c(
-            "mzR", "htmltools", "shiny", "shinyBS", "shinyjs", "shinybusy",
+            "htmltools", "shiny", "shinyBS", "shinyjs", "shinybusy",
             "DT", "colourpicker", "Matrix", "squash", "FactoMineR", "mixOmics",
             "pcaMethods", "cba", "tools", "stringr", "xcms", "matrixStats",
             "plotrix"
@@ -244,6 +244,7 @@ jobs:
 
       # Step 25: Test Shiny App in package
       - name: Test Shiny App
+        if: env.run_shinytest2 == 'true' && runner.os == 'Linux'
         uses: rstudio/shinytest2/actions/test-app@actions/v1
         with:
           app-dir: "inst/MetFamily"

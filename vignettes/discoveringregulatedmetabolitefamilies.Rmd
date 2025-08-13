@@ -40,30 +40,31 @@ First, we load the data and summarise it
 
 ```{r load-data}
 
-#That's also what the shiny app uses
-dataList <<- list()
-
+# Load separate files
 filePeakMatrixPath <- system.file("extdata/showcase/Metabolite_profile_showcase.txt", package = "MetFamily")
-
 fileSpectra <- system.file("extdata/showcase/MSMS_library_showcase.msp", package = "MetFamily")
+fileAnnotation <- system.file("extdata/testdata/canopus/canopus1680.txt", package = "MetFamily")
 
-fileAnnotation <- system.file("extdata/testdata/canopus/canopusShort.txt", package = "MetFamily")
+parameterSet <- parameterSetDefault()
 
-parameterSetPath <- system.file("extdata/testdata/parameterSet.RData",  package = "MetFamily" )
-load(parameterSetPath)
-
-resultObj <- convertToProjectFile(filePeakMatrixPath, 
-                                 fileSpectra,
-                                 fileAnnotation,
-                                 parameterSet, 
-                                 progress = FALSE)
-  
-lines <- sparseMatrixToString(matrixRows = resultObj$matrixRows, matrixCols = resultObj$matrixCols, matrixVals = resultObj$matrixVals, parameterSet = parameterSet)
-qfeatures <- resultObj$qfeatures
-dataList <<- readProjectData(fileLines = lines, progress = FALSE, qfeatures = qfeatures)
-#project <- readClusterDataFromProjectFile(file = fileName)
+dataList <- projectFromFiles(filePeakMatrixPath, 
+                              fileSpectra,
+                              parameterSet = parameterSet,
+                              annot_path =fileAnnotation)
 
 ```
+
+
+```{r eval=FALSE, include=FALSE}
+
+# use showcase for testing
+
+# fileName <- system.file("extdata/showcase/Project_file_showcase_annotated.csv.gz", package = "MetFamily")
+# project <- readClusterDataFromProjectFile(file = fileName)
+
+
+```
+
 
 # Filtering data
 
@@ -71,7 +72,12 @@ We can filter the data to remove low quality data points
 
 ```{r filter-data}
 
-# todo...
+filterObj <- makeFilterObj(dataList, filter_average = 10000, filter_lfc = 2)
+
+# fileName <- system.file("extdata/testdata/canopus/filterPca_canopus.rds", package = "MetFamily")
+# filterObj_file <- readRDS(fileName)
+# identical(filterObj_file, filterObj)
+
 
 ```
 
@@ -81,50 +87,75 @@ We can filter the data to remove low quality data points
 PCA on MS1 in Figure \@ref(fig:pca). 
 
 ```{r pca, fig.cap="PCA of MS1.", echo=FALSE}
-fileName <- system.file("extdata/testdata/filterObj.Rdata", package = "MetFamily")
-load(fileName) 
 
-pca <- calculatePCA(dataList=dataList, 
+pca <- calculatePCA(dataList=dataList,
                          filterObj=filterObj, 
                          ms1AnalysisMethod="PCA (Principal Component Analysis)", 
                          scaling="None", 
                     logTransform=FALSE)
 
-## Need to be global variables because they are not 
-## passed to getPcaPerformanceIndicator() as parameters. 
-pcaDimensionOne <<- 1
-pcaDimensionTwo <<- 2
+pcaDimensionOne <- 1
+pcaDimensionTwo <- 2
 
-  resultObj <- calcPlotPCAscores(
-    pcaObj = pca, 
-    dataList = project, 
-    filterObj = filterObj,
-    pcaDimensionOne = pcaDimensionOne, 
-    pcaDimensionTwo = pcaDimensionTwo, 
-    showScoresLabels = FALSE, 
-    xInterval = NULL, 
-    yInterval = NULL
+# could be easily implemented with ggplot
+resultObj <- calcPlotPCAscores(
+  pcaObj = pca, 
+  dataList = dataList,
+  filterObj = filterObj,
+  pcaDimensionOne = pcaDimensionOne, 
+  pcaDimensionTwo = pcaDimensionTwo, 
+  showScoresLabels = FALSE, 
+  xInterval = NULL, 
+  yInterval = NULL
 )
 
-  resultObj <- calcPlotPCAloadings(
-    pcaObj = pca, 
-    dataList = project, 
-    filter = filterObj, 
-    pcaDimensionOne = pcaDimensionOne, 
-    pcaDimensionTwo = pcaDimensionTwo, 
-    selectionFragmentPcaLoadingSet = NULL,
-    selectionAnalysisPcaLoadingSet = NULL,
-    selectionSearchPcaLoadingSet   = NULL,
-    xInterval = NULL, 
-    yInterval = NULL,
-    loadingsLabels = "None", 
-    showLoadingsAbundance = FALSE, 
-    showLoadingsFeaturesAnnotated   = TRUE,
-    showLoadingsFeaturesUnannotated = TRUE,
-    showLoadingsFeaturesSelected    = TRUE,
-    showLoadingsFeaturesUnselected  = TRUE
-  )
+resultObj <- calcPlotPCAloadings(
+  pcaObj = pca,
+  dataList = dataList,
+  # filter = filterObj$filter, # deprecated
+  pcaDimensionOne = pcaDimensionOne,
+  pcaDimensionTwo = pcaDimensionTwo,
+  selectionFragmentPcaLoadingSet = NULL,
+  selectionAnalysisPcaLoadingSet = NULL,
+  selectionSearchPcaLoadingSet   = NULL,
+  xInterval = NULL,
+  yInterval = NULL,
+  loadingsLabels = "None",
+  showLoadingsAbundance = FALSE,
+  showLoadingsFeaturesAnnotated   = TRUE,
+  showLoadingsFeaturesUnannotated = TRUE,
+  showLoadingsFeaturesSelected    = TRUE,
+  showLoadingsFeaturesUnselected  = TRUE
+)
 
+
+
+# stricter filter, only annotated features
+
+filterObj <- makeFilterObj(dataList, filter_average = 1500, filter_lfc = 0)
+
+pca <- calculatePCA(dataList=dataList,
+                         filterObj=filterObj, 
+                         ms1AnalysisMethod="PCA (Principal Component Analysis)", 
+                         scaling="None", 
+                    logTransform=FALSE)
+
+# could be easily implemented with ggplot
+resultObj <- calcPlotPCAscores(
+  pcaObj = pca, 
+  dataList = dataList,
+  filterObj = filterObj,
+  showScoresLabels = FALSE, 
+)
+
+resultObj <- calcPlotPCAloadings(
+  pcaObj = pca,
+  dataList = dataList,
+  showLoadingsFeaturesAnnotated   = T,
+  showLoadingsFeaturesUnannotated = F,
+  showLoadingsFeaturesSelected    = F,
+  showLoadingsFeaturesUnselected  = F
+)
     
     
 ```
@@ -133,12 +164,12 @@ pcaDimensionTwo <<- 2
 
 HCA on MS2 in Figure \@ref(fig:hca). 
 
-```{r hca, fig.cap="HCA on MS2.", echo=FALSE}
+```{r hca, fig.cap="HCA on MS2.", echo=FALSE, eval=FALSE}
 
 if (FALSE) {
-p <- calcPlotDendrogram_plotly(dataList=project, 
+p <- calcPlotDendrogram_plotly(dataList=dataList, #project, 
                                filterObj=filterObj, 
-                               clusterDataList=project, 
+                               clusterDataList=dataList, #project, 
   distanceMeasure = "Jaccard", 
   showClusterLabels=FALSE, 
   hcaPrecursorLabels="m/z / RT", 
@@ -156,7 +187,7 @@ load(fileName)
 fileName <- system.file("extdata/testdata/hcaFilter.Rdata", package = "MetFamily")
 load(fileName) 
 
-returnObj <- calcPlotDendrogram(dataList=project, 
+returnObj <- calcPlotDendrogram(dataList=dataList, #project, 
                                 filter=filter, 
                                 clusterDataList=clusterDataList, 
                                 annoPresentAnnotationsList = annoPresentAnnotationsList ,

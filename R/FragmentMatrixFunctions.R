@@ -37,7 +37,7 @@ parsePeakAbundanceMatrix <- function(filePeakMatrix,
                                           table = dataFrameHeader1[1, ]), 
                                     na.rm = TRUE)
   
-  if(ncol(dataFrame1) > columnIndexEndOfAnnotation){
+  if(ncol(dataFrame1) > columnIndexEndOfAnnotation) {
     dataColumnStartEndIndeces <- c(columnIndexEndOfAnnotation + 1, ncol(dataFrame1))
     numberOfDataColumns <- dataColumnStartEndIndeces[[2]] - dataColumnStartEndIndeces[[1]] + 1
     dataColumnNames <- colnames(dataFrame1)[dataColumnStartEndIndeces[[1]]:dataColumnStartEndIndeces[[2]]]
@@ -46,8 +46,9 @@ parsePeakAbundanceMatrix <- function(filePeakMatrix,
     sampleType           <- dataFrameHeader1[2, (columnIndexEndOfAnnotation + 1):ncol(dataFrameHeader1)]
     sampleInjectionOrder <- dataFrameHeader1[3, (columnIndexEndOfAnnotation + 1):ncol(dataFrameHeader1)]
     batchID              <- NULL
-    if(!oldFormat)
+    if(!oldFormat) {
       batchID            <- dataFrameHeader1[4, (columnIndexEndOfAnnotation + 1):ncol(dataFrameHeader1)]
+    }
   } else {
     dataColumnStartEndIndeces <- NULL
     numberOfDataColumns <- 0
@@ -89,15 +90,17 @@ parsePeakAbundanceMatrix <- function(filePeakMatrix,
   
   #####################
   ## sorted by m/z (needed for deisotoping)
-  if(!is.null(dataFrame1$"Average Mz"))
+  if(!is.null(dataFrame1$"Average Mz")) {
     dataFrame1 <- dataFrame1[order(dataFrame1$"Average Mz"), ]
+  }
   
   ## replace -1 by 0
   if(numberOfDataColumns > 0){
     for(colIdx in dataColumnStartEndIndeces[[1]]:dataColumnStartEndIndeces[[2]]){
       dataFrame1[ , colIdx] <- as.numeric(dataFrame1[ , colIdx])
-      if(!is.na(sum(dataFrame1[,colIdx] == -1)))
+      if(!is.na(sum(dataFrame1[,colIdx] == -1))) {
         dataFrame1[(dataFrame1[,colIdx] == -1),colIdx] <- 0
+      }
     }
   }
   
@@ -137,8 +140,9 @@ parsePeakAbundanceMatrix <- function(filePeakMatrix,
         validPrecursorsInIntensity <- TRUE
       }
       
-      if(any(validPrecursorsInRt & validPrecursorsInMz & validPrecursorsInIntensity))
+      if(any(validPrecursorsInRt & validPrecursorsInMz & validPrecursorsInIntensity)) {
         precursorsToRemove[[precursorIdx]] <- TRUE
+      }
     }
     
     ## remove isotopes
@@ -604,8 +608,9 @@ parseMSP_chunk <- function(fileLines,
       ms2Peaks_int_original <- ms2Peaks_int
       
       numberOfMS2PeaksOriginal <<- numberOfMS2PeaksOriginal + length(ms2Peaks_mz)
-      if(length(ms2Peaks_mz) == 0)
+      if(length(ms2Peaks_mz) == 0) {
         numberOfSpectraDiscardedDueToNoPeaks <<- numberOfSpectraDiscardedDueToNoPeaks + 1
+      }
       
       ###################################################################
       ## filter fragments with mass greater than precursor
@@ -616,8 +621,9 @@ parseMSP_chunk <- function(fileLines,
         ms2Peaks_int <- ms2Peaks_int[!tooHeavy]
         numberOfTooHeavyFragmentsHere <- sum(tooHeavy)
         
-        if(length(ms2Peaks_mz) == 0 & numberOfTooHeavyFragmentsHere > 0)
+        if(length(ms2Peaks_mz) == 0 & numberOfTooHeavyFragmentsHere > 0) {
           numberOfSpectraDiscardedDueToTooHeavy <<- numberOfSpectraDiscardedDueToTooHeavy + 1
+        }
       }
       numberOfTooHeavyFragments <<- numberOfTooHeavyFragments + numberOfTooHeavyFragmentsHere
       
@@ -731,8 +737,9 @@ parseMSP_chunk <- function(fileLines,
         ## add
         numberOfMS2PeaksWithNeutralLosses <<- numberOfMS2PeaksWithNeutralLosses + spectrumItem$peakNumber
         return(spectrumItem)
-      } else
+      } else {
         return(NULL)
+      }
     })
   )
   
@@ -824,6 +831,20 @@ parseMSP_chunk <- function(fileLines,
   return(returnObj)
 }
 
+
+#' parseMSP_attributes
+#'
+#' @param fileSpectra 
+#' @param progress 
+#' @param flexiblePeakList 
+#' @param multiplePeaksPerLine 
+#' @param includeIDasRecordSeparator 
+#' @param includeNAMEasRecordSeparator 
+#' @param includeTITLEasRecordSeparator 
+#' @param returnEmptySpectra 
+#'
+#' @returns ?
+#' @importFrom stringr str_split
 parseMSP_attributes <- function(fileSpectra, progress = FALSE, flexiblePeakList = FALSE, multiplePeaksPerLine = FALSE, includeIDasRecordSeparator=TRUE, includeNAMEasRecordSeparator=TRUE, includeTITLEasRecordSeparator=TRUE, returnEmptySpectra = FALSE){
   fileLines <- readLines(con = fileSpectra)
   
@@ -1187,10 +1208,8 @@ builtMatrix <- function(spectraList,
 #' @param minfrac 
 #' @param progress 
 #'
-#' @return
+#' @return ?
 #' @export
-#'
-#' @examples
 mzClustGeneric <- function(p, 
                            sampclass=NULL, 
                            mzppm = 20, 
@@ -1342,7 +1361,10 @@ mzClustGeneric <- function(p,
       
       ## xcms:::mzClust_hclust is using 
       ## the fast C implementation: .C("R_mzClust_hclust"
-      mzFragmentGroups <- xcms:::mzClust_hclust(uniqueBin,ppm_error,mzabs)
+      
+      suppressWarnings(suppressPackageStartupMessages(
+        mzFragmentGroups <- xcms:::mzClust_hclust(uniqueBin,ppm_error,mzabs)
+      ))
       mzFragmentGroups2 <- vector(mode = "integer", length = length(bin))
       for(idx in seq_along(uniqueBin))
         mzFragmentGroups2[bin==uniqueBin[[idx]]] <- mzFragmentGroups[[idx]]
@@ -1396,9 +1418,19 @@ mzClustGeneric <- function(p,
   return(list(mat=groupmat,idx=groupindex))
 }
 
+#' Convert to Project File
+#' 
+#' Reads and creates a list from separate files.
+#'
+#' @param filePeakMatrixPath path
+#' @param fileSpectra path
+#' @param parameterSet list of parameters
+#' @param progress logical
+#'
+#' @returns resultObj
+#' @export
 convertToProjectFile <- function(filePeakMatrixPath, 
                                  fileSpectra,
-                                 fileAnnotation,
                                  parameterSet, 
                                  progress = FALSE){
   ####################################################################################
@@ -1428,8 +1460,9 @@ convertToProjectFile <- function(filePeakMatrixPath,
   numberOfSpectraDiscardedDueToMaxIntensity <- returnObj$numberOfSpectraDiscardedDueToMaxIntensity
   numberOfSpectraDiscardedDueToTooHeavy <- returnObj$numberOfSpectraDiscardedDueToTooHeavy
   
-  if(numberOfSpectra == 0)
+  if(numberOfSpectra == 0){
     return("Number of spectra is zero")
+  }
   
   if(!is.na(progress))  if(progress)  incProgress(amount = 0.01, detail = paste("Parsing MS/MS file ready", sep = "")) else print(paste("Parsing MS/MS file ready", sep = ""))
   
@@ -1437,11 +1470,7 @@ convertToProjectFile <- function(filePeakMatrixPath,
   
   
   filePeakMatrixQF <- readMSDial(filePeakMatrixPath)
-  if (!is.null(fileAnnotation)){
-    # TODO: determine colums to merge by
-    filePeakMatrixQF <- addSiriusAnnotations(filePeakMatrixQF,fileAnnotation)
-  }
-  
+
   returnObj <- convertToProjectFile2(
     filePeakMatrixQF = filePeakMatrixQF, 
     spectraList = spectraList, precursorMz = precursorMz, precursorRt = precursorRt, 

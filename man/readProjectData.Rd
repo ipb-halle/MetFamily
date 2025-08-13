@@ -18,5 +18,5 @@ A big dataList.
 Read MetFamily Project data saved by the export function
 }
 \seealso{
-[processMS1data]
+\link{processMS1data}
 }

@@ -1,57 +1,59 @@
 Package: MetFamily
 Type: Package
 Title: MetFamily: Discovering Regulated Metabolite Families in Untargeted Metabolomics Studies
-Version: 0.99.5
-Date: 2024-11-07
+Version: 0.99.10
+Date: 2025-07-01
 Author: c( person(given = "Hendrik", family = "Treutler", role = c("aut"), email = "hendrik.treutler@ipb-halle.de"),
            person(given = "Khabat", family = "Vahabi", role = c("ctb"), email = "khabat.vahabi@ipb-halle.de"),
            person(given = "Norman", family = "Storz", role = c("ctb"), email = "nstorz@ipb-halle.de"),
+           person(given = "Guillaume", family = "Patoine", role = c("ctb"), email = "gpatoine@ipb-halle.de"),
            person(given = "Steffen", family = "Neumann", email = "sneumann@ipb-halle.de",
-           role = c("aut", "cre"), comment = c(ORCID = "0000-0002-7899-7192")) )
+                  role = c("aut", "cre"), comment = c(ORCID = "0000-0002-7899-7192")) )
 Depends:
-    R (>= 3.5.0),
-    htmltools,
-    shiny,
-    shinyBS,
-    shinyjs,
-    shinybusy,
-    DT,
-    colourpicker,
-    Matrix,
-    squash,
-    FactoMineR,
-    mixOmics,
-    pcaMethods,
-    cba,
-    cowplot,
-    gdata,
-    searchable, 
-    tools,
-    stringr,
-    mzR,
-    matrixStats,
-    plotrix,
-    slam,
-    plotly,
-    xcms
+  R (>= 3.5.0)
 Imports:
-    egg,
-    graphics,
-    grDevices,
-    methods,
-    QFeatures,
-    stats,
-    utils,
-    S4Vectors, 
-    SummarizedExperiment,
-    openxlsx2
-Remotes: 
-    decisionpatterns/searchable
+  egg,
+  graphics,
+  grDevices,
+  methods,
+  plotly,
+  QFeatures,
+  stats,
+  utils,
+  S4Vectors,
+  stringr,
+  SummarizedExperiment,
+  openxlsx2,
+  cba,
+  tools,
+  squash,
+  mixOmics,
+  plotrix,
+  colourpicker,
+  slam,
+  scales,
+  xcms,
+  shinyBS,
+  shinybusy,
+  shinyjs,
+  DT,
+  shiny,
+  purrr,
+  dplyr,
+  magrittr,
+  rlang,
+  Matrix,
+  BiocStyle,
+  future,
+  promises,
+  bslib
 Suggests:
-    knitr,
-    BiocStyle,
-    testthat,
-    shinytest2
+  knitr,
+  testthat,
+  shinytest2,
+  FactoMineR,
+  caret,
+  pcaMethods
 VignetteBuilder: knitr
 Maintainer: Steffen Neumann <sneumann@ipb-halle.de>
 Description: Untargeted discovery 
@@ -59,20 +61,9 @@ Description: Untargeted discovery
   in comparative metabolomics. We implemented the presented methodology 
   in the easy-to-use web application MetFamily to enable the analysis 
   of comprehensive metabolomics studies for all researchers worldwide.
-License: GPL (>= 2) + file LICENSE
+License: GPL (>= 2)
 biocViews: Software, Visualization
-Collate:
-    'Annotation.R'
-    'Classifiers.R'
-    'runMetFamily.R'
-    'FragmentMatrixFunctions.R'
-    'DataProcessing.R'
-    'Analysis.R'
-    'TreeAlgorithms.R'
-    'Plots.R'
-    'R_packages.R'
-    parsePeakAbundanceMatrixQF.R
-    readMSDial.R
-    readMetaboScape.R
-RoxygenNote: 7.2.3
+Roxygen: list(markdown = TRUE)
+RoxygenNote: 7.3.2
 Encoding: UTF-8
+URL: http://ipb-halle.github.io/MetFamily/

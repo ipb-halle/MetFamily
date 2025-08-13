@@ -59,6 +59,7 @@ getSelectedPOI_XY <- function(mouseX, mouseY, poiCoordinatesX, poiCoordinatesY, 
 
 
 drawDendrogramPlotImpl <- function(){
+  
   resultObj <- calcPlotDendrogram(
     dataList = dataList, 
     filter = filterHca$filter, 
@@ -115,49 +116,36 @@ drawHeatmapPlotImpl <- function(consoleInfo = NULL){
     )## end switch
   }
   
-  if(hcaHeatMapNew){
-    #####################################################################################
-    ## new heatmap functionality
-    returnObj <- calcPlotHeatmap(
-      dataList = dataList, 
-      filterObj = filterHca, 
-      clusterDataList = clusterDataList, 
-      selectedTreeNodeSet = selectedTreeNodeSet, 
-      frameColor = frameColor,
-      heatmapContent = state_tabHca$heatmapContent,
-      heatmapOrdering = state_tabHca$heatmapOrdering,
-      xInterval = dendrogramPlotRange$xInterval
-    )
-    columnsOfInterest <- returnObj$columnsOfInterest
-    columnsOfInterestForHeatmap <<- columnsOfInterest
-    
-    ## heigth per row
-    heatmapHeightPerRow <- -1
-    if(length(columnsOfInterest) <= maximumheatmapHeightRowCount){
-      heatmapHeightPerRow <- maximumheatmapHeightPerRow
-    } else if(length(columnsOfInterest) >= minimumheatmapHeightRowCount){
-      heatmapHeightPerRow <- minimumheatmapHeightPerRow
-    } else {
-      heatmapHeightPerRow <- 
-        minimumheatmapHeightPerRow + 
-        (length(columnsOfInterest)    - maximumheatmapHeightRowCount) / 
-        (minimumheatmapHeightRowCount - maximumheatmapHeightRowCount) * 
-        (maximumheatmapHeightPerRow - minimumheatmapHeightPerRow)
-    }
-    
-    state_tabHca$heatmapHeight <<- heatmapHeightPerRow * length(columnsOfInterest)
+  #####################################################################################
+  ## new heatmap functionality
+  returnObj <- calcPlotHeatmap(
+    dataList = dataList, 
+    filterObj = filterHca, 
+    clusterDataList = clusterDataList, 
+    selectedTreeNodeSet = selectedTreeNodeSet, 
+    frameColor = frameColor,
+    heatmapContent = state_tabHca$heatmapContent,
+    heatmapOrdering = state_tabHca$heatmapOrdering,
+    xInterval = dendrogramPlotRange$xInterval
+  )
+  columnsOfInterest <- returnObj$columnsOfInterest
+  columnsOfInterestForHeatmap <<- columnsOfInterest
+
+  ## heigth per row
+  heatmapHeightPerRow <- -1
+  if(length(columnsOfInterest) <= maximumheatmapHeightRowCount){
+    heatmapHeightPerRow <- maximumheatmapHeightPerRow
+  } else if(length(columnsOfInterest) >= minimumheatmapHeightRowCount){
+    heatmapHeightPerRow <- minimumheatmapHeightPerRow
   } else {
-    #####################################################################################
-    ## old heatmap functionality
-    columnsOfInterest <- calcPlotHeatmapOld(
-      dataList = dataList, 
-      filterObj = filterHca, 
-      clusterDataList = clusterDataList, 
-      xInterval = dendrogramPlotRange$xInterval
-    )
-    columnsOfInterestForHeatmap <<- columnsOfInterest
-    state_tabHca$heatmapHeight <<- heatmapHeightPerRow * 3
+    heatmapHeightPerRow <- 
+      minimumheatmapHeightPerRow + 
+      (length(columnsOfInterest)    - maximumheatmapHeightRowCount) / 
+      (minimumheatmapHeightRowCount - maximumheatmapHeightRowCount) * 
+      (maximumheatmapHeightPerRow - minimumheatmapHeightPerRow)
   }
+
+  state_tabHca$heatmapHeight <<- heatmapHeightPerRow * length(columnsOfInterest)
 }
 drawHeatmapLegendImpl <- function(){
   calcPlotHeatmapLegend(dataList = dataList)
@@ -172,8 +160,7 @@ drawAnnotationLegendForImageHCAimpl <- function(){
   calcPlotAnnoLegendForImage(state_tabHca$annotationsHca$setOfAnnotations, state_tabHca$annotationsHca$setOfColors)
 }
 
-drawPcaScoresPlotImpl <- function(){
-  #resultObj <- calcPlotPCAscores(
+drawPcaScoresPlotImpl <- function(downloadLayout=FALSE){
   resultObj <- calcPlotPCAscores(
     pcaObj = pcaDataList$pcaObj, 
     dataList = dataList, 
@@ -182,24 +169,10 @@ drawPcaScoresPlotImpl <- function(){
     pcaDimensionTwo = pcaDataList$dimensionTwo, 
     showScoresLabels = state_tabPca$showScoresLabels, 
     xInterval = pcaScoresPlotRange$xInterval, 
-    yInterval = pcaScoresPlotRange$yInterval
+    yInterval = pcaScoresPlotRange$yInterval,
+    downloadLayout = downloadLayout
   )
 }
-#### I am adding this new 
-drawPcaScoresPlotImpl1 <- function(){
-  #resultObj <- calcPlotPCAscores(
-  resultObj <- calcPlotPCAscores1(
-    pcaObj = pcaDataList$pcaObj, 
-    dataList = dataList, 
-    filterObj = filterPca, 
-    pcaDimensionOne = pcaDataList$dimensionOne, 
-    pcaDimensionTwo = pcaDataList$dimensionTwo, 
-    showScoresLabels = state_tabPca$showScoresLabels, 
-    xInterval = pcaScoresPlotRange$xInterval, 
-    yInterval = pcaScoresPlotRange$yInterval
-  )
-}
-####################
 
 drawPcaLoadingsPlotImpl <- function(){
   resultObj <- calcPlotPCAloadings(
@@ -225,32 +198,6 @@ drawPcaLoadingsPlotImpl <- function(){
   state_tabPca$annotationLegendHeightPca <<- annoLegendEntryHeight * (length(state_tabPca$annotationsPca$setOfAnnotations) + 1)
 }
 
-### I am adding this new 
-drawPcaLoadingsPlotImpl1 <- function(){
-  resultObj <- calcPlotPCAloadings1(
-    pcaObj = pcaDataList$pcaObj, 
-    dataList = dataList, 
-    filter = filterPca$filter, 
-    pcaDimensionOne = pcaDataList$dimensionOne, 
-    pcaDimensionTwo = pcaDataList$dimensionTwo, 
-    selectionFragmentPcaLoadingSet = selectionFragmentPcaLoadingSet,
-    selectionAnalysisPcaLoadingSet = selectionAnalysisPcaLoadingSet,
-    selectionSearchPcaLoadingSet   = selectionSearchPcaLoadingSet,
-    xInterval = pcaLoadingsPlotRange$xInterval, 
-    yInterval = pcaLoadingsPlotRange$yInterval,
-    loadingsLabels = state_tabPca$loadingsLabels, 
-    showLoadingsAbundance = state_tabPca$showLoadingsAbundance, 
-    showLoadingsFeaturesAnnotated   = state_tabPca$showLoadingsFeaturesAnnotated,
-    showLoadingsFeaturesUnannotated = state_tabPca$showLoadingsFeaturesUnannotated,
-    showLoadingsFeaturesSelected    = state_tabPca$showLoadingsFeaturesSelected,
-    showLoadingsFeaturesUnselected  = state_tabPca$showLoadingsFeaturesUnselected
-  )
-  
-  state_tabPca$annotationsPca <<- resultObj
-  state_tabPca$annotationLegendHeightPca <<- annoLegendEntryHeight * (length(state_tabPca$annotationsPca$setOfAnnotations) + 1)
-}
-######################
-
 drawAnnotationLegendPCAimpl <- function(){
   calcPlotAnnoLegend(state_tabPca$annotationsPca$setOfAnnotations, state_tabPca$annotationsPca$setOfColors)
 }
@@ -258,7 +205,7 @@ drawAnnotationLegendForImagePCAimpl <- function(){
   calcPlotAnnoLegendForImage(state_tabPca$annotationsPca$setOfAnnotations, state_tabPca$annotationsPca$setOfColors)
 }
 drawScoresGroupsLegendImpl <- function(){
-  calcPlotScoresGroupsLegend(scoresGroups$grouXXXps, scoresGroups$colors)
+  calcPlotScoresGroupsLegend(scoresGroups$sampleClasses, scoresGroups$colors)
 }
 
 drawMS2PlotImpl <- function(){
@@ -276,8 +223,6 @@ drawMS2PlotImpl <- function(){
     dendrogramFragmentStatistics = dendrogramFragmentStatistics
   )
 }
-
-####### This is one I comment 
 
 drawMS2LegendImpl <- function(){
   calcPlotMS2Legend(dataList = dataList)
