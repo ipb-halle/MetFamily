@@ -50,52 +50,40 @@
   </div>
 </nav><div class="container template-home">
 <div class="row">
-  <main id="main" class="col-md-9">
-<div class="section level1">
-<div class="page-header"><h1 id="metfamily">MetFamily<a class="anchor" aria-label="anchor" href="#metfamily"></a>
+  <main id="main" class="col-md-9"><div class="section level1">
+<div class="page-header"><h1 id="metfamily-">MetFamily <a href="https://https://ipb-halle.github.io/MetFamily/index.html" class="external-link"><img src="inst/MetFamily/www/img/Metfamily.gif" align="right" height="120"></a>
+<a class="anchor" aria-label="anchor" href="#metfamily-"></a>
 </h1></div>
-<p>Understanding metabolism is fundamental in biomedical and plant research and the identification and quantification of thousands of metabolites by mass spectrometry in modern metabolomics is a prerequisite for elucidating this area. However, the identification of metabolites is a major bottleneck in traditional approaches hampering advances. Here, we present a novel approach for the untargeted discovery of metabolite families offering a bird’s eye view of metabolic regulation in comparative metabolomics. We implemented the presented methodology in the easy-to-use web application MetFamily to enable the analysis of comprehensive metabolomics studies for all researchers worldwide. MetFamily is available under <a href="http://msbi.ipb-halle.de/MetFamily/" class="external-link uri">http://msbi.ipb-halle.de/MetFamily/</a>.</p>
-</div>
-<div class="section level1">
-<h1 id="docker-images">Docker images<a class="anchor" aria-label="anchor" href="#docker-images"></a>
-</h1>
-<p>The image <code>sneumann/metfamily-base</code> contains all dependencies for the MetFamily web application.</p>
+<p><a href="https://github.com/ipb-halle/MetFamily/actions/workflows/build.yml" class="external-link"><img src="https://github.com/ipb-halle/MetFamily/actions/workflows/build.yml/badge.svg" alt="build"></a></p>
 <div class="section level2">
-<h2 id="building-the-containers">Building the container(s)<a class="anchor" aria-label="anchor" href="#building-the-containers"></a>
+<h2 id="overview">Overview<a class="anchor" aria-label="anchor" href="#overview"></a>
 </h2>
-<p>Build via <code>docker build -t sneumann/metfamily-base -f Dockerfile-base .</code>or with the correct tagging:</p>
-<pre><code>echo docker build -t sneumann/metfamily-base:`grep ^FROM Dockerfile-base | cut -d: -f 2 | tr -d " "` -f Dockerfile-base .</code></pre>
-<p>The image <code>sneumann/metfamily</code> is built on top and contains the actual MetFamily code and web application.</p>
-<p>Build via <code>docker build -t sneumann/metfamily .</code> or with the correct tagging:</p>
-<pre><code>docker build -t sneumann/metfamily:`grep ^FROM Dockerfile | cut -d: -f 2 | tr -d " "`-`grep Version DESCRIPTION | cut -d: -f 2 | tr -d " "`-`grep metFamilyAppVersion inst/MetFamily/version.R | cut -d'"' -f2` .</code></pre>
-<p>The build of the metfamily-base image <a href="https://hub.docker.com/r/sneumann/metfamily-base" class="external-link uri">https://hub.docker.com/r/sneumann/metfamily-base</a> is triggerd whenever in the <code>master</code> branch a tag <code>basechange-&lt;date&gt;</code> e.g. <code>basechange-20190804</code> is specified.</p>
+<p>Understanding metabolism is fundamental in biomedical and plant research and the identification and quantification of thousands of metabolites by mass spectrometry in modern metabolomics is a prerequisite for elucidating this area. However, the identification of metabolites is a major bottleneck in traditional approaches hampering advances. Here, we present a novel approach for the untargeted discovery of metabolite families offering a bird’s eye view of metabolic regulation in comparative metabolomics. We implemented the presented methodology in the easy-to-use web application MetFamily to enable the analysis of comprehensive metabolomics studies for all researchers worldwide.</p>
 </div>
 <div class="section level2">
-<h2 id="running-from-a-container">Running from a container<a class="anchor" aria-label="anchor" href="#running-from-a-container"></a>
+<h2 id="using-metfamily">Using MetFamily<a class="anchor" aria-label="anchor" href="#using-metfamily"></a>
 </h2>
-<p>To run the resulting container, start with <code>docker run --rm -p 3838:3838 sneumann/metfamily:latest</code></p>
-<p>and point your browser to <a href="http://localhost:3838/" class="external-link uri">http://localhost:3838/</a></p>
-</div>
-<div class="section level2">
-<h2 id="developing-and-debugging-in-a-container">Developing and debugging in a container<a class="anchor" aria-label="anchor" href="#developing-and-debugging-in-a-container"></a>
-</h2>
-<p>If you want to develop and debug stuff, you can build a container on top of <code>metfamily:latest</code> that has an added rstudio server. First build using <code>docker build -t metfamily-rstudio -f Dockerfile-rstudio .</code> and then run via <code>docker run -it --rm -p 8787:8787 metfamily-rstudio:latest</code>. CAVEAT: the <code>Dockerfile-rstudio</code> specifies a fixed user/password combo of <code>rstudio:rstudio</code>. Do not use in Production !</p>
-<p>You can also pass a local directory with checked out MetFamily git tree via the <code>docker run -v</code> argument.</p>
-</div>
-<div class="section level2">
-<h2 id="running-locally-with-metfamily-r-package">Running locally with MetFamily R Package<a class="anchor" aria-label="anchor" href="#running-locally-with-metfamily-r-package"></a>
-</h2>
-<p>After installing the <code>MetFamily</code> R package and its dependencies, you can</p>
+<p>The MetFamily web application is available at <a href="https://msbi.ipb-halle.de/MetFamilyDevel/" class="external-link uri">https://msbi.ipb-halle.de/MetFamilyDevel/</a>.</p>
+<p>It runs inside a Kubernetes cluster at the <a href="https://www.ipb-halle.de/en/" class="external-link">Leibniz Institute of Plant Biochemistry (IPB)</a>.</p>
+<p>The release version described in <a href="https://pubs.acs.org/doi/10.1021/acs.analchem.6b01569" class="external-link">Treutler et al., 2016</a> is hosted at <a href="https://msbi.ipb-halle.de/MetFamily/" class="external-link uri">https://msbi.ipb-halle.de/MetFamily/</a>.</p>
+<div class="section level3">
+<h3 id="local-installation-of-the-r-package">Local installation of the R Package<a class="anchor" aria-label="anchor" href="#local-installation-of-the-r-package"></a>
+</h3>
+<p>The MetFamily R package can be installed using:</p>
+<pre><code><span><span class="fu">remotes</span><span class="fu">::</span><span class="fu">install_github</span><span class="op">(</span><span class="st">"ipb-halle/MetFamily"</span><span class="op">)</span></span></code></pre>
+<p>After installation, you can run the interactive application locally:</p>
 <pre><code><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="http://ipb-halle.github.io/MetFamily/">MetFamily</a></span><span class="op">)</span></span>
-<span><span class="fu">runApp</span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/system.file.html" class="external-link">system.file</a></span><span class="op">(</span><span class="st">"MetFamily"</span>, package<span class="op">=</span><span class="st">"MetFamily"</span><span class="op">)</span><span class="op">)</span></span></code></pre>
+<span><span class="fu"><a href="reference/runMetFamily.html">runMetFamily</a></span><span class="op">(</span><span class="op">)</span></span></code></pre>
+<p>Or use an R script to process your analysis. See our vignette <a href="https://ipb-halle.github.io/MetFamily/articles/discoveringregulatedmetabolitefamilies.html" class="external-link">Discovering regulated Metabolite Families</a>.</p>
+</div>
 </div>
 <div class="section level2">
-<h2 id="running-through-kubernetes">Running through Kubernetes<a class="anchor" aria-label="anchor" href="#running-through-kubernetes"></a>
+<h2 id="development">Development<a class="anchor" aria-label="anchor" href="#development"></a>
 </h2>
-<p>At IPB we are running MetFamily inside a Kubernetes cluster. Please contact us for questions.</p>
+<p>MetFamily is under active development. Let us know if you run into issues.</p>
+<p>Documentation for developers is stored in the <code>dev</code> folder.</p>
 </div>
 </div>
-
   </main><aside class="col-md-3"><div class="license">
 <h2 data-toc-skip>License</h2>
 <ul class="list-unstyled">
@@ -119,12 +107,7 @@
 </ul>
 </div>
 
-<div class="dev-status">
-<h2 data-toc-skip>Dev status</h2>
-<ul class="list-unstyled">
-<li><a href="https://github.com/ipb-halle/MetFamily/actions/workflows/build.yml" class="external-link"><img src="https://github.com/ipb-halle/MetFamily/actions/workflows/build.yml/badge.svg" alt="build"></a></li>
-</ul>
-</div>
+
 
   </aside>
 </div>
