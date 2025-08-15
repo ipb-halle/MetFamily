@@ -21,18 +21,14 @@ if(errorHunting){
 }
 
 
-#########################################################################################
-#########################################################################################
-## server-side logic of the Shiny app
+# server-side logic of the Shiny app ----
 shinyServer(
   func = function(input, output, session) {
     shinybusy::show_modal_spinner(spin = "self-building-square", text="Loading libraries")
-    #########################################################################################
-    #########################################################################################
-    ## global variables per user
+
+    ## global variables per user ----
     
-    ##############################################
-    ## constants
+    ### constants ----
     # gp: added local = TRUE. Did that need to be in global env?
     source("version.R", local = TRUE)
     
@@ -64,8 +60,8 @@ shinyServer(
     ### variables that shouldn't be global
     dataFrame <- NULL
     
-    ##############################################
-    ## program state
+    
+    ### program state ----
     initialGuiUpdatePerformed <- FALSE
     state <- reactiveValues(
       ## side bar handling
@@ -89,12 +85,10 @@ shinyServer(
     plotsToShow <- "Display HCA"
     showSideBar <- TRUE
     
-    #########################################################################################
-    #########################################################################################
-    ## functions
     
-    #########################################################################################
-    ## source all server stuff
+    ## functions ----
+    
+    ### source all server stuff ----
     resetWorkspaceFunctions <- list()
     suspendOnExitFunctions <- list()
     
@@ -127,7 +121,6 @@ shinyServer(
     source(file = "app_files/server_guiMs2plot.R", local = TRUE)$value
     
     
-
     ## Parse the input file
     resetWorkspace <- function(){
       print(paste("resetWorkspace"))
@@ -135,8 +128,8 @@ shinyServer(
       for(resetWorkspaceFunction in resetWorkspaceFunctions)
         resetWorkspaceFunction()
       
-      #########################################################################################
-      ## panels
+      
+      ### panels ----
       state$showHCAplotPanel <<- FALSE
       state$showPCAplotPanel <<- FALSE
       state$showAnnotationplotPanel <<- FALSE
@@ -152,9 +145,8 @@ shinyServer(
       showPlotControls <<- FALSE
     }
     
-    #########################################################################################
-    #########################################################################################
-    ## observer
+    
+    ## observer ----
     shinybusy::remove_modal_spinner() #Remove preparing message
     
     ## controls
@@ -198,8 +190,8 @@ shinyServer(
         }
       }
       
-      #########################################################
-      ## initial gui update
+      
+      ## initial gui update ----
       if(tabId == "Input" & !initialGuiUpdatePerformed){
         print(paste("update GUI initially", tabId))
         
@@ -357,9 +349,7 @@ shinyServer(
 
     })
     
-    #########################################################################################
-    #########################################################################################
-    ## direct output rendering
+    ## direct output rendering ----
     output$information <- renderText({
       print(paste("init output$information"))
       ""
@@ -382,9 +372,8 @@ shinyServer(
       )
     }, deleteFile = FALSE)
     
-    #########################################################################################
-    #########################################################################################
-    ## reactive output values
+    
+    ## reactive output values ----
     output$showGUI <- reactive({
       print("update output$showGUI")
       output$information <- renderText({
@@ -459,9 +448,8 @@ shinyServer(
       }
     }
     
-    #########################################################################################
-    #########################################################################################
-    ## properties
+    
+    ## properties ----
     options(shiny.maxRequestSize=1024*1024^2) ## 500 mb file size
     outputOptions(output, 'showGUI',                 suspendWhenHidden=FALSE)
     outputOptions(output, 'showSideBar',             suspendWhenHidden=FALSE)
