@@ -25,7 +25,7 @@ if(errorHunting){
 shinyServer(
   func = function(input, output, session) {
     shinybusy::show_modal_spinner(spin = "self-building-square", text="Loading libraries")
-
+    
     ## global variables per user ----
     
     ### constants ----
@@ -42,7 +42,7 @@ shinyServer(
     
     ## GUI constants
     runRightColumnWidthFull <- 11
-
+    
     ### changing the legendcolumn width part 2 to 1.8
     legendColumnWidthFull <- 1.8
     runRightColumnWidthPart <- 8
@@ -346,7 +346,7 @@ shinyServer(
       if (!stringr::str_starts(Sys.info()["nodename"], "metfamily-")) {
         stopApp()
       }
-
+      
     })
     
     ## direct output rendering ----
@@ -425,7 +425,7 @@ shinyServer(
       print(paste("reactive update plotAnnotationShown", state$plotAnnotationShown))
       return(state$plotAnnotationShown)
     })
-
+    
     updateChangePlotRadioButton <- function(){
       if((sum(c(state$showHCAplotPanel, state$showPCAplotPanel, state$showAnnotationplotPanel)) > 1) & !is.null(state$analysisType)){
         if(state$analysisType == "HCA")
@@ -461,7 +461,7 @@ shinyServer(
     outputOptions(output, 'plotPcaShown',            suspendWhenHidden=FALSE)
     outputOptions(output, 'plotAnnotationShown',     suspendWhenHidden=FALSE)
     
-
+    
     # Force crash for testing
     observeEvent(input$crashApp, {
       stop("A terrible error occured. It was your fault.")
