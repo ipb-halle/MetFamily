@@ -1,57 +1,49 @@
+# MetFamily <a href="https://https://ipb-halle.github.io/MetFamily/index.html"><img src="inst/MetFamily/www/img/Metfamily.gif" align="right" height="120" /></a>
+
 [![build](https://github.com/ipb-halle/MetFamily/actions/workflows/build.yml/badge.svg)](https://github.com/ipb-halle/MetFamily/actions/workflows/build.yml)
 
-# MetFamily
-Understanding metabolism is fundamental in biomedical and plant research and the identification and quantification of thousands of metabolites by mass spectrometry in modern metabolomics is a prerequisite for elucidating this area. However, the identification of metabolites is a major bottleneck in traditional approaches hampering advances. Here, we present a novel approach for the untargeted discovery of metabolite families offering a bird's eye view of metabolic regulation in comparative metabolomics. We implemented the presented methodology in the easy-to-use web application MetFamily to enable the analysis of comprehensive metabolomics studies for all researchers worldwide.  MetFamily is available under http://msbi.ipb-halle.de/MetFamily/.
+## Overview
 
-# Docker images
-The image `sneumann/metfamily-base` contains all dependencies
-for the MetFamily web application.
+Understanding metabolism is fundamental in biomedical and plant research and the
+identification and quantification of thousands of metabolites by mass
+spectrometry in modern metabolomics is a prerequisite for elucidating this area.
+However, the identification of metabolites is a major bottleneck in traditional
+approaches hampering advances. Here, we present a novel approach for the
+untargeted discovery of metabolite families offering a bird's eye view of
+metabolic regulation in comparative metabolomics. We implemented the presented
+methodology in the easy-to-use web application MetFamily to enable the analysis
+of comprehensive metabolomics studies for all researchers worldwide.
 
-## Building the container(s)
-Build via `docker build -t sneumann/metfamily-base -f Dockerfile-base . `or with the correct tagging:
+## Using MetFamily
+
+The MetFamily web application is available at
+https://msbi.ipb-halle.de/MetFamilyDevel/.
+
+It runs inside a Kubernetes cluster at the 
+[Leibniz Institute of Plant Biochemistry (IPB)](https://www.ipb-halle.de/en/).
+
+The release version described in [Treutler et al., 2016](https://pubs.acs.org/doi/10.1021/acs.analchem.6b01569) is hosted at https://msbi.ipb-halle.de/MetFamily/.
+
+
+### Local installation of the R Package
+
+The MetFamily R package can be installed using:
 ```
-echo docker build -t sneumann/metfamily-base:`grep ^FROM Dockerfile-base | cut -d: -f 2 | tr -d " "` -f Dockerfile-base .
+remotes::install_github("ipb-halle/MetFamily")
 ```
 
-
-The image `sneumann/metfamily` is built on top and contains
-the actual MetFamily code and web application.
-
-Build via `docker build -t sneumann/metfamily . ` or with the correct tagging:
-```
-docker build -t sneumann/metfamily:`grep ^FROM Dockerfile | cut -d: -f 2 | tr -d " "`-`grep Version DESCRIPTION | cut -d: -f 2 | tr -d " "`-`grep metFamilyAppVersion inst/MetFamily/version.R | cut -d'"' -f2` .
-```
-
-The build of the metfamily-base image https://hub.docker.com/r/sneumann/metfamily-base is triggerd whenever in the `master` branch a tag `basechange-<date>` e.g. `basechange-20190804` is specified.
-
-## Running from a container
-
-To run the resulting container, start with
-`docker run --rm -p 3838:3838 sneumann/metfamily:latest`
-
-and point your browser to http://localhost:3838/
-
-## Developing and debugging in a container
-
-If you want to develop and debug stuff, you can build a container
-on top of `metfamily:latest` that has an added rstudio server.
-First build using `docker build -t metfamily-rstudio -f Dockerfile-rstudio .`
-and then run via `docker run -it --rm -p 8787:8787 metfamily-rstudio:latest`.
-CAVEAT: the `Dockerfile-rstudio` specifies a fixed user/password combo
-of `rstudio:rstudio`. Do not use in Production !
-
-You can also pass a local directory with checked out MetFamily git tree
-via the `docker run -v` argument.
-
-## Running locally with MetFamily R Package
-
-After installing the `MetFamily` R package and its dependencies, you can
+After installation, you can run the interactive application locally:
 ```
 library(MetFamily)
-runApp(system.file("MetFamily", package="MetFamily"))
+runMetFamily()
 ```
 
-## Running through Kubernetes
+Or use an R script to process your analysis. See our vignette [Discovering regulated Metabolite Families](https://ipb-halle.github.io/MetFamily/articles/discoveringregulatedmetabolitefamilies.html).
 
-At IPB we are running MetFamily inside a Kubernetes cluster.
-Please contact us for questions.
+
+## Development
+
+MetFamily is under active development. Let us know if you run into issues.
+
+Documentation for developers is stored in the `dev` folder.
+
