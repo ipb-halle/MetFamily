@@ -18,13 +18,13 @@ checkAnnotationValue <- function(annotationValue){
 }
 checkAnnotationValueWithModalErrorDialog <- function(annotationValue){
   if(!checkAnnotationValue(annotationValue = annotationValue)){
-    msg <- paste(
+    msg <- paste0(
       "The annotation name is not valid.", "<br>",
       "<br>",
-      "The annotation name i) must not contain ', ', ii) must not contain '=', iii) must not by empty, and iv) must contain characters other than whitespaces.",
-      "<br>",
-      "Please make sure that the above rules apply and try again.",
-      sep = ""
+      "The annotation name is not allowed to: <br> - contain comma ','",
+      "<br> - contain '=' <br> - be empty <br> - only contain whitespaces",
+      "<br><br>",
+      "Please make sure that the above rules apply and try again."
     )
     showErrorDialog(msg)
     return(FALSE)
@@ -91,6 +91,10 @@ removeAnnotation <- function(precursorSet, annotationValue){
   updateAnnotationDependentGui(precursorSet)
 }
 renameAnnotation <- function(annotationValueOld, annotationColorOld, annotationValueNew, annotationColorNew){
+  
+  # check name is valid
+  if(!checkAnnotationValueWithModalErrorDialog(annotationValue = annotationValueNew)) return()
+  
   ## update summary
   annotationIdx   <- which(dataList$annoPresentAnnotationsList == annotationValueOld)
   dataList$annoPresentAnnotationsList[[annotationIdx]] <<- annotationValueNew

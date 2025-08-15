@@ -1,6 +1,8 @@
 
+
 ## handling of errors and warnings
 errorHunting <- TRUE
+
 
 if(errorHunting){
   options(warn = 2, shiny.error = recover)
@@ -19,21 +21,17 @@ if(errorHunting){
 }
 
 
-#########################################################################################
-#########################################################################################
-## server-side logic of the Shiny app
+# server-side logic of the Shiny app ----
 shinyServer(
   func = function(input, output, session) {
     shinybusy::show_modal_spinner(spin = "self-building-square", text="Loading libraries")
-    #########################################################################################
-    #########################################################################################
-    ## global variables per user
     
-    ##############################################
-    ## constants
+    ## global variables per user ----
+    
+    ### constants ----
     # gp: added local = TRUE. Did that need to be in global env?
     source("version.R", local = TRUE)
-      
+    
     ## annotation constants
     artifactName   <- "Ignore"
     artifactColor  <- "red"
@@ -44,7 +42,7 @@ shinyServer(
     
     ## GUI constants
     runRightColumnWidthFull <- 11
-
+    
     ### changing the legendcolumn width part 2 to 1.8
     legendColumnWidthFull <- 1.8
     runRightColumnWidthPart <- 8
@@ -56,8 +54,14 @@ shinyServer(
     annoLegendEntryHeight <- 18
     maximumNumberOfTableEntries <- 50
     
-    ##############################################
-    ## program state
+    ### HCA constants
+    minimumProportionToShowFragment <- 0.5
+    
+    ### variables that shouldn't be global
+    dataFrame <- NULL
+    
+    
+    ### program state ----
     initialGuiUpdatePerformed <- FALSE
     state <- reactiveValues(
       ## side bar handling
@@ -81,12 +85,10 @@ shinyServer(
     plotsToShow <- "Display HCA"
     showSideBar <- TRUE
     
-    #########################################################################################
-    #########################################################################################
-    ## functions
     
-    #########################################################################################
-    ## source all server stuff
+    ## functions ----
+    
+    ### source all server stuff ----
     resetWorkspaceFunctions <- list()
     suspendOnExitFunctions <- list()
     
@@ -119,7 +121,6 @@ shinyServer(
     source(file = "app_files/server_guiMs2plot.R", local = TRUE)$value
     
     
-
     ## Parse the input file
     resetWorkspace <- function(){
       print(paste("resetWorkspace"))
@@ -127,8 +128,8 @@ shinyServer(
       for(resetWorkspaceFunction in resetWorkspaceFunctions)
         resetWorkspaceFunction()
       
-      #########################################################################################
-      ## panels
+      
+      ### panels ----
       state$showHCAplotPanel <<- FALSE
       state$showPCAplotPanel <<- FALSE
       state$showAnnotationplotPanel <<- FALSE
@@ -144,9 +145,8 @@ shinyServer(
       showPlotControls <<- FALSE
     }
     
-    #########################################################################################
-    #########################################################################################
-    ## observer
+    
+    ## observer ----
     shinybusy::remove_modal_spinner() #Remove preparing message
     
     ## controls
@@ -190,8 +190,8 @@ shinyServer(
         }
       }
       
-      #########################################################
-      ## initial gui update
+      
+      ## initial gui update ----
       if(tabId == "Input" & !initialGuiUpdatePerformed){
         print(paste("update GUI initially", tabId))
         
@@ -338,18 +338,18 @@ shinyServer(
       traceback()
       print("With print: ")
       print(traceback())
-      for(suspendOnExitFunction in suspendOnExitFunctions)
+      for(suspendOnExitFunction in suspendOnExitFunctions) {
         suspendOnExitFunction()
-      # stops shiny running when closing the browser
-      # potential issue when multiples instances of the app are running simultaneously
+      }
+      # if running locally, stops shiny running when closing the browser
       # see https://stackoverflow.com/questions/35306295/how-to-stop-running-shiny-app-by-closing-the-browser-window
-      # answer from user "until" for single-user button alternative
-      stopApp()
+      if (!stringr::str_starts(Sys.info()["nodename"], "metfamily-")) {
+        stopApp()
+      }
+      
     })
     
-    #########################################################################################
-    #########################################################################################
-    ## direct output rendering
+    ## direct output rendering ----
     output$information <- renderText({
       print(paste("init output$information"))
       ""
@@ -372,9 +372,8 @@ shinyServer(
       )
     }, deleteFile = FALSE)
     
-    #########################################################################################
-    #########################################################################################
-    ## reactive output values
+    
+    ## reactive output values ----
     output$showGUI <- reactive({
       print("update output$showGUI")
       output$information <- renderText({
@@ -426,7 +425,7 @@ shinyServer(
       print(paste("reactive update plotAnnotationShown", state$plotAnnotationShown))
       return(state$plotAnnotationShown)
     })
-
+    
     updateChangePlotRadioButton <- function(){
       if((sum(c(state$showHCAplotPanel, state$showPCAplotPanel, state$showAnnotationplotPanel)) > 1) & !is.null(state$analysisType)){
         if(state$analysisType == "HCA")
@@ -449,9 +448,8 @@ shinyServer(
       }
     }
     
-    #########################################################################################
-    #########################################################################################
-    ## properties
+    
+    ## properties ----
     options(shiny.maxRequestSize=1024*1024^2) ## 500 mb file size
     outputOptions(output, 'showGUI',                 suspendWhenHidden=FALSE)
     outputOptions(output, 'showSideBar',             suspendWhenHidden=FALSE)
@@ -463,7 +461,7 @@ shinyServer(
     outputOptions(output, 'plotPcaShown',            suspendWhenHidden=FALSE)
     outputOptions(output, 'plotAnnotationShown',     suspendWhenHidden=FALSE)
     
-
+    
     # Force crash for testing
     observeEvent(input$crashApp, {
       stop("A terrible error occured. It was your fault.")

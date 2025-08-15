@@ -104,7 +104,7 @@ createExportMatrix <- function(precursorSet){
   annotationStrings <- vector(mode = "character", length = length(annotations))
   for(i in 1:length(annotations)){
     if(length(annotations[[i]]) > 0)
-      annotationStrings[[i]] <- paste(annotations[[i]], collapse = ", ")
+      annotationStrings[[i]] <- paste(annotations[[i]], collapse = "; ")
     else
       annotationStrings[[i]] <- ""
   }

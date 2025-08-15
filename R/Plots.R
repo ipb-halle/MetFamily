@@ -1620,7 +1620,7 @@ plotLegendWithBalls1 <- function(labels, xPositions, yPositions, circleXPosition
 #'
 #' @returns ?
 #' @export
-calcPlotMS2Legend <- function(dataList){
+calcPlotMS2Legend <- function(dataList, minimumProportionOfLeafs = 0.75, minimumProportionToShowFragment = 0.5){
   ####################
   ## heatmap legend
   par(mar=c(0,0,0,0), mgp = c(3, 1, 0))  ## c(bottom, left, top, right)
