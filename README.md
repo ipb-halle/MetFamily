@@ -1,4 +1,4 @@
-# MetFamily <a href="https://https://ipb-halle.github.io/MetFamily/index.html"><img src="inst/MetFamily/www/img/Metfamily.gif" align="right" height="120" /></a>
+# MetFamily <a href="https://ipb-halle.github.io/MetFamily/index.html"><img src="inst/MetFamily/www/img/Metfamily.gif" align="right" height="120" /></a>
 
 [![build](https://github.com/ipb-halle/MetFamily/actions/workflows/build.yml/badge.svg)](https://github.com/ipb-halle/MetFamily/actions/workflows/build.yml)
 
