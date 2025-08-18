@@ -218,7 +218,7 @@ addSiriusAnnotations <- function(qfeatures,
   
   stopifnot(file.exists(siriusFile))
   # annotation <- read.delim(siriusFile) # deprec
-  annotation <- readr::readread_tsv(siriusFile)
+  annotation <- readr::read_tsv(siriusFile)
   
   sirCat <- stringr::str_replace(siriusFileColumnName, " ", "#")
   stopifnot(sirCat %in% colnames(annotation))
@@ -256,12 +256,12 @@ addSiriusAnnotations <- function(qfeatures,
     
   }
   
-  stopifnot(isTRUE(all.equal(names(annotation), v5names)))
+  stopifnot("Sirius column names are not as expected" = isTRUE(all.equal(names(annotation), v5names)))
   
   
   # continue with processing ----
   
-  rowDat <- rowData(qfeatures[[1]])
+  rowDat <- SummarizedExperiment::rowData(qfeatures[[1]])
   
   # Print for debugging
   print(paste("Merging by:", sirius_col, "and", rowData_col))
@@ -271,10 +271,12 @@ addSiriusAnnotations <- function(qfeatures,
 
   # check no duplicated
   stopifnot(
+    "Some of the names are duplicated" =
     length(
-      base::intersect(names(rowDat %>% dplyr::select(-all_of(rowData_col))),
-                      names(annotation %>% dplyr::select(-all_of(sirius_col))))
-      ) == 0)
+      base::intersect(names(rowDat) %>% {.[!. == rowData_col]},
+                      names(annotation) %>% {.[!. == sirius_col]})
+    ) == 0
+  )
 
   # Merge the data frames
   annotatedRowData <- S4Vectors::merge(rowDat, annotation,
