@@ -26,6 +26,7 @@
 #' @importFrom purrr set_names
 #' @importFrom QFeatures ncols
 #' @importFrom QFeatures QFeatures
+#' @importFrom readr read_tsv
 #' @importFrom S4Vectors DataFrame
 #' @importFrom stats as.dendrogram
 #' @importFrom stats cor
