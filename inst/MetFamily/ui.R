@@ -746,7 +746,11 @@ shinyUI(
                         "Jaccard",
                         "Jaccard (intensity-weighted)",
                         "Jaccard (fragment-count-weighted)",
-                        "NDP (Normalized dot product)"
+                        "NDP (Normalized dot product)",
+                        "Cosine",
+                        "Cosine (with NL)",
+                        "Modified Cosine",
+                        "Modified Cosine (with NL)"
                       ), selectize = FALSE)
                       #bsTooltip(id = "hcaClusterMethod", title = "The method used for clustering", placement = "bottom", trigger = "hover"),
                       #selectInput(multiple = FALSE, inputId = "hcaClusterMethod", label = "Cluster method", selected = "ward.D", choices = c(
