@@ -1,11 +1,14 @@
 ---
 title: "Discovering regulated Metabolite Families"
 author:
-- name: Khabat Vahabi
-  affiliation: Leibniz Institute of Plant Biochemistry
 - name: Steffen Neumann
   affiliation: Leibniz Institute of Plant Biochemistry
   email: sneumann@ipb-halle.de
+- name: Guillaume Patoine
+  affiliation: Leibniz Institute of Plant Biochemistry
+  email: gpatoine@ipb-halle.de
+- name: Khabat Vahabi
+  affiliation: Leibniz Institute of Plant Biochemistry
 package: MetFamily
 output:
   BiocStyle::html_document:
@@ -20,32 +23,49 @@ bibliography: references.bib
 csl: biomed-central.csl
 ---
 
-```{r setup, include=FALSE, echo=FALSE}
+```{r setup, include=F}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+
+# MetFamily
+
+MetFamily is an R package that provides a novel approach for the untargeted discovery of metabolite families. 
+
+Read more on the GitHub repository: <https://github.com/ipb-halle/MetFamily>
+
+We first need to install the development version of the package.
+
+```{r, include=T, eval=F}
+remotes::install_github("ipb-halle/MetFamily@devel")
+```
+
+```{r}
+# And load it
 library(MetFamily)
 ```
 
-# Introduction
 
-Some text about the scenario, data and MTBLS297.
+# Dataset
 
-Cool paper [@Treutler16DiscoveringRegulatedMetabolite].
- 
-Cool R package: `r Githubpkg("ipb-halle/MetFamily")`
+The following analysis looks into metabolites found in glandular trichomes of tomato plants. See the referenced paper for additional information [@Treutler16DiscoveringRegulatedMetabolite].
 
+The dataset is provided in the MetFamily package.
 
+```{r dataset, warning=F}
 
-# Loading the data
-
-First, we load the data and summarise it
-
-```{r load-data}
-
-# Load separate files
+# MS1 intensities
 filePeakMatrixPath <- system.file("extdata/showcase/Metabolite_profile_showcase.txt", package = "MetFamily")
+
+# MS2 spectra
 fileSpectra <- system.file("extdata/showcase/MSMS_library_showcase.msp", package = "MetFamily")
+
+# Sirius annotations
 fileAnnotation <- system.file("extdata/testdata/canopus/canopus1680.txt", package = "MetFamily")
 
+# We use default import parameters
 parameterSet <- parameterSetDefault()
+
 
 dataList <- projectFromFiles(
   ms1_path = filePeakMatrixPath, 
@@ -58,7 +78,7 @@ dataList <- projectFromFiles(
 ```
 
 
-```{r eval=FALSE, include=FALSE}
+```{r, include=FALSE}
 
 # use showcase for testing
 
@@ -71,12 +91,14 @@ dataList <- projectFromFiles(
 
 # Filtering data
 
-We can filter the data to remove low quality data points
+We use a filter for the intensity threshold and log2-fold-change to remove noise and focus on features of interest.
 
-```{r filter-data}
-
+```{r filter}
 filterObj <- makeFilterObj(dataList, filter_average = 10000, filter_lfc = 2)
+```
 
+
+```{r, include=F}
 # fileName <- system.file("extdata/testdata/canopus/filterPca_canopus.rds", package = "MetFamily")
 # filterObj_file <- readRDS(fileName)
 # identical(filterObj_file, filterObj)
@@ -85,39 +107,31 @@ filterObj <- makeFilterObj(dataList, filter_average = 10000, filter_lfc = 2)
 ```
 
 
-# PCA
+# PCA figures
 
-PCA on MS1 in Figure \@ref(fig:pca). 
-
-```{r pca, fig.cap="PCA of MS1.", echo=FALSE}
-
+```{r pca, fig.cap="PCA scores of MS1"}
 pca <- calculatePCA(dataList=dataList,
-                         filterObj=filterObj, 
-                         ms1AnalysisMethod="PCA (Principal Component Analysis)", 
-                         scaling="None", 
+                    filterObj=filterObj, 
+                    ms1AnalysisMethod="PCA (Principal Component Analysis)", 
+                    scaling="None", 
                     logTransform=FALSE)
 
-pcaDimensionOne <- 1
-pcaDimensionTwo <- 2
-
-# could be easily implemented with ggplot
 resultObj <- calcPlotPCAscores(
   pcaObj = pca, 
   dataList = dataList,
   filterObj = filterObj,
-  pcaDimensionOne = pcaDimensionOne, 
-  pcaDimensionTwo = pcaDimensionTwo, 
   showScoresLabels = FALSE, 
   xInterval = NULL, 
   yInterval = NULL
 )
+```
 
+
+```{r pca-load, fig.cap="PCA loadings of MS1"}
 resultObj <- calcPlotPCAloadings(
   pcaObj = pca,
   dataList = dataList,
   # filter = filterObj$filter, # deprecated
-  pcaDimensionOne = pcaDimensionOne,
-  pcaDimensionTwo = pcaDimensionTwo,
   selectionFragmentPcaLoadingSet = NULL,
   selectionAnalysisPcaLoadingSet = NULL,
   selectionSearchPcaLoadingSet   = NULL,
@@ -130,93 +144,122 @@ resultObj <- calcPlotPCAloadings(
   showLoadingsFeaturesSelected    = TRUE,
   showLoadingsFeaturesUnselected  = TRUE
 )
-
-
-
-# stricter filter, only annotated features
-
-filterObj <- makeFilterObj(dataList, filter_average = 1500, filter_lfc = 0)
-
-pca <- calculatePCA(dataList=dataList,
-                         filterObj=filterObj, 
-                         ms1AnalysisMethod="PCA (Principal Component Analysis)", 
-                         scaling="None", 
-                    logTransform=FALSE)
-
-# could be easily implemented with ggplot
-resultObj <- calcPlotPCAscores(
-  pcaObj = pca, 
-  dataList = dataList,
-  filterObj = filterObj,
-  showScoresLabels = FALSE, 
-)
-
-resultObj <- calcPlotPCAloadings(
-  pcaObj = pca,
-  dataList = dataList,
-  showLoadingsFeaturesAnnotated   = T,
-  showLoadingsFeaturesUnannotated = F,
-  showLoadingsFeaturesSelected    = F,
-  showLoadingsFeaturesUnselected  = F
-)
-    
-    
 ```
 
-# HCA
 
-HCA on MS2 in Figure \@ref(fig:hca). 
+```{r eval=FALSE, include=FALSE}
+# stricter filter, only annotated features
+# 
+# filterObj <- makeFilterObj(dataList, filter_average = 1500, filter_lfc = 0)
+# 
+# pca <- calculatePCA(dataList=dataList,
+#                     filterObj=filterObj, 
+#                     ms1AnalysisMethod="PCA (Principal Component Analysis)", 
+#                     scaling="None", 
+#                     logTransform=FALSE)
+# 
+# # could be easily implemented with ggplot
+# resultObj <- calcPlotPCAscores(
+#   pcaObj = pca, 
+#   dataList = dataList,
+#   filterObj = filterObj,
+#   showScoresLabels = FALSE, 
+# )
+# 
+# resultObj <- calcPlotPCAloadings(
+#   pcaObj = pca,
+#   dataList = dataList,
+#   showLoadingsFeaturesAnnotated   = T,
+#   showLoadingsFeaturesUnannotated = F,
+#   showLoadingsFeaturesSelected    = F,
+#   showLoadingsFeaturesUnselected  = F
+# )
+
+
+```
+
+# HCA figure on MS2
+
+```{r eval=FALSE, include=FALSE}
+
+filterHca <- makeFilterObj(dataList, 10000, 2)
+
+currentDistanceMatrixObj <- calculateDistanceMatrix(
+  dataList = dataList, 
+  filter = filterHca$filter,
+  distanceMeasure = distanceMeasure,
+  progress = F)
+```
 
 ### In construction...
 
 ```{r hca, fig.cap="HCA on MS2.", echo=FALSE, eval=FALSE}
 
-if (FALSE) {
-p <- calcPlotDendrogram_plotly(dataList=dataList, #project, 
-                               filterObj=filterObj, 
-                               clusterDataList=dataList, #project, 
-  distanceMeasure = "Jaccard", 
-  showClusterLabels=FALSE, 
-  hcaPrecursorLabels="m/z / RT", 
-  selectionFragmentTreeNodeSet = NULL, 
-  selectionAnalysisTreeNodeSet = NULL, 
-  selectionSearchTreeNodeSet = NULL, 
-  selectedSelection, 
-  heatmapContent, 
-  heatmapOrdering, 
-  heatmapProportion)
-}
+clusterDataList <- calculateCluster(
+  progress = F, 
+  dataList = dataList, 
+  filterObj = filterHca, 
+  distanceMatrix = currentDistanceMatrixObj$distanceMatrix,
+  method = clusterMethod, 
+  distanceMeasure = distanceMeasure)
 
+```
+
+
+```{r eval=FALSE, include=FALSE}
+if (FALSE) {
+  p <- calcPlotDendrogram_plotly(dataList=dataList, #project, 
+                                 filterObj=filterObj, 
+                                 clusterDataList=dataList, #project, 
+                                 distanceMeasure = "Jaccard", 
+                                 showClusterLabels=FALSE, 
+                                 hcaPrecursorLabels="m/z / RT", 
+                                 selectionFragmentTreeNodeSet = NULL, 
+                                 selectionAnalysisTreeNodeSet = NULL, 
+                                 selectionSearchTreeNodeSet = NULL, 
+                                 selectedSelection, 
+                                 heatmapContent, 
+                                 heatmapOrdering, 
+                                 heatmapProportion)
+}
+```
+
+
+```{r hca, fig.cap="HCA on MS2"}
 fileName <- system.file("extdata/testdata/clusterDataList.Rdata", package = "MetFamily")
 load(fileName) 
 fileName <- system.file("extdata/testdata/hcaFilter.Rdata", package = "MetFamily")
 load(fileName) 
 
-returnObj <- calcPlotDendrogram(dataList=dataList, #project, 
-                                filter=filter, 
-                                clusterDataList=clusterDataList, 
-                                annoPresentAnnotationsList = annoPresentAnnotationsList ,
-                                annoPresentColorsList = annoPresentColorsList,
-                                distanceMeasure="Jaccard (intensity-weighted)", 
-                                selectionFragmentTreeNodeSet = NULL, 
-                                selectionAnalysisTreeNodeSet = NULL, 
-                                selectionSearchTreeNodeSet = NULL, 
-                                showClusterLabels = TRUE, 
-                                hcaPrecursorLabels = "m/z / RT", 
-                                xInterval = c(1,219))
+tryCatch(
+  returnObj <- calcPlotDendrogram(
+    dataList=dataList, #project, 
+    filter=filter, 
+    clusterDataList=clusterDataList, 
+    annoPresentAnnotationsList = annoPresentAnnotationsList ,
+    annoPresentColorsList = annoPresentColorsList,
+    distanceMeasure="Jaccard (intensity-weighted)", 
+    selectionFragmentTreeNodeSet = NULL, 
+    selectionAnalysisTreeNodeSet = NULL, 
+    selectionSearchTreeNodeSet = NULL, 
+    showClusterLabels = TRUE, 
+    hcaPrecursorLabels = "m/z / RT", 
+    xInterval = c(1,219)),
+  error = \(x){invisible(NULL)}
+)
 
-  
 ```
 
 # References {.unnumbered}
 
 <div id="refs"></div>
 
-# Appendix {.unnumbered}
 
-## Session info
+```{r eval=FALSE, include=FALSE}
 
-```{r sessionInfo, echo=FALSE}
-sessionInfo()
+rmarkdown::render(here::here("vignettes/discoveringregulatedmetabolitefamilies.Rmd"),
+                  output_format = "html_document",
+                  output_file = gptools::hptmst("..", "discoveringregulatedmetabolitefamilies", "html", time = F))
+
 ```
 
