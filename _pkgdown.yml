@@ -1,4 +1,4 @@
 url: http://ipb-halle.github.io/MetFamily/
 template:
   bootstrap: 5
-
+  math-rendering: mathjax

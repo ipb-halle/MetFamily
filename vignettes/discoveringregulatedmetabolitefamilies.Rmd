@@ -66,10 +66,14 @@ fileAnnotation <- system.file("extdata/testdata/canopus/canopus1680.txt", packag
 # We use default import parameters
 parameterSet <- parameterSetDefault()
 
-dataList <- projectFromFiles(ms1_path = filePeakMatrixPath, 
-                             ms2_path = fileSpectra,
-                             parameterSet = parameterSet,
-                             annot_path =fileAnnotation)
+
+dataList <- projectFromFiles(
+  ms1_path = filePeakMatrixPath, 
+  ms2_path = fileSpectra, 
+  siriusFileColumnName = "ClassyFire class",
+  parameterSet = parameterSet,
+  annot_path = fileAnnotation
+)
 
 ```
 
@@ -185,7 +189,11 @@ currentDistanceMatrixObj <- calculateDistanceMatrix(
   filter = filterHca$filter,
   distanceMeasure = distanceMeasure,
   progress = F)
+```
 
+### In construction...
+
+```{r hca, fig.cap="HCA on MS2.", echo=FALSE, eval=FALSE}
 
 clusterDataList <- calculateCluster(
   progress = F, 
