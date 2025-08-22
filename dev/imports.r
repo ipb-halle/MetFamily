@@ -29,6 +29,9 @@ use_import_from("purrr", "set_names")
 
 use_import_from("future", "plan")
 use_import_from("promises", "future_promise")
+
+use_import_from("readr", "read_tsv")
+
 # -------------------------------------------------------------------------
 
 document()

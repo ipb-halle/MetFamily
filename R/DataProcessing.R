@@ -134,7 +134,7 @@ sparseMatrixToString <- function(matrixRows, matrixCols, matrixVals, parameterSe
 #' @returns dataList
 #' @export
 projectFromFiles <- function(ms1_path, ms2_path, annot_path = NULL,
-                             siriusFileColumnName = c("NPC class"),
+                             siriusFileColumnName = c("ClassyFire superclass"),
                              parameterSet = NULL) {
   
   if (is.null(parameterSet)) {
@@ -869,7 +869,7 @@ readProjectData <- function(fileLines, progress = FALSE)
 #'  "ClassyFire class", "ClassyFire superclass"
 #' @returns The dataList object with added sirius annotations.
 #' @export
-add_qfeatures <- function(dataList, qfeatures, fileAnnotation = NULL, siriusFileColumnName = "NPC class") {
+add_qfeatures <- function(dataList, qfeatures, fileAnnotation = NULL, siriusFileColumnName = "ClassyFire superclass") {
   # This function takes snippets previously in convertToProjectFile and readProjectData
   # to streamline the process and declutter the aforementionned functions.
   
