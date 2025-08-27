@@ -195,7 +195,7 @@ parsePeakAbundanceMatrixQF <- function(qfeatures,
 #' @param rowData_col character Qfeatures column to match
 #' @param sirius_col character Sirius column to match
 #' @param siriusFileColumnName One of "NPC class", "NPC superclass", "NPC pathway", "ClassyFire subclass",
-#'  "ClassyFire class", "ClassyFire superclass"
+#'  "ClassyFire class", "ClassyFire superclass". Defaults to "ClassyFire superclass" if not specified.
 #'
 #' @return qfeatures object
 #' @importFrom utils read.delim
@@ -206,30 +206,82 @@ addSiriusAnnotations <- function(qfeatures,
                                  siriusFile,
                                  rowData_col = "Alignment ID",
                                  sirius_col = "featureId",
-                                 siriusFileColumnName = "NPC class") {
+                                 siriusFileColumnName = NULL) {
+  
+  if (is.null(siriusFileColumnName)) {
+    siriusFileColumnName <- "ClassyFire superclass"
+    message('siriusFileColumnName is not specified. "ClassyFire superclass" is used as default.')
+  }
   
   stopifnot(siriusFileColumnName %in% c("NPC class", "NPC superclass", "NPC pathway", "ClassyFire subclass",
                                         "ClassyFire class", "ClassyFire superclass", "ClassyFire kingdom"))
   
-  #TODO: specify more parameters in read delim
-  annotation <- read.delim(siriusFile)
- 
-  sirCat <- stringr::str_replace(siriusFileColumnName, " ", "\\.")
+  stopifnot(file.exists(siriusFile))
+  # annotation <- read.delim(siriusFile) # deprec
+  annotation <- readr::read_tsv(siriusFile)
+  
+  sirCat <- stringr::str_replace(siriusFileColumnName, " ", "#")
   stopifnot(sirCat %in% colnames(annotation))
   
-  rowDat <- rowData(qfeatures[[1]])
+  # handle Sirius format differences ----
+  # should work for any version before 6.0
+  v5names <- c("id", "molecularFormula", "adduct", "precursorFormula", "NPC#pathway", 
+               "NPC#pathway Probability", "NPC#superclass", "NPC#superclass Probability", 
+               "NPC#class", "NPC#class Probability", "ClassyFire#most specific class", 
+               "ClassyFire#most specific class Probability", "ClassyFire#level 5", 
+               "ClassyFire#level 5 Probability", "ClassyFire#subclass", "ClassyFire#subclass Probability", 
+               "ClassyFire#class", "ClassyFire#class Probability", "ClassyFire#superclass", 
+               "ClassyFire#superclass probability", "ClassyFire#all classifications", 
+               "featureId")
+  
+  # > v6.0
+  v6names <- c("formulaRank", "molecularFormula", "adduct", "precursorFormula", 
+               "NPC#pathway", "NPC#pathway Probability", "NPC#superclass", "NPC#superclass Probability", 
+               "NPC#class", "NPC#class Probability", "ClassyFire#superclass", 
+               "ClassyFire#superclass probability", "ClassyFire#class", "ClassyFire#class Probability", 
+               "ClassyFire#subclass", "ClassyFire#subclass Probability", "ClassyFire#level 5", 
+               "ClassyFire#level 5 Probability", "ClassyFire#most specific class", 
+               "ClassyFire#most specific class Probability", "ClassyFire#all classifications", 
+               "ionMass", "retentionTimeInSeconds", "retentionTimeInMinutes", 
+               "formulaId", "alignedFeatureId", "mappingFeatureId", "overallFeatureQuality")
+  
+  if(isTRUE(all.equal(names(annotation), v6names))) {
+    
+    # convert to older format
+    annotation <- annotation %>% 
+      dplyr::select(molecularFormula:`NPC#class Probability`,
+                    v5names[11:21],
+                    featureId = mappingFeatureId) %>% 
+      dplyr::mutate(id = NA, .before = 1)
+    
+  }
+  
+  stopifnot("Sirius column names are not as expected" = isTRUE(all.equal(names(annotation), v5names)))
+  
+  
+  # continue with processing ----
+  
+  rowDat <- SummarizedExperiment::rowData(qfeatures[[1]])
   
   # Print for debugging
   print(paste("Merging by:", sirius_col, "and", rowData_col))
   
-  stopifnot(sirius_col %in% colnames(annotation))
+  stopifnot(sirius_col %in% names(annotation))
   # rowData_col %in% colnames(rowDat[1]),
+
+  # check no duplicated
+  stopifnot(
+    "Some of the names are duplicated" =
+    length(
+      base::intersect(names(rowDat) %>% {.[!. == rowData_col]},
+                      names(annotation) %>% {.[!. == sirius_col]})
+    ) == 0
+  )
 
   # Merge the data frames
   annotatedRowData <- S4Vectors::merge(rowDat, annotation,
                                   by.x = rowData_col, by.y = sirius_col,  all.x = TRUE)
 
-  #TODO: ? check for duplicate columns ?
   annotation_cols <- colnames(annotation)[colnames(annotation) != rowData_col]
   rowData_cols <- colnames(rowDat)
   
