@@ -254,7 +254,8 @@ filterData <- function(dataList, sampleClasses, sampleSet = NULL, filterBySample
 #'     \item{distanceMeasure}{The distance metric used, same as the input parameter.}
 #'   }
 #' @export
-calculateDistanceMatrix <- function(dataList, filter, distanceMeasure = "Jaccard", progress = FALSE) {
+calculateDistanceMatrix <- function(dataList, filter, distanceMeasure = "Jaccard", progress = FALSE,
+                                    minNumberFragments = 5, removePrecursor = TRUE) {
   
   stopifnot(is.logical(progress))
   
@@ -620,24 +621,24 @@ calculateDistanceMatrix <- function(dataList, filter, distanceMeasure = "Jaccard
          },
          # (Modified) Cosine (with NL)
          "Cosine" = {
-           distanceMatrix <- 
-             impl_cosine_similarity(dataList, filter, progress = progress,
-                                    allow_shift = FALSE, nl = FALSE)
+           distanceMatrix <- impl_cosine_similarity(
+             dataList, filter, progress = progress, allow_shift = FALSE, nl = FALSE,
+             rm_precursor = removePrecursor, num_filter = minNumberFragments)
          },
          "Cosine (with NL)" = {
-           distanceMatrix <- 
-             impl_cosine_similarity(dataList, filter, progress = progress,
-                                    allow_shift = FALSE, nl = TRUE)
+           distanceMatrix <- impl_cosine_similarity(
+             dataList, filter, progress = progress, allow_shift = FALSE, nl = TRUE,
+             rm_precursor = removePrecursor, num_filter = minNumberFragments)
          },
          "Modified Cosine" = {
-           distanceMatrix <- 
-             impl_cosine_similarity(dataList, filter, progress = progress,
-                                    allow_shift = TRUE, nl = FALSE)
+           distanceMatrix <- impl_cosine_similarity(
+             dataList, filter, progress = progress, allow_shift = TRUE, nl = FALSE,
+             rm_precursor = removePrecursor, num_filter = minNumberFragments)
          },
          "Modified Cosine (with NL)" = {
-           distanceMatrix <- 
-             impl_cosine_similarity(dataList, filter, progress = progress,
-                                    allow_shift = TRUE, nl = TRUE)
+           distanceMatrix <- impl_cosine_similarity(
+             dataList, filter, progress = progress, allow_shift = TRUE, nl = TRUE,
+             rm_precursor = removePrecursor, num_filter = minNumberFragments)
          },
          stop(paste("Unknown distance (", distance, ")!", sep = ""))
   )
@@ -660,24 +661,44 @@ calculateDistanceMatrix <- function(dataList, filter, distanceMeasure = "Jaccard
 #' @param dataList dataset
 #' @param filter filter vector
 #' @param progress boolena
-#' @param allow_shift boolean
-#' @param nl boolean
+#' @param allow_shift boolean, modified cosine when true
+#' @param nl boolean, include neutral losses when true
+#' @param num_filter integer, minimal number of fragments required to perform comparison
+#' @param rm_precursor boolean, remove precursor ions from ms2 spectra
 #'
 #' @returns distance matrix
 #' @export
 impl_cosine_similarity <- function(dataList, filter, progress = FALSE,
-                        allow_shift = FALSE, nl = FALSE) {
+                        allow_shift = FALSE, nl = FALSE, num_filter=5, rm_precursor=T) {
   
   numberOfPrecursors <- length(filter)
   
   featureIndeces <- dataList$featureIndeces[filter]
   featureMatrix <- dataList$featureMatrix[filter, ]
   
+  precursorMasses <- as.numeric(dataList$dataFrameInfos$`m/z`)[filter]
+  
+  # Convert feature indeces to fragment mzs
+  featureMasses <- lapply(featureIndeces, function(idxs) {
+    dataList$fragmentMasses[idxs]
+  })
+  
+  # Remove precursorMasses from featureMasses if needed
+  if (rm_precursor){
+    featureMasses <- mapply(function(fm, pm) {
+      fm[abs(fm - pm) > 1] #precursor tolerance window set to 1
+    }, featureMasses, precursorMasses, SIMPLIFY = FALSE)
+  }
+  
   lastOut <- proc.time()["user.self"]
   lastPrecursor <- 1
   
   distanceMatrix <- matrix(nrow = numberOfPrecursors, ncol = numberOfPrecursors)
-  for(i in seq_len(numberOfPrecursors)){
+  
+  # Calculate cosine similarity when spectra have at least # of fragments
+  keep_idx <- which(sapply(featureMasses, length) >= num_filter)
+  
+  for (i in 1:(numberOfPrecursors-1)) {
     time <- proc.time()["user.self"]
     if(time - lastOut > 1){
       lastOut <- time
@@ -686,19 +707,29 @@ impl_cosine_similarity <- function(dataList, filter, progress = FALSE,
       if(!is.na(progress))  if(progress)  incProgress(amount = precursorProgress, detail = paste("Distance ", i, " / ", numberOfPrecursors)) else print(paste("Distance ", i, " / ", numberOfPrecursors))
     }
     
-    for(j in seq_len(numberOfPrecursors)){
-      if(i == j){
-        distanceMatrix[i, j] <- 0
+    # Skip the row if spectra1 doesn't meet fragment # filter
+    if (!(i %in% keep_idx)){
+      distanceMatrix[i, ] <- 1
+      next
+    }
+    
+    # Get fragments mz and normalized intensities for spectra1
+    mz1 <- featureMasses[[i]]
+    intensity1 <- featureMatrix[i,]
+    intensity1 <- intensity1[names(intensity1) %in% mz1]
+    precursor_mz1 <- precursorMasses[i]
+    
+    for (j in (i+1):numberOfPrecursors) {
+      # If spectra2 doesn't meet fragment # filter, put spectra1_spectra2 distance as 1
+      if (!j %in% keep_idx){
+        distanceMatrix[i, j] <- 1
         next
       }
       
-      # Get fragments mz and normalized intensities
-      mz1 <- dataList$fragmentMasses[featureIndeces[[i]]]
-      mz2 <- dataList$fragmentMasses[featureIndeces[[j]]]
-      intensity1 <- featureMatrix[i,]
+      # Get fragments mz and normalized intensities for spectra
+      mz2 <- featureMasses[[j]]
       intensity2 <- featureMatrix[j,]
-      precursorMasses <- as.numeric(dataList$dataFrameInfos$`m/z`)[filter]
-      precursor_mz1 <- precursorMasses[i]
+      intensity2 <- intensity2[names(intensity2) %in% mz2]
       precursor_mz2 <- precursorMasses[j]
       
       # Calculate cosine score: 
@@ -706,12 +737,17 @@ impl_cosine_similarity <- function(dataList, filter, progress = FALSE,
         cosine_similarity(mz1, intensity1, precursor_mz1, 
                           mz2, intensity2, precursor_mz2, 
                           fragment_mz_tolerance = 0.01, allow_shift = allow_shift, 
-                          nl = nl, normalize = FALSE)
+                          nl = nl, normalize = FALSE, method = 2)
       
       # Convert similarity to distance
       distanceMatrix[i, j] <- 1 - cosine_score
     }
   }
+  
+  # Fill diagonal as 0 (identical), mirror upper half to lower half
+  diag(distanceMatrix) <- 0
+  distanceMatrix[lower.tri(distanceMatrix)] <- 
+    t(distanceMatrix)[lower.tri(distanceMatrix)]
   
   distanceMatrix
   
@@ -730,6 +766,7 @@ impl_cosine_similarity <- function(dataList, filter, progress = FALSE,
 #' @param allow_shift boolean
 #' @param nl boolean
 #' @param normalize boolean
+#' @param method 1 = normalise by euclidean norm, 2 = sqrt normalised intensity
 #' 
 #' @importFrom clue solve_LSAP
 #'
@@ -741,7 +778,8 @@ cosine_similarity <- function(
     fragment_mz_tolerance = 0.01,
     allow_shift = TRUE,
     nl = FALSE,
-    normalize = FALSE) {
+    normalize = FALSE, 
+    method = 2) {
   
   # Determine if including neutral loss
   if (!nl){
@@ -755,7 +793,7 @@ cosine_similarity <- function(
   }
   
   # Normalize intensity vectors to unit norm (if needed)
-  if (normalize){
+  if (normalize & method==1){
     norm1 <- sqrt(sum(intensity1^2))
     norm2 <- sqrt(sum(intensity2^2))
     if (norm1 == 0 || norm2 == 0) return(0)
@@ -779,7 +817,12 @@ cosine_similarity <- function(
       delta <- abs(mz1[i] - mz2_shifted)
       matched <- which(delta <= fragment_mz_tolerance)
       if (length(matched) >= 0) {
-        cost_matrix[i, matched] <- intensity1[i] * intensity2[matched]
+        if (method == 1){
+          cost_matrix[i, matched] <- intensity1[i] * intensity2[matched]
+        } else if (method == 2){
+          # Method 2 normalization: sqrt of normalized intensity
+          cost_matrix[i, matched] <- sqrt(intensity1[i])/sqrt(sum(intensity1)) * sqrt(intensity2[matched])/sqrt(sum(intensity2))
+        }
       }
     }
   }

@@ -13,7 +13,7 @@
 #' @param progress boolean
 #'
 #' @returns resultObj
-#' @noRD
+#' @noRd
 parsePeakAbundanceMatrix <- function(filePeakMatrix, 
                                      doPrecursorDeisotoping, 
                                      mzDeviationInPPM_precursorDeisotoping, 

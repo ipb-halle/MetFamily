@@ -4,7 +4,13 @@
 \alias{analyzeTree}
 \title{Analyze tree}
 \usage{
-analyzeTree(dataList, cluster, filter, nodeIdx)
+analyzeTree(
+  dataList,
+  cluster,
+  filter,
+  nodeIdx,
+  minimumProportionOfLeafs = 0.75
+)
 }
 \arguments{
 \item{dataList}{list object}
@@ -20,4 +26,5 @@ list object
 }
 \description{
 Recursive function.
+FIX creates many global variables
 }

@@ -9,7 +9,9 @@ impl_cosine_similarity(
   filter,
   progress = FALSE,
   allow_shift = FALSE,
-  nl = FALSE
+  nl = FALSE,
+  num_filter = 5,
+  rm_precursor = T
 )
 }
 \arguments{
@@ -19,9 +21,13 @@ impl_cosine_similarity(
 
 \item{progress}{boolena}
 
-\item{allow_shift}{boolean}
+\item{allow_shift}{boolean, modified cosine when true}
 
-\item{nl}{boolean}
+\item{nl}{boolean, include neutral losses when true}
+
+\item{num_filter}{integer, minimal number of fragments required to perform comparison}
+
+\item{rm_precursor}{boolean, remove precursor ions from ms2 spectra}
 }
 \value{
 distance matrix

@@ -213,6 +213,9 @@ obsDrawHCA <- observeEvent(input$drawHCAplots, {
   #drawHCAButtonValue <<- drawPlots
   
   distanceMeasure <- input$hcaDistanceFunction
+  hca_removePrecursorIon <- input$hca_removePrecursorIon
+  hca_minNbFrag <- as.numeric(input$hca_minNbFrag)
+  
   #clusterMethod <- input$hcaClusterMethod
   clusterMethod <- "ward.D"
   print(paste("Observe draw HCA plots", "D", distanceMeasure, "M", clusterMethod))
@@ -222,7 +225,8 @@ obsDrawHCA <- observeEvent(input$drawHCAplots, {
   
   ## compute distance matrix
   withProgress(message = 'Calculating distances...', value = 0, {
-    currentDistanceMatrixObj <<- calculateDistanceMatrix(dataList = dataList, filter = filterHca$filter, distanceMeasure = distanceMeasure, progress = TRUE)
+    currentDistanceMatrixObj <<- calculateDistanceMatrix(dataList = dataList, filter = filterHca$filter, distanceMeasure = distanceMeasure, progress = TRUE,
+                                                         minNumberFragments = hca_minNbFrag, removePrecursor = hca_removePrecursorIon)
   })
   ## compute cluster
   withProgress(message = 'Calculating cluster...', value = 0, {

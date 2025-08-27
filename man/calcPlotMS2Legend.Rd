@@ -4,7 +4,11 @@
 \alias{calcPlotMS2Legend}
 \title{MS2 plot legend}
 \usage{
-calcPlotMS2Legend(dataList)
+calcPlotMS2Legend(
+  dataList,
+  minimumProportionOfLeafs = 0.75,
+  minimumProportionToShowFragment = 0.5
+)
 }
 \arguments{
 \item{dataList}{}

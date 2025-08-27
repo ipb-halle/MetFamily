@@ -14,7 +14,8 @@ cosine_similarity(
   fragment_mz_tolerance = 0.01,
   allow_shift = TRUE,
   nl = FALSE,
-  normalize = FALSE
+  normalize = FALSE,
+  method = 2
 )
 }
 \arguments{
@@ -37,6 +38,8 @@ cosine_similarity(
 \item{nl}{boolean}
 
 \item{normalize}{boolean}
+
+\item{method}{1 = normalise by euclidean norm, 2 = sqrt normalised intensity}
 }
 \value{
 score

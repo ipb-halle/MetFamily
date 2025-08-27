@@ -734,7 +734,10 @@ navbarPage(
                              "Cosine (with NL)",
                              "Modified Cosine",
                              "Modified Cosine (with NL)"
-                           ), selectize = FALSE)
+                           ), selectize = FALSE),
+                           # bsTooltip
+                           checkboxInput(inputId = "hca_removePrecursorIon", label = "Remove precursor fragment", value = TRUE),
+                           textInput(inputId = "hca_minNbFrag", placeholder = '5', label = "Minumum Nb. fragments")
                            #bsTooltip(id = "hcaClusterMethod", title = "The method used for clustering", placement = "bottom", trigger = "hover"),
                            #selectInput(multiple = FALSE, inputId = "hcaClusterMethod", label = "Cluster method", selected = "ward.D", choices = c(
                            #  "single", 
