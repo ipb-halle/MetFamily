@@ -8,7 +8,9 @@ calculateDistanceMatrix(
   dataList,
   filter,
   distanceMeasure = "Jaccard",
-  progress = FALSE
+  progress = FALSE,
+  minNumberFragments = 5,
+  removePrecursor = TRUE
 )
 }
 \arguments{

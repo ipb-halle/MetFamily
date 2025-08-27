@@ -8,7 +8,7 @@ add_qfeatures(
   dataList,
   qfeatures,
   fileAnnotation = NULL,
-  siriusFileColumnName = "NPC class"
+  siriusFileColumnName = "ClassyFire superclass"
 )
 }
 \arguments{
