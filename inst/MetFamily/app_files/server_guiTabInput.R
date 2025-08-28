@@ -427,6 +427,9 @@ importData <- function(importMS1andMS2data){
   state_tabInput$fileMs1Name <- fileMs1Name
   state_tabInput$fileMs2Name <- fileMs2Name
   
+  # Reset state tracking before starting new import to ensure success logic is executed
+  importTaskProcessed(FALSE)
+  
   # error handling
   tryCatch({
     
@@ -454,23 +457,22 @@ importData <- function(importMS1andMS2data){
   
   
 
-
-# Observer to handle ExtendedTask states
-# State tracking to prevent re-execution of success logic e.g. by search function
+# Reactive value that tracks whether the import task has been processed
+# Prevents duplicate execution when observer re-triggers (e.g. by search function)
+# Reset to FALSE before each new import in importData() function
 importTaskProcessed <- reactiveVal(FALSE)
 
+# Observer to handle ExtendedTask states
 observe({
   status <- importDataTask$status()
   
   if (status == "initial") {
     # Task initialized, waiting to be invoked
-    importTaskProcessed(FALSE)  # Reset when task is initialized
     
   } else if (status == "running") {
     # Task is running - disable buttons and show progress
     disableLoadButtons()
     output$fileInfo <- renderText("⚙️ Processing data ... Please wait")
-    importTaskProcessed(FALSE)  # Reset when task starts running
     
   } else if (status == "success" && !importTaskProcessed()) {
     # importDataTask completed successfully - run rest of importData logic
