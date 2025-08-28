@@ -2,6 +2,7 @@
 "_PACKAGE"
 
 ## usethis namespace: start
+#' @importFrom future plan
 #' @importFrom graphics axis
 #' @importFrom graphics mtext
 #' @importFrom graphics par
@@ -23,11 +24,17 @@
 #' @importFrom plotly add_trace
 #' @importFrom plotly layout
 #' @importFrom plotly plot_ly
+#' @importFrom promises future_promise
 #' @importFrom purrr set_names
 #' @importFrom QFeatures ncols
 #' @importFrom QFeatures QFeatures
 #' @importFrom readr read_tsv
 #' @importFrom S4Vectors DataFrame
+#' @importFrom shiny ExtendedTask
+#' @importFrom shinybusy remove_modal_spinner
+#' @importFrom shinybusy show_modal_spinner
+#' @importFrom shinyjs disable
+#' @importFrom shinyjs enable
 #' @importFrom stats as.dendrogram
 #' @importFrom stats cor
 #' @importFrom stats dendrapply

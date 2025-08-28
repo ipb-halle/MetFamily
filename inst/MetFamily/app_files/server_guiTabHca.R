@@ -1,4 +1,3 @@
-
 ## HCA constants
 minimumNumberOfPrecursorsForHca <- 6
 maximumNumberOfPrecursorsForHca <- 5000
@@ -30,6 +29,51 @@ putativeAnnotationsTableFromAnalysisCurrentlyShown <- NULL
 
 ## statistics for dendrogram node or pca loadings brush
 dendrogramFragmentStatistics <- FALSE
+
+
+# Extended task for HCA computation
+hcaComputationTask <- ExtendedTask$new(function(dataList, filterHca, distanceMeasure,
+                                                clusterMethod, minimumProportionOfLeafs,
+                                                minimumProportionToShowFragment) {
+  promise_result <- promises::future_promise({
+    # global variables needed by HCA functions
+    minimumProportionOfLeafs <<- minimumProportionOfLeafs
+    minimumProportionToShowFragment <<- minimumProportionToShowFragment
+    
+    result <- tryCatch({
+      ## compute distance matrix
+      distanceMatrixObj <- calculateDistanceMatrix(
+        dataList = dataList, 
+        filter = filterHca$filter, 
+        distanceMeasure = distanceMeasure, 
+        progress = FALSE
+      )
+      
+      ## compute cluster  
+      clusterDataListObj <- calculateCluster(
+        progress = FALSE, 
+        dataList = dataList, 
+        filterObj = filterHca, 
+        distanceMatrix = distanceMatrixObj$distanceMatrix, 
+        method = clusterMethod, 
+        distanceMeasure = distanceMeasure
+      )
+      
+      list(
+        distanceMatrixObj = distanceMatrixObj,
+        clusterDataList = clusterDataListObj
+      )
+      
+    }, error = function(e) {
+      stop(paste("HCA computation error:", e$message))
+    })
+    
+    return(result)
+    
+  }, seed = TRUE)
+  
+  return(promise_result)
+})
 
 state_tabHca <- reactiveValues(
   ## plot dimensions
@@ -218,84 +262,160 @@ obsDrawHCA <- observeEvent(input$drawHCAplots, {
   print(paste("Observe draw HCA plots", "D", distanceMeasure, "M", clusterMethod))
   
   ##########################
-  ## calc
+  ## Invoke async HCA computation (hcaComputationalTask)
   
-  ## compute distance matrix
-  withProgress(message = 'Calculating distances...', value = 0, {
-    currentDistanceMatrixObj <<- calculateDistanceMatrix(dataList = dataList, filter = filterHca$filter, distanceMeasure = distanceMeasure, progress = TRUE)
-  })
-  ## compute cluster
-  withProgress(message = 'Calculating cluster...', value = 0, {
-    clusterDataList <<- calculateCluster(progress = TRUE, dataList = dataList, filterObj = filterHca, distanceMatrix = currentDistanceMatrixObj$distanceMatrix, method = clusterMethod, distanceMeasure = distanceMeasure)
-  })
-  
-  ##########################
-  ## hca selections
-  if(!is.null(listForTable_Fragment_PCA)){ ## selection from fragment
-    fragmentIndex <- which(dataList$fragmentMasses == ms2PlotValues$fragmentListClicked$fragmentMasses[[selectionFragmentSelectedFragmentIndex]])
-    precursorSet  <- which(dataList$featureMatrix[, fragmentIndex] != 0)
-    selectionByFragmentInitHca(precursorSet)
-  } else {
-    selectionByFragmentReset()
-  }
-  if(!is.null(listForTable_Analysis_PCA)){ ## selection from PCA
-    precursorSet <- filterPca$filter[selectionAnalysisPcaLoadingSet]
-    selectionByAnalysisInitHca(precursorSet)
-  } else {
-    selectionByAnalysisReset()
-  }
-  if(!is.null(filterSearch)){ ## selection from search
-    selectionBySearchInitHca(filterSearch$filter)
-  } else {
-    selectionBySearchReset()
-  }
-  
-  ##########################
-  ## reset MS2 stuff
-  if(!state$showPCAplotPanel){
-    ms2PlotValues$fragmentListClicked <<- NULL
-    ms2PlotValues$fragmentListHovered <<- NULL
-    dendrogramFragmentStatistics <<- FALSE
-  }
-  
-  ##########################
-  ## draw
-  resetHcaPlotRange()
-  drawDendrogramPlot(consoleInfo = "init output$plotDendrogram", withHeatmap = TRUE)
-  drawMS2Plot(consoleInfo = "init output$plotMS2")
-  drawAnnotationLegendHCA(consoleInfo = "init output$plotAnnoLegend")
-  
-  if(!state$anyPlotDrawn){
-    drawMS2Legend(consoleInfo = "init output$ms2LegendPlot")
-    drawFragmentDiscriminativityLegend(consoleInfo = "init output$plotFragmentDiscriminativityLegend")
-    drawHeatmapLegend(consoleInfo = "init output$plotHeatmapLegend")
-    drawDendrogramLegend(consoleInfo = "init output$calcPlotDendrogramLegend")
-    state$anyPlotDrawn <<- TRUE
-  }
-  
-  ## state
-  state$showHCAplotPanel <<- TRUE
-  state$plotHcaShown <<- TRUE
-  updateChangePlotRadioButton()
-  
-  ##########################
-  ## update info and tip
-  output$information <- renderText({
-    print(paste("update output$information clear"))
-    paste("", sep = "")
-  })
-  output$tip <- renderText({
-    print(paste("update output$tip"))
-    paste(
-      "Hover or select a cluster node or leaf node to view information about the corresponding MS\u00B9 feature cluster or MS\u00B9 feature respectively.", 
-      "Brush horizontally and double-click to zoom in.", 
-      "Double-click to zoom out.", 
-      sep = "\n"
+  tryCatch({
+    hcaComputationTask$invoke(
+      dataList = dataList,
+      filterHca = filterHca,
+      distanceMeasure = distanceMeasure,
+      clusterMethod = clusterMethod,
+      minimumProportionOfLeafs = minimumProportionOfLeafs,
+      minimumProportionToShowFragment = minimumProportionToShowFragment
     )
+  }, error = function(e) {
+    msg <- paste("Critical Error during HCA task invocation:", e$message)
+    
+    # Show error and cleanup
+    output$information <- renderText(msg)
+    session$sendCustomMessage("enableButton", "drawHCAplots")
+    
+    # Stop execution
+    stop(e)
   })
-  session$sendCustomMessage("enableButton", "drawHCAplots")
+  
+  # processing after ExtendedTask is finished will be handled by the observer below
 })
 
+# Observer to handle ExtendedTask states
+observe({
+  status <- hcaComputationTask$status()
+  
+  if (status == "initial") {
+    # waiting to be invoked
+    
+  } else if (status == "running") {
+    # Task disable button and show modal spinner
+    session$sendCustomMessage("disableButton", "drawHCAplots")
+    
+    # Show full-screen modal spinner
+    shinybusy::show_modal_spinner(
+      spin = "self-building-square",
+      text = paste(
+        "Computing HCA clusters...",
+        paste("Distance measure:", input$hcaDistanceFunction),
+        "This may take some time depending on data size.",
+        "Please wait...",
+        sep = "\n"
+      ),
+      color = "#5cb85c"
+    )
+    
+    # Also update the info text (visible after spinner is removed)
+    output$information <- renderText("⚙️ Computing HCA clusters... Please wait")
+    output$tip <- renderText("HCA computation is running in the background. Please wait for completion.")
+    
+  } else if (status == "success") {
+    # HCA computation was successfull
+    # Remove modal spinner
+    shinybusy::remove_modal_spinner()
+    
+    
+    result <- tryCatch({
+      hcaComputationTask$result()
+    }, error = function(e) {
+      stop(e)
+    })
+    
+    # Extract results and assign to global variables
+    currentDistanceMatrixObj <<- result$distanceMatrixObj
+    clusterDataList <<- result$clusterDataList
+    
+    ##########################
+    ## hca selections
+    if(!is.null(listForTable_Fragment_PCA)){ ## selection from fragment
+      fragmentIndex <- which(dataList$fragmentMasses == ms2PlotValues$fragmentListClicked$fragmentMasses[[selectionFragmentSelectedFragmentIndex]])
+      precursorSet  <- which(dataList$featureMatrix[, fragmentIndex] != 0)
+      selectionByFragmentInitHca(precursorSet)
+    } else {
+      selectionByFragmentReset()
+    }
+    if(!is.null(listForTable_Analysis_PCA)){ ## selection from PCA
+      precursorSet <- filterPca$filter[selectionAnalysisPcaLoadingSet]
+      selectionByAnalysisInitHca(precursorSet)
+    } else {
+      selectionByAnalysisReset()
+    }
+    if(!is.null(filterSearch)){ ## selection from search
+      selectionBySearchInitHca(filterSearch$filter)
+    } else {
+      selectionBySearchReset()
+    }
+    
+    ##########################
+    ## reset MS2 stuff
+    if(!state$showPCAplotPanel){
+      ms2PlotValues$fragmentListClicked <<- NULL
+      ms2PlotValues$fragmentListHovered <<- NULL
+      dendrogramFragmentStatistics <<- FALSE
+    }
+    
+    ##########################
+    ## draw
+    resetHcaPlotRange()
+    drawDendrogramPlot(consoleInfo = "init output$plotDendrogram", withHeatmap = TRUE)
+    drawMS2Plot(consoleInfo = "init output$plotMS2")
+    drawAnnotationLegendHCA(consoleInfo = "init output$plotAnnoLegend")
+    
+    if(!state$anyPlotDrawn){
+      drawMS2Legend(consoleInfo = "init output$ms2LegendPlot")
+      drawFragmentDiscriminativityLegend(consoleInfo = "init output$plotFragmentDiscriminativityLegend")
+      drawHeatmapLegend(consoleInfo = "init output$plotHeatmapLegend")
+      drawDendrogramLegend(consoleInfo = "init output$calcPlotDendrogramLegend")
+      state$anyPlotDrawn <<- TRUE
+    }
+    
+    ## state
+    state$showHCAplotPanel <<- TRUE
+    state$plotHcaShown <<- TRUE
+    updateChangePlotRadioButton()
+    
+    ##########################
+    ## update info and tip
+    output$information <- renderText({
+      print(paste("update output$information clear"))
+      paste("", sep = "")
+    })
+    output$tip <- renderText({
+      print(paste("update output$tip"))
+      paste(
+        "Hover or select a cluster node or leaf node to view information about the corresponding MS\u00B9 feature cluster or MS\u00B9 feature respectively.", 
+        "Brush horizontally and double-click to zoom in.", 
+        "Double-click to zoom out.", 
+        sep = "\n"
+      )
+    })
+    
+    # Re-enable button
+    session$sendCustomMessage("enableButton", "drawHCAplots")
+    
+  } else if (status == "error") {
+    # Remove modal spinner
+    shinybusy::remove_modal_spinner()
+    
+    # print error
+    tryCatch({
+      hcaComputationTask$result() 
+    }, error = function(e) {
+      msg <- e$message
+      output$information <- renderText(msg)
+      output$tip <- renderText("HCA computation failed. Please check the error message and try again.")
+      
+      # Re-enable button
+      session$sendCustomMessage("enableButton", "drawHCAplots")
+    })
+  }
+})
 
 if(FALSE){
 obsDendrogramHover <- observeEvent(input$plotDendrogram_hover, {

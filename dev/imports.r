@@ -32,6 +32,7 @@ use_import_from("promises", "future_promise")
 
 use_import_from("readr", "read_tsv")
 
+use_import_from("shinybusy", c("show_modal_spinner", "remove_modal_spinner"))
 # -------------------------------------------------------------------------
 
 document()
