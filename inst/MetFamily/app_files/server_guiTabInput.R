@@ -456,18 +456,23 @@ importData <- function(importMS1andMS2data){
 
 
 # Observer to handle ExtendedTask states
+# State tracking to prevent re-execution of success logic e.g. by search function
+importTaskProcessed <- reactiveVal(FALSE)
+
 observe({
   status <- importDataTask$status()
   
   if (status == "initial") {
     # Task initialized, waiting to be invoked
+    importTaskProcessed(FALSE)  # Reset when task is initialized
     
   } else if (status == "running") {
     # Task is running - disable buttons and show progress
     disableLoadButtons()
     output$fileInfo <- renderText("⚙️ Processing data ... Please wait")
+    importTaskProcessed(FALSE)  # Reset when task starts running
     
-  } else if (status == "success") {
+  } else if (status == "success" && !importTaskProcessed()) {
     # importDataTask completed successfully - run rest of importData logic
     result <- tryCatch({
       importDataTask$result()
@@ -480,7 +485,7 @@ observe({
     lines <- result$lines
     dataList <<- result$dataList
     
-    # Continue with the success logic from your original code
+    # Continue with the success logic from the original implementation
     spectraImport <- paste(
       resultObj$numberOfParsedSpectra, " / ", resultObj$numberOfSpectraOriginal, " spectra were imported successfully.",
       ifelse(test = resultObj$numberOfParsedSpectra < resultObj$numberOfSpectraOriginal, 
@@ -557,7 +562,10 @@ observe({
     enableLoadButtons()
     setImportState()
     
-  } else if (status == "error") {
+    # Mark as processed to prevent re-execution
+    importTaskProcessed(TRUE)
+    
+  } else if (status == "error" && !importTaskProcessed()) {
     # Task failed - handle error
     tryCatch({
       importDataTask$result()  # error
@@ -595,6 +603,9 @@ observe({
       showErrorDialog(msg)
       enableLoadButtons()
       setImportState()
+      
+      # Mark as processed to prevent re-execution
+      importTaskProcessed(TRUE)
     })
   }
 })
