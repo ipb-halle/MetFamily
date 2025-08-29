@@ -5,8 +5,10 @@
 importParameterSetInit <- function() {
   
   list(
-    minimumIntensityOfMaximalMS2peak = 2000,
-    minimumProportionOfMS2peaks = 0.05,
+    minimumIntensityOfMaximalMS2peak = 1000,
+    minimumNumbersOfFragments = 1,
+    minimumAbsoluteMS2peaks = 10,
+    minimumProportionOfMS2peaks = 0.01,
     neutralLossesPrecursorToFragments = TRUE,
     neutralLossesFragmentsToFragments = FALSE,
     mzDeviationAbsolute_grouping = 0.01,
@@ -34,6 +36,8 @@ parameterSetDefault <- function() {
   
   ipsi <- importParameterSetInit()
  
+  names(ipsi)[]
+  
   c(
     list(
       projectName = paste0("MetFamily project (created ", 
@@ -44,8 +48,13 @@ parameterSetDefault <- function() {
     ),
     
     # assigned from app input in ui.R
-    ipsi[c(1, 2, 5, 6, 8, 9, 10, 11, 12, 13, 14)],
-    
+    ipsi[c("minimumIntensityOfMaximalMS2peak", "minimumProportionOfMS2peaks", 
+           "mzDeviationAbsolute_grouping", "mzDeviationInPPM_grouping", 
+           "doPrecursorDeisotoping", "mzDeviationAbsolute_precursorDeisotoping", 
+           "mzDeviationInPPM_precursorDeisotoping", "maximumRtDifference", 
+           "doMs2PeakGroupDeisotoping", "mzDeviationAbsolute_ms2PeakGroupDeisotoping", 
+           "mzDeviationInPPM_ms2PeakGroupDeisotoping")],
+
     # fixed parameters, see server_guiTabInput
     list(
       proportionOfMatchingPeaks_ms2PeakGroupDeisotoping = 0.9,

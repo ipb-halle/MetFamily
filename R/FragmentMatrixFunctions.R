@@ -13,7 +13,7 @@
 #' @param progress boolean
 #'
 #' @returns resultObj
-#' @noRD
+#' @noRd
 parsePeakAbundanceMatrix <- function(filePeakMatrix, 
                                      doPrecursorDeisotoping, 
                                      mzDeviationInPPM_precursorDeisotoping, 
@@ -191,7 +191,17 @@ parsePeakAbundanceMatrix <- function(filePeakMatrix,
 
 
 ####################################################################################
-## parse MS/MS spectra
+#' parse MS/MS spectra
+#'
+#' @param fileSpectra file
+#' @param minimumIntensityOfMaximalMS2peak numeric
+#' @param minimumProportionOfMS2peaks numeric
+#' @param neutralLossesPrecursorToFragments boolean
+#' @param neutralLossesFragmentsToFragments boolean
+#' @param progress boolean
+#'
+#' @returns list
+#' @export
 parseMSP <- function(fileSpectra, 
                      minimumIntensityOfMaximalMS2peak, 
                      minimumProportionOfMS2peaks, 
@@ -433,7 +443,7 @@ parseMSP_chunk <- function(fileLines,
   entryBorders   <- c(which(isName | isNAME | isBI), length(fileLines)+1)
   entryIntervals <- matrix(data = unlist(lapply(X = seq_len(length(entryBorders) - 1), FUN = function(x){c(entryBorders[[x]], entryBorders[[x+1]] - 1)})), nrow=2)
   
-  numberOfSpectraOriginal <- length(entryBorders)
+  numberOfSpectraOriginal <- ncol(entryIntervals)
   
   ## do it
   if(!is.na(progress))  if(progress)  incProgress(amount = 0, detail = "MS/MS file: Assemble spectra") else print("MS/MS file: Assemble spectra")
@@ -630,7 +640,7 @@ parseMSP_chunk <- function(fileLines,
       ## filter fragments with mass greater than precursor
       numberOfTooHeavyFragmentsHere <- 0
       if(all(!is.null(mz), !is.na(mz))){
-        tooHeavy <- ms2Peaks_mz > mz
+        tooHeavy <- ms2Peaks_mz > (mz + 0.1)
         ms2Peaks_mz  <- ms2Peaks_mz [!tooHeavy]
         ms2Peaks_int <- ms2Peaks_int[!tooHeavy]
         numberOfTooHeavyFragmentsHere <- sum(tooHeavy)
@@ -1452,7 +1462,7 @@ convertToProjectFile <- function(filePeakMatrixPath,
   
   if(!is.na(progress))  if(progress)  incProgress(amount = 0.01, detail = paste("Parsing MS/MS file...", sep = "")) else print(paste("Parsing MS/MS file...", sep = ""))
   
-  returnObj <- parseMSP(
+  returnObj <- parseMSP_rewrite(
     fileSpectra = fileSpectra, 
     minimumIntensityOfMaximalMS2peak = parameterSet$minimumIntensityOfMaximalMS2peak, 
     minimumProportionOfMS2peaks = parameterSet$minimumProportionOfMS2peaks, 
