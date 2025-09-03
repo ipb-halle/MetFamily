@@ -65,6 +65,8 @@ fileAnnotation <- system.file("extdata/testdata/canopus/canopus1680.txt", packag
 
 # We use default import parameters
 parameterSet <- parameterSetDefault()
+parameterSet$minimumIntensityOfMaximalMS2peak <- 2000
+parameterSet$minimumProportionOfMS2peaks <- 0.05
 
 
 dataList <- projectFromFiles(
@@ -193,7 +195,7 @@ currentDistanceMatrixObj <- calculateDistanceMatrix(
 
 ### In construction...
 
-```{r hca, fig.cap="HCA on MS2.", echo=FALSE, eval=FALSE}
+```{r hca1, fig.cap="HCA on MS2.", echo=FALSE, eval=FALSE}
 
 clusterDataList <- calculateCluster(
   progress = F, 
@@ -225,7 +227,7 @@ if (FALSE) {
 ```
 
 
-```{r hca, fig.cap="HCA on MS2"}
+```{r hca2, fig.cap="HCA on MS2"}
 fileName <- system.file("extdata/testdata/clusterDataList.Rdata", package = "MetFamily")
 load(fileName) 
 fileName <- system.file("extdata/testdata/hcaFilter.Rdata", package = "MetFamily")
