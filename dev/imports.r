@@ -35,6 +35,7 @@ use_import_from("purrr", c("set_names", "map", "map2", "map_chr", "map_dbl",
 
 use_import_from("future", "plan")
 use_import_from("promises", "future_promise")
+use_import_from("shinybusy", c("show_modal_spinner", "remove_modal_spinner"))
 
 use_import_from("readr", "read_tsv")
 use_import_from("tibble", c("tibble", "lst", "enframe", "deframe"))

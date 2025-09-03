@@ -447,6 +447,9 @@ importData <- function(importMS1andMS2data){
   state_tabInput$fileMs1Name <- fileMs1Name
   state_tabInput$fileMs2Name <- fileMs2Name
   
+  # Reset state tracking before starting new import to ensure success logic is executed
+  importTaskProcessed(FALSE)
+  
   # error handling
   tryCatch({
     
@@ -474,6 +477,10 @@ importData <- function(importMS1andMS2data){
   
   
 
+# Reactive value that tracks whether the import task has been processed
+# Prevents duplicate execution when observer re-triggers (e.g. by search function)
+# Reset to FALSE before each new import in importData() function
+importTaskProcessed <- reactiveVal(FALSE)
 
 # Observer to handle ExtendedTask states
 observe({
@@ -487,7 +494,7 @@ observe({
     disableLoadButtons()
     output$fileInfo <- renderText("⚙️ Processing data ... Please wait")
     
-  } else if (status == "success") {
+  } else if (status == "success" && !importTaskProcessed()) {
     # importDataTask completed successfully - run rest of importData logic
     result <- tryCatch({
       importDataTask$result()
@@ -500,7 +507,7 @@ observe({
     lines <- result$lines
     dataList <<- result$dataList
     
-    # Continue with the success logic from your original code
+    # Continue with the success logic from the original implementation
     spectraImport <- paste(
       resultObj$numberOfParsedSpectra, " / ", resultObj$numberOfSpectraOriginal, " spectra were imported successfully.",
       ifelse(test = resultObj$numberOfParsedSpectra < resultObj$numberOfSpectraOriginal, 
@@ -577,7 +584,10 @@ observe({
     enableLoadButtons()
     setImportState()
     
-  } else if (status == "error") {
+    # Mark as processed to prevent re-execution
+    importTaskProcessed(TRUE)
+    
+  } else if (status == "error" && !importTaskProcessed()) {
     # Task failed - handle error
     tryCatch({
       importDataTask$result()  # error
@@ -615,6 +625,9 @@ observe({
       showErrorDialog(msg)
       enableLoadButtons()
       setImportState()
+      
+      # Mark as processed to prevent re-execution
+      importTaskProcessed(TRUE)
     })
   }
 })
