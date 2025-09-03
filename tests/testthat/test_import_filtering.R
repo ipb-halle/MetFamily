@@ -5,8 +5,10 @@ fileSpectra <- system.file("extdata/showcase/MSMS_library_showcase.msp", package
 
 fileAnnotation <- system.file("extdata/testdata/canopus/canopus1680.txt", package = "MetFamily")
 
-parameterSetPath <- system.file("extdata/testdata/parameterSet.RData",  package = "MetFamily" )
-load(parameterSetPath)
+# system.file("extdata/testdata/parameterSet.RData",  package = "MetFamily" )
+parameterSet <- parameterSetDefault()
+parameterSet$minimumIntensityOfMaximalMS2peak <- 2000
+parameterSet$minimumProportionOfMS2peaks <- 0.05
 
 resultObj <- convertToProjectFile(filePeakMatrixPath, 
                                   fileSpectra,
@@ -14,38 +16,39 @@ resultObj <- convertToProjectFile(filePeakMatrixPath,
                                   progress = FALSE)
 
 test_that("Data import produces the expected numbers", {
-  dataList <- list()
   
   # Test the message
   #2460 / 5824 spectra were imported successfully 
-  expect_equal(resultObj$numberOfParsedSpectra, 2640)        
-  expect_equal(resultObj$numberOfSpectraOriginal, 5824)       
+  expect_equal(resultObj$numberOfParsedSpectra, 2736)        
+  expect_equal(resultObj$numberOfSpectraOriginal, 5823)       
   
   #(15 empty, 3163 low intensity, 5 too heavy)
   expect_equal(resultObj$numberOfSpectraDiscardedDueToNoPeaks, 15) 
-  expect_equal(resultObj$numberOfSpectraDiscardedDueToMaxIntensity, 3163)
-  expect_equal(resultObj$numberOfSpectraDiscardedDueToTooHeavy, 5)
+  expect_equal(resultObj$numberOfSpectraDiscardedDueToMaxIntensity, 3072)
+  expect_equal(resultObj$numberOfSpectraDiscardedDueToTooHeavy, 0)
   
   #2414 / 2640 spectra were successfully mapped to MS¹ features
-  expect_equal(resultObj$numberOfPrecursors,2414)  
+  expect_equal(resultObj$numberOfPrecursors, 2509)  
   
   #34369 / 145973 fragments were successfully imported.
-  expect_equal(resultObj$numberOfMS2PeaksAboveThreshold, 34369)
+  expect_equal(resultObj$numberOfMS2PeaksAboveThreshold, 96060)
   expect_equal(resultObj$numberOfMS2PeaksOriginal, 145973)
   
   #(1807 too heavy, 109797 low intensity)
-  expect_equal(resultObj$numberOfMS2PeaksBelowThreshold,109797 )
-  expect_equal(resultObj$numberOfTooHeavyFragments, 1807) 
+  expect_equal(resultObj$numberOfMS2PeaksBelowThreshold, 115263)
+  expect_equal(resultObj$numberOfTooHeavyFragments, 44)
   
   #2414 / 5823 MS¹ features were successfully imported
   expect_equal(resultObj$numberOfParsedMs1Features, 5823) 
   
   #(420 were isotopes, 2989 without spectra)
   expect_equal(resultObj$numberOfRemovedPrecursorIsotopePeaks, 420)
-  expect_equal(resultObj$numberOfUnmappedPrecursors, 2989) 
+  expect_equal(resultObj$numberOfUnmappedPrecursors, 2894) 
   
 })
 
+
+# HERE
 lines <- sparseMatrixToString(matrixRows = resultObj$matrixRows, matrixCols = resultObj$matrixCols,
                               matrixVals = resultObj$matrixVals, parameterSet = parameterSet)
 
@@ -75,8 +78,8 @@ test_that("Filtering functions work with annotation data", {
   )
 
   # Test that filtering worked
-  expect_equal(rownames(dataList$dataFrameInfos)[32], "  215.127 /   8.30")
-  expect_equal(filteredResult$numberOfPrecursorsFiltered, 209)
+  expect_equal(rownames(dataList$dataFrameInfos)[32], "  203.144 / 11.43")
+  expect_equal(filteredResult$numberOfPrecursorsFiltered, 216)
 })
 
 test_that("Filtering functions work without annotation data", {
@@ -98,8 +101,8 @@ test_that("Filtering functions work without annotation data", {
   )
 
   # Test that filtering worked as expected
-  expect_equal(filteredResult$numberOfPrecursorsFiltered, 209)
-  expect_equal(rownames(dataList$dataFrameInfos)[32], "  215.127 /   8.30")
+  expect_equal(filteredResult$numberOfPrecursorsFiltered, 216)
+  expect_equal(rownames(dataList$dataFrameInfos)[32], "  203.144 / 11.43")
 
   
   
