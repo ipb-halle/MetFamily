@@ -33,5 +33,6 @@ parseMSP_chunk(
 list
 }
 \description{
+\ifelse{html}{\href{https://lifecycle.r-lib.org/articles/stages.html#superseded}{\figure{lifecycle-superseded.svg}{options: alt='[Superseded]'}}}{\strong{[Superseded]}}
 Superseded with parseMSP rewrite in 2025-08
 }

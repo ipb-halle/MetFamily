@@ -10,7 +10,8 @@ parseMSP(
   minimumProportionOfMS2peaks,
   neutralLossesPrecursorToFragments,
   neutralLossesFragmentsToFragments,
-  progress = FALSE
+  progress = FALSE,
+  ...
 )
 }
 \arguments{

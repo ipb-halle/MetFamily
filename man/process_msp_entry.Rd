@@ -9,7 +9,7 @@ process_msp_entry(
   minimumProportionOfMS2peaks,
   neutralLossesPrecursorToFragments,
   neutralLossesFragmentsToFragments,
-  min_intensity = 0
+  min_intensity = 500
 )
 }
 \arguments{

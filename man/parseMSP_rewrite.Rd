@@ -6,13 +6,13 @@
 \usage{
 parseMSP_rewrite(
   fileSpectra,
-  minimumIntensityOfMaximalMS2peak,
-  minimumProportionOfMS2peaks,
-  neutralLossesPrecursorToFragments,
-  neutralLossesFragmentsToFragments,
+  minimumIntensityOfMaximalMS2peak = 2000,
+  minimumProportionOfMS2peaks = 0.05,
+  neutralLossesPrecursorToFragments = T,
+  neutralLossesFragmentsToFragments = F,
   mz_tol = 0.17,
-  min_frag_nb = 1,
-  min_intensity = 0,
+  min_frag_nb = 2,
+  min_intensity = 500,
   progress = FALSE
 )
 }
