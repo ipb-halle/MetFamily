@@ -12,6 +12,7 @@
 #'
 #' @returns list
 #' @export
+#' @noRd
 parseMSP <- function(fileSpectra, 
                      minimumIntensityOfMaximalMS2peak, 
                      minimumProportionOfMS2peaks, 
@@ -784,13 +785,13 @@ builtMatrix <- function(spectraList,
 #' Metabolomics June 2006, Volume 2, Issue 2, pp 75-83
 #' http://link.springer.com/article/10.1007%2Fs11306-006-0021-7
 #' 
-#' @param p 
-#' @param sampclass 
-#' @param mzppm 
-#' @param mzabs 
-#' @param minsamp 
-#' @param minfrac 
-#' @param progress 
+#' @param p ?
+#' @param sampclass sample class
+#' @param mzppm numeric
+#' @param mzabs numeric
+#' @param minsamp numeric
+#' @param minfrac numeric
+#' @param progress boolean
 #'
 #' @return ?
 #' @export
@@ -1027,6 +1028,8 @@ convertToProjectFile <- function(filePeakMatrixPath,
     minimumProportionOfMS2peaks = parameterSet$minimumProportionOfMS2peaks, 
     neutralLossesPrecursorToFragments = parameterSet$neutralLossesPrecursorToFragments,
     neutralLossesFragmentsToFragments = parameterSet$neutralLossesFragmentsToFragments,
+    min_frag_nb = parameterSet$minimumNumbersOfFragments,
+    min_intensity = parameterSet$minimumAbsoluteMS2peaks,
     progress = progress
   )
   spectraList <- returnObj$spectraList

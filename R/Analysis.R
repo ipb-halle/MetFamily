@@ -1098,9 +1098,9 @@ leaveOneOutCrossValidation_plsda <- function(dataFrame2, groupLabels, numberOfCo
 #'
 #' @param dataList listObject
 #' @param filterObj filterObject
-#' @param ms1AnalysisMethod 
-#' @param scaling 
-#' @param logTransform 
+#' @param ms1AnalysisMethod character
+#' @param scaling boolean
+#' @param logTransform boolean
 #'
 #' @returns PCA object
 #' @export

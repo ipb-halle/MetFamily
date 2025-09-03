@@ -22,7 +22,7 @@ importParameterSetInit <- function() {
     mzDeviationAbsolute_ms2PeakGroupDeisotoping = 0.01,
     mzDeviationInPPM_ms2PeakGroupDeisotoping = 10
   )
-
+  
 }
 
 
@@ -35,8 +35,6 @@ importParameterSetInit <- function() {
 parameterSetDefault <- function() {
   
   ipsi <- importParameterSetInit()
- 
-  names(ipsi)[]
   
   c(
     list(
@@ -48,13 +46,14 @@ parameterSetDefault <- function() {
     ),
     
     # assigned from app input in ui.R
-    ipsi[c("minimumIntensityOfMaximalMS2peak", "minimumProportionOfMS2peaks", 
+    ipsi[c("minimumIntensityOfMaximalMS2peak", "minimumNumbersOfFragments",
+           "minimumAbsoluteMS2peaks", "minimumProportionOfMS2peaks", 
            "mzDeviationAbsolute_grouping", "mzDeviationInPPM_grouping", 
            "doPrecursorDeisotoping", "mzDeviationAbsolute_precursorDeisotoping", 
            "mzDeviationInPPM_precursorDeisotoping", "maximumRtDifference", 
            "doMs2PeakGroupDeisotoping", "mzDeviationAbsolute_ms2PeakGroupDeisotoping", 
            "mzDeviationInPPM_ms2PeakGroupDeisotoping")],
-
+    
     # fixed parameters, see server_guiTabInput
     list(
       proportionOfMatchingPeaks_ms2PeakGroupDeisotoping = 0.9,
@@ -62,7 +61,8 @@ parameterSetDefault <- function() {
     ),
     
     # more app inputs
-    ipsi[3:4]
+    ipsi[c("neutralLossesPrecursorToFragments",
+           "neutralLossesFragmentsToFragments")]
   )
 }
 
@@ -201,7 +201,7 @@ readClusterDataFromProjectFile <- function(file, progress = FALSE)
     fileLines <- readLines(con = file)
   )
   base::close(con = file)
-
+  
   dataList <- readProjectData(fileLines = fileLines, progress = progress)
   fileLines <- NULL
   
@@ -320,7 +320,7 @@ readProjectData <- function(fileLines, progress = FALSE)
   matrixVals <- as.numeric(unlist(listMatrixVals))
   listMatrixRows <- NULL
   listMatrixCols <- NULL
-
+  
   # gp: Previous location of "Start of importing annotation part1 from two"
   
   listMatrixVals <- NULL
@@ -379,7 +379,7 @@ readProjectData <- function(fileLines, progress = FALSE)
     dataFrameHeader[2, target + 1] <- annotationColorsMapInitValue
     dataFrameHeader[3, target + 1] <- annotationColumnName
   }  # gp: Previous location of "Start of importing annotation part2 from two"
-
+  
   annotationColumnIndex <- which(metaboliteProfileColumnNames == annotationColumnName)
   annotationColorsValue <- dataFrameHeader[2, annotationColumnIndex]
   
@@ -696,7 +696,7 @@ readProjectData <- function(fileLines, progress = FALSE)
   )
   
   if(nchar(annotationColorsMapValue) > 0){
-
+    
     annotationColorsMapValuePairs <- unlist(strsplit(x = annotationColorsMapValue, split = ", "))
     annotationColorsMapValues <- unlist(strsplit(x = annotationColorsMapValuePairs, split = "="))
     annotationColorsMapKeys   <- annotationColorsMapValues[seq(from = 1, to = length(annotationColorsMapValues), by = 2)]
@@ -897,7 +897,7 @@ add_qfeatures <- function(dataList, qfeatures, fileAnnotation = NULL, siriusFile
   if (is.null(attr(rowData(qfeatures[[1]]), "annotation column"))) {
     stop("No annotation")
   }
-
+  
   #Start of importing  annotation part1 from two
   
   # Extract the relevant data: Alignment ID and the annotation column from qfeatures
@@ -1014,7 +1014,7 @@ processMS1data <- function(sampleNamesToExclude,
       incProgress(amount = 0.1, detail = "Coloring") 
   else 
     print("Coloring")
-
+  
   if(!is.na(progress))  
     if(progress)  
       incProgress(amount = 0, detail = "Coloring init") 
@@ -1128,11 +1128,11 @@ processMS1data <- function(sampleNamesToExclude,
   
   matrixDataFrame[, dataColumnNames    ][matrixDataFrame[, dataColumnNames    ] < 1] <- 1
   matrixDataFrame[, dataMeanColumnNames][matrixDataFrame[, dataMeanColumnNames] < 1] <- 1
-
+  
   matrixDataFrame[, dataColumnNames]     <- log10(matrixDataFrame[, dataColumnNames])
   matrixDataFrame[, dataMeanColumnNames] <- log10(matrixDataFrame[, dataMeanColumnNames])
   matrixDataFrame[is.infinite(matrixDataFrame)] <- 0
-
+  
   ## min / max
   logAbsMin <- min(0, min(matrixDataFrame[, dataMeanColumnNames]))
   logAbsMax <- max(matrixDataFrame[, c(dataColumnNames, dataMeanColumnNames)])
@@ -1302,19 +1302,19 @@ deserializeParameterSetKeyValuePairs <- function(importParametersValuePairs){
   for(i in seq_len(length(importParametersValuePairsList)))
     if(length(importParametersValuePairsList[[i]]) == 1)
       importParametersValuePairsList[[i]][[2]] <- ""
-    
-    ## split
-    importParametersValues <- unlist(importParametersValuePairsList)
-    importParametersKeys   <- importParametersValues[seq(from = 1, to = length(importParametersValues), by = 2)]
-    importParametersValues <- importParametersValues[seq(from = 2, to = length(importParametersValues), by = 2)]
-    
-    ## box to list
-    importParameterSet        <- as.list(importParametersValues)
-    names(importParameterSet) <- importParametersKeys
-    
-    ## cast logical's and numeric's
-    importParameterSet <- castListEntries(importParameterSet)
-    return(importParameterSet)
+  
+  ## split
+  importParametersValues <- unlist(importParametersValuePairsList)
+  importParametersKeys   <- importParametersValues[seq(from = 1, to = length(importParametersValues), by = 2)]
+  importParametersValues <- importParametersValues[seq(from = 2, to = length(importParametersValues), by = 2)]
+  
+  ## box to list
+  importParameterSet        <- as.list(importParametersValues)
+  names(importParameterSet) <- importParametersKeys
+  
+  ## cast logical's and numeric's
+  importParameterSet <- castListEntries(importParameterSet)
+  return(importParameterSet)
 }
 
 #' Cast logical's and numeric's in a list or data.frame
@@ -1324,7 +1324,7 @@ deserializeParameterSetKeyValuePairs <- function(importParametersValuePairs){
 #' to be a logical will be replaced by `as.logical()` conversion.
 #' Similarly for numeric entries (or columns). Everything else remains strings
 #' 
-#' @param list 
+#' @param list list object
 #'
 #' @return list of the same lenght with logical's and numeric's casted
 #' @export

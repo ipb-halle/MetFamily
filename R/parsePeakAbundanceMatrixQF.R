@@ -1,10 +1,10 @@
 #' Title
 #'
 #' @param qfeatures Object of type QFeatures 
-#' @param doPrecursorDeisotoping 
-#' @param mzDeviationInPPM_precursorDeisotoping 
-#' @param mzDeviationAbsolute_precursorDeisotoping 
-#' @param maximumRtDifference 
+#' @param doPrecursorDeisotoping boolean
+#' @param mzDeviationInPPM_precursorDeisotoping numeric
+#' @param mzDeviationAbsolute_precursorDeisotoping numeric
+#' @param maximumRtDifference numeric
 #' @param progress boolean whether or not to show a progress bar
 #'
 #' @return ?

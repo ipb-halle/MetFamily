@@ -17,6 +17,8 @@
 #'   each fragment pair be calculated.
 #' @param progress boolean, used for interactive app.
 #' @param mz_tol `numeric(1)` tolerance used for matching precursor fragment.
+#' @param min_frag_nb `numeric(1)` minimum number of fragments needed to include spectrum
+#' @param min_intensity `numeric(1)` minimum intensity to include fragment
 #'
 #' @returns A list including a spectraList element and additional stats.
 #' @export
