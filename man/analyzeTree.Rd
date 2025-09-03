@@ -20,6 +20,8 @@ analyzeTree(
 \item{filter}{filter}
 
 \item{nodeIdx}{numeric}
+
+\item{minimumProportionOfLeafs}{numeric}
 }
 \value{
 list object

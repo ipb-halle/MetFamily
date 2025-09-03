@@ -5,10 +5,10 @@
 importParameterSetInit <- function() {
   
   list(
-    minimumIntensityOfMaximalMS2peak = 1000,
-    minimumNumbersOfFragments = 1,
-    minimumAbsoluteMS2peaks = 10,
-    minimumProportionOfMS2peaks = 0.01,
+    minimumIntensityOfMaximalMS2peak = 2000,
+    minimumNumbersOfFragments = 2,
+    minimumAbsoluteMS2peaks = 500,
+    minimumProportionOfMS2peaks = 0.05,
     neutralLossesPrecursorToFragments = TRUE,
     neutralLossesFragmentsToFragments = FALSE,
     mzDeviationAbsolute_grouping = 0.01,

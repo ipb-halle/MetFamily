@@ -24,6 +24,8 @@ precursor be calculated.}
 
 \item{neutralLossesFragmentsToFragments}{boolean Should neutral losses for
 each fragment pair be calculated.}
+
+\item{min_intensity}{\code{numeric(1)} minimum intensity to include fragment}
 }
 \value{
 filtered spectra

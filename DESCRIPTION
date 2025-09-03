@@ -54,7 +54,8 @@ Suggests:
   shinytest2,
   FactoMineR,
   caret,
-  pcaMethods
+  pcaMethods,
+  lifecycle
 VignetteBuilder: knitr
 Maintainer: Steffen Neumann <sneumann@ipb-halle.de>
 Description: Untargeted discovery 

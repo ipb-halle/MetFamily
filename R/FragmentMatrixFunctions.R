@@ -1,6 +1,7 @@
 
 #' parse MS/MS spectra
 #'
+#' `r lifecycle::badge("superseded")`
 #' Superseded by parseMSP rewrite 2025-08
 #'
 #' @param fileSpectra file
@@ -12,7 +13,6 @@
 #'
 #' @returns list
 #' @export
-#' @noRd
 parseMSP <- function(fileSpectra, 
                      minimumIntensityOfMaximalMS2peak, 
                      minimumProportionOfMS2peaks, 

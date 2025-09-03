@@ -24,13 +24,13 @@
 #' @export
 parseMSP_rewrite <- function(
     fileSpectra, 
-    minimumIntensityOfMaximalMS2peak, 
-    minimumProportionOfMS2peaks, 
-    neutralLossesPrecursorToFragments, 
-    neutralLossesFragmentsToFragments,
+    minimumIntensityOfMaximalMS2peak = 2000, 
+    minimumProportionOfMS2peaks = 0.05, 
+    neutralLossesPrecursorToFragments = T, 
+    neutralLossesFragmentsToFragments = F,
     mz_tol = 0.17,
-    min_frag_nb = 1,
-    min_intensity = 0,
+    min_frag_nb = 2,
+    min_intensity = 500,
     progress = FALSE
 ) {
   
@@ -220,13 +220,13 @@ msp_dict <- function() {
 #' @importFrom purrr map map_dbl
 filter_msp_entries <- function(
     msp_entries, 
-    minimumIntensityOfMaximalMS2peak, 
-    minimumProportionOfMS2peaks, 
-    neutralLossesPrecursorToFragments, 
-    neutralLossesFragmentsToFragments,
+    minimumIntensityOfMaximalMS2peak = 2000, 
+    minimumProportionOfMS2peaks = 0.05, 
+    neutralLossesPrecursorToFragments = T, 
+    neutralLossesFragmentsToFragments = F,
     mz_tol = 0.17,
-    min_frag_nb = 1,
-    min_intensity = 0
+    min_frag_nb = 2,
+    min_intensity = 500
 ) {
   
   # for debugging
@@ -338,7 +338,7 @@ process_msp_entry <- function(
     minimumProportionOfMS2peaks, 
     neutralLossesPrecursorToFragments, 
     neutralLossesFragmentsToFragments,
-    min_intensity = 0
+    min_intensity = 500
 ) {
   
   # msp_entry <- msp_entries[[232]]

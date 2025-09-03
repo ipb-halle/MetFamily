@@ -11,11 +11,11 @@ calculatePCA(dataList, filterObj, ms1AnalysisMethod, scaling, logTransform)
 
 \item{filterObj}{filterObject}
 
-\item{ms1AnalysisMethod}{}
+\item{ms1AnalysisMethod}{character}
 
-\item{scaling}{}
+\item{scaling}{boolean}
 
-\item{logTransform}{}
+\item{logTransform}{boolean}
 }
 \value{
 PCA object

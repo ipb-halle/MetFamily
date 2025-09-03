@@ -34,6 +34,10 @@ each fragment pair be calculated.}
 
 \item{mz_tol}{\code{numeric(1)} tolerance used for matching precursor fragment.}
 
+\item{min_frag_nb}{\code{numeric(1)} minimum number of fragments needed to include spectrum}
+
+\item{min_intensity}{\code{numeric(1)} minimum intensity to include fragment}
+
 \item{progress}{boolean, used for interactive app.}
 }
 \value{
