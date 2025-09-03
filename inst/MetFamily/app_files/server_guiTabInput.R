@@ -261,6 +261,8 @@ obsImportMs2Data <- observeEvent(input$importMs2Data, {
 importData <- function(importMS1andMS2data){
   #################################################
   ## files
+  
+  
   if(importMS1andMS2data){
     fileMs1Path <- input$ms1DataFile$datapath
     fileMs1Name <- input$ms1DataFile$name

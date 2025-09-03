@@ -108,7 +108,7 @@ resetWorkspaceFunctions <- c(resetWorkspaceFunctions, function(){
   dendrogramFragmentStatistics <<- FALSE
   
   ## reset plot range
-  dendrogramPlotRangeY <<- NULL
+  # dendrogramPlotRangeY <<- NULL # never used
   dendrogramPlotRange$xMin <<- NULL
   dendrogramPlotRange$xMax <<- NULL
   dendrogramPlotRange$xInterval <<- NULL

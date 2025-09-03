@@ -45,6 +45,7 @@ analyzeTreeFromRoot <- function(dataList, cluster, filter){
 #' Analyze tree
 #' 
 #' Recursive function.
+#' FIX creates many global variables
 #'
 #' @param dataList list object
 #' @param cluster cluster object
@@ -52,7 +53,8 @@ analyzeTreeFromRoot <- function(dataList, cluster, filter){
 #' @param nodeIdx numeric
 #'
 #' @returns list object
-analyzeTree <- function(dataList, cluster, filter, nodeIdx){
+analyzeTree <- function(dataList, cluster, filter, nodeIdx, 
+                        minimumProportionOfLeafs = 0.75){
   if(nodeIdx < 0){
     ###################################
     ## leaf
@@ -214,7 +216,8 @@ analyzeTreeForAnnotations <- function(dataList, cluster, filter, nodeIdx){
     return(resultObj)
   }
 }
-analyzeTreeForFrequentFragments <- function(clusterDataList, nodeIdx, minimumNumberOfChildren){
+analyzeTreeForFrequentFragments <- function(clusterDataList, nodeIdx, minimumNumberOfChildren,
+                                            minimumProportionOfLeafs = 0.75){
   if(nodeIdx < 0){
     ###################################
     ## leaf

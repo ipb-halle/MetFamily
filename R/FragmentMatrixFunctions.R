@@ -1,5 +1,19 @@
 ####################################################################################
 ## aligned spectra
+
+#' Parse peak abundance matrix
+#' 
+#' Deprecated. Replaced by [parsePeakAbundanceMatrixQF()] to incorporated Qfeatures.
+#'
+#' @param filePeakMatrix character file path
+#' @param doPrecursorDeisotoping boolean
+#' @param mzDeviationInPPM_precursorDeisotoping numeric
+#' @param mzDeviationAbsolute_precursorDeisotoping numeric
+#' @param maximumRtDifference numeric
+#' @param progress boolean
+#'
+#' @returns resultObj
+#' @noRD
 parsePeakAbundanceMatrix <- function(filePeakMatrix, 
                                      doPrecursorDeisotoping, 
                                      mzDeviationInPPM_precursorDeisotoping, 
@@ -1468,8 +1482,11 @@ convertToProjectFile <- function(filePeakMatrixPath,
   
   rm(returnObj)
   
-  
-  filePeakMatrixQF <- readMSDial(filePeakMatrixPath)
+  filePeakMatrixQF <- if(!is.null(filePeakMatrixPath)){
+    readMSDial(filePeakMatrixPath)
+  } else {
+    NULL
+  }
 
   returnObj <- convertToProjectFile2(
     filePeakMatrixQF = filePeakMatrixQF, 
@@ -1491,6 +1508,21 @@ convertToProjectFile <- function(filePeakMatrixPath,
   return(returnObj)
 }
 
+#' Convert part 2
+#'
+#' @param filePeakMatrixQF Qfeatures object
+#' @param spectraList 
+#' @param precursorMz 
+#' @param precursorRt 
+#' @param metaboliteFamilies 
+#' @param uniqueMetaboliteFamilies 
+#' @param metaboliteFamilyColors 
+#' @param furtherProperties 
+#' @param parameterSet 
+#' @param progress boolean
+#'
+#' @returns resultObj
+#' @noRd
 convertToProjectFile2 <- function(filePeakMatrixQF, 
                                   spectraList, 
                                   precursorMz, 
