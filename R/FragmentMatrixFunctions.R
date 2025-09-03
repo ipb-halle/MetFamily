@@ -18,7 +18,7 @@ parseMSP <- function(fileSpectra,
                      minimumProportionOfMS2peaks, 
                      neutralLossesPrecursorToFragments, 
                      neutralLossesFragmentsToFragments, 
-                     progress = FALSE){
+                     progress = FALSE, ...){
   fileLines <- readLines(con = fileSpectra)
   
   returnObj <- parseMSP_chunk(fileLines, 
@@ -36,6 +36,7 @@ parseMSP <- function(fileSpectra,
 
 #' parse MSP file to list
 #' 
+#' `r lifecycle::badge("superseded")`
 #' Superseded with parseMSP rewrite in 2025-08
 #'
 #' @param fileLines 
