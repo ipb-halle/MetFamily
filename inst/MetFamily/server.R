@@ -9,7 +9,7 @@ if(errorHunting){
   # options(shiny.trace=TRUE)
   options(shiny.trace=FALSE)
   options(shiny.fullstacktrace=TRUE)
-  options(shiny.testmode=TRUE)
+  options(shiny.testmode=FALSE) # gp: this only affect the project date at creation
   options(shiny.sanitize.errors = FALSE)
   options(future.debug = TRUE)
 } else {

@@ -33,12 +33,9 @@ dendrogramFragmentStatistics <- FALSE
 
 # Extended task for HCA computation
 hcaComputationTask <- ExtendedTask$new(function(dataList, filterHca, distanceMeasure,
-                                                clusterMethod, minimumProportionOfLeafs,
-                                                minimumProportionToShowFragment) {
+                                                clusterMethod, minimumProportionOfLeafs = 0.75,
+                                                minimumProportionToShowFragment = 0.5) {
   promise_result <- promises::future_promise({
-    # global variables needed by HCA functions
-    minimumProportionOfLeafs <<- minimumProportionOfLeafs
-    minimumProportionToShowFragment <<- minimumProportionToShowFragment
     
     result <- tryCatch({
       ## compute distance matrix
@@ -269,9 +266,7 @@ obsDrawHCA <- observeEvent(input$drawHCAplots, {
       dataList = dataList,
       filterHca = filterHca,
       distanceMeasure = distanceMeasure,
-      clusterMethod = clusterMethod,
-      minimumProportionOfLeafs = minimumProportionOfLeafs,
-      minimumProportionToShowFragment = minimumProportionToShowFragment
+      clusterMethod = clusterMethod
     )
   }, error = function(e) {
     msg <- paste("Critical Error during HCA task invocation:", e$message)

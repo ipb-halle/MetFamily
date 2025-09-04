@@ -239,7 +239,7 @@ filter_msp_entries <- function(
   # remove entries too few peaks
   nb_peaks_ori <- purrr::map(msp_entries, ~.x$header["peakNumber"]) %>% as.numeric
   # ~ same as
-  # nbPeaks <- map_dbl(msp_entries, ~length(.x$mz))
+  # nbPeaks <- purrr::map_dbl(msp_entries, ~length(.x$mz))
   
   spectra_no_peaks <- nb_peaks_ori == 0
   msp_entries <- msp_entries[!spectra_no_peaks]
@@ -271,7 +271,7 @@ filter_msp_entries <- function(
   max_int <- purrr::map_dbl(msp_entries, ~max(.x$int))
   disc_max_int <- max_int < minimumIntensityOfMaximalMS2peak
   
-  nb_frag_disc_max_int <- sum(map_dbl(msp_entries[disc_max_int], ~length(.x$mz)))
+  nb_frag_disc_max_int <- sum(purrr::map_dbl(msp_entries[disc_max_int], ~length(.x$mz)))
   
   msp_entries <- msp_entries[!disc_max_int]
   
@@ -421,7 +421,7 @@ process_msp_entry <- function(
   
   tibble::lst(
     spectra_item,
-    nb_too_low_frags = nb_low_int_abs + nb_low_int_rel,
+    nb_too_low_frags = sum(low_both_cases),
     nb_nat_frags = length(mz)
   )
 }
