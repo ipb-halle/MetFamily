@@ -104,7 +104,7 @@ navbarPage(
                                  )), ")", sep = "")),
                        bsTooltip(id = "projectDescription", title = "Please type a description of this project as free text", placement = "bottom", trigger = "hover"),
                        tags$style(type="text/css", "textarea {width:100%}"),
-                       tags$textarea(id = 'projectDescription', placeholder = 'Comments here', rows = 3, ""),
+                       tags$textarea(id = 'projectDescription', placeholder = 'Comments here', rows = 1, ""),
                        #textInput(inputId = "projectDescription", label = "Project description", value = "", placeholder = "Comments here"),
                        
                        ### Import parameters ----
