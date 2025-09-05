@@ -2,7 +2,7 @@
 
 toolName       <- "MetFamily"
 toolVersion    <- "1.0"    
-metFamilyAppVersion <- "1.3.11"
+metFamilyAppVersion <- "1.3.12"
 
 packageVersion <- Biobase::package.version("MetFamily")
 

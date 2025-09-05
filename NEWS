@@ -1,3 +1,17 @@
+CHANGES IN VERSION 0.99.12
+-------------------------
+NEW FEATURES
+
+    o Added Cosine and Modified Cosine score to HCA clustering
+    o tweaked interface, README's and documentation
+    o Add support for Sirius version >6.0
+
+Internal Changes
+
+    o Refactor parseMSP, add import options.
+    o Shiny app now uses extendedTasks for long(er) running calculations, 
+      like Data Import & HCA. Avoids blocking concurrent users in Open Source Shiny Server
+
 CHANGES IN VERSION 0.99.9
 -------------------------
 Internal Changes
