@@ -218,7 +218,7 @@ addSiriusAnnotations <- function(qfeatures,
   
   stopifnot(file.exists(siriusFile))
   # annotation <- read.delim(siriusFile) # deprec
-  annotation <- readr::read_tsv(siriusFile)
+  annotation <- readr::read_tsv(siriusFile, show_col_types = FALSE)
   
   sirCat <- stringr::str_replace(siriusFileColumnName, " ", "#")
   stopifnot(sirCat %in% colnames(annotation))

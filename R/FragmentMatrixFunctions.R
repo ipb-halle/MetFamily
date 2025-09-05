@@ -1493,7 +1493,8 @@ convertToProjectFile2 <- function(filePeakMatrixQF,
 
 #' Parse peak abundance matrix
 #'
-#' Deprecated 2025-04. Replaced by [parsePeakAbundanceMatrixQF()] to
+#' `r lifecycle::badge("superseded")`
+#' Superseded 2025-04 by [parsePeakAbundanceMatrixQF()] to
 #' incorporate Qfeatures.
 #'
 #' @param filePeakMatrix character file path

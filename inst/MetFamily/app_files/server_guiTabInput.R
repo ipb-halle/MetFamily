@@ -513,7 +513,7 @@ observe({
       ifelse(test = resultObj$numberOfParsedSpectra < resultObj$numberOfSpectraOriginal, 
              yes = paste(" (",paste( Filter(nchar, c(
                ifelse(test = resultObj$numberOfSpectraDiscardedDueToNoPeaks > 0, 
-                      yes = paste(resultObj$numberOfSpectraDiscardedDueToNoPeaks, " empty", sep = ""), no = ""), 
+                      yes = paste(resultObj$numberOfSpectraDiscardedDueToNoPeaks, " too few peaks", sep = ""), no = ""), 
                ifelse(test = resultObj$numberOfSpectraDiscardedDueToMaxIntensity > 0, 
                       yes = paste(resultObj$numberOfSpectraDiscardedDueToMaxIntensity, " low intensity", sep = ""), no = ""), 
                ifelse(test = resultObj$numberOfSpectraDiscardedDueToTooHeavy > 0, 

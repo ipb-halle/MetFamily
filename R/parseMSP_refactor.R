@@ -311,6 +311,7 @@ filter_msp_entries <- function(
     numberOfMS2PeaksAboveThreshold = sum(nb_nat_frags), # final peaks w/o NL
     numberOfMS2PeaksBelowThreshold = nb_frag_disc_max_int + sum(nb_too_low_frags),
     numberOfTooHeavyFragments = sum(unlist(heavy_frags)),
+    # TODO rename to TooFewPeaks, or use separate stats
     numberOfSpectraDiscardedDueToNoPeaks = sum(spectra_no_peaks) + sum(too_few_peaks),
     numberOfSpectraDiscardedDueToMaxIntensity = sum(disc_max_int),
     numberOfSpectraDiscardedDueToTooHeavy = sum(disc_too_heavy),
