@@ -254,8 +254,14 @@ filterData <- function(dataList, sampleClasses, sampleSet = NULL, filterBySample
 #'     \item{distanceMeasure}{The distance metric used, same as the input parameter.}
 #'   }
 #' @export
-calculateDistanceMatrix <- function(dataList, filter, distanceMeasure = "Jaccard", progress = FALSE,
-                                    minNumberFragments = 5, removePrecursor = TRUE) {
+calculateDistanceMatrix <- function(
+    dataList, 
+    filter, 
+    distanceMeasure = "Jaccard (intensity-weighted)",
+    removePrecursor = TRUE,
+    minNumberFragments = 5,
+    progress = FALSE
+) {
   
   stopifnot(is.logical(progress))
   
@@ -1304,9 +1310,9 @@ leaveOneOutCrossValidation_plsda <- function(dataFrame2, groupLabels, numberOfCo
 #'
 #' @param dataList listObject
 #' @param filterObj filterObject
-#' @param ms1AnalysisMethod 
-#' @param scaling 
-#' @param logTransform 
+#' @param ms1AnalysisMethod character
+#' @param scaling boolean
+#' @param logTransform boolean
 #'
 #' @returns PCA object
 #' @export

@@ -11,7 +11,11 @@ calcPlotMS2Legend(
 )
 }
 \arguments{
-\item{dataList}{}
+\item{dataList}{list object}
+
+\item{minimumProportionOfLeafs}{numeric}
+
+\item{minimumProportionToShowFragment}{numeric}
 }
 \value{
 ?

@@ -2,17 +2,20 @@ Type: Package
 Package: MetFamily
 Title: MetFamily: Discovering Regulated Metabolite Families in Untargeted
     Metabolomics Studies
-Version: 0.99.10
-Date: 2025-07-01
-Author: c( person(given = "Hendrik", family = "Treutler", role = c("aut"),
-    email = "hendrik.treutler@ipb-halle.de"), person(given = "Khabat",
-    family = "Vahabi", role = c("ctb"), email =
-    "khabat.vahabi@ipb-halle.de"), person(given = "Norman", family =
-    "Storz", role = c("ctb"), email = "nstorz@ipb-halle.de"), person(given
-    = "Guillaume", family = "Patoine", role = c("ctb"), email =
-    "gpatoine@ipb-halle.de"), person(given = "Steffen", family =
-    "Neumann", email = "sneumann@ipb-halle.de", role = c("aut", "cre"),
-    comment = c(ORCID = "0000-0002-7899-7192")) )
+Version: 0.99.11
+Date: 2025-07-17
+Author: c( 
+    person(given = "Hendrik", family = "Treutler", 
+      role = c("aut"), email = "hendrik.treutler@ipb-halle.de"), 
+    person(given = "Khabat", family = "Vahabi", 
+      role = c("ctb"), email = "khabat.vahabi@ipb-halle.de"), 
+    person(given = "Norman", family = "Storz", 
+      role = c("ctb"), email = "nstorz@ipb-halle.de"), 
+    person(given = "Guillaume", family = "Patoine", 
+      role = c("ctb"), email = "gpatoine@ipb-halle.de"), 
+    person(given = "Steffen", family =  "Neumann", email = "sneumann@ipb-halle.de", 
+      role = c("aut", "cre"), comment = c(ORCID = "0000-0002-7899-7192"))
+    )
 Maintainer: Steffen Neumann <sneumann@ipb-halle.de>
 Description: Untargeted discovery of metabolite families offering a bird's
     eye view of metabolic regulation in comparative metabolomics. We
@@ -65,6 +68,7 @@ Suggests:
     caret,
     FactoMineR,
     knitr,
+    lifecycle,
     pcaMethods,
     shinytest2,
     testthat

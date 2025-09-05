@@ -16,13 +16,13 @@ parsePeakAbundanceMatrixQF(
 \arguments{
 \item{qfeatures}{Object of type QFeatures}
 
-\item{doPrecursorDeisotoping}{}
+\item{doPrecursorDeisotoping}{boolean}
 
-\item{mzDeviationInPPM_precursorDeisotoping}{}
+\item{mzDeviationInPPM_precursorDeisotoping}{numeric}
 
-\item{mzDeviationAbsolute_precursorDeisotoping}{}
+\item{mzDeviationAbsolute_precursorDeisotoping}{numeric}
 
-\item{maximumRtDifference}{}
+\item{maximumRtDifference}{numeric}
 
 \item{progress}{boolean whether or not to show a progress bar}
 }

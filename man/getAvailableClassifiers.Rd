@@ -7,7 +7,7 @@
 getAvailableClassifiers(resultFolderForClassifiers)
 }
 \arguments{
-\item{resultFolderForClassifiers}{}
+\item{resultFolderForClassifiers}{?}
 }
 \value{
 ?

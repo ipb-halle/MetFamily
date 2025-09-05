@@ -7,10 +7,10 @@
 calculateDistanceMatrix(
   dataList,
   filter,
-  distanceMeasure = "Jaccard",
-  progress = FALSE,
+  distanceMeasure = "Jaccard (intensity-weighted)",
+  removePrecursor = TRUE,
   minNumberFragments = 5,
-  removePrecursor = TRUE
+  progress = FALSE
 )
 }
 \arguments{
