@@ -104,8 +104,10 @@ navbarPage(
                                  )), ")", sep = "")),
                        bsTooltip(id = "projectDescription", title = "Please type a description of this project as free text", placement = "bottom", trigger = "hover"),
                        tags$style(type="text/css", "textarea {width:100%}"),
-                       tags$textarea(id = 'projectDescription', placeholder = 'Comments here', rows = 3, ""),
+                       tags$textarea(id = 'projectDescription', placeholder = 'Comments here', rows = 1, ""),
                        #textInput(inputId = "projectDescription", label = "Project description", value = "", placeholder = "Comments here"),
+                       
+                       ### Import parameters ----
                        fluidRow(
                          column(width = 6,
                                 div(style="float:left",
@@ -127,17 +129,28 @@ navbarPage(
                            label = 'Apply parameters from import parameter file',
                            accept = c('text/comma-separated-values', 'text/plain', 'text/tab-separated-values')
                          ),
-                         h5("Spectrum filter"),
+                         h5("MS/MS spectrum filter"),
                          fluidRow(
                            column(width = 6,
-                                  bsTooltip(id = "minimumIntensityOfMaximalMS2peak", title = "A MS/MS spectrum is considered iff the MS/MS feature with maximum intensity is greater or equal than this value", placement = "bottom", trigger = "hover"),
+                                  bsTooltip(id = "minimumIntensityOfMaximalMS2peak", title = "A MS/MS spectrum is considered if the MS/MS feature with maximum intensity is greater or equal than this value", placement = "bottom", trigger = "hover"),
                                   textInput(inputId = "minimumIntensityOfMaximalMS2peak", label = "Min. spectrum intensity", value = importParameterSetInit()$minimumIntensityOfMaximalMS2peak)
-                           ),##column
+                           ),
                            column(width = 6,
-                                  bsTooltip(id = "minimumProportionOfMS2peaks", title = "A MS/MS feature is considered iff the intensity is greater or equal than the maximum intensity times this value", placement = "bottom", trigger = "hover"),
+                                  bsTooltip(id = "minimumNumbersOfFragments", title = "A MS/MS spectrum is considered if it has at least that number of MS/MS features (fragments) after filtering", placement = "bottom", trigger = "hover"),
+                                  textInput(inputId = "minimumNumbersOfFragments", label = "Min. nb. fragments", value = importParameterSetInit()$minimumNumbersOfFragments)
+                           )
+                         ),
+                         h5("MS/MS fragment filter"),
+                         fluidRow(
+                           column(width = 6,
+                                  bsTooltip(id = "minimumAbsoluteMS2peaks", title = "A MS/MS feature is considered if the intensity is greater or equal to this value", placement = "bottom", trigger = "hover"),
+                                  textInput(inputId = "minimumAbsoluteMS2peaks", label = "MS/MS peak absolute", value = importParameterSetInit()$minimumAbsoluteMS2peaks)
+                           ),
+                           column(width = 6,
+                                  bsTooltip(id = "minimumProportionOfMS2peaks", title = "A MS/MS feature is considered if the intensity is greater or equal than the maximum intensity times this value", placement = "bottom", trigger = "hover"),
                                   textInput(inputId = "minimumProportionOfMS2peaks", label = "MS/MS peak proportion", value = importParameterSetInit()$minimumProportionOfMS2peaks)
-                           )##column
-                         ),##row
+                           )
+                         ),
                          h5("Neutral losses"),
                          fluidRow(
                            column(width = 6,
@@ -1018,11 +1031,11 @@ navbarPage(
                          fluidRow(
                            column(width = 6,
                                   bsTooltip(id = "minimumIntensityOfMaximalMS2peak2", title = "A MS/MS spectrum is considered iff the MS/MS feature with maximum intensity is greater or equal than this value", placement = "bottom", trigger = "hover"),
-                                  textInput(inputId = "minimumIntensityOfMaximalMS2peak2", label = "Min. spectrum intensity", value = 2000)
+                                  textInput(inputId = "minimumIntensityOfMaximalMS2peak2", label = "Min. spectrum intensity2", value = 1000)
                            ),##column
                            column(width = 6,
                                   bsTooltip(id = "minimumProportionOfMS2peaks2", title = "A MS/MS feature is considered iff the intensity is greater or equal than the maximum intensity times this value", placement = "bottom", trigger = "hover"),
-                                  textInput(inputId = "minimumProportionOfMS2peaks2", label = "MS/MS peak proportion", value = 0.05)
+                                  textInput(inputId = "minimumProportionOfMS2peaks2", label = "MS/MS peak proportion2", value = 0.01)
                            )##column
                          ),##row
                          h5("Neutral losses"),

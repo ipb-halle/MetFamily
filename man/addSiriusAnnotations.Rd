@@ -9,7 +9,7 @@ addSiriusAnnotations(
   siriusFile,
   rowData_col = "Alignment ID",
   sirius_col = "featureId",
-  siriusFileColumnName = "NPC class"
+  siriusFileColumnName = NULL
 )
 }
 \arguments{
@@ -22,7 +22,7 @@ addSiriusAnnotations(
 \item{sirius_col}{character Sirius column to match}
 
 \item{siriusFileColumnName}{One of "NPC class", "NPC superclass", "NPC pathway", "ClassyFire subclass",
-"ClassyFire class", "ClassyFire superclass"}
+"ClassyFire class", "ClassyFire superclass". Defaults to "ClassyFire superclass" if not specified.}
 }
 \value{
 qfeatures object

@@ -15,19 +15,19 @@ mzClustGeneric(
 )
 }
 \arguments{
-\item{p}{}
+\item{p}{?}
 
-\item{sampclass}{}
+\item{sampclass}{sample class}
 
-\item{mzppm}{}
+\item{mzppm}{numeric}
 
-\item{mzabs}{}
+\item{mzabs}{numeric}
 
-\item{minsamp}{}
+\item{minsamp}{numeric}
 
-\item{minfrac}{}
+\item{minfrac}{numeric}
 
-\item{progress}{}
+\item{progress}{boolean}
 }
 \value{
 ?
