@@ -742,8 +742,18 @@ navbarPage(
                              "Jaccard",
                              "Jaccard (intensity-weighted)",
                              "Jaccard (fragment-count-weighted)",
-                             "NDP (Normalized dot product)"
-                           ), selectize = FALSE)
+                             "NDP (Normalized dot product)",
+                             "Cosine",
+                             "Cosine (with NL)",
+                             "Modified Cosine",
+                             "Modified Cosine (with NL)"
+                           ), selectize = FALSE),
+                           conditionalPanel(
+                             # parameters only implemented for given methods
+                             condition = "['Cosine', 'Cosine (with NL)', 'Modified Cosine', 'Modified Cosine (with NL)'].includes(input.hcaDistanceFunction)",
+                             checkboxInput(inputId = "hca_removePrecursorIon", label = "Remove precursor fragment", value = TRUE),
+                             textInput(inputId = "hca_minNbFrag", placeholder = '5', label = "Minumum Nb. fragments")
+                           )
                            #bsTooltip(id = "hcaClusterMethod", title = "The method used for clustering", placement = "bottom", trigger = "hover"),
                            #selectInput(multiple = FALSE, inputId = "hcaClusterMethod", label = "Cluster method", selected = "ward.D", choices = c(
                            #  "single", 

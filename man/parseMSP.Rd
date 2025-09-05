@@ -2,7 +2,7 @@
 % Please edit documentation in R/FragmentMatrixFunctions.R
 \name{parseMSP}
 \alias{parseMSP}
-\title{parse MS/MS spectra}
+\title{Parse MS/MS spectra}
 \usage{
 parseMSP(
   fileSpectra,
@@ -15,7 +15,7 @@ parseMSP(
 )
 }
 \arguments{
-\item{fileSpectra}{file}
+\item{fileSpectra}{filepath}
 
 \item{minimumIntensityOfMaximalMS2peak}{numeric}
 
@@ -26,11 +26,16 @@ parseMSP(
 \item{neutralLossesFragmentsToFragments}{boolean}
 
 \item{progress}{boolean}
+
+\item{...}{ignored. Used for forward compatibility.}
 }
 \value{
-list
+list object
 }
 \description{
 \ifelse{html}{\href{https://lifecycle.r-lib.org/articles/stages.html#superseded}{\figure{lifecycle-superseded.svg}{options: alt='[Superseded]'}}}{\strong{[Superseded]}}
 Superseded by parseMSP rewrite 2025-08
+}
+\details{
+Read MS2 spectra from MSP file
 }
