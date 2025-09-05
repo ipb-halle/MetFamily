@@ -12,6 +12,7 @@
 #' @param neutralLossesPrecursorToFragments boolean
 #' @param neutralLossesFragmentsToFragments boolean
 #' @param progress boolean
+#' @param ... ignored. Used for forward compatibility.
 #'
 #' @returns list object
 #' @export

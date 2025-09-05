@@ -26,6 +26,8 @@ parseMSP(
 \item{neutralLossesFragmentsToFragments}{boolean}
 
 \item{progress}{boolean}
+
+\item{...}{ignored. Used for forward compatibility.}
 }
 \value{
 list object

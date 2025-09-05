@@ -18,6 +18,29 @@ calcPlotMS2(
   dendrogramFragmentStatistics = FALSE
 )
 }
+\arguments{
+\item{dataList}{dataList object}
+
+\item{fragmentsX}{?}
+
+\item{fragmentsY}{?}
+
+\item{fragmentsColor}{?}
+
+\item{fragmentsDiscriminativity}{?}
+
+\item{fragmentsX_02}{?}
+
+\item{fragmentsY_02}{?}
+
+\item{fragmentsColor_02}{?}
+
+\item{xInterval}{?}
+
+\item{selectedFragmentIndex}{?}
+
+\item{dendrogramFragmentStatistics}{?}
+}
 \value{
 ?
 }
