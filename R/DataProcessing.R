@@ -253,8 +253,8 @@ readProjectData <- function(fileLines, progress = FALSE)
   importParameters <- line1Tokens[[1]]
   if(nchar(importParameters) == 0){
     ## import parameterSet not there: backward compatibility - add if not there
-    # FIX doesn't match app defaults
-    importParameters <- "ImportParameters={projectName=MetFamily project; projectDescription=; toolVersion=MetFamily 1.0; minimumIntensityOfMaximalMS2peak=2000; minimumProportionOfMS2peaks=0.05; mzDeviationAbsolute_grouping=0.01; mzDeviationInPPM_grouping=10; doPrecursorDeisotoping=TRUE; mzDeviationAbsolute_precursorDeisotoping=0.001; mzDeviationInPPM_precursorDeisotoping=10; maximumRtDifference=0.02; doMs2PeakGroupDeisotoping=FALSE; mzDeviationAbsolute_ms2PeakGroupDeisotoping=0.01; mzDeviationInPPM_ms2PeakGroupDeisotoping=10; proportionOfMatchingPeaks_ms2PeakGroupDeisotoping=0.9; mzDeviationAbsolute_mapping=0.01; minimumNumberOfMS2PeaksPerGroup=1; neutralLossesPrecursorToFragments=TRUE; neutralLossesFragmentsToFragments=FALSE}"
+    importParameters <- parameterSetDefault() %>% serializeParameterSet
+    
   }
   groupSampleDataFrameFieldValue <- line1Tokens[[2]]
   
@@ -711,7 +711,7 @@ readProjectData <- function(fileLines, progress = FALSE)
   annoPresentAnnotationsList[[1]] <- annotationValueIgnore
   annoPresentColorsList[[1]] <- annotationColorIgnore
   if(length(annotationColorsMapKeys) > 0) {
-    for(i in seq_len(length(annotationColorsMapKeys))){
+    for(i in seq_along(annotationColorsMapKeys)){
       annoPresentAnnotationsList[[1 + i]] <- annotationColorsMapKeys[[i]]
       annoPresentColorsList     [[1 + i]] <- annotationColorsMapValues[[i]]
     }
