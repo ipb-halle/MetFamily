@@ -22,7 +22,8 @@ use_import_from("plotly",
                 c("plot_ly", "add_trace", "layout"))
 use_import_from("stringr", 
                 c("str_squish", "str_split", "str_trim", "str_equal",
-                  "str_extract", "str_detect", "str_remove", "str_to_lower"))
+                  "str_extract", "str_detect", "str_remove", "str_to_lower",
+                  "str_count", "str_replace_all"))
 use_import_from("QFeatures", c("QFeatures", "ncols"))
 
 use_import_from("S4Vectors", "DataFrame")

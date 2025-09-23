@@ -225,6 +225,18 @@ readProjectData <- function(fileLines, progress = FALSE) {
   line2Tokens <- strsplit(x = fileLines[[2]], split = "\t")[[1]]
   line3Tokens <- strsplit(x = fileLines[[3]], split = "\t")[[1]]
   
+  # extract version
+  versionString <- line1Tokens[3]
+  line1Tokens[3] <- ""
+  
+  # For backwards compatibilty, change , to ; in annotations
+  # old project files have no semicolon, with entries separates by commas
+  annoField <- line2Tokens[3]
+  if(!stringr::str_detect(annoField, ";") &&
+     stringr::str_count(annoField, ",") == stringr::str_count(annoField, "=") - 2) {
+    line2Tokens[3] <- stringr::str_replace_all(line2Tokens[3], ",", ";")
+  }
+  
   ## metabolite profile vs fragmentMatrix
   numberOfColumns <- length(line1Tokens)
   line1TokensOffset <- 2
@@ -1201,7 +1213,7 @@ processMS1data <- function(
 #'
 #' @param dataList main dataset
 #' @param file filename
-#' @param precursorSet 
+#' @param precursorSet entries to include, defaults to all
 #'
 #' @returns filename 
 #' @export
@@ -1313,6 +1325,16 @@ writeProjectFile <- function(dataList, precursorSet = NULL, file) {
   annotationColumn <- c("", annotationColors, dataList$annotationColumnName, annotationStrings)
   
   ms1Matrix[, dataList$annotationColumnIndex] <- annotationColumn
+  
+  # add MetFamily version
+  source(system.file("MetFamily/version.R", package = "MetFamily"), local = T)
+  versionString <- paste0(
+        R.Version()$version.string, 
+        "; MetFamily build: ", metFamilyAppVersion, "_", system(command = "hostname", intern = TRUE),
+        "; MetFamily package: ", packageVersion
+      )
+  
+  ms1Matrix[1,3] <- versionString
   
   linesMS1MatrixWithHeader <- apply(X = ms1Matrix, MARGIN = 1, FUN = function(x){paste(x, collapse = "\t")})
   lines <- paste(linesMS1MatrixWithHeader, linesFragmentMatrixWithHeader, sep = "\t")
