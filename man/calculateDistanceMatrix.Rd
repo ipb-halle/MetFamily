@@ -2,24 +2,37 @@
 % Please edit documentation in R/Analysis.R
 \name{calculateDistanceMatrix}
 \alias{calculateDistanceMatrix}
-\title{Calculate a distance matrix between MS/MS spectra in the MetFamily feature Matrix}
+\title{Calculate a distance matrix between MS/MS spectra in the MetFamily feature
+Matrix}
 \usage{
 calculateDistanceMatrix(
   dataList,
   filter,
-  distanceMeasure = "Jaccard",
+  distanceMeasure = "Jaccard (intensity-weighted)",
+  removePrecursor = TRUE,
+  minNumberFragments = 5,
   progress = FALSE
 )
 }
 \arguments{
 \item{dataList}{List object containing precursor, feature and MS/MS data.}
 
-\item{filter}{Logical or integer vector indicating for which precursors to include the MS/MS spectra.}
+\item{filter}{Logical or integer vector indicating for which precursors to
+include the MS/MS spectra.}
 
-\item{distanceMeasure}{Character string specifying the distance metric to use.
-Supported values include "Jaccard", "Manhatten", "NDP (Normalized dot product)", and others.}
+\item{distanceMeasure}{Character string specifying the distance metric to
+use. Supported values include "Jaccard", "Manhatten", "NDP (Normalized dot
+product)", and others.}
 
-\item{progress}{Logical or NA. If TRUE, progress is reported via incProgress().}
+\item{removePrecursor}{Logical. Should the precursor ion be removed from the
+MS2 spectra? Defaults to TRUE. Only implemented for cosine-based methods.}
+
+\item{minNumberFragments}{Numeric. Spectra with fewer fragments (after
+precursor removal if desired) are excluded. Only implemented for
+cosine-based methods.}
+
+\item{progress}{Logical or NA. If TRUE, progress is reported via
+incProgress().}
 }
 \value{
 A list with elements:
@@ -30,23 +43,28 @@ A list with elements:
 }
 }
 \description{
-Computes a distance matrix between MS/MS spectra in the feature matrix representation using
-various distance or similarity measures.
-The function supports multiple distance metrics, of which the following are also available
-in the MetFamily GUI: "Jaccard", "Jaccard (intensity-weighted)", "Jaccard (fragment-count-weighted)"
-and "NDP (Normalized dot product)". The following list defines the metrics and their characteristics:
+Computes a distance matrix between MS/MS spectra in the feature matrix
+representation using various distance or similarity measures. The function
+supports multiple distance metrics, of which the following are also available
+in the MetFamily GUI: "Jaccard", "Jaccard (intensity-weighted)", "Jaccard
+(fragment-count-weighted)" and "NDP (Normalized dot product)". The following
+list defines the metrics and their characteristics:
 }
 \details{
 \itemize{
 \item "Jaccard": Jaccard distance \eqn{1 - |A \cap B| / |A \cup B|}: the fraction of matching fragments among all fragments,
 where A and B are MS/MS features of two different precursors.
 \item "Jaccard (intensity-weighted)": Jaccard distance weighted by the intensity of
-features. First, intensities are discretized: [0.01-0.2[ are set down to 0.01, [0.2, 0.4[ down to 0.2,
-and >= 0.4 increased to 1. For matching fragments the higher intensity is used. Then, Jacard becomes the sum of matching intensities among the sum of all intensities in A and B.
-\eqn{1 - \sum_{i\in matches} max(A_i, B_i) / (sum(A) + sum(B))}
+features. First, intensities are discretized: [0.01-0.2[ are set down to
+0.01, [0.2, 0.4[ down to 0.2, and >= 0.4 increased to 1. For matching
+fragments the higher intensity is used. Then, Jacard becomes the sum of
+matching intensities among the sum of all intensities in A and B. \eqn{1 -
+\sum_{i\in matches} max(A_i, B_i) / (sum(A) + sum(B))}
 \item "Jaccard (fragment-count-weighted)": Jaccard distance weighted by relative occurance of the fragments among the precursors after filtering
-counts: \eqn{1 - \sum_{i\in matches} freq(A_i) / (sum_{\notin matches} freq(A) + sum_{\notin matches}(B))}
+counts: \eqn{1 - \sum_{i\in matches} freq(A_i) / (sum_{\notin matches}
+freq(A) + sum_{\notin matches}(B))}
 \item "NDP (Normalized dot product)": Normalized dot product similarity: \eqn{NDP = \frac{\left( \sum_{i}^{\text{S1\&S2}} W_{\text{S1},i} W_{\text{S2},i} \right)^2}{\sum_i W_{\text{S1},i}^2 \sum_i W_{\text{S2},i}^2}}
-as described in Gaquerel et al. 2015. (10.1073/pnas.1610218113)\link{https://www.pnas.org/doi/10.1073/pnas.1610218113#sec-4-5}
+as described in Gaquerel et al. 2015.
+\href{https://www.pnas.org/doi/10.1073/pnas.1610218113#sec-4-5}{10.1073/pnas.1610218113}
 }
 }

@@ -1881,9 +1881,33 @@ createTickLabels <- function(maximumNumberOfLabels, max, labelPrefix){
 
 #' MS2 Plot
 #'
+#' @param dataList dataList object
+#' @param fragmentsX ?
+#' @param fragmentsY ?
+#' @param fragmentsColor ?
+#' @param fragmentsDiscriminativity ?
+#' @param fragmentsX_02 ?
+#' @param fragmentsY_02 ?
+#' @param fragmentsColor_02 ?
+#' @param xInterval ?
+#' @param selectedFragmentIndex ?
+#' @param dendrogramFragmentStatistics ?
+#'
 #' @returns ?
 #' @export
-calcPlotMS2 <- function(dataList, fragmentsX = NULL, fragmentsY = NULL, fragmentsColor = NULL, fragmentsDiscriminativity = NULL, fragmentsX_02 = NULL, fragmentsY_02 = NULL, fragmentsColor_02 = NULL, xInterval = NULL, selectedFragmentIndex = NULL, dendrogramFragmentStatistics = FALSE){
+calcPlotMS2 <- function(
+    dataList, 
+    fragmentsX = NULL, 
+    fragmentsY = NULL, 
+    fragmentsColor = NULL, 
+    fragmentsDiscriminativity = NULL, 
+    fragmentsX_02 = NULL, 
+    fragmentsY_02 = NULL, 
+    fragmentsColor_02 = NULL, 
+    xInterval = NULL, 
+    selectedFragmentIndex = NULL, 
+    dendrogramFragmentStatistics = FALSE
+){
   
 
   ####################

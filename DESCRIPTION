@@ -1,71 +1,80 @@
-Package: MetFamily
 Type: Package
-Title: MetFamily: Discovering Regulated Metabolite Families in Untargeted Metabolomics Studies
-Version: 0.99.11
-Date: 2025-07-17
-Author: c( person(given = "Hendrik", family = "Treutler", role = c("aut"), email = "hendrik.treutler@ipb-halle.de"),
-           person(given = "Khabat", family = "Vahabi", role = c("ctb"), email = "khabat.vahabi@ipb-halle.de"),
-           person(given = "Norman", family = "Storz", role = c("ctb"), email = "nstorz@ipb-halle.de"),
-           person(given = "Guillaume", family = "Patoine", role = c("ctb"), email = "gpatoine@ipb-halle.de"),
-           person(given = "Steffen", family = "Neumann", email = "sneumann@ipb-halle.de",
-                  role = c("aut", "cre"), comment = c(ORCID = "0000-0002-7899-7192")) )
+Package: MetFamily
+Title: MetFamily: Discovering Regulated Metabolite Families in Untargeted
+    Metabolomics Studies
+Version: 0.99.12
+Date: 2025-09-05
+Author: c( 
+    person(given = "Hendrik", family = "Treutler", 
+      role = c("aut"), email = "hendrik.treutler@ipb-halle.de"), 
+    person(given = "Khabat", family = "Vahabi", 
+      role = c("ctb"), email = "khabat.vahabi@ipb-halle.de"), 
+    person(given = "Norman", family = "Storz", 
+      role = c("ctb"), email = "nstorz@ipb-halle.de"), 
+    person(given = "Guillaume", family = "Patoine", 
+      role = c("ctb"), email = "gpatoine@ipb-halle.de"), 
+    person(given = "Steffen", family =  "Neumann", email = "sneumann@ipb-halle.de", 
+      role = c("aut", "cre"), comment = c(ORCID = "0000-0002-7899-7192"))
+    )
+Maintainer: Steffen Neumann <sneumann@ipb-halle.de>
+Description: Untargeted discovery of metabolite families offering a bird's
+    eye view of metabolic regulation in comparative metabolomics. We
+    implemented the presented methodology in the easy-to-use web
+    application MetFamily to enable the analysis of comprehensive
+    metabolomics studies for all researchers worldwide.
+License: GPL (>= 2)
+URL: http://ipb-halle.github.io/MetFamily/
 Depends:
-  R (>= 3.5.0)
+    R (>= 3.5.0)
 Imports:
+    BiocStyle,
+    bslib,
+    cba,
+    clue,
+    colourpicker,
+    dplyr,
+    DT,
     egg,
+    future,
     graphics,
     grDevices,
+    magrittr,
+    Matrix,
     methods,
-    plotly,
-    QFeatures,
-    stats,
-    utils,
-    S4Vectors,
-    stringr,
-    SummarizedExperiment,
-    openxlsx2,
-    cba,
-    tools,
-    squash,
     mixOmics,
+    openxlsx2,
+    plotly,
     plotrix,
-    colourpicker,
-    slam,
+    promises,
+    purrr,
+    QFeatures,
+    readr,
+    rlang,
+    S4Vectors,
     scales,
-    xcms,
+    shiny,
     shinyBS,
     shinybusy,
     shinyjs,
-    DT,
-    shiny,
-    purrr,
-    dplyr,
-    magrittr,
-    rlang,
-    Matrix,
-    BiocStyle,
-    future,
-    promises,
-    bslib,
-    readr
+    slam,
+    squash,
+    stats,
+    stringr,
+    SummarizedExperiment,
+    tools,
+    utils,
+    xcms
 Suggests:
-  knitr,
-  testthat,
-  shinytest2,
-  FactoMineR,
-  caret,
-  pcaMethods,
-  lifecycle
-VignetteBuilder: knitr
-Maintainer: Steffen Neumann <sneumann@ipb-halle.de>
-Description: Untargeted discovery 
-  of metabolite families offering a bird's eye view of metabolic regulation 
-  in comparative metabolomics. We implemented the presented methodology 
-  in the easy-to-use web application MetFamily to enable the analysis 
-  of comprehensive metabolomics studies for all researchers worldwide.
-License: GPL (>= 2)
+    caret,
+    FactoMineR,
+    knitr,
+    lifecycle,
+    pcaMethods,
+    shinytest2,
+    testthat
+VignetteBuilder: 
+    knitr
 biocViews: Software, Visualization
+Encoding: UTF-8
 Roxygen: list(markdown = TRUE)
 RoxygenNote: 7.3.2
-Encoding: UTF-8
-URL: http://ipb-halle.github.io/MetFamily/

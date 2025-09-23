@@ -1,17 +1,20 @@
 
-#' parse MS/MS spectra
+#' Parse MS/MS spectra
 #'
 #' `r lifecycle::badge("superseded")`
 #' Superseded by parseMSP rewrite 2025-08
+#' 
+#' Read MS2 spectra from MSP file
 #'
-#' @param fileSpectra file
+#' @param fileSpectra filepath
 #' @param minimumIntensityOfMaximalMS2peak numeric
 #' @param minimumProportionOfMS2peaks numeric
 #' @param neutralLossesPrecursorToFragments boolean
 #' @param neutralLossesFragmentsToFragments boolean
 #' @param progress boolean
+#' @param ... ignored. Used for forward compatibility.
 #'
-#' @returns list
+#' @returns list object
 #' @export
 parseMSP <- function(fileSpectra, 
                      minimumIntensityOfMaximalMS2peak, 
@@ -51,8 +54,7 @@ parseMSP_chunk <- function(fileLines,
                            neutralLossesPrecursorToFragments, 
                            neutralLossesFragmentsToFragments, 
                            offset = 0, 
-                           progress = FALSE)
-{
+                           progress = FALSE) {
   
   ## LC-MS/MS entry:
   ## NAME: Unknown
@@ -88,9 +90,11 @@ parseMSP_chunk <- function(fileLines,
   
   ## start with empty lines or not?
   endOfRecord <- TRUE
-  if(numberOfFileLines > 0)
-    if(nchar(trimws(fileLines[[1]])) > 0)
+  if(numberOfFileLines > 0) {
+    if(nchar(trimws(fileLines[[1]])) > 0) {
       endOfRecord <- FALSE
+    }
+  }
   
   ## check for pattern
   if(!is.na(progress))  if(progress)  incProgress(amount = 0, detail = "MS/MS file: Parse") else print("MS/MS file: Parse")
@@ -124,8 +128,9 @@ parseMSP_chunk <- function(fileLines,
   isInchiKey	<- grepl(pattern = "(^InChIKey:)|(^INCHIKEY:)|(^InChIKey=)|(^INCHIKEY=)|(^INCHIAUX=)",	      x = fileLines)
   isSmiles  	<- grepl(pattern = "(^SMILES:)|(^SMILES=)",		        x = fileLines)
   
+  # check decimal separator
   someStrings <- trimws(c(
-    substring(text = fileLines[isMZ], first = nchar("RETENTIONTIME:") + 1), 
+    substring(text = fileLines[isRT], first = nchar("RETENTIONTIME:") + 1), 
     substring(text = fileLines[isMZ], first = nchar("PRECURSORMZ:") + 1), 
     substring(text = fileLines[isMz], first = nchar("precursor m/z:") + 1)
   ))
@@ -373,6 +378,8 @@ parseMSP_chunk <- function(fileLines,
       ## filter fragments with mass greater than precursor
       numberOfTooHeavyFragmentsHere <- 0
       if(all(!is.null(mz), !is.na(mz))){
+
+        # + 0.1 otherwise half of precursor fragments are removed
         tooHeavy <- ms2Peaks_mz > (mz + 0.1)
         ms2Peaks_mz  <- ms2Peaks_mz [!tooHeavy]
         ms2Peaks_int <- ms2Peaks_int[!tooHeavy]
@@ -1796,9 +1803,11 @@ parseMSP_attributes <- function(fileSpectra, progress = FALSE, flexiblePeakList 
   
   ## start with empty lines or not?
   endOfRecord <- TRUE
-  if(numberOfFileLines > 0)
-    if(nchar(trimws(fileLines[[1]])) > 0)
+  if(numberOfFileLines > 0) {
+    if(nchar(trimws(fileLines[[1]])) > 0) {
       endOfRecord <- FALSE
+    }
+  }
   
   ## check for pattern
   if(!is.na(progress))  if(progress)  incProgress(amount = 0, detail = "MS/MS file: Parse") else print("MS/MS file: Parse")
