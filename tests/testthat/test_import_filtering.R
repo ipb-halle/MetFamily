@@ -125,7 +125,7 @@ test_that("Example data properly integrates with filtering functions", {
   example_file_path <- system.file("extdata/showcase/Project_file_showcase_annotated.csv.gz", 
                                    package = "MetFamily")
 
-  dataList <- readClusterDataFromProjectFile(
+  dataList <- readProjectFile(
     file = example_file_path,
     progress = FALSE
   )
