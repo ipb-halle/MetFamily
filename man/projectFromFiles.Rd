@@ -8,7 +8,7 @@ projectFromFiles(
   ms1_path,
   ms2_path,
   annot_path = NULL,
-  siriusFileColumnName = c("NPC class"),
+  siriusFileColumnName = c("ClassyFire superclass"),
   parameterSet = NULL
 )
 }

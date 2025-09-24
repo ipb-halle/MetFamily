@@ -287,6 +287,8 @@ importData <- function(importMS1andMS2data){
   
   ## minimum MS2 peak intensity
   minimumIntensityOfMaximalMS2peak <- input$minimumIntensityOfMaximalMS2peak
+  minimumNumbersOfFragments <- input$minimumNumbersOfFragments 
+  minimumAbsoluteMS2peaks <- input$minimumAbsoluteMS2peaks
   minimumProportionOfMS2peaks <- input$minimumProportionOfMS2peaks
   ## grouping of MS2 peaks
   mzDeviationAbsolute_grouping <- input$mzDeviationAbsolute_grouping
@@ -320,6 +322,20 @@ importData <- function(importMS1andMS2data){
     minimumIntensityOfMaximalMS2peak <- as.numeric(minimumIntensityOfMaximalMS2peak)
     error <- error | is.na(minimumIntensityOfMaximalMS2peak)
   }
+  
+  if(any(is.null(minimumNumbersOfFragments), length(minimumNumbersOfFragments) == 0, nchar(minimumNumbersOfFragments) == 0)) {
+    error <- TRUE
+  } else {
+    minimumNumbersOfFragments <- as.numeric(minimumNumbersOfFragments)
+    error <- error | is.na(minimumNumbersOfFragments)
+  }
+  if(any(is.null(minimumAbsoluteMS2peaks), length(minimumAbsoluteMS2peaks) == 0, nchar(minimumAbsoluteMS2peaks) == 0)) {
+    error <- TRUE
+  } else {
+    minimumAbsoluteMS2peaks <- as.numeric(minimumAbsoluteMS2peaks)
+    error <- error | is.na(minimumAbsoluteMS2peaks)
+  }
+  
   if(any(is.null(minimumProportionOfMS2peaks), length(minimumProportionOfMS2peaks) == 0, nchar(minimumProportionOfMS2peaks) == 0)) {
     error <- TRUE
   } else {
@@ -405,6 +421,8 @@ importData <- function(importMS1andMS2data){
   parameterSet$projectDescription                                <- projectDescription
   parameterSet$toolVersion                                       <- paste(toolName, toolVersion, sep = " ")
   parameterSet$minimumIntensityOfMaximalMS2peak                  <- minimumIntensityOfMaximalMS2peak
+  parameterSet$minimumNumbersOfFragments                         <- minimumNumbersOfFragments
+  parameterSet$minimumAbsoluteMS2peaks                           <- minimumAbsoluteMS2peaks
   parameterSet$minimumProportionOfMS2peaks                       <- minimumProportionOfMS2peaks
   parameterSet$mzDeviationAbsolute_grouping                      <- mzDeviationAbsolute_grouping
   parameterSet$mzDeviationInPPM_grouping                         <- mzDeviationInPPM_grouping
@@ -495,7 +513,7 @@ observe({
       ifelse(test = resultObj$numberOfParsedSpectra < resultObj$numberOfSpectraOriginal, 
              yes = paste(" (",paste( Filter(nchar, c(
                ifelse(test = resultObj$numberOfSpectraDiscardedDueToNoPeaks > 0, 
-                      yes = paste(resultObj$numberOfSpectraDiscardedDueToNoPeaks, " empty", sep = ""), no = ""), 
+                      yes = paste(resultObj$numberOfSpectraDiscardedDueToNoPeaks, " too few peaks", sep = ""), no = ""), 
                ifelse(test = resultObj$numberOfSpectraDiscardedDueToMaxIntensity > 0, 
                       yes = paste(resultObj$numberOfSpectraDiscardedDueToMaxIntensity, " low intensity", sep = ""), no = ""), 
                ifelse(test = resultObj$numberOfSpectraDiscardedDueToTooHeavy > 0, 

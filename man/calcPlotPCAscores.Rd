@@ -17,11 +17,11 @@ calcPlotPCAscores(
 )
 }
 \arguments{
-\item{pcaObj}{}
+\item{pcaObj}{list object}
 
-\item{dataList}{}
+\item{dataList}{list object}
 
-\item{filterObj}{}
+\item{filterObj}{filter obj}
 
 \item{pcaDimensionOne}{first PCA axis}
 
@@ -29,9 +29,9 @@ calcPlotPCAscores(
 
 \item{showScoresLabels}{}
 
-\item{xInterval}{}
+\item{xInterval}{numeric}
 
-\item{yInterval}{}
+\item{yInterval}{numeric}
 
 \item{downloadLayout}{boolean, set to TRUE for a different figure better suited for printing}
 }

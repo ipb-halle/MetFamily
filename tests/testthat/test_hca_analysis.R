@@ -1,7 +1,3 @@
-# Set global variables needed by HCA functions (from inst/MetFamily/ui.R)
-minimumProportionOfLeafs <<- 0.75
-minimumProportionToShowFragment <<- 0.5
-
 # Load example data
 example_file_path <- system.file("extdata/showcase/Project_file_showcase_annotated.csv.gz", 
                                  package = "MetFamily")

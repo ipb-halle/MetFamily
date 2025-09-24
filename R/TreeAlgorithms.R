@@ -51,6 +51,7 @@ analyzeTreeFromRoot <- function(dataList, cluster, filter){
 #' @param cluster cluster object
 #' @param filter filter
 #' @param nodeIdx numeric
+#' @param minimumProportionOfLeafs numeric
 #'
 #' @returns list object
 analyzeTree <- function(dataList, cluster, filter, nodeIdx, 
