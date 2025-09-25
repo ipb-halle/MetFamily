@@ -1,3 +1,10 @@
+CHANGES IN VERSION 0.99.13
+-------------------------
+
+Internal Changes
+
+    o Move reading / writing of project files from shiny into R packge 
+
 CHANGES IN VERSION 0.99.12
 -------------------------
 NEW FEATURES
