@@ -156,7 +156,7 @@ loadProjectFile <- function(filePath){
   withProgress(message = 'Reading file...', value = 0, {
     dataList <<- tryCatch(
       {
-        readClusterDataFromProjectFile(file = filePath, progress = TRUE)
+        readProjectFile(file = filePath, progress = TRUE)
       }, 
       error = function(e) {
         print(e)
@@ -166,7 +166,7 @@ loadProjectFile <- function(filePath){
   })
   
   if(!is.null(error)){
-    print(paste("readClusterDataFromProjectFile resulted in error:", error))
+    print(paste("readProjectFile resulted in error:", error))
     msg <- paste("An error occurred while reading the input files. Please check the file format and content and try again. The error was", error)
     output$fileInfo <- renderText({msg})
     #session$sendCustomMessage("enableButton", buttonId)
@@ -183,7 +183,7 @@ loadProjectFile <- function(filePath){
     
     return()
   }
-  print(paste("readClusterDataFromProjectFile finished", dataList$minimumMass))
+  print(paste("readProjectFile finished", dataList$minimumMass))
   
   resetWorkspace()
   

@@ -6,7 +6,7 @@ library(MetFamily)
 # Using project file ------------------------------------------------------
 
 project_path <- system.file("extdata/showcase/Project_file_showcase_annotated.csv.gz", package = "MetFamily")
-project <- readClusterDataFromProjectFile(file = project_path)
+project <- readProjectFile(file = project_path)
 
 # and previously saved filter object
 filter_path <- system.file("extdata/testdata/filterObj.Rdata", package = "MetFamily")
