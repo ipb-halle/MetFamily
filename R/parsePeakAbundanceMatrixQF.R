@@ -219,10 +219,15 @@ addSiriusAnnotations <- function(qfeatures,
   stopifnot(file.exists(siriusFile))
   # annotation <- read.delim(siriusFile) # deprec
   annotation <- readr::read_tsv(siriusFile, show_col_types = FALSE)
+
+  # some file have an additional column, which we don't use
+  if ("compoundId" %in% names(annotation)) {
+    annotation <- annotation %>% select(-compoundId)
+  }
   
   sirCat <- stringr::str_replace(siriusFileColumnName, " ", "#")
   stopifnot(sirCat %in% colnames(annotation))
-  
+
   # handle Sirius format differences ----
   # should work for any version before 6.0
   v5names <- c("id", "molecularFormula", "adduct", "precursorFormula", "NPC#pathway", 

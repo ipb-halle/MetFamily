@@ -98,7 +98,7 @@ test_that("MSP reading works", {
 
 test_that("Project reading works", {
     fileName <- system.file("extdata/showcase/Project_file_showcase_annotated.csv.gz", package = "MetFamily")
-    readDataList <- readClusterDataFromProjectFile(
+    readDataList <- readProjectFile(
       file = fileName,
       progress = FALSE)
     #load("inst/extdata/testdata/readClusterDataFromProjectFile.Rdata")

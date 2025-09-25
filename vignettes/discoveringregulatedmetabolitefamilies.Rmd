@@ -85,7 +85,7 @@ dataList <- projectFromFiles(
 # use showcase for testing
 
 # fileName <- system.file("extdata/showcase/Project_file_showcase_annotated.csv.gz", package = "MetFamily")
-# project <- readClusterDataFromProjectFile(file = fileName)
+# project <- readProjectFile(file = fileName)
 
 
 ```

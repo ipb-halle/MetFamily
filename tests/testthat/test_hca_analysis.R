@@ -1,7 +1,7 @@
 # Load example data
 example_file_path <- system.file("extdata/showcase/Project_file_showcase_annotated.csv.gz", 
                                  package = "MetFamily")
-dataList <- readClusterDataFromProjectFile(file = example_file_path, progress = FALSE)
+dataList <- readProjectFile(file = example_file_path, progress = FALSE)
 
 # Load existing filter object
 filterObjPath <- system.file("extdata/testdata/canopus/filterPca_canopus.rds", package = "MetFamily")

@@ -33,118 +33,14 @@ createExportDistanceMatrixName <- function(distanceMeasure){
   fileName <- paste(timeStampForFiles(), "_distanceMatrix_", distanceMeasure, ".csv", sep = "")
   return(fileName)
 }
-createExportMatrix <- function(precursorSet){
-  ################################################################################
-  ## fragment matrix
-  fragmentMatrix      <- dataList$featureMatrix[precursorSet, ]
-  dgTMatrix <- as(fragmentMatrix, "dgTMatrix")
-  matrixRows <- dgTMatrix@i + 1
-  matrixCols <- dgTMatrix@j + 1
-  matrixVals <- dgTMatrix@x
-  
-  numberOfColumns <- ncol(fragmentMatrix)
-  numberOfRows <- nrow(fragmentMatrix)
-  chunkSize <- 1000
-  numberOfChunks <- ceiling(numberOfColumns / chunkSize)
-  
-  fragmentCounts      <- vector(mode = "integer", length = numberOfColumns)
-  fragmentIntensities <- vector(mode = "numeric", length = numberOfColumns)
-  fragmentMasses      <- dataList$fragmentMasses
-  linesMatrix <- matrix(nrow = numberOfRows, ncol = numberOfChunks)
-  
-  for(chunkIdx in seq_len(numberOfChunks)){
-    colStart <- 1 + (chunkIdx - 1) * chunkSize
-    colEnd <- colStart + chunkSize - 1
-    if(chunkIdx == numberOfChunks)
-      colEnd <- numberOfColumns
-    
-    numberOfColumnsHere <- colEnd - colStart + 1
-    numberOfRowsHere <- max(matrixRows)
-    indeces <- matrixCols >= colStart & matrixCols <= colEnd
-    
-    fragmentMatrixPart <- matrix(data = rep(x = "", times = numberOfRowsHere * numberOfColumnsHere), nrow = numberOfRowsHere, ncol = numberOfColumnsHere)
-    fragmentMatrixPart[cbind(matrixRows[indeces], matrixCols[indeces] - colStart + 1)] <- matrixVals[indeces]
-    
-    fragmentCountsPart      <- apply(X = fragmentMatrixPart, MARGIN = 2, FUN = function(x){ sum(x != "") })
-    fragmentIntensitiesPart <- apply(X = fragmentMatrixPart, MARGIN = 2, FUN = function(x){ sum(as.numeric(x), na.rm = TRUE) }) / fragmentCountsPart
-    
-    linesPart <- apply(X = fragmentMatrixPart, MARGIN = 1, FUN = function(x){paste(x, collapse = "\t")})
-    
-    fragmentCounts[colStart:colEnd] <- fragmentCountsPart
-    fragmentIntensities[colStart:colEnd] <- fragmentIntensitiesPart
-    linesMatrix[, chunkIdx] <- linesPart
-  }
-  
-  ## assemble
-  linesFragmentMatrixWithHeader <- c(
-    paste(fragmentCounts, collapse = "\t"),
-    paste(fragmentIntensities, collapse = "\t"),
-    paste(fragmentMasses, collapse = "\t"),
-    apply(X = linesMatrix, MARGIN = 1, FUN = function(x){paste(x, collapse = "\t")})
-  )
-  
-  ################################################################################
-  ## MS1 matrix
-  dataList$dataFrameMS1Header[[1,2]] <<- serializeSampleSelectionAndOrder(dataList$groupSampleDataFrame)
-  ms1Matrix     <- rbind(
-    dataList$dataFrameMS1Header,
-    dataList$dataFrameInfos[precursorSet, ]
-  )
-  ms1Matrix     <- as.matrix(ms1Matrix)
-  
-  ###########################################################
-  ## export annotations
-  
-  ## process annotations
-  annotations <- dataList$annoArrayOfLists
-  for(i in 1:length(annotations))
-    if(dataList$annoArrayIsArtifact[[i]])
-      annotations[[i]] <- c(annotations[[i]], dataList$annotationValueIgnore)
-  
-  annotationStrings <- vector(mode = "character", length = length(annotations))
-  for(i in 1:length(annotations)){
-    if(length(annotations[[i]]) > 0)
-      annotationStrings[[i]] <- paste(annotations[[i]], collapse = "; ")
-    else
-      annotationStrings[[i]] <- ""
-  }
-  annotationStrings <- annotationStrings[precursorSet]
-  
-  ## process annotaiotn-color-map
-  annoPresentAnnotations <- dataList$annoPresentAnnotationsList[-1]
-  annoPresentColors      <- dataList$annoPresentColorsList[-1]
-  
-  if(length(annoPresentAnnotations) > 0){
-    annotationColors <- paste(annoPresentAnnotations, annoPresentColors, sep = "=", collapse = ", ")
-  } else {
-    annotationColors <- ""
-  }
-  annotationColors <- paste(dataList$annotationColorsName, "={", annotationColors, "}", sep = "")
-  
-  ## box
-  annotationColumn <- c("", annotationColors, dataList$annotationColumnName, annotationStrings)
-  
-  ms1Matrix[, dataList$annotationColumnIndex] <- annotationColumn
-  
-  ################################################################################
-  ## assemble
-  #dataFrame <- cbind(
-  #  ms1Matrix,
-  #  ms2Matrix
-  #)
-  linesMS1MatrixWithHeader <- apply(X = ms1Matrix, MARGIN = 1, FUN = function(x){paste(x, collapse = "\t")})
-  lines <- paste(linesMS1MatrixWithHeader, linesFragmentMatrixWithHeader, sep = "\t")
-  
-  return(lines)
-}
+
 
 writeTable <- function(precursorSet, file){
   shinybusy::show_modal_spinner(spin="scaling-squares", 
                      text="\nMerging project files to csv. This can take several minutes!")
-  lines <- createExportMatrix(precursorSet)
-  gz1 <- gzfile(description = file, open = "w")
-  writeLines(text = lines, con = gz1)
-  base::close(gz1)
+  
+  writeProjectFile(dataList, precursorSet, file)
+  
   shinybusy::remove_modal_spinner()
 }
 
@@ -203,7 +99,7 @@ output$downloadSelectedPrecursors <- downloadHandler(
 #Obvserve button for exporting the project
 observeEvent(input$prepareAllPrecursors, {
   ExportMatrixName <<- createExportMatrixName()
-  precursorSet <- 1:dataList$numberOfPrecursors
+  precursorSet <- seq_len(dataList$numberOfPrecursors)
   writeTable(precursorSet = precursorSet, file = file.path(tempdir(),ExportMatrixName))
   showModal(modalDialog(title = "Download", footer = NULL, size="s", 
                         fluidRow(column(12, p("Your download is ready."))), 
@@ -681,3 +577,125 @@ output$downloadReport2 <- downloadHandler(
   },
   contentType = "application/pdf"
 )
+
+
+
+# Deprecated --------------------------------------------------------------
+
+#' Save Project File
+#' 
+#' Deprecated, was used in `writeTable()`. Now replaced by `writeProjectFile()`.
+#'
+#' @param precursorSet 
+#'
+#' @returns
+#' @export
+#'
+#' @examples
+createExportMatrix <- function(precursorSet){
+  ################################################################################
+  ## fragment matrix
+  fragmentMatrix      <- dataList$featureMatrix[precursorSet, ]
+  dgTMatrix <- as(fragmentMatrix, "dgTMatrix")
+  matrixRows <- dgTMatrix@i + 1
+  matrixCols <- dgTMatrix@j + 1
+  matrixVals <- dgTMatrix@x
+  
+  numberOfColumns <- ncol(fragmentMatrix)
+  numberOfRows <- nrow(fragmentMatrix)
+  chunkSize <- 1000
+  numberOfChunks <- ceiling(numberOfColumns / chunkSize)
+  
+  fragmentCounts      <- vector(mode = "integer", length = numberOfColumns)
+  fragmentIntensities <- vector(mode = "numeric", length = numberOfColumns)
+  fragmentMasses      <- dataList$fragmentMasses
+  linesMatrix <- matrix(nrow = numberOfRows, ncol = numberOfChunks)
+  
+  for(chunkIdx in seq_len(numberOfChunks)){
+    colStart <- 1 + (chunkIdx - 1) * chunkSize
+    colEnd <- colStart + chunkSize - 1
+    if(chunkIdx == numberOfChunks)
+      colEnd <- numberOfColumns
+    
+    numberOfColumnsHere <- colEnd - colStart + 1
+    numberOfRowsHere <- max(matrixRows)
+    indeces <- matrixCols >= colStart & matrixCols <= colEnd
+    
+    fragmentMatrixPart <- matrix(data = rep(x = "", times = numberOfRowsHere * numberOfColumnsHere), nrow = numberOfRowsHere, ncol = numberOfColumnsHere)
+    fragmentMatrixPart[cbind(matrixRows[indeces], matrixCols[indeces] - colStart + 1)] <- matrixVals[indeces]
+    
+    fragmentCountsPart      <- apply(X = fragmentMatrixPart, MARGIN = 2, FUN = function(x){ sum(x != "") })
+    fragmentIntensitiesPart <- apply(X = fragmentMatrixPart, MARGIN = 2, FUN = function(x){ sum(as.numeric(x), na.rm = TRUE) }) / fragmentCountsPart
+    
+    linesPart <- apply(X = fragmentMatrixPart, MARGIN = 1, FUN = function(x){paste(x, collapse = "\t")})
+    
+    fragmentCounts[colStart:colEnd] <- fragmentCountsPart
+    fragmentIntensities[colStart:colEnd] <- fragmentIntensitiesPart
+    linesMatrix[, chunkIdx] <- linesPart
+  }
+  
+  ## assemble
+  linesFragmentMatrixWithHeader <- c(
+    paste(fragmentCounts, collapse = "\t"),
+    paste(fragmentIntensities, collapse = "\t"),
+    paste(fragmentMasses, collapse = "\t"),
+    apply(X = linesMatrix, MARGIN = 1, FUN = function(x){paste(x, collapse = "\t")})
+  )
+  
+  ################################################################################
+  ## MS1 matrix
+  dataList$dataFrameMS1Header[[1,2]] <<- serializeSampleSelectionAndOrder(dataList$groupSampleDataFrame)
+  ms1Matrix     <- rbind(
+    dataList$dataFrameMS1Header,
+    dataList$dataFrameInfos[precursorSet, ]
+  )
+  ms1Matrix     <- as.matrix(ms1Matrix)
+  
+  ###########################################################
+  ## export annotations
+  
+  ## process annotations
+  annotations <- dataList$annoArrayOfLists
+  for(i in 1:length(annotations))
+    if(dataList$annoArrayIsArtifact[[i]])
+      annotations[[i]] <- c(annotations[[i]], dataList$annotationValueIgnore)
+  
+  annotationStrings <- vector(mode = "character", length = length(annotations))
+  # NOTE gp: some annotations contain commas, so use semi-colon to separate
+  for(i in 1:length(annotations)){
+    if(length(annotations[[i]]) > 0)
+      annotationStrings[[i]] <- paste(annotations[[i]], collapse = "; ")
+    else
+      annotationStrings[[i]] <- ""
+  }
+  annotationStrings <- annotationStrings[precursorSet]
+  
+  ## process annotation-color-map
+  annoPresentAnnotations <- dataList$annoPresentAnnotationsList[-1]
+  annoPresentColors      <- dataList$annoPresentColorsList[-1]
+  
+  if(length(annoPresentAnnotations) > 0){
+    annotationColors <- paste(annoPresentAnnotations, annoPresentColors, sep = "=", collapse = "; ")
+  } else {
+    annotationColors <- ""
+  }
+  annotationColors <- paste0(dataList$annotationColorsName, "={", annotationColors, "}")
+  
+  ## box
+  annotationColumn <- c("", annotationColors, dataList$annotationColumnName, annotationStrings)
+  
+  ms1Matrix[, dataList$annotationColumnIndex] <- annotationColumn
+  
+  ################################################################################
+  ## assemble
+  #dataFrame <- cbind(
+  #  ms1Matrix,
+  #  ms2Matrix
+  #)
+  linesMS1MatrixWithHeader <- apply(X = ms1Matrix, MARGIN = 1, FUN = function(x){paste(x, collapse = "\t")})
+  lines <- paste(linesMS1MatrixWithHeader, linesFragmentMatrixWithHeader, sep = "\t")
+  
+  return(lines)
+}
+
+
