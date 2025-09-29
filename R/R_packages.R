@@ -26,7 +26,6 @@ load_metfamily_dependencies <- function() {
   library("FactoMineR")
   library("mixOmics")
   library("pcaMethods")
-  library(searchable)
   library(gdata)
   ##############################################################################################################
   ## tools
