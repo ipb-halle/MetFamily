@@ -74,7 +74,15 @@
     <environment_variable name="DEBUG">true</environment_variable>
     <environment_variable name="DISABLE_AUTH">true</environment_variable>
     <environment_variable name="API_KEY" inject="api_key" />
-    
+    <!-- here are the inputs selected by the user -->
+    <environment_variable name="HEIGHT_FILE">$height_file</environment_variable>
+    <environment_variable name="MSP_FILE">$msp_file</environment_variable>
+    <environment_variable name="SIRIUS_FILE">$sirius_file</environment_variable>
+    <!-- Those variables are undefined if "raw" files are used
+    <environment_variable name="MZTABM_FILE">$mztabm_file"</environment_variable>
+    <environment_variable name="MSP_FILE">$msp_file"</environment_variable>
+    <environment_variable name="SIRIUS_FILE">$sirius_file"</environment_variable>
+    <environment_variable name="PROJECT_FILE">$project_file"</environment_variable> -->
   </environment_variables>
   
   <command><![CDATA[
@@ -111,7 +119,7 @@
                help="Optional TSV file from SIRIUS with CANOPUS molecular class predictions." />
       </when>
       <when value="MSI">
-        <param name="mztabm" type="data" format="mztabm" label="mzTab-M File"
+        <param name="mztabm_file" type="data" format="mztabm" label="mzTab-M File"
                help="mzTab-M (version >= 2.1) exported from xcms, mzMine, MS-DIAL, or others." />
         <param name="msp_file" type="data" format="msp" label="MS/MS Spectra File (.msp)"
                help="Spectral library in MSP format as accepted by RForMassSpectrometry Spectra package." />
