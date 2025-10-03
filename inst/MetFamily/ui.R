@@ -7,7 +7,7 @@ crashButton = F
 
 
 navbarPage(
-  title = div(img(src='img/Metfamily.gif',style="margin-top: -14px; padding-right:10px;padding-bottom:10px", height = 60)),
+  title = div(img(src='img/MetFamily.png',style="margin-top: -14px; padding-right:10px;padding-bottom:10px", height = 60)),
   windowTitle="MetFamily",
   footer = HTML(readLines("www/ipbfooter.html")),
   
