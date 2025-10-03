@@ -70,6 +70,7 @@ Suggests:
     knitr,
     lifecycle,
     pcaMethods,
+    rGalaxyConnector,
     shinytest2,
     testthat
 VignetteBuilder: 

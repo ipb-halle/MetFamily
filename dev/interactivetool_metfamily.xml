@@ -6,12 +6,15 @@
        <!-- <xref type="bioconductor">metfamily</xref> -->
    </xrefs>  
    <creator>
+     <!-- This currently gives a blank person icon without names nor orcid in Galaxy UI-->
      <person>
        <name>Steffen Neumann</name>
+       <familyName>Neumann</familyName>
        <affiliation>Leibniz Institute of Plant Biochemistry (IPB), Halle (Saale), Germany</affiliation>
        <orcid>0000-0002-7899-7192</orcid>       
      </person>
      <person>
+       <givenName>Guillaume</givenName>
        <name>Guillaume Patoine</name>
        <affiliation>Leibniz Institute of Plant Biochemistry (IPB), Halle (Saale), Germany</affiliation>
        <orcid>0000-0002-3748-6644</orcid>
@@ -62,9 +65,18 @@
   </entry_points>
 
   <environment_variables>
-    <!-- These will be accessible as environment variables inside the Docker container -->
+    <!-- Taken from Rstudio GXIT https://github.com/galaxyproject/galaxy/blob/dev/tools/interactive/interactivetool_rstudio.xml#L11 -->
+    <environment_variable name="HISTORY_ID">$__history_id__</environment_variable>
+    <environment_variable name="GALAXY_WEB_PORT">8080</environment_variable>
+    <environment_variable name="GALAXY_URL">$__galaxy_url__</environment_variable>
+    <!-- hardcoded because the above gave me python-garbled "Starting new HTTP connection (1): b'172.37.0.1':8080 " -->
+    <environment_variable name="GALAXY_URL">http://172.37.0.1:8080</environment_variable>
+    <environment_variable name="DEBUG">true</environment_variable>
+    <environment_variable name="DISABLE_AUTH">true</environment_variable>
+    <environment_variable name="API_KEY" inject="api_key" />
+    
   </environment_variables>
-
+  
   <command><![CDATA[
 
   ## The command will be templated by Cheetah within Galaxy, and
