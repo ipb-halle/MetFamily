@@ -13,7 +13,9 @@ RUN apt-get update && apt-get install -y python3-pip net-tools\
     && apt-get clean
 
 # Install Python dependencies using pip
-RUN pip3 install --break-system-packages galaxy-ie-helpers
+# Use Steffen's patch https://github.com/bgruening/galaxy_ie_helpers/pull/15
+# until it is properly merged and available through pypi
+RUN pip3 install --break-system-packages "galaxy-ie-helpers>=0.2.8" || pip3 install --break-system-packages "https://github.com/sneumann/galaxy_ie_helpers/archive/refs/heads/master.zip"
 
 # Install R package
 RUN R -e 'devtools::install_github("hexylena/rGalaxyConnector")'
