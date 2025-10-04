@@ -160,7 +160,7 @@ obsLoadGalaxyData <- observeEvent(input$loadGalaxyData, {
 
   setwd(paste(Sys.getenv("_GALAXY_JOB_HOME_DIR"),"../working",sep="/"))
   config <- fromJSON("metfamily-gxit-inputs.json")
-  filePath <- config$input_mode$mproject_file
+  filePath <- config$input_mode$project_file
   
   loadProjectFile(filePath = filePath)
   

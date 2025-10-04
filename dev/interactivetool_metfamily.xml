@@ -75,14 +75,14 @@
     <environment_variable name="DISABLE_AUTH">true</environment_variable>
     <environment_variable name="API_KEY" inject="api_key" />
     <!-- here are the inputs selected by the user -->
+    <!-- unless preserve-environment works, the shiny server apps won't see them
     <environment_variable name="HEIGHT_FILE">$height_file</environment_variable>
     <environment_variable name="MSP_FILE">$msp_file</environment_variable>
     <environment_variable name="SIRIUS_FILE">$sirius_file</environment_variable>
-    <!-- Those variables are undefined if "raw" files are used
-    <environment_variable name="MZTABM_FILE">$mztabm_file"</environment_variable>
-    <environment_variable name="MSP_FILE">$msp_file"</environment_variable>
-    <environment_variable name="SIRIUS_FILE">$sirius_file"</environment_variable>
-    <environment_variable name="PROJECT_FILE">$project_file"</environment_variable> -->
+    <environment_variable name="MZTABM_FILE">$mztabm_file</environment_variable>
+    <environment_variable name="MSP_FILE">$msp_file</environment_variable>
+    <environment_variable name="SIRIUS_FILE">$sirius_file</environment_variable> 
+    <environment_variable name="PROJECT_FILE">$project_file</environment_variable> -->
   </environment_variables>
   
   <command><![CDATA[
@@ -94,12 +94,18 @@
   ## onto the Docker container at runtime - enabling access to
   ## '$infile' and '$outfile' from inside the container.
 
+  echo "\n_GALAXY_JOB_HOME_DIR=\$_GALAXY_JOB_HOME_DIR" >> /usr/local/lib/R/etc/Renviron.site;
+
   shiny-server 2>&1 > /var/log/metfamily-gxit-01.log
   ## The log file can be found inside the container, for debugging purposes
 
   ]]>
   </command>
-
+  <configfiles>
+    <inputs name="inputs" data_style="paths" filename="metfamily-gxit-inputs.json" />
+    <!-- <inputs name="inputs" data_style="staging_path_and_source_path" filename="metfamily-gxit-inputs.json" /> -->
+  </configfiles>
+        
   <inputs>
     <conditional name="input_mode">
       <param name="mode" type="select" label="Input Mode">
@@ -127,7 +133,7 @@
                help="Optional TSV file from SIRIUS with CANOPUS molecular class predictions." />
       </when>
       <when value="project">
-        <param name="project_file" type="data" format="csv.gz" label="MetFamily Project File (.csv.gz)"
+        <param name="project_file" type="data" format="tabular" label="MetFamily Project File (.csv.gz)"
                help="Preprocessed MetFamily project file (e.g., Project_*.csv.gz) containing integrated data and settings." />
       </when>
     </conditional>
