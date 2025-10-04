@@ -82,16 +82,19 @@ enableLoadButtons <- function(){
   #session$sendCustomMessage("enableButton", "importMs2Data")
   shinyjs::enable("loadProjectData")
   shinyjs::enable("loadExampleData")
+  shinyjs::enable("loadGalaxyData")
   shinyjs::enable("importMs1Ms2Data")
   shinyjs::enable("importMs2Data")
 }
 disableLoadButtons <- function(){
   session$sendCustomMessage("disableButton", "loadProjectData")
   session$sendCustomMessage("disableButton", "loadExampleData")
+  session$sendCustomMessage("disableButton", "loadGalaxyData")
   session$sendCustomMessage("disableButton", "importMs1Ms2Data")
   session$sendCustomMessage("disableButton", "importMs2Data")
   shinyjs::disable("loadProjectData")
   shinyjs::disable("loadExampleData")
+  shinyjs::disable("loadGalaxyData")
   shinyjs::disable("importMs1Ms2Data")
   shinyjs::disable("importMs2Data")
 }
@@ -142,6 +145,25 @@ obsLoadExampleData <- observeEvent(input$loadExampleData, {
   filePath <- system.file("extdata/showcase/Project_file_showcase_annotated.csv.gz", package = "MetFamily")
   
   loadProjectFile(filePath = filePath)
+  enableLoadButtons()
+})
+
+obsLoadGalaxyData <- observeEvent(input$loadGalaxyData, {
+  disableLoadButtons()
+  loadGalaxyData <- as.numeric(input$loadGalaxyData)
+  print(paste("Observe loadGalaxyData", loadGalaxyData))
+  
+  #################################################
+  ## files
+  
+  library(jsonlite)
+
+  setwd(paste(Sys.getenv("_GALAXY_JOB_HOME_DIR"),"../working",sep="/"))
+  config <- fromJSON("metfamily-gxit-inputs.json")
+  filePath <- config$input_mode$mproject_file
+  
+  loadProjectFile(filePath = filePath)
+  
   enableLoadButtons()
 })
 

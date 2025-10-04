@@ -71,7 +71,9 @@ navbarPage(
                      #actionButton(inputId = "test", label = NULL, icon = icon(name = "chevron-up", lib = "font-awesome")),#, width = NULL, ...)
                      #downloadButton('downloadReport2', 'Export analysis report'),
                      bsTooltip(id = "fileInputSelection", title = "The user is able to load a project file or to import external data", placement = "bottom", trigger = "hover"),
-                     radioButtons(inputId = "fileInputSelection", label = NULL, choices = c("Import data", "Load project", "Example data"), selected = "Load project", inline = FALSE),
+                     radioButtons(inputId = "fileInputSelection", label = NULL,
+                                  choices = c("Import data", "Load project", "Example data", "Galaxy History"),
+                                  selected = "Load project", inline = FALSE),
                      shiny::hr(),
                      conditionalPanel(
                        condition = 'input.fileInputSelection == "Load project"',
@@ -318,6 +320,19 @@ navbarPage(
                          column(width = 6
                                 
                          )##column
+                       )##row
+                     ),## conditional
+                     conditionalPanel(
+                       condition = 'input.fileInputSelection == "Galaxy History"',
+                       h4("Input from Galaxy"),
+                       helpText(
+                         "The data from Galaxy."
+                       ),
+                       fluidRow(
+                         column(width = 6,
+                                bsTooltip(id = "loadGalaxyData", title = "Press to load the example data set", placement = "bottom", trigger = "hover"),
+                                actionButton(inputId = "loadGalaxyData", label = "Load Galaxy data", class="btn-success", width = "100%")
+                         ),##column
                        )##row
                      )## conditional
                    ),##well
