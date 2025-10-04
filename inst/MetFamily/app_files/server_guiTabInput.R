@@ -155,16 +155,23 @@ obsLoadGalaxyData <- observeEvent(input$loadGalaxyData, {
   
   #################################################
   ## files
-  
-  library(jsonlite)
 
   setwd(paste(Sys.getenv("_GALAXY_JOB_HOME_DIR"),"../working",sep="/"))
-  config <- fromJSON("metfamily-gxit-inputs.json")
+  config <- jsonlite::fromJSON("metfamily-gxit-inputs.json")
   filePath <- config$input_mode$project_file
   
   loadProjectFile(filePath = filePath)
   
   enableLoadButtons()
+  
+  ## Not here, but for completeness: 
+  ## Here is where the output would go:
+
+  setwd(paste(Sys.getenv("_GALAXY_JOB_HOME_DIR"),"../metadata",sep="/"))
+  config <- jsonlite::fromJSON("params.json")
+  filePath <- config$outputs$metfamily_project$filename_override
+  message(paste("Galaxy output file would be written to", filePath))
+  
 })
 
 

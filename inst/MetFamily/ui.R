@@ -72,7 +72,8 @@ navbarPage(
                      #downloadButton('downloadReport2', 'Export analysis report'),
                      bsTooltip(id = "fileInputSelection", title = "The user is able to load a project file or to import external data", placement = "bottom", trigger = "hover"),
                      radioButtons(inputId = "fileInputSelection", label = NULL,
-                                  choices = c("Import data", "Load project", "Example data", "Galaxy History"),
+                                  choices = c("Import data", "Load project", "Example data", 
+                                              na.omit(ifelse(isGalaxyIE, "Galaxy History", NA))),
                                   selected = "Load project", inline = FALSE),
                      shiny::hr(),
                      conditionalPanel(
