@@ -7,8 +7,6 @@ FROM sneumann/metfamily-base:4.5
 LABEL maintainer="Steffen Neumann <sneumann@ipb-halle.de>"
 LABEL Description="MetFamily helps identifying metabolites and groups them into metabolite clusters (a.k.a. families)."
 
-ADD . /tmp/MetFamily
-
 ## Additional steps for Galaxy integration
 ## pip for installation, netstat as bioblend dependency
 RUN apt-get update && apt-get install -y python3-pip net-tools\
@@ -23,6 +21,7 @@ RUN R -e 'devtools::install_github("hexylena/rGalaxyConnector")'
 RUN mkdir -p /import; chmod 777 /import
 
 ## Now install real MetFamily
+ADD . /tmp/MetFamily
 RUN R CMD INSTALL /tmp/MetFamily
 
 WORKDIR /srv/shiny-server
