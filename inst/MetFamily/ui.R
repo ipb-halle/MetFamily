@@ -1180,12 +1180,24 @@ navbarPage(
                                     tags$style(type='text/css', "#downloadReport { width:100%}")
                                 )
                          ),##column
-                         column(width = 6, style="width:50%",
-                                div(style="float:right;width:100%"
-                                    ## nothing here
-                                )
-                         )##column
-                       )##row
+                         if (isGalaxyIE) { 
+                           column(width = 6, style="width:50%",
+                                  div(style="float:left;width:100%",
+                                      bsTooltip(id = "prepareAllPrecursors4Galaxy", 
+                                                title = "Send project file to Galaxy", 
+                                                placement = "bottom", trigger = "hover"),
+                                      actionButton("prepareAllPrecursors4Galaxy", "Galaxy export", icon = icon("file-export", lib = "font-awesome"), style="width:100%"),
+                                      tags$style(type='text/css', "#downloadAllPrecursors { width:100%}")
+                                  )
+                           ) #column
+                         } else {
+                           column(width = 6, style="width:50%",
+                                  div(style="float:right;width:100%"
+                                      ## nothing here
+                                  )
+                           )##column
+                         }
+                     )##row
                      )##well
                    ),## conditional panel
                    conditionalPanel(

@@ -108,6 +108,21 @@ observeEvent(input$prepareAllPrecursors, {
   ))
 })
 
+#Obvserve button for exporting the project to Galaxy
+observeEvent(input$prepareAllPrecursors4Galaxy, {
+  ExportMatrixName <<- createExportMatrixName()
+  precursorSet <- seq_len(dataList$numberOfPrecursors)
+  
+  setwd(paste(Sys.getenv("_GALAXY_JOB_HOME_DIR"),"../metadata",sep="/"))
+  config <- jsonlite::fromJSON("params.json")
+  filePath <- config$outputs$metfamily_project$filename_override
+  message(paste("Galaxy output file will be written to", filePath))
+  
+  writeTable(precursorSet = precursorSet, 
+             file = filePath, compressed=FALSE)
+  
+})
+
 #Serving the modal with the download button to download the project
 output$downloadAllpreparedPrecursors <- downloadHandler(
   filename <- ExportMatrixName, 
