@@ -114,13 +114,23 @@
       <when value="raw">
         <param name="height_file" type="data" format="txt,csv" label="MS-DIAL Height File"
                help="Tab-separated file (e.g., Height_*.txt) exported from MS-DIAL containing peak height information.">
-	  <edam_format>format_3752</edam_format> <!-- TSV -->
-	  <edam_data>data_2536</edam_data>       <!-- Quantitative mass spectrometry --> 
-	</param>    
+	        <edam_format>format_3752</edam_format> <!-- TSV -->
+	        <edam_data>data_2536</edam_data>       <!-- Quantitative mass spectrometry --> 
+	      </param>    
         <param name="msp_file" type="data" format="msp" label="MS/MS Spectra File (.msp)"
                help="Spectral library in MSP format exported from MS-DIAL, containing MS/MS fragmentation data." />
         <param name="sirius_file" type="data" format="tabular" optional="true" label="SIRIUS/Canopus Annotation File (.tsv)"
                help="Optional TSV file from SIRIUS with CANOPUS molecular class predictions." />
+        <param name="siriusFileColumnName" type="select" label="Select SIRIUS Column for Annotation"
+               help="Choose which column from the SIRIUS/Canopus annotation file to use for feature annotation."
+               optional="true" display="select">
+            <option value="ClassyFire superclass">ClassyFire superclass</option>
+            <option value="ClassyFire class">ClassyFire class</option>
+            <option value="ClassyFire subclass">ClassyFire subclass</option>
+            <option value="NPC pathway">NPC pathway</option>
+            <option value="NPC superclass">NPC superclass</option>
+            <option value="NPC class">NPC class</option>
+        </param>       
       </when>
       <when value="MSI">
         <param name="mztabm_file" type="data" format="mztabm" label="mzTab-M File"

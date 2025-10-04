@@ -158,9 +158,20 @@ obsLoadGalaxyData <- observeEvent(input$loadGalaxyData, {
 
   setwd(paste(Sys.getenv("_GALAXY_JOB_HOME_DIR"),"../working",sep="/"))
   config <- jsonlite::fromJSON("metfamily-gxit-inputs.json")
-  filePath <- config$input_mode$project_file
   
-  loadProjectFile(filePath = filePath)
+  if (config$input_mode$mode == "raw") {
+    message(paste("height_file:", config$input_mode$height_file))
+    message(paste("msp_file:",    config$input_mode$msp_file))
+    message(paste("sirius_file:", config$input_mode$sirius_file))
+    message(paste("siriusFileColumnName:", config$input_mode$siriusFileColumnName))
+  } else if (config$input_mode$mode == "MSI") {
+    message(paste("mztabm_file:", config$input_mode$mztabm_file))
+    message(paste("msp_file:",    config$input_mode$msp_file))
+    message(paste("sirius_file:", config$input_mode$sirius_file))
+  } else if (config$input_mode$mode == "project") {
+    filePath <- config$input_mode$project_file
+    loadProjectFile(filePath = filePath)
+  }
   
   enableLoadButtons()
   
