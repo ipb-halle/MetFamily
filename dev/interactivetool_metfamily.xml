@@ -69,8 +69,6 @@
     <environment_variable name="HISTORY_ID">$__history_id__</environment_variable>
     <environment_variable name="GALAXY_WEB_PORT">8080</environment_variable>
     <environment_variable name="GALAXY_URL">$__galaxy_url__</environment_variable>
-    <!-- hardcoded because the above gave me python-garbled "Starting new HTTP connection (1): b'172.37.0.1':8080 " -->
-    <environment_variable name="GALAXY_URL">http://172.37.0.1:8080</environment_variable>
     <environment_variable name="DEBUG">true</environment_variable>
     <environment_variable name="DISABLE_AUTH">true</environment_variable>
     <environment_variable name="API_KEY" inject="api_key" />
