@@ -1064,7 +1064,7 @@ convertToProjectFile <- function(filePeakMatrixPath,
   
   filePeakMatrixQF <- if(!is.null(filePeakMatrixPath)){
     fileExtension <- tolower(tools::file_ext(filePeakMatrixPath))
-    if(fileExtension == "mztabm") {
+    if(fileExtension == "mztab") {
       readMzTabM(filePeakMatrixPath)
     } else {
       readMSDial(filePeakMatrixPath)

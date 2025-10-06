@@ -225,13 +225,13 @@ navbarPage(
                          )
                        ),
                        h4("Data file input"),
-                       p("Please choose metabolite profile (MS1 intensity, .txt or .mztabm)"),
-                       bsTooltip(id = "ms1DataFile", title = "Press to choose a metabolite profile (.txt or .mztabm)", placement = "bottom", trigger = "hover"),
+                       p("Please choose metabolite profile (MS1 intensity, .txt or .mztab)"),
+                       bsTooltip(id = "ms1DataFile", title = "Press to choose a metabolite profile (.txt or .mztab)", placement = "bottom", trigger = "hover"),
                       fileInput(
                         multiple = FALSE,
                         inputId = 'ms1DataFile', 
                         label = NULL, #label = 'Choose fragment matrix file',
-                        accept = c('text/comma-separated-values', 'text/plain', 'text/tab-separated-values', '.mztabm')
+                        accept = c('text/comma-separated-values', 'text/plain', 'text/tab-separated-values', '.mztab')
                       ),
                        p("Please choose spectral library (MS/MS, .msp)"),
                        bsTooltip(id = "ms2DataFile", title = "Press to choose a MS/MS library", placement = "bottom", trigger = "hover"),
