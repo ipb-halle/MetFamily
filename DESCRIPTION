@@ -27,34 +27,27 @@ URL: http://ipb-halle.github.io/MetFamily/
 Depends:
     R (>= 3.5.0)
 Imports:
-    caret,
+    BiocStyle,
+    bslib,
     cba,
     clue,
     colourpicker,
     dplyr,
     DT,
     egg,
-    FactoMineR,
     future,
-    gdata,
     graphics,
     grDevices,
-    htmltools,
-    IRanges,
-    knitr,
     magrittr,
     Matrix,
-    matrixStats,
     methods,
     mixOmics,
     openxlsx2,
-    pcaMethods,
     plotly,
     plotrix,
     promises,
     purrr,
     QFeatures,
-    RColorBrewer,
     readr,
     rlang,
     rmzTabM,
@@ -69,18 +62,20 @@ Imports:
     stats,
     stringr,
     SummarizedExperiment,
-    tibble,
-    tidyr,
     tools,
     utils,
     xcms
 Suggests:
-    BiocStyle,
-    rmarkdown,
+    caret,
+    FactoMineR,
+    knitr,
+    lifecycle,
+    pcaMethods,
+    shinytest2,
     testthat
 VignetteBuilder: 
     knitr
 biocViews: Software, Visualization
 Encoding: UTF-8
 Roxygen: list(markdown = TRUE)
-RoxygenNote: 7.3.3
+RoxygenNote: 7.3.2
