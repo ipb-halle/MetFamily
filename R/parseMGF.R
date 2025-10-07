@@ -3,14 +3,13 @@
 # file.exists(fileSpectra)
 
 
-
 # TODO create parseMS2 fct which checks file extension and use correct parse_to_list
 # Works for MetaboScape MGF files. MS-Dial format is different, with nested header entries
 parseMGF <- function(
     fileSpectra, 
-    minimumIntensityOfMaximalMS2peak = 2000, 
-    minimumProportionOfMS2peaks = 0.05, 
-    neutralLossesPrecursorToFragments = T, 
+    minimumIntensityOfMaximalMS2peak = 2000,
+    minimumProportionOfMS2peaks = 0.05,
+    neutralLossesPrecursorToFragments = T,
     neutralLossesFragmentsToFragments = F,
     mz_tol = 0.17,
     min_frag_nb = 2,
@@ -156,6 +155,18 @@ parseMGF_to_list <- function(fileSpectra) {
     
   })
   
+  # put rt in minutes
+  mgf_entries <- purrr::map(
+    mgf_entries, \(entry) {
+      
+      entry$header["rtime"] <- as.character(
+        as.numeric(entry$header["rtime"]) / 60
+      )
+      
+      entry
+    }
+  )
+
   mgf_entries
   
 }

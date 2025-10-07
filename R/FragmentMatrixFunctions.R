@@ -1030,7 +1030,15 @@ convertToProjectFile <- function(filePeakMatrixPath,
   
   if(!is.na(progress))  if(progress)  incProgress(amount = 0.01, detail = paste("Parsing MS/MS file...", sep = "")) else print(paste("Parsing MS/MS file...", sep = ""))
   
-  returnObj <- parseMSP_rewrite(
+  ms2_ext <- tools::file_ext(fileSpectra) %>% tolower
+  
+  ms2_parse_fct <- if (ms2_ext == "mgf") {
+    parseMGF
+  } else {
+    parseMSP_rewrite
+  }
+  
+  returnObj <- ms2_parse_fct(
     fileSpectra = fileSpectra, 
     minimumIntensityOfMaximalMS2peak = parameterSet$minimumIntensityOfMaximalMS2peak, 
     minimumProportionOfMS2peaks = parameterSet$minimumProportionOfMS2peaks, 
@@ -1040,6 +1048,7 @@ convertToProjectFile <- function(filePeakMatrixPath,
     min_intensity = parameterSet$minimumAbsoluteMS2peaks,
     progress = progress
   )
+  
   spectraList <- returnObj$spectraList
   numberOfSpectra <- returnObj$numberOfSpectra
   numberOfSpectraOriginal <- returnObj$numberOfSpectraOriginal
@@ -1070,11 +1079,11 @@ convertToProjectFile <- function(filePeakMatrixPath,
     # check if MS-Dial or MetaboScape file (based on first line)
     line1 <- readLines(filePeakMatrixPath, n = 1)
     
-    if(str_starts(
+    if(stringr::str_starts(
       line1, '\"FEATURE_ID\",\"RT\",\"PEPMASS\",\"CCS\"')) {
-      readMetaboScape(filePeakMatrixPath)
+      readMetaboscape(filePeakMatrixPath)
       
-    } else if (str_starts(line1, '\t\t\t\t')) {
+    } else if (stringr::str_starts(line1, '\t\t\t\t')) {
       readMSDial(filePeakMatrixPath)
       
     } else {

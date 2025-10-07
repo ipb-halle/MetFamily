@@ -70,7 +70,7 @@ readMetaboscape <- function(file, version){
   
   # match MS-Dial names "narrow" format
   table <- table %>% 
-    rename("Alignment ID" = "FEATURE_ID",
+    dplyr::rename("Alignment ID" = "FEATURE_ID",
            "Average Rt(min)" = "RT",
            "Average Mz" = "PEPMASS",
            "Metabolite name" = "NAME_METABOSCAPE",
@@ -78,8 +78,10 @@ readMetaboscape <- function(file, version){
   
   # rt in minutes
   table <- table %>% 
-    mutate(`Average Rt(min)` = as.character(
-      as.numeric(`Average Rt(min)`) / 60))
+    dplyr::mutate(
+      `Average Rt(min)` = as.character(as.numeric(`Average Rt(min)`) / 60),
+      # needed to match to MGF spectra
+      `Average Mz` = as.character(as.numeric(`Average Mz`) - 1.00727))
   
   # colData
   # TODO how to determine sample classes?
@@ -118,15 +120,3 @@ readMetaboscape <- function(file, version){
   
   qf
 }
-
-
-
-
-# Ensure row names of colData match counts column names
-colData <- data.frame(t(colDataRaw[-nrow(colDataRaw), -1]))
-rownames(colData) <- as.character(colDataRaw[nrow(colDataRaw), -1])
-colnames(colData) <- as.character(colDataRaw[-nrow(colDataRaw), 1])
-
-# Ensure row names of rowData match counts row names
-rowData <- data.frame(rowDataRaw[-1, ], row.names = ids)
-colnames(rowData) <- as.character(rowDataRaw[1,])
