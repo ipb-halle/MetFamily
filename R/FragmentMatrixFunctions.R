@@ -1062,10 +1062,24 @@ convertToProjectFile <- function(filePeakMatrixPath,
   
   rm(returnObj)
   
-  filePeakMatrixQF <- if(!is.null(filePeakMatrixPath)){
-    readMSDial(filePeakMatrixPath)
-  } else {
+  filePeakMatrixQF <- if(is.null(filePeakMatrixPath)){
     NULL
+    
+  } else {
+    
+    # check if MS-Dial or MetaboScape file (based on first line)
+    line1 <- readLines(filePeakMatrixPath, n = 1)
+    
+    if(str_starts(
+      line1, '\"FEATURE_ID\",\"RT\",\"PEPMASS\",\"CCS\"')) {
+      readMetaboScape(filePeakMatrixPath)
+      
+    } else if (str_starts(line1, '\t\t\t\t')) {
+      readMSDial(filePeakMatrixPath)
+      
+    } else {
+      stop("MS1 file format unclear")
+    }
   }
 
   returnObj <- convertToProjectFile2(
@@ -1097,7 +1111,7 @@ convertToProjectFile <- function(filePeakMatrixPath,
 #' @param metaboliteFamilies 
 #' @param uniqueMetaboliteFamilies 
 #' @param metaboliteFamilyColors 
-#' @param furtherProperties 
+#' @param furtherProperties gp: seems deprecated
 #' @param parameterSet 
 #' @param progress boolean
 #'
@@ -1234,6 +1248,8 @@ convertToProjectFile2 <- function(filePeakMatrixQF,
   #temporary fix
   #filePeakMatrix <- NULL
   
+  # TODO gp: better match MS1 to MS2 based on mz AND rt, or use feature_ID
+  
   if(!is.null(filePeakMatrixQF)){
     ## allHits: dataFrame$"Average Mz" --> precursorMz; allHits indexes the spectraList
     diffAll <- abs(outer(X = precursorMz, Y = dataFrame$"Average Mz", FUN = function(x, y){abs(x-y)}))
@@ -1242,28 +1258,31 @@ convertToProjectFile2 <- function(filePeakMatrixQF,
   } else {
     allHits <- lapply(X = dataFrame$"Average Mz", FUN = function(x){which(precursorMz == x)})
   }
-  if(is.array(allHits))
+  if(is.array(allHits)) {
     allHits <- as.list(as.data.frame(allHits))
+  }
   
   numberOfUnmappedPrecursorsMz <- 0
   numberOfUnmappedPrecursorsRt <- 0
   
-  for(i in seq_len(numberOfPrecursors)){
+  for(i in seq_len(numberOfPrecursors)) {
     numberOfItems <- length(allHits[[i]])
-    if(numberOfItems == 1)
-      if(is.na(allHits[[i]]))
+    if(numberOfItems == 1) {
+      if(is.na(allHits[[i]])) {
         numberOfItems <- 0
+      }
+    }
     
-    if(numberOfItems == 0){    ## no hit
+    if(numberOfItems == 0) {    ## no hit
       allHits[[i]] <- NA
       numberOfUnmappedPrecursorsMz <- numberOfUnmappedPrecursorsMz + 1
-    }
-    else{    ## take hit with minimum absolute RT difference
+    } else {    ## take hit with minimum absolute RT difference
       absoluteDifferences <- abs(dataFrame$"Average Rt(min)"[i] - precursorRt[allHits[[i]]])
       bestIdx <- which.min(absoluteDifferences)
-      if(length(bestIdx) > 1)
+      if (length(bestIdx) > 1) {
         bestIdx <- bestIdx[[1]]
-      if(absoluteDifferences[[bestIdx]] <= parameterSet$maximumRtDifference){
+      }
+      if(absoluteDifferences[[bestIdx]] <= parameterSet$maximumRtDifference) {
         allHits[[i]] <- allHits[[i]][[bestIdx]]
       } else {
         allHits[[i]] <- NA
