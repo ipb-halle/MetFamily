@@ -93,7 +93,7 @@ shinyServer(
     suspendOnExitFunctions <- list()
     
     # configure future backend
-    library(future)
+    
     if (interactive()) {
       future::plan("multisession", workers = 3) #up to 3 users/session wo blocking 
     } else {
