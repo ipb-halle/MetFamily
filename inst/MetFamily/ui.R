@@ -213,7 +213,7 @@ navbarPage(
                              condition = "input.doMs2PeakGroupDeisotoping",
                              fluidRow(
                                column(width = 6,
-                                      bsTooltip(id = "mzDeviationAbsolute_ms2PeakGroupDeisotoping", title = "_A MS/MS feature is considered an +1 isotopic peak if the absolute of the m/z difference to the (putative) monoisotopic peak minus 1.0033548378 (=<sup>13</sup>C - <sup>12</sup>C) is smaller or equal than this value", placement = "bottom", trigger = "hover"),
+                                      bsTooltip(id = "mzDeviationAbsolute_ms2PeakGroupDeisotoping", title = "A MS/MS feature is considered an +1 isotopic peak if the absolute of the m/z difference to the (putative) monoisotopic peak minus 1.0033548378 (=<sup>13</sup>C - <sup>12</sup>C) is smaller or equal than this value", placement = "bottom", trigger = "hover"),
                                       textInput(inputId = "mzDeviationAbsolute_ms2PeakGroupDeisotoping", label = "m/z deviation (abs.)", value = importParameterSetInit()$mzDeviationAbsolute_ms2PeakGroupDeisotoping)
                                ),##column
                                column(width = 6,
@@ -225,21 +225,21 @@ navbarPage(
                          )
                        ),
                        h4("Data file input"),
-                       p("Please choose metabolite profile (MS1 intensity, .txt)"),
-                       bsTooltip(id = "ms1DataFile", title = "Press to choose a metabolite profile", placement = "bottom", trigger = "hover"),
+                       p("Please choose metabolite profile (MS1 intensity, .txt or .csv)"),
+                       bsTooltip(id = "ms1DataFile", title = "Press to choose a metabolite profile exported from MS-Dial (.txt) or MetaboScape (.csv)", placement = "bottom", trigger = "hover"),
                        fileInput(
                          multiple = FALSE,
                          inputId = 'ms1DataFile', 
                          label = NULL, #label = 'Choose fragment matrix file',
-                         accept = c('text/comma-separated-values', 'text/plain', 'text/tab-separated-values')
+                         accept = c('text/comma-separated-values', 'text/plain', 'text/tab-separated-values', ".csv")
                        ),
-                       p("Please choose spectral library (MS/MS, .msp)"),
-                       bsTooltip(id = "ms2DataFile", title = "Press to choose a MS/MS library", placement = "bottom", trigger = "hover"),
+                       p("Please choose spectral library (MS/MS, .msp or .mgf)"),
+                       bsTooltip(id = "ms2DataFile", title = "Press to choose a MS/MS library exported from MS-Dial (.msp) or MetaboScape (.mgf)", placement = "bottom", trigger = "hover"),
                        fileInput(
                          multiple = FALSE,
                          inputId = 'ms2DataFile', 
                          label = NULL, #label = 'Choose fragment matrix file',
-                         accept = ".msp" #c('text/plain', 'msp')
+                         accept = c(".msp", ".mgf") #c('text/plain', 'msp')
                        ),
                        p("Optional: choose a Sirius annotation file (.tsv)"),
                        fileInput(
@@ -248,6 +248,7 @@ navbarPage(
                          label = NULL,
                          accept = c('.tsv', '.txt')
                        ),
+                       #TODO add conditional to only show when file exists
                        p("Type and level of annotations:"),
                        radioButtons("siriusFileColumnName", label = NULL,
                                     choices = c("ClassyFire superclass", "ClassyFire class", "ClassyFire subclass", 

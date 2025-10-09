@@ -5,6 +5,15 @@
 
 # TODO create parseMS2 fct which checks file extension and use correct parse_to_list
 # Works for MetaboScape MGF files. MS-Dial format is different, with nested header entries
+
+#' Read MGF files
+#'
+#' Reader for Mascot Generic Format MS2 files. Works similar to `parseMSP_rewrite()`.
+#'
+#' @inheritParams parseMSP_rewrite
+#'
+#' @returns A list including a spectraList element and additional stats.
+#' @export
 parseMGF <- function(
     fileSpectra, 
     minimumIntensityOfMaximalMS2peak = 2000,
@@ -43,6 +52,15 @@ parseMGF <- function(
 }
 
 
+#' Process MGF from file to list of entries
+#' 
+#' Create list object from MGF entry, keeping all headers and values
+#' Rename headers based on standards
+#'
+#' @param fileSpectra `character(1)` file path
+#'
+#' @returns list of entries
+#' @export
 parseMGF_to_list <- function(fileSpectra) {
   
   message("MS/MS file: Read file")
@@ -172,7 +190,13 @@ parseMGF_to_list <- function(fileSpectra) {
 }
 
 
-
+#' MGF header dictionnary
+#' 
+#' Name matching for stadardized metadata.
+#' Standard names based on `Spectra::spectraVariableMapping(MsBackendMsp::MsBackendMsp())`
+#'
+#' @returns named vector with standardized names as value
+#' @export
 mgf_dict <- function() {
   tibble::enframe(
     list(

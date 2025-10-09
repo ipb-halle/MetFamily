@@ -2,6 +2,8 @@
 #'
 #' This function reads a metabolite profile output file (.csv) from Metaboscape and 
 #' converts it into a QFeatures object.
+#' 
+#' At the moment, sample classes are not considered.
 #'
 #' @param file A character string specifying the path to the Metaboscape output file (csv format).
 #' @param version A character string specifying the version of Metaboscape used to generate the file.
