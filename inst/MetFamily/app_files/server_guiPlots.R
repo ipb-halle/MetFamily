@@ -60,8 +60,6 @@ getSelectedPOI_XY <- function(mouseX, mouseY, poiCoordinatesX, poiCoordinatesY, 
 
 drawDendrogramPlotImpl <- function(){
   
-  browser()
-  
   resultObj <- calcPlotDendrogram(
     dataList = dataList, 
     filter = filterHca$filter, 
