@@ -25,6 +25,23 @@ automatic metadata enrichment and linking between sections.
 \code{SMF_ID} and \code{abundance_assay[n]} columns. Optional: sample, ms_run,
 and study_variable metadata for enriched colData.
 
+\strong{Column Name Standardization}: The function automatically maps mzTab-M
+column names to MetFamily's expected format:
+\itemize{
+\item colData: \code{study_variable_label} -> \code{Class} (for PCA/HCA grouping),
+\code{Type} = "Sample"
+\item rowData: \code{SMF_ID} -> \code{Alignment ID},
+\code{exp_mass_to_charge} -> \code{Average Mz},
+\code{retention_time_in_seconds} -> \code{Average Rt(min)}
+(converted from seconds to minutes),
+\code{chemical_name} -> \code{Metabolite name},
+\code{adduct_ion} -> \code{Adduct ion name},
+\code{inchi_key} -> \code{INCHIKEY},
+\code{smiles} -> \code{SMILES}
+}
+Optional columns that are never used in analysis (Fill \%, Dot product,
+Fragment presence \%, etc.) are not created. Missing columns are set to NA.
+
 \strong{Linking}: SML rows are linked to SMF via \code{SMF_ID_REFS} using either
 AssayLinks (1:1) or Hits objects (many-to-many).
 

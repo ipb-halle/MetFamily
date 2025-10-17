@@ -15,6 +15,23 @@
 #' \code{SMF_ID} and \code{abundance_assay[n]} columns. Optional: sample, ms_run,
 #' and study_variable metadata for enriched colData.
 #' 
+#' **Column Name Standardization**: The function automatically maps mzTab-M 
+#' column names to MetFamily's expected format:
+#' \itemize{
+#'   \item colData: \code{study_variable_label} -> \code{Class} (for PCA/HCA grouping), 
+#'         \code{Type} = "Sample"
+#'   \item rowData: \code{SMF_ID} -> \code{Alignment ID}, 
+#'         \code{exp_mass_to_charge} -> \code{Average Mz},
+#'         \code{retention_time_in_seconds} -> \code{Average Rt(min)} 
+#'         (converted from seconds to minutes),
+#'         \code{chemical_name} -> \code{Metabolite name},
+#'         \code{adduct_ion} -> \code{Adduct ion name},
+#'         \code{inchi_key} -> \code{INCHIKEY},
+#'         \code{smiles} -> \code{SMILES}
+#' }
+#' Optional columns that are never used in analysis (Fill %, Dot product, 
+#' Fragment presence %, etc.) are not created. Missing columns are set to NA.
+#' 
 #' **Linking**: SML rows are linked to SMF via \code{SMF_ID_REFS} using either 
 #' AssayLinks (1:1) or Hits objects (many-to-many).
 #' 
@@ -279,7 +296,89 @@ readMzTabM <- function(file, load_sml = TRUE) {
     QFeatures::QFeatures(experiments = list(SMF = se_small_molecule_features), colData = colData)
   }
 
-
+  # Standardize Column Names for MetFamily Compatibility ----
+  # MetFamily expects specific column names that differ from mzTab-M standard
+  
+  # Standardize colData: Add Class and Type columns
+  cd <- SummarizedExperiment::colData(qfeatures)
+  
+  # Class: Required for PCA/HCA group assignment
+  if ("study_variable_label" %in% names(cd) && !all(is.na(cd$study_variable_label))) {
+    cd$Class <- cd$study_variable_label
+  } else {
+    cd$Class <- "Unknown"
+    warning("No study_variable_label found in mzTab-M. Setting Class to 'Unknown'.")
+  }
+  
+  # Type: Expected by parser, default to Sample
+  cd$Type <- "Sample"
+  
+  SummarizedExperiment::colData(qfeatures) <- cd
+  
+  # Standardize rowData for SMF section
+  rd_smf <- SummarizedExperiment::rowData(qfeatures[["SMF"]])
+  
+  # Critical columns with transformations
+  rd_smf$`Alignment ID` <- rd_smf$SMF_ID
+  rd_smf$`Average Mz` <- rd_smf$exp_mass_to_charge
+  
+  # Retention time: Convert seconds to minutes
+  if ("retention_time_in_seconds" %in% names(rd_smf)) {
+    rd_smf$`Average Rt(min)` <- as.numeric(rd_smf$retention_time_in_seconds) / 60
+  } else if ("retention_time_in_seconds_start" %in% names(rd_smf)) {
+    # Fallback: use start time if main RT missing
+    rd_smf$`Average Rt(min)` <- as.numeric(rd_smf$retention_time_in_seconds_start) / 60
+    warning("Using retention_time_in_seconds_start as fallback for Average Rt(min)")
+  } else {
+    rd_smf$`Average Rt(min)` <- NA_real_
+    warning("No retention time found in mzTab-M SMF section")
+  }
+  
+  # Metabolite identification (used in display)
+  rd_smf$`Metabolite name` <- if ("chemical_name" %in% names(rd_smf)) {
+    rd_smf$chemical_name
+  } else {
+    NA_character_
+  }
+  
+  # Adduct (used for MetFrag links)
+  rd_smf$`Adduct ion name` <- if ("adduct_ion" %in% names(rd_smf)) {
+    rd_smf$adduct_ion
+  } else {
+    NA_character_
+  }
+  
+  # Structure identifiers (if available)
+  rd_smf$INCHIKEY <- if ("inchi_key" %in% names(rd_smf)) {
+    rd_smf$inchi_key
+  } else {
+    NA_character_
+  }
+  
+  rd_smf$SMILES <- if ("smiles" %in% names(rd_smf)) {
+    rd_smf$smiles
+  } else {
+    NA_character_
+  }
+  
+  SummarizedExperiment::rowData(qfeatures[["SMF"]]) <- rd_smf
+  
+  # Standardize SML if present (minimal set)
+  if ("SML" %in% names(qfeatures)) {
+    rd_sml <- SummarizedExperiment::rowData(qfeatures[["SML"]])
+    rd_sml$`Alignment ID` <- rd_sml$SML_ID
+    rd_sml$`Average Mz` <- if ("exp_mass_to_charge" %in% names(rd_sml)) {
+      rd_sml$exp_mass_to_charge
+    } else {
+      NA_real_
+    }
+    rd_sml$`Metabolite name` <- if ("chemical_name" %in% names(rd_sml)) {
+      rd_sml$chemical_name
+    } else {
+      NA_character_
+    }
+    SummarizedExperiment::rowData(qfeatures[["SML"]]) <- rd_sml
+  }
 
   # Create SML to SMF Linkages ----
   # Process SMF_ID_REFS to link small molecule summaries to features

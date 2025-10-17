@@ -1019,13 +1019,15 @@ mzClustGeneric <- function(p,
 #' @param fileSpectra path
 #' @param parameterSet list of parameters
 #' @param progress logical
+#' @param fileType optional file type/extension (e.g., "mztab", "txt") to explicitly specify format
 #'
 #' @returns resultObj
 #' @export
 convertToProjectFile <- function(filePeakMatrixPath, 
                                  fileSpectra,
                                  parameterSet, 
-                                 progress = FALSE){
+                                 progress = FALSE,
+                                 fileType = NULL){
   ## parse MS/MS spectra ----
   
   if(!is.na(progress))  if(progress)  incProgress(amount = 0.01, detail = paste("Parsing MS/MS file...", sep = "")) else print(paste("Parsing MS/MS file...", sep = ""))
@@ -1063,10 +1065,21 @@ convertToProjectFile <- function(filePeakMatrixPath,
   rm(returnObj)
   
   filePeakMatrixQF <- if(!is.null(filePeakMatrixPath)){
-    fileExtension <- tolower(tools::file_ext(filePeakMatrixPath))
+    # Determine file type: use parameter if provided, default to MS-DIAL format
+    if(!is.null(fileType)) {
+      fileExtension <- tolower(fileType)
+      print(paste("Using provided fileType:", fileExtension))
+    } else {
+      fileExtension <- "other"
+      print("Defaulting to MS-DIAL format")
+    }
+    
+    # Call appropriate reader
     if(fileExtension == "mztab") {
+      print("Using readMzTabM()")
       readMzTabM(filePeakMatrixPath)
     } else {
+      print("Using readMSDial()")
       readMSDial(filePeakMatrixPath)
     }
   } else {

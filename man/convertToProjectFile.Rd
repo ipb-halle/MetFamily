@@ -8,7 +8,8 @@ convertToProjectFile(
   filePeakMatrixPath,
   fileSpectra,
   parameterSet,
-  progress = FALSE
+  progress = FALSE,
+  fileType = NULL
 )
 }
 \arguments{
@@ -19,6 +20,8 @@ convertToProjectFile(
 \item{parameterSet}{list of parameters}
 
 \item{progress}{logical}
+
+\item{fileType}{optional file type/extension (e.g., "mztab", "txt") to explicitly specify format}
 }
 \value{
 resultObj
