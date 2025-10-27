@@ -65,6 +65,8 @@ Imports:
     tools,
     utils,
     xcms
+Remotes:
+    lifs-tools/rmzTab-m
 Suggests:
     caret,
     FactoMineR,
