@@ -50,6 +50,7 @@ Imports:
     QFeatures,
     readr,
     rlang,
+    rmzTabM,
     S4Vectors,
     scales,
     shiny,
@@ -64,6 +65,8 @@ Imports:
     tools,
     utils,
     xcms
+Remotes:
+    NorStorz/rmzTabM
 Suggests:
     caret,
     FactoMineR,
@@ -77,4 +80,4 @@ VignetteBuilder:
 biocViews: Software, Visualization
 Encoding: UTF-8
 Roxygen: list(markdown = TRUE)
-RoxygenNote: 7.3.2
+RoxygenNote: 7.3.3

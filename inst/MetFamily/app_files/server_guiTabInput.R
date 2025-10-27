@@ -1,14 +1,15 @@
 
 #Extended task for Dataimport
 importDataTask <- ExtendedTask$new(function(fileMs1Path, fileMs2Path, fileAnnotPath, 
-                                            parameterSet, siriusFileColumnName) {
+                                            parameterSet, siriusFileColumnName, fileMs1Type) {
   promise_result <- promises::future_promise({
     resultObj <- tryCatch({
       convertToProjectFile(
         filePeakMatrixPath = fileMs1Path, 
         fileSpectra = fileMs2Path, 
         parameterSet = parameterSet, 
-        progress = FALSE
+        progress = FALSE,
+        fileType = fileMs1Type
       )
     }, error = function(e) {
       stop(e)
@@ -453,12 +454,20 @@ importData <- function(importMS1andMS2data){
   # error handling
   tryCatch({
     
+    # Extract file type from filename if available
+    fileMs1Type <- if(!is.null(fileMs1Name)) {
+      tolower(tools::file_ext(fileMs1Name))
+    } else {
+      NULL
+    }
+    
     importDataTask$invoke(
       fileMs1Path = fileMs1Path,
       fileMs2Path = fileMs2Path, 
       fileAnnotPath = fileAnnotPath,
       parameterSet = parameterSet,
-      siriusFileColumnName = input$siriusFileColumnName
+      siriusFileColumnName = input$siriusFileColumnName,
+      fileMs1Type = fileMs1Type
     )
     
   }, error = function(e) {

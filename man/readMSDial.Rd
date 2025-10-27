@@ -26,8 +26,8 @@ QFeatures object.
 }
 \examples{
 \dontrun{
-# Assuming you have an MS-DIAL output file named
- "Metabolite_profile_showcase.txt" in a "data" directory:
+# Assuming you have an MS-DIAL output file named 
+# "Metabolite_profile_showcase.txt" in a "data" directory:
 qf <- readMSDial("data/Metabolite_profile_showcase.txt")
 
 # Examine the structure of the resulting QFeatures object
