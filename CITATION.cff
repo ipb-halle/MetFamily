@@ -1,0 +1,32 @@
+cff-version: 1.2.0
+message: If you use this software, please cite it using the metadata from this file.
+type: software
+title: |-
+  MetFamily: Discovering Regulated Metabolite Families in Untargeted
+      Metabolomics Studies
+version: 0.99.13
+date-released: '2025-09-25'
+abstract: Untargeted discovery of metabolite families offering a bird's eye view of
+  metabolic regulation in comparative metabolomics. We implemented the presented methodology
+  in the easy-to-use web application MetFamily to enable the analysis of comprehensive
+  metabolomics studies for all researchers worldwide.
+authors:
+- family-names: Treutler
+  given-names: Hendrik
+  email: hendrik.treutler@ipb-halle.de
+- family-names: Vahabi
+  given-names: Khabat
+  email: khabat.vahabi@ipb-halle.de
+- family-names: Storz
+  given-names: Norman
+  email: nstorz@ipb-halle.de
+- family-names: Patoine
+  given-names: Guillaume
+  email: gpatoine@ipb-halle.de
+- family-names: Neumann
+  given-names: Steffen
+  email: sneumann@ipb-halle.de
+  orcid: 0000-0002-7899-7192
+license: GPL (>= 2)
+url: http://ipb-halle.github.io/MetFamily/
+
