@@ -1,0 +1,229 @@
+<tool id="interactive_tool_metfamily" tool_type="interactive" name="MetFamily"
+      version="@TOOL_VERSION@+galaxy@VERSION_SUFFIX@"
+      license="BSD-3-Clause" profile="21.05">
+   <xrefs>
+       <xref type="bio.tools">metfamily</xref> <!-- https://bio.tools/metfamily -->
+       <!-- <xref type="bioconductor">metfamily</xref> -->
+   </xrefs>  
+   <creator>
+     <!-- This currently gives a blank person icon without names nor orcid in Galaxy UI-->
+     <person>
+       <name>Steffen Neumann</name>
+       <familyName>Neumann</familyName>
+       <affiliation>Leibniz Institute of Plant Biochemistry (IPB), Halle (Saale), Germany</affiliation>
+       <orcid>0000-0002-7899-7192</orcid>       
+     </person>
+     <person>
+       <givenName>Guillaume</givenName>
+       <name>Guillaume Patoine</name>
+       <affiliation>Leibniz Institute of Plant Biochemistry (IPB), Halle (Saale), Germany</affiliation>
+       <orcid>0000-0002-3748-6644</orcid>
+     </person>
+   </creator>
+
+  <icon src="MetFamily.png"/>
+  <description>Combined MS statistics and MS/MS clustering+analysis</description>
+  <macros>
+    <token name="@TOOL_VERSION@">1.3.13</token>
+    <token name="@CONTAINER_VERSION@">4.5-0.99.13-1.3.13</token>
+    <token name="@VERSION_SUFFIX@">0</token>
+  </macros>
+
+  <edam_topics>
+    <edam_topic>topic_3172</edam_topic>
+    <edam_topic>topic_3370</edam_topic>
+  </edam_topics>
+  
+  <edam_operations>
+    <edam_operation>operation_3731</edam_operation>
+    <edam_operation>operation_2844</edam_operation>
+    <edam_operation>operation_3694</edam_operation>
+    <edam_operation>operation_2939</edam_operation>
+    <edam_operation>operation_3214</edam_operation>
+  </edam_operations>
+
+  <!--
+  Unsure where to put:
+  format_4039 MSP
+  format_xxxx mzTab-M
+  -->
+  
+  <requirements>
+    <container type="docker">sneumann/metfamily:@CONTAINER_VERSION@</container>
+  </requirements>
+
+  <entry_points>
+    <entry_point name="Shiny MetFamily" requires_domain="True">
+      <port>3838</port>
+      <!--
+          Some apps have a non-root entrypoint.
+          We can provide the URL with a <url> tag like this:
+          <url>/my/entrypoint</url>
+      -->
+      <url>/</url>
+    </entry_point>
+  </entry_points>
+
+  <environment_variables>
+    <!-- Taken from Rstudio GXIT https://github.com/galaxyproject/galaxy/blob/dev/tools/interactive/interactivetool_rstudio.xml#L11 -->
+    <environment_variable name="HISTORY_ID">$__history_id__</environment_variable>
+    <environment_variable name="GALAXY_WEB_PORT">8080</environment_variable>
+    <environment_variable name="GALAXY_URL">$__galaxy_url__</environment_variable>
+    <environment_variable name="DEBUG">true</environment_variable>
+    <environment_variable name="DISABLE_AUTH">true</environment_variable>
+    <environment_variable name="API_KEY" inject="api_key" />
+    <!-- here are the inputs selected by the user -->
+    <!-- unless preserve-environment works, the shiny server apps won't see them
+    <environment_variable name="HEIGHT_FILE">$height_file</environment_variable>
+    <environment_variable name="MSP_FILE">$msp_file</environment_variable>
+    <environment_variable name="SIRIUS_FILE">$sirius_file</environment_variable>
+    <environment_variable name="MZTABM_FILE">$mztabm_file</environment_variable>
+    <environment_variable name="MSP_FILE">$msp_file</environment_variable>
+    <environment_variable name="SIRIUS_FILE">$sirius_file</environment_variable> 
+    <environment_variable name="PROJECT_FILE">$project_file</environment_variable> -->
+  </environment_variables>
+  
+  <command><![CDATA[
+
+  ## The command will be templated by Cheetah within Galaxy, and
+  ## then run inside the Docker container!
+
+  ## This only works because Galaxy's user data directory is mapped
+  ## onto the Docker container at runtime - enabling access to
+  ## '$infile' and '$outfile' from inside the container.
+
+  echo "\n_GALAXY_JOB_HOME_DIR=\$_GALAXY_JOB_HOME_DIR" >> /usr/local/lib/R/etc/Renviron.site;
+
+  shiny-server 2>&1 > /var/log/metfamily-gxit-01.log
+  ## The log file can be found inside the container, for debugging purposes
+
+  ]]>
+  </command>
+  <configfiles>
+    <inputs name="inputs" data_style="paths" filename="metfamily-gxit-inputs.json" />
+    <!-- <inputs name="inputs" data_style="staging_path_and_source_path" filename="metfamily-gxit-inputs.json" /> -->
+  </configfiles>
+        
+  <inputs>
+    <conditional name="input_mode">
+      <param name="mode" type="select" label="Input Mode">
+        <option value="raw">Raw MS-DIAL + MS/MS + (optional) SIRIUS</option>
+        <option value="MSI">mzTab-M + MS/MS + (optional) SIRIUS</option>
+        <option value="project">Preprocessed MetFamily Project File</option>
+      </param>
+      <when value="raw">
+        <param name="height_file" type="data" format="txt,csv" label="MS-DIAL Height File"
+               help="Tab-separated file (e.g., Height_*.txt) exported from MS-DIAL containing peak height information.">
+	        <edam_format>format_3752</edam_format> <!-- TSV -->
+	        <edam_data>data_2536</edam_data>       <!-- Quantitative mass spectrometry --> 
+	      </param>    
+        <param name="msp_file" type="data" format="msp" label="MS/MS Spectra File (.msp)"
+               help="Spectral library in MSP format exported from MS-DIAL, containing MS/MS fragmentation data." />
+        <param name="sirius_file" type="data" format="tabular" optional="true" label="SIRIUS/Canopus Annotation File (.tsv)"
+               help="Optional TSV file from SIRIUS with CANOPUS molecular class predictions." />
+        <param name="siriusFileColumnName" type="select" label="Select SIRIUS Column for Annotation"
+               help="Choose which column from the SIRIUS/Canopus annotation file to use for feature annotation."
+               optional="true" display="select">
+            <option value="ClassyFire superclass">ClassyFire superclass</option>
+            <option value="ClassyFire class">ClassyFire class</option>
+            <option value="ClassyFire subclass">ClassyFire subclass</option>
+            <option value="NPC pathway">NPC pathway</option>
+            <option value="NPC superclass">NPC superclass</option>
+            <option value="NPC class">NPC class</option>
+        </param>       
+      </when>
+      <when value="MSI">
+        <param name="mztabm_file" type="data" format="mztabm" label="mzTab-M File"
+               help="mzTab-M (version >= 2.1) exported from xcms, mzMine, MS-DIAL, or others." />
+        <param name="msp_file" type="data" format="msp" label="MS/MS Spectra File (.msp)"
+               help="Spectral library in MSP format as accepted by RForMassSpectrometry Spectra package." />
+        <param name="sirius_file" type="data" format="tabular" optional="true" label="SIRIUS/Canopus Annotation File (.tsv)"
+               help="Optional TSV file from SIRIUS with CANOPUS molecular class predictions." />
+      </when>
+      <when value="project">
+        <param name="project_file" type="data" format="tabular" label="MetFamily Project File (.csv.gz)"
+               help="Preprocessed MetFamily project file (e.g., Project_*.csv.gz) containing integrated data and settings." />
+      </when>
+    </conditional>
+  </inputs>
+
+  
+  <outputs>
+    <data name="metfamily_project" format="csv.gz" label="MetFamily Project File (Project_*.csv.gz)" />
+  </outputs>
+
+  <tests>
+    <!-- Tests are difficult with GxITs! -->
+  </tests>
+
+  <help> <![CDATA[
+MetFamily Interactive Tool
+=================================================
+
+The **MetFamily** tool supports the exploration and visualization of metabolite families
+based on MS quantification and MS/MS fragmentation data. Data can be filtered by fold-change 
+and/or minimum intensity. Comparison amongst sample classes. PCA visualisation of samples,
+and hierarchical spectral clustering. SIRIUS annotations can be mapped to features.
+MetFamily can save an analysis to a MetFamily project file, which can be read-back to resume analysis.
+
+Inputs Required
+---------------
+
+MetFamily requires the following three input files for a new analysis:
+
+1. **MS-DIAL Height File** (often ``Height_*.txt``)  
+   Contains tab-separated peak height information exported from `MS-DIAL <https://systemsomicslab.github.io/compms/msdial/main.html>`.  
+
+2. **MS/MS Spectra File** (``.msp``)  
+   A spectral library in **MSP format** containing MS/MS fragmentation data, as exported from `MS-DIAL <https://systemsomicslab.github.io/compms/msdial/main.html>`.  .  
+   Should correspond to the features listed in the MS-DIAL height file.
+
+3. **SIRIUS/Canopus Annotation File** (optional, ``.tsv``)  
+   Output from `SIRIUS <https://bio.informatik.uni-jena.de/software/sirius/>`_ with CANOPUS molecular class predictions.  
+   Must align with the MS/MS features.
+
+Alternatively, MetFamily can resume an analysis previously stored as project file:
+
+4. **MetFamily Project File** (``Project_*.csv.gz``)  
+   Tab-separated and compressed file similar to MS-Dial height, but with additional columns and MetFamily settings.  
+
+Output
+------
+
+- A **MetFamily Project File** in the form of a zipped
+  - Tab-separated and compressed file similar to MS-Dial height, but with additional columns and MetFamily settings.
+
+Usage Tips
+----------
+
+- Ensure feature IDs are consistent across all input files.
+- Use naming conventions and formats expected by MetFamily (e.g., MS-DIAL feature IDs should match those in the MSP and SIRIUS files).
+
+Further Resources
+-----------------
+
+- `MetFamily GitHub Repository <https://github.com/ipb-halle/MetFamily>`_
+- `MS-DIAL Documentation <https://systemsomicslab.github.io/compms/msdial/main.html>`_
+- `SIRIUS Documentation <https://bio.informatik.uni-jena.de/software/sirius/>`_
+
+  ]]></help>
+  <citations>
+    <citation type="bibtex">
+@Article{Treutler16DiscoveringRegulatedMetabolite,
+  Title                    = {{D}iscovering {R}egulated {M}etabolite {F}amilies in {U}ntargeted {M}etabolomics {S}tudies.},
+  Author                   = {Treutler, Hendrik and Tsugawa, Hiroshi and Porzel, Andrea and Gorzolka, Karin and Tissier, Alain and Neumann, Steffen and Balcke, Gerd Ulrich},
+  Journal                  = {Anal Chem},
+  Year                     = {2016},
+  Month                    = {Aug},
+  Abstract                 = {The identification of metabolites by mass spectrometry constitutes a major bottleneck which considerably limits the throughput of metabolomics studies in biomedical or plant research. Here, we present a novel approach to analyze metabolomics data from untargeted, data-independent LC-MS/MS measurements. By integrated analysis of MS(1) abundances and MS/MS spectra, the identification of regulated metabolite families is achieved. This approach offers a global view on metabolic regulation in comparative metabolomics. We implemented our approach in the web application "MetFamily", which is freely available at http://msbi.ipb-halle.de/MetFamily/ . MetFamily provides a dynamic link between the patterns based on MS(1)-signal intensity and the corresponding structural similarity at the MS/MS level. Structurally related metabolites are annotated as metabolite families based on a hierarchical cluster analysis of measured MS/MS spectra. Joint examination with principal component analysis of MS(1) patterns, where this annotation is preserved in the loadings, facilitates the interpretation of comparative metabolomics data at the level of metabolite families. As a proof of concept, we identified two trichome-specific metabolite families from wild-type tomato Solanum habrochaites LA1777 in a fully unsupervised manner and validated our findings based on earlier publications and with NMR.},
+  Doi                      = {10.1021/acs.analchem.6b01569},
+  Institution              = {Leibniz Institute of Plant Biochemistry, Department of Cell and Metabolic Biology, Weinberg 3, D-06120 Halle/Saale, Germany.},
+  Language                 = {eng},
+  Owner                    = {sneumann},
+  Pmid                     = {27452369},
+  Timestamp                = {2016.08.12},
+  Url                      = {https://doi.org/10.1021/acs.analchem.6b01569}
+}
+    </citation>
+  </citations>
+</tool>

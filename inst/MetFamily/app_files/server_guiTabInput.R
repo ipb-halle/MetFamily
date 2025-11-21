@@ -82,16 +82,19 @@ enableLoadButtons <- function(){
   #session$sendCustomMessage("enableButton", "importMs2Data")
   shinyjs::enable("loadProjectData")
   shinyjs::enable("loadExampleData")
+  shinyjs::enable("loadGalaxyData")
   shinyjs::enable("importMs1Ms2Data")
   shinyjs::enable("importMs2Data")
 }
 disableLoadButtons <- function(){
   session$sendCustomMessage("disableButton", "loadProjectData")
   session$sendCustomMessage("disableButton", "loadExampleData")
+  session$sendCustomMessage("disableButton", "loadGalaxyData")
   session$sendCustomMessage("disableButton", "importMs1Ms2Data")
   session$sendCustomMessage("disableButton", "importMs2Data")
   shinyjs::disable("loadProjectData")
   shinyjs::disable("loadExampleData")
+  shinyjs::disable("loadGalaxyData")
   shinyjs::disable("importMs1Ms2Data")
   shinyjs::disable("importMs2Data")
 }
@@ -143,6 +146,43 @@ obsLoadExampleData <- observeEvent(input$loadExampleData, {
   
   loadProjectFile(filePath = filePath)
   enableLoadButtons()
+})
+
+obsLoadGalaxyData <- observeEvent(input$loadGalaxyData, {
+  disableLoadButtons()
+  loadGalaxyData <- as.numeric(input$loadGalaxyData)
+  print(paste("Observe loadGalaxyData", loadGalaxyData))
+  
+  #################################################
+  ## files
+
+  setwd(paste(Sys.getenv("_GALAXY_JOB_HOME_DIR"),"../working",sep="/"))
+  config <- jsonlite::fromJSON("metfamily-gxit-inputs.json")
+  
+  if (config$input_mode$mode == "raw") {
+    message(paste("height_file:", config$input_mode$height_file))
+    message(paste("msp_file:",    config$input_mode$msp_file))
+    message(paste("sirius_file:", config$input_mode$sirius_file))
+    message(paste("siriusFileColumnName:", config$input_mode$siriusFileColumnName))
+  } else if (config$input_mode$mode == "MSI") {
+    message(paste("mztabm_file:", config$input_mode$mztabm_file))
+    message(paste("msp_file:",    config$input_mode$msp_file))
+    message(paste("sirius_file:", config$input_mode$sirius_file))
+  } else if (config$input_mode$mode == "project") {
+    filePath <- config$input_mode$project_file
+    loadProjectFile(filePath = filePath)
+  }
+  
+  enableLoadButtons()
+  
+  ## Not here, but for completeness: 
+  ## Here is where the output would go:
+
+  setwd(paste(Sys.getenv("_GALAXY_JOB_HOME_DIR"),"../metadata",sep="/"))
+  config <- jsonlite::fromJSON("params.json")
+  filePath <- config$outputs$metfamily_project$filename_override
+  message(paste("Galaxy output file would be written to", filePath))
+  
 })
 
 

@@ -7,7 +7,7 @@ crashButton = F
 
 
 navbarPage(
-  title = div(img(src='img/Metfamily.gif',style="margin-top: -14px; padding-right:10px;padding-bottom:10px", height = 60)),
+  title = div(img(src='img/MetFamily.png',style="margin-top: -14px; padding-right:10px;padding-bottom:10px", height = 60)),
   windowTitle="MetFamily",
   footer = HTML(readLines("www/ipbfooter.html")),
   
@@ -71,7 +71,10 @@ navbarPage(
                      #actionButton(inputId = "test", label = NULL, icon = icon(name = "chevron-up", lib = "font-awesome")),#, width = NULL, ...)
                      #downloadButton('downloadReport2', 'Export analysis report'),
                      bsTooltip(id = "fileInputSelection", title = "The user is able to load a project file or to import external data", placement = "bottom", trigger = "hover"),
-                     radioButtons(inputId = "fileInputSelection", label = NULL, choices = c("Import data", "Load project", "Example data"), selected = "Load project", inline = FALSE),
+                     radioButtons(inputId = "fileInputSelection", label = NULL,
+                                  choices = c("Import data", "Load project", "Example data", 
+                                              na.omit(ifelse(isGalaxyIE, "Galaxy History", NA))),
+                                  selected = "Load project", inline = FALSE),
                      shiny::hr(),
                      conditionalPanel(
                        condition = 'input.fileInputSelection == "Load project"',
@@ -319,6 +322,19 @@ navbarPage(
                          column(width = 6
                                 
                          )##column
+                       )##row
+                     ),## conditional
+                     conditionalPanel(
+                       condition = 'input.fileInputSelection == "Galaxy History"',
+                       h4("Input from Galaxy"),
+                       helpText(
+                         "The data from Galaxy."
+                       ),
+                       fluidRow(
+                         column(width = 6,
+                                bsTooltip(id = "loadGalaxyData", title = "Press to load the example data set", placement = "bottom", trigger = "hover"),
+                                actionButton(inputId = "loadGalaxyData", label = "Load Galaxy data", class="btn-success", width = "100%")
+                         ),##column
                        )##row
                      )## conditional
                    ),##well
@@ -1165,12 +1181,24 @@ navbarPage(
                                     tags$style(type='text/css', "#downloadReport { width:100%}")
                                 )
                          ),##column
-                         column(width = 6, style="width:50%",
-                                div(style="float:right;width:100%"
-                                    ## nothing here
-                                )
-                         )##column
-                       )##row
+                         if (isGalaxyIE) { 
+                           column(width = 6, style="width:50%",
+                                  div(style="float:left;width:100%",
+                                      bsTooltip(id = "prepareAllPrecursors4Galaxy", 
+                                                title = "Send project file to Galaxy", 
+                                                placement = "bottom", trigger = "hover"),
+                                      actionButton("prepareAllPrecursors4Galaxy", "Galaxy export", icon = icon("file-export", lib = "font-awesome"), style="width:100%"),
+                                      tags$style(type='text/css', "#downloadAllPrecursors { width:100%}")
+                                  )
+                           ) #column
+                         } else {
+                           column(width = 6, style="width:50%",
+                                  div(style="float:right;width:100%"
+                                      ## nothing here
+                                  )
+                           )##column
+                         }
+                     )##row
                      )##well
                    ),## conditional panel
                    conditionalPanel(
