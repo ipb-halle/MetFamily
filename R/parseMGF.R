@@ -117,6 +117,10 @@ parseMGF_to_list <- function(fileSpectra) {
   uni_labels <- unique(head_labels0)
   uni_low_labels <- stringr::str_to_lower(uni_labels)
   
+  # is rt in min or sec?
+  # change values below
+  rt_in_sec <- if ("rtinseconds" %in% uni_low_labels) TRUE else FALSE
+    
   mgf_dict_table <- mgf_dict()
   uni_stand_labels <- unname(mgf_dict_table[match(uni_low_labels, names(mgf_dict_table))])
   
@@ -173,17 +177,21 @@ parseMGF_to_list <- function(fileSpectra) {
     
   })
   
-  # put rt in minutes
-  mgf_entries <- purrr::map(
-    mgf_entries, \(entry) {
-      
-      entry$header["rtime"] <- as.character(
-        as.numeric(entry$header["rtime"]) / 60
-      )
-      
-      entry
-    }
-  )
+  # fix rt if in sec
+  if (rt_in_sec) {
+    
+    mgf_entries <- purrr::map(
+      mgf_entries, \(entry) {
+        
+        entry$header["rtime"] <- as.character(
+          as.numeric(entry$header["rtime"]) / 60
+        )
+        
+        entry
+      }
+    )
+    
+  }
 
   mgf_entries
   
@@ -200,7 +208,7 @@ parseMGF_to_list <- function(fileSpectra) {
 mgf_dict <- function() {
   tibble::enframe(
     list(
-      rtime = c("rtinseconds"), #rt
+      rtime = c("rtinseconds", "rtinminutes"), #rt
       precursorMz = c("pepmass"), #mz
       feature_id = "feature_id",
       adduct = c("ion"),
