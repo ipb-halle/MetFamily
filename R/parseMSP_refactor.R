@@ -83,7 +83,8 @@ parseMSP_to_list <- function(fileSpectra) {
   # remove duplicated empty lines
   whichEmpty <- which(isLineEmpty)
   dupEmpty <- (whichEmpty + 1) == c(whichEmpty[-1], -99)
-  fileLines <- fileLines[-whichEmpty[dupEmpty]]
+  
+  if (any(dupEmpty))  fileLines <- fileLines[-whichEmpty[dupEmpty]]
   
   message("MS/MS file: Parse")
   
