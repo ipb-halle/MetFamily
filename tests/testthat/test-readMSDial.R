@@ -1,5 +1,3 @@
-library(purrr)
-
 filePeakMatrix <- system.file("extdata/showcase/Metabolite_profile_showcase.txt", package = "MetFamily")
 qf <- readMSDial(filePeakMatrix)
 
@@ -70,11 +68,11 @@ check_qf <- function(q1) {
 
 test_that("Different MS-Dial formats can be read in properly", {
   
-  ms_reads <- map(files, readMSDial)
+  ms_reads <- purrr::map(files, readMSDial)
   
   t3x3 <- rep(list(rep(TRUE, 3)), 3)
   
-  expect_equal(map(ms_reads, check_qf), t3x3)
+  expect_equal(purrr::map(ms_reads, check_qf), t3x3)
       
 })
   
