@@ -114,8 +114,6 @@
       <when value="raw">
         <param name="height_file" type="data" format="txt,csv" label="MS-DIAL Height File"
                help="Tab-separated file (e.g., Height_*.txt) exported from MS-DIAL containing peak height information.">
-	        <edam_format>format_3752</edam_format> <!-- TSV -->
-	        <edam_data>data_2536</edam_data>       <!-- Quantitative mass spectrometry --> 
 	      </param>    
         <param name="msp_file" type="data" format="msp" label="MS/MS Spectra File (.msp)"
                help="Spectral library in MSP format exported from MS-DIAL, containing MS/MS fragmentation data." />
@@ -149,7 +147,9 @@
 
   
   <outputs>
-    <data name="metfamily_project" format="csv.gz" label="MetFamily Project File (Project_*.csv.gz)" />
+    <data name="metfamily_project" format="tabular" 
+    from_work_dir="Project.csv"
+    label="MetFamily Project File (Project_*.csv.gz)" />
   </outputs>
 
   <tests>

@@ -35,11 +35,12 @@ createExportDistanceMatrixName <- function(distanceMeasure){
 }
 
 
-writeTable <- function(precursorSet, file){
+writeTable <- function(precursorSet, file, compressed=TRUE){
   shinybusy::show_modal_spinner(spin="scaling-squares", 
                      text="\nMerging project files to csv. This can take several minutes!")
   
-  writeProjectFile(dataList, precursorSet, file)
+  writeProjectFile(dataList, precursorSet, 
+                   file=file, compressed=compressed)
   
   shinybusy::remove_modal_spinner()
 }
@@ -113,9 +114,7 @@ observeEvent(input$prepareAllPrecursors4Galaxy, {
   ExportMatrixName <<- createExportMatrixName()
   precursorSet <- seq_len(dataList$numberOfPrecursors)
   
-  setwd(paste(Sys.getenv("_GALAXY_JOB_HOME_DIR"),"../metadata",sep="/"))
-  config <- jsonlite::fromJSON("params.json")
-  filePath <- config$outputs$metfamily_project$filename_override
+  filePath <- "Project.csv"
   message(paste("Galaxy output file will be written to", filePath))
   
   writeTable(precursorSet = precursorSet, 
