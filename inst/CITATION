@@ -1,0 +1,20 @@
+citHeader("To cite the MetFamily tool or package in publications use:")
+
+citEntry(entry="article",
+         author = "Treutler, Hendrik and Tsugawa, Hiroshi and Porzel, Andrea and Gorzolka, Karin and Tissier, Alain and Neumann, Steffen and Balcke, Gerd Ulrich",
+         title = "Discovering Regulated Metabolite Families in Untargeted Metabolomics Studies",
+         journal = "Analytical Chemistry",
+         volume = "88",
+         number = "16",
+         pages = "8082-8090",
+         year = "2016",
+         doi = "10.1021/acs.analchem.6b01569",
+         note ="PMID: 27452369",
+         URL = "https://doi.org/10.1021/acs.analchem.6b01569",
+         eprint = "https://doi.org/10.1021/acs.analchem.6b01569",
+         abstract = "The identification of metabolites by mass spectrometry constitutes a major bottleneck which considerably limits the throughput of metabolomics studies in biomedical or plant research. Here, we present a novel approach to analyze metabolomics data from untargeted, data-independent LC-MS/MS measurements. By integrated analysis of MS1 abundances and MS/MS spectra, the identification of regulated metabolite families is achieved. This approach offers a global view on metabolic regulation in comparative metabolomics. We implemented our approach in the web application “MetFamily”, which is freely available at http://msbi.ipb-halle.de/MetFamily/. MetFamily provides a dynamic link between the patterns based on MS1-signal intensity and the corresponding structural similarity at the MS/MS level. Structurally related metabolites are annotated as metabolite families based on a hierarchical cluster analysis of measured MS/MS spectra. Joint examination with principal component analysis of MS1 patterns, where this annotation is preserved in the loadings, facilitates the interpretation of comparative metabolomics data at the level of metabolite families. As a proof of concept, we identified two trichome-specific metabolite families from wild-type tomato Solanum habrochaites LA1777 in a fully unsupervised manner and validated our findings based on earlier publications and with NMR.",
+         textVersion = paste("Hendrik Treutler, Hiroshi Tsugawa, Andrea Porzel, Karin Gorzolka, Alain Tissier, Steffen Neumann, and Gerd Ulrich Balcke",
+                             "Discovering Regulated Metabolite Families in Untargeted Metabolomics Studies",
+                             "Analytical Chemistry 2016 88 (16), 8082-8090",
+                             "DOI: 10.1021/acs.analchem.6b01569")
+         )
