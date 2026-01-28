@@ -78,6 +78,10 @@ readMetaboscape <- function(file, version){
            "Metabolite name" = "NAME_METABOSCAPE",
            "Adduct ion name" = "ADDUCT")
   
+  # fix ION format
+  table <- table %>% 
+    mutate("Adduct ion name" = stringr::str_remove(`Adduct ion name`, "ION="))
+  
   # rt in minutes
   table <- table %>% 
     dplyr::mutate(
