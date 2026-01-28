@@ -1,189 +1,27 @@
-####################################################################################
-## aligned spectra
-parsePeakAbundanceMatrix <- function(filePeakMatrix, 
-                                     doPrecursorDeisotoping, 
-                                     mzDeviationInPPM_precursorDeisotoping, 
-                                     mzDeviationAbsolute_precursorDeisotoping, 
-                                     maximumRtDifference, 
-                                     progress=FALSE)
-{
-  ## read file
-  if(!is.na(progress))  if(progress)  incProgress(amount = 0.1, detail = paste("Parsing MS1 file content...", sep = "")) else print(paste("Parsing MS1 file content...", sep = ""))
-  
-  dataFrameAll <- read.table(filePeakMatrix, header=FALSE, sep = "\t", as.is=TRUE, quote = "\"", check.names = FALSE, comment.char = "")
-  dataFrameAll1 <- read.table(filePeakMatrix, header=TRUE, sep = "\t", as.is=TRUE, quote = "\"", check.names = FALSE, comment.char = "")
-  
-  oldFormat <- max(which(dataFrameAll[1:5, 1] == "")) == 3
-  header_rowNumber <- ifelse(test = oldFormat, yes = 4, no = 5)
-  dataFrameHeader <- dataFrameAll[1:header_rowNumber, ]
-  
-  `%notin%` <- Negate(`%in%`)
-  TR<- c("Reference RT","Reference m/z","Comment",
-         "Manually modified for quantification",
-         "Total score","RT similarity","Average","Stdev")
-  IN2<-which(unname(dataFrameHeader[4,]) %notin% TR)
-  dataFrameHeader1 <-dataFrameHeader[IN2]
-  
-  dataFrame <- dataFrameAll[(header_rowNumber + 1):nrow(dataFrameAll), ]
-  dataFrame1 <- dataFrame[IN2]
-  
-  colnames(dataFrame) <- dataFrameHeader[header_rowNumber, ]
-  colnames(dataFrame1) <- dataFrameHeader1[header_rowNumber, ]
-  
-  numberOfPrecursors <- nrow(dataFrame1)
-  numberOfPrecursorsPrior <- numberOfPrecursors
-  
-  columnIndexEndOfAnnotation <- max(match(x = "Class", 
-                                          table = dataFrameHeader1[1, ]), 
-                                    na.rm = TRUE)
-  
-  if(ncol(dataFrame1) > columnIndexEndOfAnnotation) {
-    dataColumnStartEndIndeces <- c(columnIndexEndOfAnnotation + 1, ncol(dataFrame1))
-    numberOfDataColumns <- dataColumnStartEndIndeces[[2]] - dataColumnStartEndIndeces[[1]] + 1
-    dataColumnNames <- colnames(dataFrame1)[dataColumnStartEndIndeces[[1]]:dataColumnStartEndIndeces[[2]]]
-    
-    sampleClass          <- dataFrameHeader1[1, (columnIndexEndOfAnnotation + 1):ncol(dataFrameHeader1)]
-    sampleType           <- dataFrameHeader1[2, (columnIndexEndOfAnnotation + 1):ncol(dataFrameHeader1)]
-    sampleInjectionOrder <- dataFrameHeader1[3, (columnIndexEndOfAnnotation + 1):ncol(dataFrameHeader1)]
-    batchID              <- NULL
-    if(!oldFormat) {
-      batchID            <- dataFrameHeader1[4, (columnIndexEndOfAnnotation + 1):ncol(dataFrameHeader1)]
-    }
-  } else {
-    dataColumnStartEndIndeces <- NULL
-    numberOfDataColumns <- 0
-    dataColumnNames <- NULL
-    
-    sampleClass          <- NULL
-    sampleType           <- NULL
-    sampleInjectionOrder <- NULL
-    batchID              <- NULL
-  }
-  
-  commaNumbers <- sum(grepl(x = dataFrame1$"Average Mz", pattern = "^(\\d+,\\d+$)|(^\\d+$)"))
-  decimalSeparatorIsComma <- commaNumbers == nrow(dataFrame1)
-  if(decimalSeparatorIsComma){
-    if(!is.null(dataFrame1$"Average Rt(min)"))     dataFrame1$"Average Rt(min)"     <- gsub(x = gsub(x = dataFrame1$"Average Rt(min)", pattern = "\\.", replacement = ""), pattern = ",", replacement = ".")
-    if(!is.null(dataFrame1$"Average Mz"))          dataFrame1$"Average Mz"          <- gsub(x = gsub(x = dataFrame1$"Average Mz", pattern = "\\.", replacement = ""), pattern = ",", replacement = ".")
-    if(!is.null(dataFrame1$"Fill %"))              dataFrame1$"Fill %"              <- gsub(x = gsub(x = dataFrame1$"Fill %", pattern = "\\.", replacement = ""), pattern = ",", replacement = ".")
-    if(!is.null(dataFrame1$"Dot product"))         dataFrame1$"Dot product"         <- gsub(x = gsub(x = dataFrame1$"Dot product", pattern = "\\.", replacement = ""), pattern = ",", replacement = ".")
-    if(!is.null(dataFrame1$"Reverse dot product")) dataFrame1$"Reverse dot product" <- gsub(x = gsub(x = dataFrame1$"Reverse dot product", pattern = "\\.", replacement = ""), pattern = ",", replacement = ".")
-    if(!is.null(dataFrame1$"Fragment presence %")) dataFrame1$"Fragment presence %" <- gsub(x = gsub(x = dataFrame1$"Fragment presence %", pattern = "\\.", replacement = ""), pattern = ",", replacement = ".")
-    
-    ## replace -1 by 0
-    if(numberOfDataColumns > 0) {
-      for(colIdx in dataColumnStartEndIndeces[[1]]:dataColumnStartEndIndeces[[2]]){
-        dataFrame1[ , colIdx] <- gsub(x = gsub(x = dataFrame1[ , colIdx], pattern = "\\.", replacement = ""), pattern = ",", replacement = ".")
-      }
-    }
-  }
-  
-  ###################
-  ## column formats
-  if(!is.null(dataFrame1$"Average Rt(min)"))     dataFrame1$"Average Rt(min)"     <- as.numeric(dataFrame1$"Average Rt(min)")
-  if(!is.null(dataFrame1$"Average Mz"))          dataFrame1$"Average Mz"          <- as.numeric(dataFrame1$"Average Mz")
-  if(!is.null(dataFrame1$"Fill %"))              dataFrame1$"Fill %"              <- as.numeric(dataFrame1$"Fill %")
-  if(!is.null(dataFrame1$"MS/MS included"))      dataFrame1$"MS/MS included"      <- as.logical(dataFrame1$"MS/MS included")
-  if(!is.null(dataFrame1$"Dot product"))         dataFrame1$"Dot product"         <- as.numeric(dataFrame1$"Dot product")
-  if(!is.null(dataFrame1$"Reverse dot product")) dataFrame1$"Reverse dot product" <- as.numeric(dataFrame1$"Reverse dot product")
-  if(!is.null(dataFrame1$"Fragment presence %")) dataFrame1$"Fragment presence %" <- as.numeric(dataFrame1$"Fragment presence %")
-  
-  #####################
-  ## sorted by m/z (needed for deisotoping)
-  if(!is.null(dataFrame1$"Average Mz")) {
-    dataFrame1 <- dataFrame1[order(dataFrame1$"Average Mz"), ]
-  }
-  
-  ## replace -1 by 0
-  if(numberOfDataColumns > 0){
-    for(colIdx in dataColumnStartEndIndeces[[1]]:dataColumnStartEndIndeces[[2]]){
-      dataFrame1[ , colIdx] <- as.numeric(dataFrame1[ , colIdx])
-      if(!is.na(sum(dataFrame1[,colIdx] == -1))) {
-        dataFrame1[(dataFrame1[,colIdx] == -1),colIdx] <- 0
-      }
-    }
-  }
-  
-  ## deisotoping
-  numberOfRemovedIsotopePeaks <- 0
-  if(doPrecursorDeisotoping & !is.null(dataFrame1$"Average Mz")){
-    if(!is.na(progress))  if(progress)  incProgress(amount = 0, detail = paste("Precursor deisotoping...", sep = "")) else print(paste("Precursor deisotoping...", sep = ""))
-    distance13Cminus12C <- 1.0033548378
-    
-    ## mark isotope precursors
-    precursorsToRemove <- vector(mode = "logical", length = numberOfPrecursors)
-    
-    if(numberOfDataColumns > 0){
-      intensities <- dataFrame1[ , dataColumnStartEndIndeces[[1]]:dataColumnStartEndIndeces[[2]]]
-      medians <- apply(X = as.matrix(intensities), MARGIN = 1, FUN = median)
-    }
-    
-    for(precursorIdx in seq_len(numberOfPrecursors)){
-      if((precursorIdx %% (as.integer(numberOfPrecursors/10))) == 0)
-        if(!is.na(progress))  if(progress)  incProgress(amount = 0.0, detail = paste("Precursor deisotoping ", precursorIdx, " / ", numberOfPrecursors, sep = "")) else print(paste("Precursor deisotoping ", precursorIdx, " / ", numberOfPrecursors, sep = ""))
-      
-      mzError <- dataFrame1$"Average Mz"[[precursorIdx]] * mzDeviationInPPM_precursorDeisotoping / 1000000
-      mzError <- max(mzError, mzDeviationAbsolute_precursorDeisotoping)
-      
-      ## RT difference <= maximumRtDifference
-      validPrecursorsInRt <- abs(dataFrame1$"Average Rt(min)"[[precursorIdx]] - dataFrame1$"Average Rt(min)"[-precursorIdx]) <= maximumRtDifference
-      
-      ## MZ difference around 1.0033548378 (first isotope) or 1.0033548378 * 2 (second isotope)
-      validPrecursorsInMz1 <- abs((dataFrame1$"Average Mz"[[precursorIdx]] - distance13Cminus12C * 1) - dataFrame1$"Average Mz"[-precursorIdx]) <= mzError
-      validPrecursorsInMz2 <- abs((dataFrame1$"Average Mz"[[precursorIdx]] - distance13Cminus12C * 2) - dataFrame1$"Average Mz"[-precursorIdx]) <= mzError
-      validPrecursorsInMz <- validPrecursorsInMz1 | validPrecursorsInMz2
-      
-      ## intensity gets smaller in the isotope spectrum
-      if(numberOfDataColumns > 0){
-        validPrecursorsInIntensity <- (medians[-precursorIdx] - medians[[precursorIdx]]) > 0
-      } else {
-        validPrecursorsInIntensity <- TRUE
-      }
-      
-      if(any(validPrecursorsInRt & validPrecursorsInMz & validPrecursorsInIntensity)) {
-        precursorsToRemove[[precursorIdx]] <- TRUE
-      }
-    }
-    
-    ## remove isotopes
-    dataFrame1 <- dataFrame1[!precursorsToRemove, ]
-    
-    numberOfRemovedIsotopePeaks <- sum(precursorsToRemove)
-    numberOfPrecursors <- nrow(dataFrame1)
-  }
-  
-  if(!is.na(progress))  if(progress)  incProgress(amount = 0, detail = paste("Boxing...", sep = "")) else print(paste("Boxing...", sep = ""))
-  returnObj <- list()
-  returnObj$dataFrame1 <- dataFrame1
-  
-  ## meta
-  returnObj$oldFormat <- oldFormat
-  returnObj$numberOfPrecursors <- numberOfPrecursors
-  returnObj$dataColumnStartEndIndeces <- dataColumnStartEndIndeces
-  returnObj$numberOfDataColumns <- numberOfDataColumns
-  
-  ## group anno
-  returnObj$sampleClass          <- sampleClass
-  returnObj$sampleType           <- sampleType
-  returnObj$sampleInjectionOrder <- sampleInjectionOrder
-  returnObj$batchID              <- batchID
-  
-  ## misc
-  returnObj$numberOfPrecursorsPrior <- numberOfPrecursorsPrior
-  returnObj$numberOfRemovedIsotopePeaks <- numberOfRemovedIsotopePeaks
-  
-  return (returnObj)
-}
 
-
-####################################################################################
-## parse MS/MS spectra
+#' Parse MS/MS spectra
+#'
+#' `r lifecycle::badge("superseded")`
+#' Superseded by parseMSP rewrite 2025-08
+#' 
+#' Read MS2 spectra from MSP file
+#'
+#' @param fileSpectra filepath
+#' @param minimumIntensityOfMaximalMS2peak numeric
+#' @param minimumProportionOfMS2peaks numeric
+#' @param neutralLossesPrecursorToFragments boolean
+#' @param neutralLossesFragmentsToFragments boolean
+#' @param progress boolean
+#' @param ... ignored. Used for forward compatibility.
+#'
+#' @returns list object
+#' @export
 parseMSP <- function(fileSpectra, 
                      minimumIntensityOfMaximalMS2peak, 
                      minimumProportionOfMS2peaks, 
                      neutralLossesPrecursorToFragments, 
                      neutralLossesFragmentsToFragments, 
-                     progress = FALSE){
+                     progress = FALSE, ...){
   fileLines <- readLines(con = fileSpectra)
   
   returnObj <- parseMSP_chunk(fileLines, 
@@ -197,104 +35,26 @@ parseMSP <- function(fileSpectra,
   return(returnObj)
 }
 
-parseMSP_big <- function(fileSpectra, 
-                         minimumIntensityOfMaximalMS2peak, 
-                         minimumProportionOfMS2peaks, 
-                         neutralLossesPrecursorToFragments, 
-                         neutralLossesFragmentsToFragments, 
-                         progress = FALSE){
-  if(progress)  incProgress(amount = 0, detail = "MS/MS file: Read file") else print("MS/MS file: Read file")
-  
-  fileLines <- readLines(con = fileSpectra)
-  
-  if(progress)  incProgress(amount = 0, detail = "Decompose file to chunks") else print("Decompose file to chunks")
-  ## entry lines in file
-  isName	    <- grepl(pattern = "^Name:",			 x = fileLines)
-  isNAME      <- grepl(pattern = "^NAME:",			 x = fileLines)
-  isBeginIons	<- grepl(pattern = "^BEGIN IONS$", x = fileLines)
-  
-  ## entry line intervals in file
-  entryBorders   <- c(which(isName | isNAME | isBeginIons), length(fileLines)+1)
-  entryIntervals <- matrix(data = unlist(lapply(X = seq_len(length(entryBorders) - 1), FUN = function(x){c(entryBorders[[x]], entryBorders[[x+1]] - 1)})), nrow=2)
-  
-  rm(isName, isNAME, isBeginIons)
-  
-  ## split in chunks
-  maximumNumberOfLinesPerChunk <- as.integer(1E6)
-  fileLineChunks <- list()
-  while(length(fileLines) > 0){
-    numberOfEntries <- max(which(entryIntervals[2, ] <= maximumNumberOfLinesPerChunk))
-    numberOfFileLinesInChunk <- entryIntervals[2, numberOfEntries]
-    
-    fileLinesInChunk <- fileLines[1:numberOfFileLinesInChunk]
-    fileLineChunks[[length(fileLineChunks) + 1]] <- fileLinesInChunk
-    
-    ## remaining stuff
-    fileLines      <- fileLines[-(1:numberOfFileLinesInChunk)]
-    entryIntervals <- entryIntervals[, -(1:numberOfEntries)]
-    if(ncol(entryIntervals) > 0)
-      entryIntervals <- entryIntervals - min(entryIntervals) + 1
-  }
-  
-  numberOfChunks <- length(fileLineChunks)
-  fileLineCountOfChunks  <- unlist(lapply(X = fileLineChunks, FUN = length))
-  fileLineOffsetOfChunks <- c(0, sapply(X = seq_along(fileLineCountOfChunks)[-1], FUN = function(x){sum(fileLineCountOfChunks[1:(x-1)])}))
-  
-  if(progress)  incProgress(amount = 0, detail = paste("Parse", numberOfChunks, "chunks")) else print(paste("Parse", numberOfChunks, "chunks"))
-  ## merge chunks
-  returnObj <- list()
-  returnObj$fileSpectra <- fileSpectra
-  returnObj$spectraList <- list()
-  returnObj$numberOfSpectra <- 0
-  returnObj$numberOfMS2PeaksOriginal <- 0
-  returnObj$numberOfMS2PeaksWithNeutralLosses <- 0
-  returnObj$numberOfMS2PeaksAboveThreshold <- 0
-  returnObj$numberOfMS2PeaksBelowThreshold <- 0
-  returnObj$precursorMz <- vector(mode = "numeric")
-  returnObj$precursorRt <- vector(mode = "numeric")
-  
-  for(chunkIdx in seq_len(numberOfChunks)){
-    if(progress)  incProgress(amount = 0, detail = paste("Chunk", chunkIdx, "/", numberOfChunks)) else print(paste("Chunk", chunkIdx, "/", numberOfChunks))
-    
-    fileLines  <- fileLineChunks[[1]]
-    fileLineChunks[[1]] <- NULL
-    
-    returnObj2 <- parseMSP_chunk(
-      fileLines = fileLines, 
-      minimumIntensityOfMaximalMS2peak = minimumIntensityOfMaximalMS2peak, 
-      minimumProportionOfMS2peaks = minimumProportionOfMS2peaks, 
-      neutralLossesPrecursorToFragments = neutralLossesPrecursorToFragments, 
-      neutralLossesFragmentsToFragments = neutralLossesFragmentsToFragments, 
-      offset = fileLineOffsetOfChunks[[chunkIdx]], progress = NA
-    )
-    
-    returnObj$spectraList                       <- c(returnObj$spectraList,                        returnObj2$spectraList)
-    returnObj$numberOfSpectra                   <-   returnObj$numberOfSpectra                   + returnObj2$numberOfSpectra
-    returnObj$numberOfSpectraOriginal           <-   returnObj$numberOfSpectraOriginal           + returnObj2$numberOfSpectraOriginal
-    returnObj$numberOfMS2PeaksOriginal          <-   returnObj$numberOfMS2PeaksOriginal          + returnObj2$numberOfMS2PeaksOriginal
-    returnObj$numberOfMS2PeaksWithNeutralLosses <-   returnObj$numberOfMS2PeaksWithNeutralLosses + returnObj2$numberOfMS2PeaksWithNeutralLosses
-    returnObj$numberOfMS2PeaksAboveThreshold    <-   returnObj$numberOfMS2PeaksAboveThreshold    + returnObj2$numberOfMS2PeaksAboveThreshold
-    returnObj$numberOfMS2PeaksBelowThreshold    <-   returnObj$numberOfMS2PeaksBelowThreshold    + returnObj2$numberOfMS2PeaksBelowThreshold
-    returnObj$numberOfTooHeavyFragments         <-   returnObj$numberOfTooHeavyFragments         + returnObj2$numberOfTooHeavyFragments
-    returnObj$numberOfSpectraDiscardedDueToNoPeaks      <-   returnObj$numberOfSpectraDiscardedDueToNoPeaks      + returnObj2$numberOfSpectraDiscardedDueToNoPeaks
-    returnObj$numberOfSpectraDiscardedDueToMaxIntensity <-   returnObj$numberOfSpectraDiscardedDueToMaxIntensity + returnObj2$numberOfSpectraDiscardedDueToMaxIntensity
-    returnObj$numberOfSpectraDiscardedDueToTooHeavy     <-   returnObj$numberOfSpectraDiscardedDueToTooHeavy     + returnObj2$numberOfSpectraDiscardedDueToTooHeavy
-    returnObj$precursorMz                       <- c(returnObj$precursorMz,                        returnObj2$precursorMz)
-    returnObj$precursorRt                       <- c(returnObj$precursorRt,                        returnObj2$precursorRt)
-  }
-  
-  return(returnObj)
-}
 
-#####################
+
+#' parse MSP file to list
+#' 
+#' `r lifecycle::badge("superseded")`
+#' Superseded with parseMSP rewrite in 2025-08
+#'
+#' @param fileLines 
+#' @param offset 
+#' @inheritParams parseMSP
+#'
+#' @returns list
+#' @export
 parseMSP_chunk <- function(fileLines, 
                            minimumIntensityOfMaximalMS2peak, 
                            minimumProportionOfMS2peaks, 
                            neutralLossesPrecursorToFragments, 
                            neutralLossesFragmentsToFragments, 
                            offset = 0, 
-                           progress = FALSE)
-{
+                           progress = FALSE) {
   
   ## LC-MS/MS entry:
   ## NAME: Unknown
@@ -330,9 +90,11 @@ parseMSP_chunk <- function(fileLines,
   
   ## start with empty lines or not?
   endOfRecord <- TRUE
-  if(numberOfFileLines > 0)
-    if(nchar(trimws(fileLines[[1]])) > 0)
+  if(numberOfFileLines > 0) {
+    if(nchar(trimws(fileLines[[1]])) > 0) {
       endOfRecord <- FALSE
+    }
+  }
   
   ## check for pattern
   if(!is.na(progress))  if(progress)  incProgress(amount = 0, detail = "MS/MS file: Parse") else print("MS/MS file: Parse")
@@ -366,8 +128,9 @@ parseMSP_chunk <- function(fileLines,
   isInchiKey	<- grepl(pattern = "(^InChIKey:)|(^INCHIKEY:)|(^InChIKey=)|(^INCHIKEY=)|(^INCHIAUX=)",	      x = fileLines)
   isSmiles  	<- grepl(pattern = "(^SMILES:)|(^SMILES=)",		        x = fileLines)
   
+  # check decimal separator
   someStrings <- trimws(c(
-    substring(text = fileLines[isMZ], first = nchar("RETENTIONTIME:") + 1), 
+    substring(text = fileLines[isRT], first = nchar("RETENTIONTIME:") + 1), 
     substring(text = fileLines[isMZ], first = nchar("PRECURSORMZ:") + 1), 
     substring(text = fileLines[isMz], first = nchar("precursor m/z:") + 1)
   ))
@@ -419,7 +182,7 @@ parseMSP_chunk <- function(fileLines,
   entryBorders   <- c(which(isName | isNAME | isBI), length(fileLines)+1)
   entryIntervals <- matrix(data = unlist(lapply(X = seq_len(length(entryBorders) - 1), FUN = function(x){c(entryBorders[[x]], entryBorders[[x+1]] - 1)})), nrow=2)
   
-  numberOfSpectraOriginal <- length(entryBorders)
+  numberOfSpectraOriginal <- ncol(entryIntervals)
   
   ## do it
   if(!is.na(progress))  if(progress)  incProgress(amount = 0, detail = "MS/MS file: Assemble spectra") else print("MS/MS file: Assemble spectra")
@@ -612,11 +375,12 @@ parseMSP_chunk <- function(fileLines,
         numberOfSpectraDiscardedDueToNoPeaks <<- numberOfSpectraDiscardedDueToNoPeaks + 1
       }
       
-      ###################################################################
       ## filter fragments with mass greater than precursor
       numberOfTooHeavyFragmentsHere <- 0
       if(all(!is.null(mz), !is.na(mz))){
-        tooHeavy <- ms2Peaks_mz > mz
+
+        # + 0.1 otherwise half of precursor fragments are removed
+        tooHeavy <- ms2Peaks_mz > (mz + 0.1)
         ms2Peaks_mz  <- ms2Peaks_mz [!tooHeavy]
         ms2Peaks_int <- ms2Peaks_int[!tooHeavy]
         numberOfTooHeavyFragmentsHere <- sum(tooHeavy)
@@ -627,11 +391,9 @@ parseMSP_chunk <- function(fileLines,
       }
       numberOfTooHeavyFragments <<- numberOfTooHeavyFragments + numberOfTooHeavyFragmentsHere
       
-      ###################################################################
       ## filter for ms2 peak intensity
       peakNumber <- length(ms2Peaks_mz)
       if(peakNumber > 0){
-        ###################################################################
         ## filter for ms2 peak intensity relative to maximum peak intensity in spectrum
         maximumIntensity <- max(ms2Peaks_int)
         if(maximumIntensity >= minimumIntensityOfMaximalMS2peak){
@@ -652,7 +414,6 @@ parseMSP_chunk <- function(fileLines,
         }
       }
       
-      ###################################################################
       ## normalize ms2 peaks to maximum = 1
       peakNumber <- length(ms2Peaks_mz)
       if(peakNumber > 0){
@@ -660,10 +421,8 @@ parseMSP_chunk <- function(fileLines,
         ms2Peaks_int <- ms2Peaks_int / max
       }
       
-      ###################################################################
       ## add neutral losses
       if(peakNumber > 0){
-        #################################
         ## neutral losses regarding the precursor
         if(all(!is.null(mz), !is.na(mz), neutralLossesPrecursorToFragments)){
           ms2PeaksNLPF_mz  <- ms2Peaks_mz - as.numeric(mz)
@@ -672,7 +431,6 @@ parseMSP_chunk <- function(fileLines,
           ms2PeaksNLPF_mz  <- vector(mode = "numeric")
           ms2PeaksNLPF_int <- vector(mode = "numeric")
         }
-        #################################
         ## neutral losses amongst fragments
         if(neutralLossesFragmentsToFragments){
           m_mz  <- outer(X = ms2Peaks_mz,  Y = ms2Peaks_mz,  FUN = function(x,y){x-y})
@@ -689,7 +447,6 @@ parseMSP_chunk <- function(fileLines,
         ms2Peaks_int <- c(ms2Peaks_int, ms2PeaksNLPF_int, ms2PeaksNLFF_int)
       }
       
-      ###################################################################
       ## precursor mz
       #mz <- ifelse(test = !is.null(mz), yes = round(as.numeric(mz), digits = 4), no = ifelse(test = !is.null(scanNumber), yes = scanNumber, no = max(ms2Peaks_mz)))
       if(all(!is.null(mz), !is.na(mz))){
@@ -706,12 +463,11 @@ parseMSP_chunk <- function(fileLines,
         }
       }
       
-      ###################################################################
+      
       ## string representation of spectrum
       spectrumString <- paste(ms2Peaks_mz_original, ms2Peaks_int_original, sep = " ", collapse = ";")
       
-      ###################################################################
-      ## built ms set
+      ## built ms set 
       spectrumItem <- list(
         name = name,
         ms1Int = ms1Int,
@@ -831,169 +587,6 @@ parseMSP_chunk <- function(fileLines,
   return(returnObj)
 }
 
-
-#' parseMSP_attributes
-#'
-#' @param fileSpectra 
-#' @param progress 
-#' @param flexiblePeakList 
-#' @param multiplePeaksPerLine 
-#' @param includeIDasRecordSeparator 
-#' @param includeNAMEasRecordSeparator 
-#' @param includeTITLEasRecordSeparator 
-#' @param returnEmptySpectra 
-#'
-#' @returns ?
-#' @importFrom stringr str_split
-parseMSP_attributes <- function(fileSpectra, progress = FALSE, flexiblePeakList = FALSE, multiplePeaksPerLine = FALSE, includeIDasRecordSeparator=TRUE, includeNAMEasRecordSeparator=TRUE, includeTITLEasRecordSeparator=TRUE, returnEmptySpectra = FALSE){
-  fileLines <- readLines(con = fileSpectra)
-  
-  if(!is.na(progress))  if(progress)  incProgress(amount = 0, detail = "MS/MS file: Read file") else print("MS/MS file: Read file")
-  
-  numberOfFileLines <- length(fileLines)
-  
-  ## start with empty lines or not?
-  endOfRecord <- TRUE
-  if(numberOfFileLines > 0)
-    if(nchar(trimws(fileLines[[1]])) > 0)
-      endOfRecord <- FALSE
-  
-  ## check for pattern
-  if(!is.na(progress))  if(progress)  incProgress(amount = 0, detail = "MS/MS file: Parse") else print("MS/MS file: Parse")
-  isID  	<- grepl(pattern = "^ID:",                            		x = fileLines)
-  isBI  	<- grepl(pattern = "^BEGIN IONS$",                    		x = fileLines)
-  isName	<- grepl(pattern = "(^Name:)|(^NAME:)",               		x = fileLines)
-  isNAme	<- grepl(pattern = "^NAME=",                           		x = fileLines)
-  isTITLE	<- grepl(pattern = "^TITLE=",                          		x = fileLines)
-  isAccession	<- grepl(pattern = "^ACCESSION:",                          		x = fileLines)
-  
-  if(!includeIDasRecordSeparator) isID <- rep(x = F, times = length(isID))
-  if(!includeNAMEasRecordSeparator){
-    isName <- rep(x = F, times = length(isName))
-    isNAme <- rep(x = F, times = length(isNAme))
-  }
-  if(!includeTITLEasRecordSeparator) isTITLE <- rep(x = F, times = length(isTITLE))
-  
-  numberSmall <- "\\d+(\\.\\d+)?"
-  numberBig   <- "\\d+(\\.\\d+(E\\d+)?)?"
-  mzValueRegEx <- "(\\d+(\\.\\d+)?)"
-  intensityRegex <- "(\\d+((\\.\\d+)?([eE](-)?\\d+)?)?)"
-  annotationRegex <- "\".+\""
-  if(flexiblePeakList){
-    isPeak	<- grepl(pattern = "^[ \t]*\\d+(\\.\\d+([eE](-)?\\d+)?)?([ \t]\\d+(\\.\\d+([eE](-)?\\d+)?)?)*[ \t]*$",	x = fileLines)
-  } else {
-    isPeak	<- grepl(pattern = paste("^[ \t]*", mzValueRegEx, "[ \t]", intensityRegex, "([ \t]+((", mzValueRegEx, "[ \t]", intensityRegex, ")|(", annotationRegex, ")))*[ \t]*$", sep = ""),	x = fileLines)
-  }
-  isEmpty	<- nchar(trimws(fileLines)) == 0
-  
-  tagVector   <- unlist(lapply(X = str_split(string = fileLines, pattern = "(:)|(=)"), FUN = function(x){x[[1]]}))
-  valueVector <- trimws(substr(x = fileLines, start = nchar(tagVector) + 1 + 1, stop = nchar(fileLines)))
-  
-  ## entry line intervals in file
-  entryBorders   <- c(which(isName | isNAme | isTITLE | isBI | isID | isAccession), length(fileLines)+1)
-  entryIntervals <- matrix(data = unlist(lapply(X = seq_len(length(entryBorders) - 1), FUN = function(x){c(entryBorders[[x]], entryBorders[[x+1]] - 1)})), nrow=2)
-  
-  ## do it
-  if(!is.na(progress))  if(progress)  incProgress(amount = 0, detail = "MS/MS file: Assemble spectra") else print("MS/MS file: Assemble spectra")
-  spectraList <- apply(X = entryIntervals, MARGIN = 2, FUN = function(x){
-    #print(x)
-    fileLines2   <- fileLines  [x[[1]]:x[[2]]]
-    isPeak2	     <- isPeak	   [x[[1]]:x[[2]]]
-    isEmpty2     <- isEmpty    [x[[1]]:x[[2]]]
-    
-    tagVector2   <- tagVector  [x[[1]]:x[[2]]]
-    valueVector2 <- valueVector[x[[1]]:x[[2]]]
-    
-    ###################################################################
-    ## built ms set
-    spectrumItem <- list()
-    spectrumItem[tagVector2[!isPeak2 & !isEmpty2]] <- trimws(valueVector2[!isPeak2 & !isEmpty2])
-    
-    if(!is.null(spectrumItem$"Num Peaks"))
-      if(spectrumItem$"Num Peaks" == "0" & !returnEmptySpectra)
-        return(NULL)
-    
-    peakLines <- fileLines2[isPeak2]
-    peakLines <- trimws(gsub(x = peakLines, pattern = "\".*\"", replacement = ""))
-    
-    if(multiplePeaksPerLine){
-      peakLines <- unlist(strsplit(x = peakLines, split = "[ \t]"))
-    } else {
-      peakLines <- unlist(lapply(X = strsplit(x = peakLines, split = "[ \t]"), FUN = function(peaktokens){peaktokens[1:2]}))
-    }
-    spectrumItem["peaks"] <- paste(peakLines, collapse = " ")
-    spectrumItem["peaks"] <- trimws(gsub(x = spectrumItem["peaks"], pattern = "  ", replacement = " "))
-    
-    ## check peaks
-    tokens <- strsplit(x = spectrumItem[["peaks"]], split = "[ \t]")[[1]]
-    if(length(tokens) == 0){#spectrumItem$"Num Peaks" == "0"){
-      mzs  <- character(0)
-      ints <- character(0)
-      warning(paste(basename(fileSpectra), ": Empty peak list for [", paste(x, collapse = ","), "]", sep = ""))
-    } else {
-      mzs  <- tokens[seq(from=1, to=length(tokens), by = 2)]
-      ints <- tokens[seq(from=2, to=length(tokens), by = 2)]
-    }
-    if(length(mzs) != length(ints)) stop("error in parsing peaks")
-    
-    ## handle duplicated tags
-    duplicatedTags    <- unique(names(spectrumItem)[duplicated(names(spectrumItem))])
-    if(length(duplicatedTags) > 0){
-      duplicated <- sapply(X = duplicatedTags, FUN = function(x){
-        unlist(sapply(X = seq_along(spectrumItem), FUN = function(y){ if(names(spectrumItem[y])==x) return(y) }))
-      }, simplify = F)
-      
-      indecesToRemove <- vector(mode = "integer", length = 0)
-      for(idx in seq_along(duplicated)){
-        indeces <- duplicated[[idx]]
-        representant <- indeces[[1]]
-        indecesToRemoveHere <- indeces[-1]
-        
-        spectrumItem[[representant]] <- paste(spectrumItem[indeces], sep = "; ")
-        indecesToRemove <- c(indecesToRemove, indecesToRemoveHere)
-      }
-      spectrumItem <- spectrumItem[-indecesToRemove]
-    }
-    
-    return(spectrumItem)
-  })
-  
-  rm(
-    isName,
-    isNAme,
-    isTITLE,
-    isBI,
-    isID,
-    isPeak,
-    tagVector,
-    valueVector
-  )
-  
-  if(!is.na(progress))  if(progress)  incProgress(amount = 0.1, detail = "MS/MS file: Box") else print("MS/MS file: Box")
-  
-  ## remove NULL entries?
-  spectraList[unlist(lapply(X = spectraList, FUN = is.null))] <- NULL
-  
-  numberOfSpectra <- length(spectraList)
-  
-  ## postprocess
-  if(!is.na(progress))  if(progress)  incProgress(amount = 0.01, detail = paste("MS/MS file postprocessing", sep = "")) else print(paste("MS/MS file postprocessing", sep = ""))
-  
-  if(!is.na(progress))  if(progress)  incProgress(amount = 0.01, detail = paste("MS/MS file boxing", sep = "")) else print(paste("MS/MS file boxing", sep = ""))
-  returnObj <- list()
-  returnObj$fileSpectra <- fileSpectra
-  returnObj$spectraList <- spectraList
-  returnObj$numberOfSpectra <- numberOfSpectra
-  
-  return(returnObj)
-}
-
-
-
-
-
-####################################################################################
-## built matrix
 
 builtMatrix <- function(spectraList, 
                         mzDeviationAbsolute_grouping, 
@@ -1200,13 +793,13 @@ builtMatrix <- function(spectraList,
 #' Metabolomics June 2006, Volume 2, Issue 2, pp 75-83
 #' http://link.springer.com/article/10.1007%2Fs11306-006-0021-7
 #' 
-#' @param p 
-#' @param sampclass 
-#' @param mzppm 
-#' @param mzabs 
-#' @param minsamp 
-#' @param minfrac 
-#' @param progress 
+#' @param p ?
+#' @param sampclass sample class
+#' @param mzppm numeric
+#' @param mzabs numeric
+#' @param minsamp numeric
+#' @param minfrac numeric
+#' @param progress boolean
 #'
 #' @return ?
 #' @export
@@ -1433,19 +1026,29 @@ convertToProjectFile <- function(filePeakMatrixPath,
                                  fileSpectra,
                                  parameterSet, 
                                  progress = FALSE){
-  ####################################################################################
-  ## parse MS/MS spectra
+  ## parse MS/MS spectra ----
   
   if(!is.na(progress))  if(progress)  incProgress(amount = 0.01, detail = paste("Parsing MS/MS file...", sep = "")) else print(paste("Parsing MS/MS file...", sep = ""))
   
-  returnObj <- parseMSP(
+  ms2_ext <- tools::file_ext(fileSpectra) %>% tolower
+  
+  ms2_parse_fct <- if (ms2_ext == "mgf") {
+    parseMGF
+  } else {
+    parseMSP_rewrite
+  }
+  
+  returnObj <- ms2_parse_fct(
     fileSpectra = fileSpectra, 
     minimumIntensityOfMaximalMS2peak = parameterSet$minimumIntensityOfMaximalMS2peak, 
     minimumProportionOfMS2peaks = parameterSet$minimumProportionOfMS2peaks, 
     neutralLossesPrecursorToFragments = parameterSet$neutralLossesPrecursorToFragments,
     neutralLossesFragmentsToFragments = parameterSet$neutralLossesFragmentsToFragments,
+    min_frag_nb = parameterSet$minimumNumbersOfFragments,
+    min_intensity = parameterSet$minimumAbsoluteMS2peaks,
     progress = progress
   )
+  
   spectraList <- returnObj$spectraList
   numberOfSpectra <- returnObj$numberOfSpectra
   numberOfSpectraOriginal <- returnObj$numberOfSpectraOriginal
@@ -1468,8 +1071,25 @@ convertToProjectFile <- function(filePeakMatrixPath,
   
   rm(returnObj)
   
-  
-  filePeakMatrixQF <- readMSDial(filePeakMatrixPath)
+  filePeakMatrixQF <- if(is.null(filePeakMatrixPath)){
+    NULL
+    
+  } else {
+    
+    # check if MS-Dial or MetaboScape file (based on first line)
+    line1 <- readLines(filePeakMatrixPath, n = 1)
+    
+    if(stringr::str_starts(
+      line1, '\"FEATURE_ID\",\"RT\",\"PEPMASS\",\"CCS\"')) {
+      readMetaboscape(filePeakMatrixPath)
+      
+    } else if (stringr::str_starts(line1, '\t\t\t\t')) {
+      readMSDial(filePeakMatrixPath)
+      
+    } else {
+      stop("MS1 file format unclear")
+    }
+  }
 
   returnObj <- convertToProjectFile2(
     filePeakMatrixQF = filePeakMatrixQF, 
@@ -1491,6 +1111,21 @@ convertToProjectFile <- function(filePeakMatrixPath,
   return(returnObj)
 }
 
+#' Convert part 2
+#'
+#' @param filePeakMatrixQF Qfeatures object
+#' @param spectraList 
+#' @param precursorMz 
+#' @param precursorRt 
+#' @param metaboliteFamilies 
+#' @param uniqueMetaboliteFamilies 
+#' @param metaboliteFamilyColors 
+#' @param furtherProperties gp: seems deprecated
+#' @param parameterSet 
+#' @param progress boolean
+#'
+#' @returns resultObj
+#' @noRd
 convertToProjectFile2 <- function(filePeakMatrixQF, 
                                   spectraList, 
                                   precursorMz, 
@@ -1504,8 +1139,7 @@ convertToProjectFile2 <- function(filePeakMatrixQF,
 {
   numberOfSpectraParsed <- length(spectraList)
   
-  ####################################################################################
-  ## metabolite profile
+  ## metabolite profile ----
   if(!is.na(progress))  if(progress)  incProgress(amount = 0.1, detail = paste("Parsing MS1 file...", sep = "")) else print(paste("Parsing MS1 file...", sep = ""))
   
   if(!is.null(filePeakMatrixQF)){
@@ -1606,8 +1240,7 @@ convertToProjectFile2 <- function(filePeakMatrixQF,
   }
   numberOfPrecursors <- numberOfPrecursors - numberOfDupplicated
   
-  ####################################################################################
-  ## map MS1 and MS/MS to each other
+  ## map MS1 and MS/MS to each other ----
   
   if(!is.na(progress))  if(progress)  incProgress(amount = 0.1, detail = "Postprocessing matrix...") else print("Postprocessing matrix...")
   
@@ -1624,6 +1257,8 @@ convertToProjectFile2 <- function(filePeakMatrixQF,
   #temporary fix
   #filePeakMatrix <- NULL
   
+  # TODO gp: better match MS1 to MS2 based on mz AND rt, or use feature_ID
+  
   if(!is.null(filePeakMatrixQF)){
     ## allHits: dataFrame$"Average Mz" --> precursorMz; allHits indexes the spectraList
     diffAll <- abs(outer(X = precursorMz, Y = dataFrame$"Average Mz", FUN = function(x, y){abs(x-y)}))
@@ -1632,28 +1267,31 @@ convertToProjectFile2 <- function(filePeakMatrixQF,
   } else {
     allHits <- lapply(X = dataFrame$"Average Mz", FUN = function(x){which(precursorMz == x)})
   }
-  if(is.array(allHits))
+  if(is.array(allHits)) {
     allHits <- as.list(as.data.frame(allHits))
+  }
   
   numberOfUnmappedPrecursorsMz <- 0
   numberOfUnmappedPrecursorsRt <- 0
   
-  for(i in seq_len(numberOfPrecursors)){
+  for(i in seq_len(numberOfPrecursors)) {
     numberOfItems <- length(allHits[[i]])
-    if(numberOfItems == 1)
-      if(is.na(allHits[[i]]))
+    if(numberOfItems == 1) {
+      if(is.na(allHits[[i]])) {
         numberOfItems <- 0
+      }
+    }
     
-    if(numberOfItems == 0){    ## no hit
+    if(numberOfItems == 0) {    ## no hit
       allHits[[i]] <- NA
       numberOfUnmappedPrecursorsMz <- numberOfUnmappedPrecursorsMz + 1
-    }
-    else{    ## take hit with minimum absolute RT difference
+    } else {    ## take hit with minimum absolute RT difference
       absoluteDifferences <- abs(dataFrame$"Average Rt(min)"[i] - precursorRt[allHits[[i]]])
       bestIdx <- which.min(absoluteDifferences)
-      if(length(bestIdx) > 1)
+      if (length(bestIdx) > 1) {
         bestIdx <- bestIdx[[1]]
-      if(absoluteDifferences[[bestIdx]] <= parameterSet$maximumRtDifference){
+      }
+      if(absoluteDifferences[[bestIdx]] <= parameterSet$maximumRtDifference) {
         allHits[[i]] <- allHits[[i]][[bestIdx]]
       } else {
         allHits[[i]] <- NA
@@ -1679,8 +1317,7 @@ convertToProjectFile2 <- function(filePeakMatrixQF,
   numberOfPrecursors <- length(precursorMzAll)
   numberOfUnmappedPrecursors <- sum(naRows)
   
-  ####################################################################################
-  ## built matrix
+  ## built matrix ----
   
   if(!is.na(progress))  if(progress)  incProgress(amount = 0.01, detail = paste("Building fragment mzFragmentGroups...", sep = "")) else print(paste("Building fragment mzFragmentGroups...", sep = ""))
   if(isGC){
@@ -1712,8 +1349,7 @@ convertToProjectFile2 <- function(filePeakMatrixQF,
   
   rm(returnObj)
   
-  ########################################
-  ## filter empty fragment mzFragmentGroups
+  ## filter empty fragment mzFragmentGroups ----
   numberOfFragments <- length(fragmentMasses)
   fragmentGroupNonEmpty <- vector(mode = "logical", length = numberOfFragments)
   for(colIdx in seq_len(numberOfFragments))
@@ -1722,16 +1358,14 @@ convertToProjectFile2 <- function(filePeakMatrixQF,
   fragmentMasses <- fragmentMasses[fragmentGroupNonEmpty]
   numberOfFragments <- length(fragmentMasses)
   
-  ########################################
-  ## filter small fragment masses
+  ## filter small fragment masses ----
   minimumFragmentMass <- 5
   tmp <- abs(fragmentMasses) < minimumFragmentMass
   fragmentMasses <- fragmentMasses[!tmp]
   matrix     <- matrix[, !tmp]
   numberOfMS2PeakGroupsAll <- ncol(matrix)
   
-  ########################################
-  ## convert sparse matrix to three-vector format
+  ## convert sparse matrix to three-vector format ----
   dgTMatrix <- as(matrix, "dgTMatrix")
   rm(matrix)
   gc()
@@ -1748,8 +1382,7 @@ convertToProjectFile2 <- function(filePeakMatrixQF,
   
   numberOfItems <- length(matrixRows)
   
-  ########################################
-  ## first fragments, then neutral losses
+  ## first fragments, then neutral losses ----
   colIdx <- min(which(fragmentMasses > 0))
   numberOfColumns <- length(fragmentMasses)
   
@@ -1762,8 +1395,7 @@ convertToProjectFile2 <- function(filePeakMatrixQF,
   numberOfAnnotationColumns <- ncol(dataFrame)
   rowOrder <- order(precursorMzAll)
   
-  ####################################################################################
-  ## matrix assembly with additional columns and column head
+  ## matrix assembly with additional columns and column head ----
   
   if(!is.na(progress))  if(progress)  incProgress(amount = 0.1, detail = "Boxing...") else print("Boxing...")
   
@@ -1787,8 +1419,7 @@ convertToProjectFile2 <- function(filePeakMatrixQF,
   columnOffset <- numberOfPrimaryAnnotationColumns + numberOfAnnotationColumns# + length(furtherPropertiesAll)
   matrixCols <- matrixCols + columnOffset
   
-  ######################################
-  ## additional columns
+  ## additional columns ----
   
   ## precursor m/z
   matrixRows <- c(matrixRows, seq_len(numberOfRows))
@@ -1818,12 +1449,10 @@ convertToProjectFile2 <- function(filePeakMatrixQF,
     rowOrderReverse[[i]] <- which(rowOrder == i)
   matrixRows <- rowOrderReverse[matrixRows]
   
-  ######################################
-  ## additional rows
+  ## additional rows ----
   numberOfColumns <- numberOfFragments + columnOffset
   
-  ##################
-  ## additional row: head
+  ## additional row: head ----
   headRow <- c("m/z", "RT", "Annotation", names(dataFrame)[seq_len(numberOfAnnotationColumns)], fragmentMasses)
   matrixRows <- matrixRows + 1
   
@@ -1831,8 +1460,7 @@ convertToProjectFile2 <- function(filePeakMatrixQF,
   matrixCols <- c(matrixCols, seq_len(numberOfColumns))
   matrixVals <- c(matrixVals, headRow)
   
-  ##################
-  ## additional row: average fragment intensity
+  ## additional row: average fragment intensity ----
   intensityRow <- c(rep(x = "", times = numberOfPrimaryAnnotationColumns + numberOfAnnotationColumns), meanIntensity)
   
   matrixRows <- matrixRows + 1
@@ -1861,8 +1489,7 @@ convertToProjectFile2 <- function(filePeakMatrixQF,
   matrixCols <- c(matrixCols, 1, 2, 3, dataColumns)
   matrixVals <- c(matrixVals, "ID", "ID", annotationColorsFieldValue, groupLabels)
   
-  ##################
-  ## additional row: number of present fragment entries
+  ## additional row: number of present fragment entries ----
   fragmentCountRow <- c(rep(x = "", times = numberOfPrimaryAnnotationColumns + numberOfAnnotationColumns), fragmentCount)
   
   matrixRows <- matrixRows + 1
@@ -1871,8 +1498,7 @@ convertToProjectFile2 <- function(filePeakMatrixQF,
   matrixCols <- c(matrixCols, seq_len(numberOfColumns))
   matrixVals <- c(matrixVals, fragmentCountRow)
   
-  ##################
-  ## return
+  ## return ----
   resultObj <- list(
     matrixRows = as.numeric(unlist(matrixRows)),
     matrixCols = as.numeric(unlist(matrixCols)),
@@ -1891,4 +1517,451 @@ convertToProjectFile2 <- function(filePeakMatrixQF,
   
   if(!is.na(progress))  if(progress)  setProgress(1) else print("Ready")
   return(resultObj)
+}
+
+
+
+
+
+# Deprecated functions ----------------------------------------------------
+
+
+#' Parse peak abundance matrix
+#'
+#' `r lifecycle::badge("superseded")`
+#' Superseded 2025-04 by [parsePeakAbundanceMatrixQF()] to
+#' incorporate Qfeatures.
+#'
+#' @param filePeakMatrix character file path
+#' @param doPrecursorDeisotoping boolean
+#' @param mzDeviationInPPM_precursorDeisotoping numeric
+#' @param mzDeviationAbsolute_precursorDeisotoping numeric
+#' @param maximumRtDifference numeric
+#' @param progress boolean
+#'
+#' @returns resultObj
+#' @noRd
+parsePeakAbundanceMatrix <- function(filePeakMatrix, 
+                                     doPrecursorDeisotoping, 
+                                     mzDeviationInPPM_precursorDeisotoping, 
+                                     mzDeviationAbsolute_precursorDeisotoping, 
+                                     maximumRtDifference, 
+                                     progress=FALSE)
+{
+  ## read file
+  if(!is.na(progress))  if(progress)  incProgress(amount = 0.1, detail = paste("Parsing MS1 file content...", sep = "")) else print(paste("Parsing MS1 file content...", sep = ""))
+  
+  dataFrameAll <- read.table(filePeakMatrix, header=FALSE, sep = "\t", as.is=TRUE, quote = "\"", check.names = FALSE, comment.char = "")
+  dataFrameAll1 <- read.table(filePeakMatrix, header=TRUE, sep = "\t", as.is=TRUE, quote = "\"", check.names = FALSE, comment.char = "")
+  
+  oldFormat <- max(which(dataFrameAll[1:5, 1] == "")) == 3
+  header_rowNumber <- ifelse(test = oldFormat, yes = 4, no = 5)
+  dataFrameHeader <- dataFrameAll[1:header_rowNumber, ]
+  
+  `%notin%` <- Negate(`%in%`)
+  TR<- c("Reference RT","Reference m/z","Comment",
+         "Manually modified for quantification",
+         "Total score","RT similarity","Average","Stdev")
+  IN2<-which(unname(dataFrameHeader[4,]) %notin% TR)
+  dataFrameHeader1 <-dataFrameHeader[IN2]
+  
+  dataFrame <- dataFrameAll[(header_rowNumber + 1):nrow(dataFrameAll), ]
+  dataFrame1 <- dataFrame[IN2]
+  
+  colnames(dataFrame) <- dataFrameHeader[header_rowNumber, ]
+  colnames(dataFrame1) <- dataFrameHeader1[header_rowNumber, ]
+  
+  numberOfPrecursors <- nrow(dataFrame1)
+  numberOfPrecursorsPrior <- numberOfPrecursors
+  
+  columnIndexEndOfAnnotation <- max(match(x = "Class", 
+                                          table = dataFrameHeader1[1, ]), 
+                                    na.rm = TRUE)
+  
+  if(ncol(dataFrame1) > columnIndexEndOfAnnotation) {
+    dataColumnStartEndIndeces <- c(columnIndexEndOfAnnotation + 1, ncol(dataFrame1))
+    numberOfDataColumns <- dataColumnStartEndIndeces[[2]] - dataColumnStartEndIndeces[[1]] + 1
+    dataColumnNames <- colnames(dataFrame1)[dataColumnStartEndIndeces[[1]]:dataColumnStartEndIndeces[[2]]]
+    
+    sampleClass          <- dataFrameHeader1[1, (columnIndexEndOfAnnotation + 1):ncol(dataFrameHeader1)]
+    sampleType           <- dataFrameHeader1[2, (columnIndexEndOfAnnotation + 1):ncol(dataFrameHeader1)]
+    sampleInjectionOrder <- dataFrameHeader1[3, (columnIndexEndOfAnnotation + 1):ncol(dataFrameHeader1)]
+    batchID              <- NULL
+    if(!oldFormat) {
+      batchID            <- dataFrameHeader1[4, (columnIndexEndOfAnnotation + 1):ncol(dataFrameHeader1)]
+    }
+  } else {
+    dataColumnStartEndIndeces <- NULL
+    numberOfDataColumns <- 0
+    dataColumnNames <- NULL
+    
+    sampleClass          <- NULL
+    sampleType           <- NULL
+    sampleInjectionOrder <- NULL
+    batchID              <- NULL
+  }
+  
+  commaNumbers <- sum(grepl(x = dataFrame1$"Average Mz", pattern = "^(\\d+,\\d+$)|(^\\d+$)"))
+  decimalSeparatorIsComma <- commaNumbers == nrow(dataFrame1)
+  if(decimalSeparatorIsComma){
+    if(!is.null(dataFrame1$"Average Rt(min)"))     dataFrame1$"Average Rt(min)"     <- gsub(x = gsub(x = dataFrame1$"Average Rt(min)", pattern = "\\.", replacement = ""), pattern = ",", replacement = ".")
+    if(!is.null(dataFrame1$"Average Mz"))          dataFrame1$"Average Mz"          <- gsub(x = gsub(x = dataFrame1$"Average Mz", pattern = "\\.", replacement = ""), pattern = ",", replacement = ".")
+    if(!is.null(dataFrame1$"Fill %"))              dataFrame1$"Fill %"              <- gsub(x = gsub(x = dataFrame1$"Fill %", pattern = "\\.", replacement = ""), pattern = ",", replacement = ".")
+    if(!is.null(dataFrame1$"Dot product"))         dataFrame1$"Dot product"         <- gsub(x = gsub(x = dataFrame1$"Dot product", pattern = "\\.", replacement = ""), pattern = ",", replacement = ".")
+    if(!is.null(dataFrame1$"Reverse dot product")) dataFrame1$"Reverse dot product" <- gsub(x = gsub(x = dataFrame1$"Reverse dot product", pattern = "\\.", replacement = ""), pattern = ",", replacement = ".")
+    if(!is.null(dataFrame1$"Fragment presence %")) dataFrame1$"Fragment presence %" <- gsub(x = gsub(x = dataFrame1$"Fragment presence %", pattern = "\\.", replacement = ""), pattern = ",", replacement = ".")
+    
+    ## replace -1 by 0
+    if(numberOfDataColumns > 0) {
+      for(colIdx in dataColumnStartEndIndeces[[1]]:dataColumnStartEndIndeces[[2]]){
+        dataFrame1[ , colIdx] <- gsub(x = gsub(x = dataFrame1[ , colIdx], pattern = "\\.", replacement = ""), pattern = ",", replacement = ".")
+      }
+    }
+  }
+  
+  ## column formats ----
+  if(!is.null(dataFrame1$"Average Rt(min)"))     dataFrame1$"Average Rt(min)"     <- as.numeric(dataFrame1$"Average Rt(min)")
+  if(!is.null(dataFrame1$"Average Mz"))          dataFrame1$"Average Mz"          <- as.numeric(dataFrame1$"Average Mz")
+  if(!is.null(dataFrame1$"Fill %"))              dataFrame1$"Fill %"              <- as.numeric(dataFrame1$"Fill %")
+  if(!is.null(dataFrame1$"MS/MS included"))      dataFrame1$"MS/MS included"      <- as.logical(dataFrame1$"MS/MS included")
+  if(!is.null(dataFrame1$"Dot product"))         dataFrame1$"Dot product"         <- as.numeric(dataFrame1$"Dot product")
+  if(!is.null(dataFrame1$"Reverse dot product")) dataFrame1$"Reverse dot product" <- as.numeric(dataFrame1$"Reverse dot product")
+  if(!is.null(dataFrame1$"Fragment presence %")) dataFrame1$"Fragment presence %" <- as.numeric(dataFrame1$"Fragment presence %")
+  
+  ## sorted by m/z (needed for deisotoping) ----
+  if(!is.null(dataFrame1$"Average Mz")) {
+    dataFrame1 <- dataFrame1[order(dataFrame1$"Average Mz"), ]
+  }
+  
+  ## replace -1 by 0
+  if(numberOfDataColumns > 0){
+    for(colIdx in dataColumnStartEndIndeces[[1]]:dataColumnStartEndIndeces[[2]]){
+      dataFrame1[ , colIdx] <- as.numeric(dataFrame1[ , colIdx])
+      if(!is.na(sum(dataFrame1[,colIdx] == -1))) {
+        dataFrame1[(dataFrame1[,colIdx] == -1),colIdx] <- 0
+      }
+    }
+  }
+  
+  ## deisotoping
+  numberOfRemovedIsotopePeaks <- 0
+  if(doPrecursorDeisotoping & !is.null(dataFrame1$"Average Mz")){
+    if(!is.na(progress))  if(progress)  incProgress(amount = 0, detail = paste("Precursor deisotoping...", sep = "")) else print(paste("Precursor deisotoping...", sep = ""))
+    distance13Cminus12C <- 1.0033548378
+    
+    ## mark isotope precursors
+    precursorsToRemove <- vector(mode = "logical", length = numberOfPrecursors)
+    
+    if(numberOfDataColumns > 0){
+      intensities <- dataFrame1[ , dataColumnStartEndIndeces[[1]]:dataColumnStartEndIndeces[[2]]]
+      medians <- apply(X = as.matrix(intensities), MARGIN = 1, FUN = median)
+    }
+    
+    for(precursorIdx in seq_len(numberOfPrecursors)){
+      if((precursorIdx %% (as.integer(numberOfPrecursors/10))) == 0)
+        if(!is.na(progress))  if(progress)  incProgress(amount = 0.0, detail = paste("Precursor deisotoping ", precursorIdx, " / ", numberOfPrecursors, sep = "")) else print(paste("Precursor deisotoping ", precursorIdx, " / ", numberOfPrecursors, sep = ""))
+      
+      mzError <- dataFrame1$"Average Mz"[[precursorIdx]] * mzDeviationInPPM_precursorDeisotoping / 1000000
+      mzError <- max(mzError, mzDeviationAbsolute_precursorDeisotoping)
+      
+      ## RT difference <= maximumRtDifference
+      validPrecursorsInRt <- abs(dataFrame1$"Average Rt(min)"[[precursorIdx]] - dataFrame1$"Average Rt(min)"[-precursorIdx]) <= maximumRtDifference
+      
+      ## MZ difference around 1.0033548378 (first isotope) or 1.0033548378 * 2 (second isotope)
+      validPrecursorsInMz1 <- abs((dataFrame1$"Average Mz"[[precursorIdx]] - distance13Cminus12C * 1) - dataFrame1$"Average Mz"[-precursorIdx]) <= mzError
+      validPrecursorsInMz2 <- abs((dataFrame1$"Average Mz"[[precursorIdx]] - distance13Cminus12C * 2) - dataFrame1$"Average Mz"[-precursorIdx]) <= mzError
+      validPrecursorsInMz <- validPrecursorsInMz1 | validPrecursorsInMz2
+      
+      ## intensity gets smaller in the isotope spectrum
+      if(numberOfDataColumns > 0){
+        validPrecursorsInIntensity <- (medians[-precursorIdx] - medians[[precursorIdx]]) > 0
+      } else {
+        validPrecursorsInIntensity <- TRUE
+      }
+      
+      if(any(validPrecursorsInRt & validPrecursorsInMz & validPrecursorsInIntensity)) {
+        precursorsToRemove[[precursorIdx]] <- TRUE
+      }
+    }
+    
+    ## remove isotopes
+    dataFrame1 <- dataFrame1[!precursorsToRemove, ]
+    
+    numberOfRemovedIsotopePeaks <- sum(precursorsToRemove)
+    numberOfPrecursors <- nrow(dataFrame1)
+  }
+  
+  if(!is.na(progress))  if(progress)  incProgress(amount = 0, detail = paste("Boxing...", sep = "")) else print(paste("Boxing...", sep = ""))
+  returnObj <- list()
+  returnObj$dataFrame1 <- dataFrame1
+  
+  ## meta
+  returnObj$oldFormat <- oldFormat
+  returnObj$numberOfPrecursors <- numberOfPrecursors
+  returnObj$dataColumnStartEndIndeces <- dataColumnStartEndIndeces
+  returnObj$numberOfDataColumns <- numberOfDataColumns
+  
+  ## group anno
+  returnObj$sampleClass          <- sampleClass
+  returnObj$sampleType           <- sampleType
+  returnObj$sampleInjectionOrder <- sampleInjectionOrder
+  returnObj$batchID              <- batchID
+  
+  ## misc
+  returnObj$numberOfPrecursorsPrior <- numberOfPrecursorsPrior
+  returnObj$numberOfRemovedIsotopePeaks <- numberOfRemovedIsotopePeaks
+  
+  return (returnObj)
+}
+
+
+#' parseMSP_big
+#'
+#' Deprecated 2005-08
+#'
+#' Was not used anywhere. It was likely created as an alternative to
+#' `parseMSP()` to deal with very large MSP files that would take too much
+#' memory, although the output does not match.
+#'
+#' @noRd
+parseMSP_big <- function(fileSpectra, 
+                         minimumIntensityOfMaximalMS2peak, 
+                         minimumProportionOfMS2peaks, 
+                         neutralLossesPrecursorToFragments, 
+                         neutralLossesFragmentsToFragments, 
+                         progress = FALSE){
+  if(progress)  incProgress(amount = 0, detail = "MS/MS file: Read file") else print("MS/MS file: Read file")
+  
+  fileLines <- readLines(con = fileSpectra)
+  
+  if(progress)  incProgress(amount = 0, detail = "Decompose file to chunks") else print("Decompose file to chunks")
+  ## entry lines in file
+  isName	    <- grepl(pattern = "^Name:",			 x = fileLines)
+  isNAME      <- grepl(pattern = "^NAME:",			 x = fileLines)
+  isBeginIons	<- grepl(pattern = "^BEGIN IONS$", x = fileLines)
+  
+  ## entry line intervals in file
+  entryBorders   <- c(which(isName | isNAME | isBeginIons), length(fileLines)+1)
+  entryIntervals <- matrix(data = unlist(lapply(X = seq_len(length(entryBorders) - 1), FUN = function(x){c(entryBorders[[x]], entryBorders[[x+1]] - 1)})), nrow=2)
+  
+  rm(isName, isNAME, isBeginIons)
+  
+  ## split in chunks
+  maximumNumberOfLinesPerChunk <- as.integer(1E6)
+  fileLineChunks <- list()
+  while(length(fileLines) > 0){
+    numberOfEntries <- max(which(entryIntervals[2, ] <= maximumNumberOfLinesPerChunk))
+    numberOfFileLinesInChunk <- entryIntervals[2, numberOfEntries]
+    
+    fileLinesInChunk <- fileLines[1:numberOfFileLinesInChunk]
+    fileLineChunks[[length(fileLineChunks) + 1]] <- fileLinesInChunk
+    
+    ## remaining stuff
+    fileLines      <- fileLines[-(1:numberOfFileLinesInChunk)]
+    entryIntervals <- entryIntervals[, -(1:numberOfEntries)]
+    if(ncol(entryIntervals) > 0)
+      entryIntervals <- entryIntervals - min(entryIntervals) + 1
+  }
+  
+  numberOfChunks <- length(fileLineChunks)
+  fileLineCountOfChunks  <- unlist(lapply(X = fileLineChunks, FUN = length))
+  fileLineOffsetOfChunks <- c(0, sapply(X = seq_along(fileLineCountOfChunks)[-1], FUN = function(x){sum(fileLineCountOfChunks[1:(x-1)])}))
+  
+  if(progress)  incProgress(amount = 0, detail = paste("Parse", numberOfChunks, "chunks")) else print(paste("Parse", numberOfChunks, "chunks"))
+  ## merge chunks
+  returnObj <- list()
+  returnObj$fileSpectra <- fileSpectra
+  returnObj$spectraList <- list()
+  returnObj$numberOfSpectra <- 0
+  returnObj$numberOfMS2PeaksOriginal <- 0
+  returnObj$numberOfMS2PeaksWithNeutralLosses <- 0
+  returnObj$numberOfMS2PeaksAboveThreshold <- 0
+  returnObj$numberOfMS2PeaksBelowThreshold <- 0
+  returnObj$precursorMz <- vector(mode = "numeric")
+  returnObj$precursorRt <- vector(mode = "numeric")
+  
+  for(chunkIdx in seq_len(numberOfChunks)){
+    if(progress)  incProgress(amount = 0, detail = paste("Chunk", chunkIdx, "/", numberOfChunks)) else print(paste("Chunk", chunkIdx, "/", numberOfChunks))
+    
+    fileLines  <- fileLineChunks[[1]]
+    fileLineChunks[[1]] <- NULL
+    
+    returnObj2 <- parseMSP_chunk(
+      fileLines = fileLines, 
+      minimumIntensityOfMaximalMS2peak = minimumIntensityOfMaximalMS2peak, 
+      minimumProportionOfMS2peaks = minimumProportionOfMS2peaks, 
+      neutralLossesPrecursorToFragments = neutralLossesPrecursorToFragments, 
+      neutralLossesFragmentsToFragments = neutralLossesFragmentsToFragments, 
+      offset = fileLineOffsetOfChunks[[chunkIdx]], progress = NA
+    )
+    
+    returnObj$spectraList                       <- c(returnObj$spectraList,                        returnObj2$spectraList)
+    returnObj$numberOfSpectra                   <-   returnObj$numberOfSpectra                   + returnObj2$numberOfSpectra
+    returnObj$numberOfSpectraOriginal           <-   returnObj$numberOfSpectraOriginal           + returnObj2$numberOfSpectraOriginal
+    returnObj$numberOfMS2PeaksOriginal          <-   returnObj$numberOfMS2PeaksOriginal          + returnObj2$numberOfMS2PeaksOriginal
+    returnObj$numberOfMS2PeaksWithNeutralLosses <-   returnObj$numberOfMS2PeaksWithNeutralLosses + returnObj2$numberOfMS2PeaksWithNeutralLosses
+    returnObj$numberOfMS2PeaksAboveThreshold    <-   returnObj$numberOfMS2PeaksAboveThreshold    + returnObj2$numberOfMS2PeaksAboveThreshold
+    returnObj$numberOfMS2PeaksBelowThreshold    <-   returnObj$numberOfMS2PeaksBelowThreshold    + returnObj2$numberOfMS2PeaksBelowThreshold
+    returnObj$numberOfTooHeavyFragments         <-   returnObj$numberOfTooHeavyFragments         + returnObj2$numberOfTooHeavyFragments
+    returnObj$numberOfSpectraDiscardedDueToNoPeaks      <-   returnObj$numberOfSpectraDiscardedDueToNoPeaks      + returnObj2$numberOfSpectraDiscardedDueToNoPeaks
+    returnObj$numberOfSpectraDiscardedDueToMaxIntensity <-   returnObj$numberOfSpectraDiscardedDueToMaxIntensity + returnObj2$numberOfSpectraDiscardedDueToMaxIntensity
+    returnObj$numberOfSpectraDiscardedDueToTooHeavy     <-   returnObj$numberOfSpectraDiscardedDueToTooHeavy     + returnObj2$numberOfSpectraDiscardedDueToTooHeavy
+    returnObj$precursorMz                       <- c(returnObj$precursorMz,                        returnObj2$precursorMz)
+    returnObj$precursorRt                       <- c(returnObj$precursorRt,                        returnObj2$precursorRt)
+  }
+  
+  return(returnObj)
+}
+
+
+
+#' parseMSP_attributes
+#'
+#' Deprecated 2025-08
+#' 
+#' Was not used anywhere.
+#'
+#' @noRd
+parseMSP_attributes <- function(fileSpectra, progress = FALSE, flexiblePeakList = FALSE, multiplePeaksPerLine = FALSE, includeIDasRecordSeparator=TRUE, includeNAMEasRecordSeparator=TRUE, includeTITLEasRecordSeparator=TRUE, returnEmptySpectra = FALSE){
+  fileLines <- readLines(con = fileSpectra)
+  
+  if(!is.na(progress))  if(progress)  incProgress(amount = 0, detail = "MS/MS file: Read file") else print("MS/MS file: Read file")
+  
+  numberOfFileLines <- length(fileLines)
+  
+  ## start with empty lines or not?
+  endOfRecord <- TRUE
+  if(numberOfFileLines > 0) {
+    if(nchar(trimws(fileLines[[1]])) > 0) {
+      endOfRecord <- FALSE
+    }
+  }
+  
+  ## check for pattern
+  if(!is.na(progress))  if(progress)  incProgress(amount = 0, detail = "MS/MS file: Parse") else print("MS/MS file: Parse")
+  isID  	<- grepl(pattern = "^ID:",                            		x = fileLines)
+  isBI  	<- grepl(pattern = "^BEGIN IONS$",                    		x = fileLines)
+  isName	<- grepl(pattern = "(^Name:)|(^NAME:)",               		x = fileLines)
+  isNAme	<- grepl(pattern = "^NAME=",                           		x = fileLines)
+  isTITLE	<- grepl(pattern = "^TITLE=",                          		x = fileLines)
+  isAccession	<- grepl(pattern = "^ACCESSION:",                          		x = fileLines)
+  
+  if(!includeIDasRecordSeparator) isID <- rep(x = F, times = length(isID))
+  if(!includeNAMEasRecordSeparator){
+    isName <- rep(x = F, times = length(isName))
+    isNAme <- rep(x = F, times = length(isNAme))
+  }
+  if(!includeTITLEasRecordSeparator) isTITLE <- rep(x = F, times = length(isTITLE))
+  
+  numberSmall <- "\\d+(\\.\\d+)?"
+  numberBig   <- "\\d+(\\.\\d+(E\\d+)?)?"
+  mzValueRegEx <- "(\\d+(\\.\\d+)?)"
+  intensityRegex <- "(\\d+((\\.\\d+)?([eE](-)?\\d+)?)?)"
+  annotationRegex <- "\".+\""
+  if(flexiblePeakList){
+    isPeak	<- grepl(pattern = "^[ \t]*\\d+(\\.\\d+([eE](-)?\\d+)?)?([ \t]\\d+(\\.\\d+([eE](-)?\\d+)?)?)*[ \t]*$",	x = fileLines)
+  } else {
+    isPeak	<- grepl(pattern = paste("^[ \t]*", mzValueRegEx, "[ \t]", intensityRegex, "([ \t]+((", mzValueRegEx, "[ \t]", intensityRegex, ")|(", annotationRegex, ")))*[ \t]*$", sep = ""),	x = fileLines)
+  }
+  isEmpty	<- nchar(trimws(fileLines)) == 0
+  
+  tagVector   <- unlist(lapply(X = str_split(string = fileLines, pattern = "(:)|(=)"), FUN = function(x){x[[1]]}))
+  valueVector <- trimws(substr(x = fileLines, start = nchar(tagVector) + 1 + 1, stop = nchar(fileLines)))
+  
+  ## entry line intervals in file
+  entryBorders   <- c(which(isName | isNAme | isTITLE | isBI | isID | isAccession), length(fileLines)+1)
+  entryIntervals <- matrix(data = unlist(lapply(X = seq_len(length(entryBorders) - 1), FUN = function(x){c(entryBorders[[x]], entryBorders[[x+1]] - 1)})), nrow=2)
+  
+  ## do it
+  if(!is.na(progress))  if(progress)  incProgress(amount = 0, detail = "MS/MS file: Assemble spectra") else print("MS/MS file: Assemble spectra")
+  spectraList <- apply(X = entryIntervals, MARGIN = 2, FUN = function(x){
+    #print(x)
+    fileLines2   <- fileLines  [x[[1]]:x[[2]]]
+    isPeak2	     <- isPeak	   [x[[1]]:x[[2]]]
+    isEmpty2     <- isEmpty    [x[[1]]:x[[2]]]
+    
+    tagVector2   <- tagVector  [x[[1]]:x[[2]]]
+    valueVector2 <- valueVector[x[[1]]:x[[2]]]
+    
+    ## built ms set
+    spectrumItem <- list()
+    spectrumItem[tagVector2[!isPeak2 & !isEmpty2]] <- trimws(valueVector2[!isPeak2 & !isEmpty2])
+    
+    if(!is.null(spectrumItem$"Num Peaks"))
+      if(spectrumItem$"Num Peaks" == "0" & !returnEmptySpectra)
+        return(NULL)
+    
+    peakLines <- fileLines2[isPeak2]
+    peakLines <- trimws(gsub(x = peakLines, pattern = "\".*\"", replacement = ""))
+    
+    if(multiplePeaksPerLine){
+      peakLines <- unlist(strsplit(x = peakLines, split = "[ \t]"))
+    } else {
+      peakLines <- unlist(lapply(X = strsplit(x = peakLines, split = "[ \t]"), FUN = function(peaktokens){peaktokens[1:2]}))
+    }
+    spectrumItem["peaks"] <- paste(peakLines, collapse = " ")
+    spectrumItem["peaks"] <- trimws(gsub(x = spectrumItem["peaks"], pattern = "  ", replacement = " "))
+    
+    ## check peaks
+    tokens <- strsplit(x = spectrumItem[["peaks"]], split = "[ \t]")[[1]]
+    if(length(tokens) == 0){#spectrumItem$"Num Peaks" == "0"){
+      mzs  <- character(0)
+      ints <- character(0)
+      warning(paste(basename(fileSpectra), ": Empty peak list for [", paste(x, collapse = ","), "]", sep = ""))
+    } else {
+      mzs  <- tokens[seq(from=1, to=length(tokens), by = 2)]
+      ints <- tokens[seq(from=2, to=length(tokens), by = 2)]
+    }
+    if(length(mzs) != length(ints)) stop("error in parsing peaks")
+    
+    ## handle duplicated tags
+    duplicatedTags    <- unique(names(spectrumItem)[duplicated(names(spectrumItem))])
+    if(length(duplicatedTags) > 0){
+      duplicated <- sapply(X = duplicatedTags, FUN = function(x){
+        unlist(sapply(X = seq_along(spectrumItem), FUN = function(y){ if(names(spectrumItem[y])==x) return(y) }))
+      }, simplify = F)
+      
+      indecesToRemove <- vector(mode = "integer", length = 0)
+      for(idx in seq_along(duplicated)){
+        indeces <- duplicated[[idx]]
+        representant <- indeces[[1]]
+        indecesToRemoveHere <- indeces[-1]
+        
+        spectrumItem[[representant]] <- paste(spectrumItem[indeces], sep = "; ")
+        indecesToRemove <- c(indecesToRemove, indecesToRemoveHere)
+      }
+      spectrumItem <- spectrumItem[-indecesToRemove]
+    }
+    
+    return(spectrumItem)
+  })
+  
+  rm(
+    isName,
+    isNAme,
+    isTITLE,
+    isBI,
+    isID,
+    isPeak,
+    tagVector,
+    valueVector
+  )
+  
+  if(!is.na(progress))  if(progress)  incProgress(amount = 0.1, detail = "MS/MS file: Box") else print("MS/MS file: Box")
+  
+  ## remove NULL entries?
+  spectraList[unlist(lapply(X = spectraList, FUN = is.null))] <- NULL
+  
+  numberOfSpectra <- length(spectraList)
+  
+  ## postprocess
+  if(!is.na(progress))  if(progress)  incProgress(amount = 0.01, detail = paste("MS/MS file postprocessing", sep = "")) else print(paste("MS/MS file postprocessing", sep = ""))
+  
+  if(!is.na(progress))  if(progress)  incProgress(amount = 0.01, detail = paste("MS/MS file boxing", sep = "")) else print(paste("MS/MS file boxing", sep = ""))
+  returnObj <- list()
+  returnObj$fileSpectra <- fileSpectra
+  returnObj$spectraList <- spectraList
+  returnObj$numberOfSpectra <- numberOfSpectra
+  
+  return(returnObj)
 }

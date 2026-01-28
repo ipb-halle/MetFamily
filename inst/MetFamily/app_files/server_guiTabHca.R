@@ -1,4 +1,3 @@
-
 ## HCA constants
 minimumNumberOfPrecursorsForHca <- 6
 maximumNumberOfPrecursorsForHca <- 5000
@@ -30,6 +29,64 @@ putativeAnnotationsTableFromAnalysisCurrentlyShown <- NULL
 
 ## statistics for dendrogram node or pca loadings brush
 dendrogramFragmentStatistics <- FALSE
+
+
+# Extended task for HCA computation
+hcaComputationTask <- ExtendedTask$new(
+  function(
+    dataList, 
+    filterHca, 
+    distanceMeasure,
+    clusterMethod, 
+    hca_removePrecursorIon,
+    hca_minNbFrag,
+    minimumProportionOfLeafs = 0.75,
+    minimumProportionToShowFragment = 0.5
+  ) {
+    promise_result <- promises::future_promise({
+      
+      result <- tryCatch({
+        ## compute distance matrix
+        distanceMatrixObj <- calculateDistanceMatrix(
+          dataList = dataList, 
+          filter = filterHca$filter, 
+          distanceMeasure = distanceMeasure,
+          removePrecursor = hca_removePrecursorIon,
+          minNumberFragments = hca_minNbFrag,
+          progress = FALSE
+        )
+        
+        # trying to find a solution for cosine internal filtering
+        filterHca$filter <- distanceMatrixObj$filter
+        filterHca$numberOfPrecursorsFiltered <- length(distanceMatrixObj$filter)
+        
+        filterHca <<- filterHca
+        
+        ## compute cluster  
+        clusterDataListObj <- calculateCluster(
+          progress = FALSE, 
+          dataList = dataList, 
+          filterObj = filterHca, 
+          distanceMatrix = distanceMatrixObj$distanceMatrix, 
+          method = clusterMethod, 
+          distanceMeasure = distanceMeasure
+        )
+        
+        list(
+          distanceMatrixObj = distanceMatrixObj,
+          clusterDataList = clusterDataListObj
+        )
+        
+      }, error = function(e) {
+        stop(paste("HCA computation error:", e$message))
+      })
+      
+      return(result)
+      
+    }, seed = TRUE)
+    
+    return(promise_result)
+  })
 
 state_tabHca <- reactiveValues(
   ## plot dimensions
@@ -64,7 +121,7 @@ resetWorkspaceFunctions <- c(resetWorkspaceFunctions, function(){
   dendrogramFragmentStatistics <<- FALSE
   
   ## reset plot range
-  dendrogramPlotRangeY <<- NULL
+  # dendrogramPlotRangeY <<- NULL # never used
   dendrogramPlotRange$xMin <<- NULL
   dendrogramPlotRange$xMax <<- NULL
   dendrogramPlotRange$xInterval <<- NULL
@@ -213,154 +270,233 @@ obsDrawHCA <- observeEvent(input$drawHCAplots, {
   #drawHCAButtonValue <<- drawPlots
   
   distanceMeasure <- input$hcaDistanceFunction
+  hca_removePrecursorIon <- input$hca_removePrecursorIon
+  hca_minNbFrag <- as.numeric(input$hca_minNbFrag)
+  
   #clusterMethod <- input$hcaClusterMethod
   clusterMethod <- "ward.D"
   print(paste("Observe draw HCA plots", "D", distanceMeasure, "M", clusterMethod))
   
   ##########################
-  ## calc
+  ## Invoke async HCA computation (hcaComputationalTask)
   
-  ## compute distance matrix
-  withProgress(message = 'Calculating distances...', value = 0, {
-    currentDistanceMatrixObj <<- calculateDistanceMatrix(dataList = dataList, filter = filterHca$filter, distanceMeasure = distanceMeasure, progress = TRUE)
-  })
-  ## compute cluster
-  withProgress(message = 'Calculating cluster...', value = 0, {
-    clusterDataList <<- calculateCluster(progress = TRUE, dataList = dataList, filterObj = filterHca, distanceMatrix = currentDistanceMatrixObj$distanceMatrix, method = clusterMethod, distanceMeasure = distanceMeasure)
-  })
-  
-  ##########################
-  ## hca selections
-  if(!is.null(listForTable_Fragment_PCA)){ ## selection from fragment
-    fragmentIndex <- which(dataList$fragmentMasses == ms2PlotValues$fragmentListClicked$fragmentMasses[[selectionFragmentSelectedFragmentIndex]])
-    precursorSet  <- which(dataList$featureMatrix[, fragmentIndex] != 0)
-    selectionByFragmentInitHca(precursorSet)
-  } else {
-    selectionByFragmentReset()
-  }
-  if(!is.null(listForTable_Analysis_PCA)){ ## selection from PCA
-    precursorSet <- filterPca$filter[selectionAnalysisPcaLoadingSet]
-    selectionByAnalysisInitHca(precursorSet)
-  } else {
-    selectionByAnalysisReset()
-  }
-  if(!is.null(filterSearch)){ ## selection from search
-    selectionBySearchInitHca(filterSearch$filter)
-  } else {
-    selectionBySearchReset()
-  }
-  
-  ##########################
-  ## reset MS2 stuff
-  if(!state$showPCAplotPanel){
-    ms2PlotValues$fragmentListClicked <<- NULL
-    ms2PlotValues$fragmentListHovered <<- NULL
-    dendrogramFragmentStatistics <<- FALSE
-  }
-  
-  ##########################
-  ## draw
-  resetHcaPlotRange()
-  drawDendrogramPlot(consoleInfo = "init output$plotDendrogram", withHeatmap = TRUE)
-  drawMS2Plot(consoleInfo = "init output$plotMS2")
-  drawAnnotationLegendHCA(consoleInfo = "init output$plotAnnoLegend")
-  
-  if(!state$anyPlotDrawn){
-    drawMS2Legend(consoleInfo = "init output$ms2LegendPlot")
-    drawFragmentDiscriminativityLegend(consoleInfo = "init output$plotFragmentDiscriminativityLegend")
-    drawHeatmapLegend(consoleInfo = "init output$plotHeatmapLegend")
-    drawDendrogramLegend(consoleInfo = "init output$calcPlotDendrogramLegend")
-    state$anyPlotDrawn <<- TRUE
-  }
-  
-  ## state
-  state$showHCAplotPanel <<- TRUE
-  state$plotHcaShown <<- TRUE
-  updateChangePlotRadioButton()
-  
-  ##########################
-  ## update info and tip
-  output$information <- renderText({
-    print(paste("update output$information clear"))
-    paste("", sep = "")
-  })
-  output$tip <- renderText({
-    print(paste("update output$tip"))
-    paste(
-      "Hover or select a cluster node or leaf node to view information about the corresponding MS\u00B9 feature cluster or MS\u00B9 feature respectively.", 
-      "Brush horizontally and double-click to zoom in.", 
-      "Double-click to zoom out.", 
-      sep = "\n"
+  tryCatch({
+    hcaComputationTask$invoke(
+      dataList = dataList,
+      filterHca = filterHca,
+      distanceMeasure = distanceMeasure,
+      clusterMethod = clusterMethod,
+      hca_removePrecursorIon = hca_removePrecursorIon,
+      hca_minNbFrag = hca_minNbFrag
     )
+  }, error = function(e) {
+    msg <- paste("Critical Error during HCA task invocation:", e$message)
+    
+    # Show error and cleanup
+    output$information <- renderText(msg)
+    session$sendCustomMessage("enableButton", "drawHCAplots")
+    
+    # Stop execution
+    stop(e)
   })
-  session$sendCustomMessage("enableButton", "drawHCAplots")
+  
+  # processing after ExtendedTask is finished will be handled by the observer below
 })
 
-
-if(FALSE){
-obsDendrogramHover <- observeEvent(input$plotDendrogram_hover, {
-  hoverX <- input$plotDendrogram_hover$x
-  hoverY <- input$plotDendrogram_hover$y
+# Observer to handle ExtendedTask states
+observe({
+  status <- hcaComputationTask$status()
   
-  plotWidth  <- session$clientData$output_plotDendrogram_width
-  plotHeight <- session$clientData$output_plotDendrogram_height
-  
-  if(is.null(hoverX) | is.null(hoverY))
-    return()
-  
-  #################################################
-  ## decide whether the click is close enough to trigger event
-  minimumIndex <- getSelectedPOI_XY(
-    mouseX = hoverX, mouseY = hoverY, poiCoordinatesX = clusterDataList$poiCoordinatesX, poiCoordinatesY = clusterDataList$poiCoordinatesY,
-    plotWidth = plotWidth, plotHeight = plotHeight, plotRangeX = dendrogramPlotRange$xIntervalSize, plotRangeY = dendrogramUserCoordinateRangeY
-  )
-  if(is.null(minimumIndex)){
-    print(paste("Observe dendrogram hover", minimumIndex))
-    if(!is.null(ms2PlotValues$fragmentListHovered)){
-      ## reverse MS2 to clicked stuff
-      ms2PlotValues$fragmentListHovered <<- NULL
-    }
-  } else {
-    minimumLabel <- clusterDataList$poiLabels[[minimumIndex]]
-    print(paste("Observe dendrogram hover i", minimumIndex, "l", minimumLabel))
-    resultObj <- getMS2spectrum(dataList = dataList, clusterDataList = clusterDataList, treeLabel = minimumLabel)
+  if (status == "initial") {
+    # waiting to be invoked
     
-    ## ## putative metabolite families statistics
-    #putativeMetaboliteFamilies <- NULL
-    #if(!is.null(classToSpectra_class)){
-    #  putativeMetaboliteFamilies <- evaluatePutativeMetaboliteFamiliesOfDendrogramCluster(dataList = dataList, clusterDataList = clusterDataList, treeLabel = minimumLabel, classToSpectra_class = classToSpectra_class)
-    #}
+  } else if (status == "running") {
+    # Task disable button and show modal spinner
+    session$sendCustomMessage("disableButton", "drawHCAplots")
     
-    #################################################
-    ## output as message
-    output$information <- renderText({
-      print(paste("update output$information", resultObj$infoText))
-      paste(
-        resultObj$infoText, 
-        #ifelse(test = is.null(putativeMetaboliteFamilies), yes = "", no = 
-        #         paste("\n", paste(putativeMetaboliteFamilies, collapse = "\n"), sep = "")
-        #), 
-        sep = "")
+    # Show full-screen modal spinner
+    shinybusy::show_modal_spinner(
+      spin = "self-building-square",
+      text = paste(
+        "Computing HCA clusters...",
+        paste("Distance measure:", input$hcaDistanceFunction),
+        "This may take some time depending on data size.",
+        "Please wait...",
+        sep = "\n"
+      ),
+      color = "#5cb85c"
+    )
+    
+    # Also update the info text (visible after spinner is removed)
+    output$information <- renderText("⚙️ Computing HCA clusters... Please wait")
+    output$tip <- renderText("HCA computation is running in the background. Please wait for completion.")
+    
+  } else if (status == "success") {
+    # HCA computation was successfull
+    # Remove modal spinner
+    shinybusy::remove_modal_spinner()
+    
+    
+    result <- tryCatch({
+      hcaComputationTask$result()
+    }, error = function(e) {
+      stop(e)
     })
     
-    if(all(!is.null(selectionAnalysisTreeNodeSet), minimumLabel == selectionAnalysisTreeNodeSet)){
-      ## reverse MS2 to clicked stuff
-      ms2PlotValues$fragmentListHovered <<- NULL
+    # Extract results and assign to global variables
+    currentDistanceMatrixObj <<- result$distanceMatrixObj
+    clusterDataList <<- result$clusterDataList
+    
+    ##########################
+    ## hca selections
+    if(!is.null(listForTable_Fragment_PCA)){ ## selection from fragment
+      fragmentIndex <- which(dataList$fragmentMasses == ms2PlotValues$fragmentListClicked$fragmentMasses[[selectionFragmentSelectedFragmentIndex]])
+      precursorSet  <- which(dataList$featureMatrix[, fragmentIndex] != 0)
+      selectionByFragmentInitHca(precursorSet)
     } else {
-      #################################################
-      ## fetch ms2 spectrum
-      ms2PlotValues$fragmentListHovered <<- resultObj
+      selectionByFragmentReset()
     }
+    if(!is.null(listForTable_Analysis_PCA)){ ## selection from PCA
+      precursorSet <- filterPca$filter[selectionAnalysisPcaLoadingSet]
+      selectionByAnalysisInitHca(precursorSet)
+    } else {
+      selectionByAnalysisReset()
+    }
+    if(!is.null(filterSearch)){ ## selection from search
+      selectionBySearchInitHca(filterSearch$filter)
+    } else {
+      selectionBySearchReset()
+    }
+    
+    ##########################
+    ## reset MS2 stuff
+    if(!state$showPCAplotPanel){
+      ms2PlotValues$fragmentListClicked <<- NULL
+      ms2PlotValues$fragmentListHovered <<- NULL
+      dendrogramFragmentStatistics <<- FALSE
+    }
+    
+    ##########################
+    ## draw
+    resetHcaPlotRange()
+    drawDendrogramPlot(consoleInfo = "init output$plotDendrogram", withHeatmap = TRUE)
+    drawMS2Plot(consoleInfo = "init output$plotMS2")
+    drawAnnotationLegendHCA(consoleInfo = "init output$plotAnnoLegend")
+    
+    if(!state$anyPlotDrawn){
+      drawMS2Legend(consoleInfo = "init output$ms2LegendPlot")
+      drawFragmentDiscriminativityLegend(consoleInfo = "init output$plotFragmentDiscriminativityLegend")
+      drawHeatmapLegend(consoleInfo = "init output$plotHeatmapLegend")
+      drawDendrogramLegend(consoleInfo = "init output$calcPlotDendrogramLegend")
+      state$anyPlotDrawn <<- TRUE
+    }
+    
+    ## state
+    state$showHCAplotPanel <<- TRUE
+    state$plotHcaShown <<- TRUE
+    updateChangePlotRadioButton()
+    
+    ##########################
+    ## update info and tip
+    output$information <- renderText({
+      print(paste("update output$information clear"))
+      paste("", sep = "")
+    })
+    output$tip <- renderText({
+      print(paste("update output$tip"))
+      paste(
+        "Hover or select a cluster node or leaf node to view information about the corresponding MS\u00B9 feature cluster or MS\u00B9 feature respectively.", 
+        "Brush horizontally and double-click to zoom in.", 
+        "Double-click to zoom out.", 
+        sep = "\n"
+      )
+    })
+    
+    # Re-enable button
+    session$sendCustomMessage("enableButton", "drawHCAplots")
+    
+  } else if (status == "error") {
+    # Remove modal spinner
+    shinybusy::remove_modal_spinner()
+    
+    # print error
+    tryCatch({
+      hcaComputationTask$result() 
+    }, error = function(e) {
+      msg <- e$message
+      output$information <- renderText(msg)
+      output$tip <- renderText("HCA computation failed. Please check the error message and try again.")
+      
+      # Re-enable button
+      session$sendCustomMessage("enableButton", "drawHCAplots")
+    })
   }
-  
-  ## MS2 plot
-  #drawMS2Plot(consoleInfo = "dendrogram hover output$plotMS2")
-  
-  output$tip <- renderText({
-    print(paste("update output$tip"))
-    paste("Hover a cluster node or leaf node to view information about the corresponding MS\u00B9 feature cluster or MS\u00B9 feature respectively.", "Brush horizontally and double-click to zoom in.", "Double-click to zoom out.", sep = "\n")
-  })
 })
+
+if(FALSE){
+  obsDendrogramHover <- observeEvent(input$plotDendrogram_hover, {
+    hoverX <- input$plotDendrogram_hover$x
+    hoverY <- input$plotDendrogram_hover$y
+    
+    plotWidth  <- session$clientData$output_plotDendrogram_width
+    plotHeight <- session$clientData$output_plotDendrogram_height
+    
+    if(is.null(hoverX) | is.null(hoverY))
+      return()
+    
+    #################################################
+    ## decide whether the click is close enough to trigger event
+    minimumIndex <- getSelectedPOI_XY(
+      mouseX = hoverX, mouseY = hoverY, poiCoordinatesX = clusterDataList$poiCoordinatesX, poiCoordinatesY = clusterDataList$poiCoordinatesY,
+      plotWidth = plotWidth, plotHeight = plotHeight, plotRangeX = dendrogramPlotRange$xIntervalSize, plotRangeY = dendrogramUserCoordinateRangeY
+    )
+    if(is.null(minimumIndex)){
+      print(paste("Observe dendrogram hover", minimumIndex))
+      if(!is.null(ms2PlotValues$fragmentListHovered)){
+        ## reverse MS2 to clicked stuff
+        ms2PlotValues$fragmentListHovered <<- NULL
+      }
+    } else {
+      minimumLabel <- clusterDataList$poiLabels[[minimumIndex]]
+      print(paste("Observe dendrogram hover i", minimumIndex, "l", minimumLabel))
+      resultObj <- getMS2spectrum(dataList = dataList, clusterDataList = clusterDataList, treeLabel = minimumLabel)
+      
+      ## ## putative metabolite families statistics
+      #putativeMetaboliteFamilies <- NULL
+      #if(!is.null(classToSpectra_class)){
+      #  putativeMetaboliteFamilies <- evaluatePutativeMetaboliteFamiliesOfDendrogramCluster(dataList = dataList, clusterDataList = clusterDataList, treeLabel = minimumLabel, classToSpectra_class = classToSpectra_class)
+      #}
+      
+      #################################################
+      ## output as message
+      output$information <- renderText({
+        print(paste("update output$information", resultObj$infoText))
+        paste(
+          resultObj$infoText, 
+          #ifelse(test = is.null(putativeMetaboliteFamilies), yes = "", no = 
+          #         paste("\n", paste(putativeMetaboliteFamilies, collapse = "\n"), sep = "")
+          #), 
+          sep = "")
+      })
+      
+      if(all(!is.null(selectionAnalysisTreeNodeSet), minimumLabel == selectionAnalysisTreeNodeSet)){
+        ## reverse MS2 to clicked stuff
+        ms2PlotValues$fragmentListHovered <<- NULL
+      } else {
+        #################################################
+        ## fetch ms2 spectrum
+        ms2PlotValues$fragmentListHovered <<- resultObj
+      }
+    }
+    
+    ## MS2 plot
+    #drawMS2Plot(consoleInfo = "dendrogram hover output$plotMS2")
+    
+    output$tip <- renderText({
+      print(paste("update output$tip"))
+      paste("Hover a cluster node or leaf node to view information about the corresponding MS\u00B9 feature cluster or MS\u00B9 feature respectively.", "Brush horizontally and double-click to zoom in.", "Double-click to zoom out.", sep = "\n")
+    })
+  })
 }
 output$plotDendrogram_hover_info <- renderUI({
   hover <- input$plotDendrogram_hover
@@ -613,71 +749,71 @@ obsDendrogramdblClick <- observeEvent(input$plotDendrogram_dblclick, {
 })
 
 if(FALSE){
-obsHeatmaphover <- observeEvent(input$plotHeatmap_hover, {
-  hoverX <- input$plotHeatmap_hover$x
-  hoverY <- input$plotHeatmap_hover$y
-  
-  if(is.null(hoverX) | is.null(hoverY))
-    return()
-  if(hoverX < 0.5 | hoverX > (clusterDataList$numberOfPrecursorsFiltered + 0.5))
-    return()
-  if(hoverY < 0 | hoverY > 3)
-    return()
-  
-  print(paste("Observe heatmap hover", hoverX, hoverY))
-  
-  #################################################
-  ## info
-  treeLeafIndex2 <- as.numeric(format(x = hoverX, digits = 1))
-  treeLeafIndex  <- clusterDataList$cluster$order[[treeLeafIndex2]]
-  precursorIndex <- filterHca$filter[[treeLeafIndex]]
-  
-  msg <- list()
-  msg[[length(msg) + 1]] <- "MS\u00B9 feature: "
-  msg[[length(msg) + 1]] <- dataList$precursorLabels[[precursorIndex]]
-  msg[[length(msg) + 1]] <- "\n"
-  
-  if(hoverY > 2){
-    ## lcf
-    groupOne <- filterHca$sampleClasses[[1]]
-    groupTwo <- filterHca$sampleClasses[[2]]
-    msg[[length(msg) + 1]] <- paste("log-fold-change = log_2( mean(group ", groupOne, ") / mean(group ", groupTwo, ") )", sep = "")
+  obsHeatmaphover <- observeEvent(input$plotHeatmap_hover, {
+    hoverX <- input$plotHeatmap_hover$x
+    hoverY <- input$plotHeatmap_hover$y
     
-    valMeanOne <- dataList$dataFrameMeasurements[precursorIndex, dataList$dataMeanColumnNameFunctionFromName(groupOne)]
-    valMeanTwo <- dataList$dataFrameMeasurements[precursorIndex, dataList$dataMeanColumnNameFunctionFromName(groupTwo)]
-    msg[[length(msg) + 1]] <- " = log_2( "
-    msg[[length(msg) + 1]] <- as.numeric(format(x = valMeanOne, digits = 2))
-    msg[[length(msg) + 1]] <- " / "
-    msg[[length(msg) + 1]] <- as.numeric(format(x = valMeanTwo, digits = 2))
-    msg[[length(msg) + 1]] <- " ) = "
+    if(is.null(hoverX) | is.null(hoverY))
+      return()
+    if(hoverX < 0.5 | hoverX > (clusterDataList$numberOfPrecursorsFiltered + 0.5))
+      return()
+    if(hoverY < 0 | hoverY > 3)
+      return()
     
-    lfc <- dataList$dataFrameMeasurements[precursorIndex, dataList$lfcColumnNameFunctionFromName(groupOne, groupTwo)]
-    msg[[length(msg) + 1]] <- as.numeric(format(x = lfc, digits = 2))
-  } else {
-    if(hoverY > 1){
-      ## group 1
-      groupHere <- filterHca$sampleClasses[[1]]
-    } else { ## hoverY <= 1
-      ## group 2
-      groupHere <- filterHca$sampleClasses[[2]]
+    print(paste("Observe heatmap hover", hoverX, hoverY))
+    
+    #################################################
+    ## info
+    treeLeafIndex2 <- as.numeric(format(x = hoverX, digits = 1))
+    treeLeafIndex  <- clusterDataList$cluster$order[[treeLeafIndex2]]
+    precursorIndex <- filterHca$filter[[treeLeafIndex]]
+    
+    msg <- list()
+    msg[[length(msg) + 1]] <- "MS\u00B9 feature: "
+    msg[[length(msg) + 1]] <- dataList$precursorLabels[[precursorIndex]]
+    msg[[length(msg) + 1]] <- "\n"
+    
+    if(hoverY > 2){
+      ## lcf
+      groupOne <- filterHca$sampleClasses[[1]]
+      groupTwo <- filterHca$sampleClasses[[2]]
+      msg[[length(msg) + 1]] <- paste("log-fold-change = log_2( mean(group ", groupOne, ") / mean(group ", groupTwo, ") )", sep = "")
+      
+      valMeanOne <- dataList$dataFrameMeasurements[precursorIndex, dataList$dataMeanColumnNameFunctionFromName(groupOne)]
+      valMeanTwo <- dataList$dataFrameMeasurements[precursorIndex, dataList$dataMeanColumnNameFunctionFromName(groupTwo)]
+      msg[[length(msg) + 1]] <- " = log_2( "
+      msg[[length(msg) + 1]] <- as.numeric(format(x = valMeanOne, digits = 2))
+      msg[[length(msg) + 1]] <- " / "
+      msg[[length(msg) + 1]] <- as.numeric(format(x = valMeanTwo, digits = 2))
+      msg[[length(msg) + 1]] <- " ) = "
+      
+      lfc <- dataList$dataFrameMeasurements[precursorIndex, dataList$lfcColumnNameFunctionFromName(groupOne, groupTwo)]
+      msg[[length(msg) + 1]] <- as.numeric(format(x = lfc, digits = 2))
+    } else {
+      if(hoverY > 1){
+        ## group 1
+        groupHere <- filterHca$sampleClasses[[1]]
+      } else { ## hoverY <= 1
+        ## group 2
+        groupHere <- filterHca$sampleClasses[[2]]
+      }
+      msg[[length(msg) + 1]] <- paste("Mean abundance of group ", groupHere, ": ", sep = "")
+      valMean <- dataList$dataFrameMeasurements[precursorIndex, dataList$dataMeanColumnNameFunctionFromName(groupHere)]
+      msg[[length(msg) + 1]] <- as.numeric(format(x = valMean, digits = 2))
+      msg[[length(msg) + 1]] <- " = mean("
+      #columnNames <- dataList$dataColumnsNameFunctionFromGroupName(group = groupHere, sampleNamesToExclude = dataList$excludedSamples(dataList$groupSampleDataFrame))
+      columnNames <- dataList$dataColumnsNameFunctionFromGroupName(group = groupHere, sampleNamesToExclude = dataList$excludedSamples(groupSampleDataFrame = dataList$groupSampleDataFrame, sampleClasses = groupHere))
+      vals <- dataList$dataFrameMeasurements[precursorIndex, columnNames]
+      vals <- as.numeric(format(x = vals, digits = 2))
+      msg[[length(msg) + 1]] <- paste(vals, collapse = ", ")
+      msg[[length(msg) + 1]] <- ")"
     }
-    msg[[length(msg) + 1]] <- paste("Mean abundance of group ", groupHere, ": ", sep = "")
-    valMean <- dataList$dataFrameMeasurements[precursorIndex, dataList$dataMeanColumnNameFunctionFromName(groupHere)]
-    msg[[length(msg) + 1]] <- as.numeric(format(x = valMean, digits = 2))
-    msg[[length(msg) + 1]] <- " = mean("
-    #columnNames <- dataList$dataColumnsNameFunctionFromGroupName(group = groupHere, sampleNamesToExclude = dataList$excludedSamples(dataList$groupSampleDataFrame))
-    columnNames <- dataList$dataColumnsNameFunctionFromGroupName(group = groupHere, sampleNamesToExclude = dataList$excludedSamples(groupSampleDataFrame = dataList$groupSampleDataFrame, sampleClasses = groupHere))
-    vals <- dataList$dataFrameMeasurements[precursorIndex, columnNames]
-    vals <- as.numeric(format(x = vals, digits = 2))
-    msg[[length(msg) + 1]] <- paste(vals, collapse = ", ")
-    msg[[length(msg) + 1]] <- ")"
-  }
-  
-  output$information <- renderText({
-    print(paste("update output$information heatmap hover", sep = ""))
-    paste(msg, collapse = "")
+    
+    output$information <- renderText({
+      print(paste("update output$information heatmap hover", sep = ""))
+      paste(msg, collapse = "")
+    })
   })
-})
 }  ## not finished
 
 #print("entering the line ..line 680")
@@ -795,7 +931,7 @@ output$plotHeatmap_hover_info <- renderUI({
       )
     }
   }
- #################################### 
+  #################################### 
   #output$information <- renderText({
   #  print(paste("update output$information heatmap hover", sep = ""))
   #  paste(msg, collapse = "")

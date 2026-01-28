@@ -156,7 +156,7 @@ loadProjectFile <- function(filePath){
   withProgress(message = 'Reading file...', value = 0, {
     dataList <<- tryCatch(
       {
-        readClusterDataFromProjectFile(file = filePath, progress = TRUE)
+        readProjectFile(file = filePath, progress = TRUE)
       }, 
       error = function(e) {
         print(e)
@@ -166,7 +166,7 @@ loadProjectFile <- function(filePath){
   })
   
   if(!is.null(error)){
-    print(paste("readClusterDataFromProjectFile resulted in error:", error))
+    print(paste("readProjectFile resulted in error:", error))
     msg <- paste("An error occurred while reading the input files. Please check the file format and content and try again. The error was", error)
     output$fileInfo <- renderText({msg})
     #session$sendCustomMessage("enableButton", buttonId)
@@ -183,7 +183,7 @@ loadProjectFile <- function(filePath){
     
     return()
   }
-  print(paste("readClusterDataFromProjectFile finished", dataList$minimumMass))
+  print(paste("readProjectFile finished", dataList$minimumMass))
   
   resetWorkspace()
   
@@ -261,6 +261,8 @@ obsImportMs2Data <- observeEvent(input$importMs2Data, {
 importData <- function(importMS1andMS2data){
   #################################################
   ## files
+  
+  
   if(importMS1andMS2data){
     fileMs1Path <- input$ms1DataFile$datapath
     fileMs1Name <- input$ms1DataFile$name
@@ -285,6 +287,8 @@ importData <- function(importMS1andMS2data){
   
   ## minimum MS2 peak intensity
   minimumIntensityOfMaximalMS2peak <- input$minimumIntensityOfMaximalMS2peak
+  minimumNumbersOfFragments <- input$minimumNumbersOfFragments 
+  minimumAbsoluteMS2peaks <- input$minimumAbsoluteMS2peaks
   minimumProportionOfMS2peaks <- input$minimumProportionOfMS2peaks
   ## grouping of MS2 peaks
   mzDeviationAbsolute_grouping <- input$mzDeviationAbsolute_grouping
@@ -318,6 +322,20 @@ importData <- function(importMS1andMS2data){
     minimumIntensityOfMaximalMS2peak <- as.numeric(minimumIntensityOfMaximalMS2peak)
     error <- error | is.na(minimumIntensityOfMaximalMS2peak)
   }
+  
+  if(any(is.null(minimumNumbersOfFragments), length(minimumNumbersOfFragments) == 0, nchar(minimumNumbersOfFragments) == 0)) {
+    error <- TRUE
+  } else {
+    minimumNumbersOfFragments <- as.numeric(minimumNumbersOfFragments)
+    error <- error | is.na(minimumNumbersOfFragments)
+  }
+  if(any(is.null(minimumAbsoluteMS2peaks), length(minimumAbsoluteMS2peaks) == 0, nchar(minimumAbsoluteMS2peaks) == 0)) {
+    error <- TRUE
+  } else {
+    minimumAbsoluteMS2peaks <- as.numeric(minimumAbsoluteMS2peaks)
+    error <- error | is.na(minimumAbsoluteMS2peaks)
+  }
+  
   if(any(is.null(minimumProportionOfMS2peaks), length(minimumProportionOfMS2peaks) == 0, nchar(minimumProportionOfMS2peaks) == 0)) {
     error <- TRUE
   } else {
@@ -403,6 +421,8 @@ importData <- function(importMS1andMS2data){
   parameterSet$projectDescription                                <- projectDescription
   parameterSet$toolVersion                                       <- paste(toolName, toolVersion, sep = " ")
   parameterSet$minimumIntensityOfMaximalMS2peak                  <- minimumIntensityOfMaximalMS2peak
+  parameterSet$minimumNumbersOfFragments                         <- minimumNumbersOfFragments
+  parameterSet$minimumAbsoluteMS2peaks                           <- minimumAbsoluteMS2peaks
   parameterSet$minimumProportionOfMS2peaks                       <- minimumProportionOfMS2peaks
   parameterSet$mzDeviationAbsolute_grouping                      <- mzDeviationAbsolute_grouping
   parameterSet$mzDeviationInPPM_grouping                         <- mzDeviationInPPM_grouping
@@ -426,6 +446,9 @@ importData <- function(importMS1andMS2data){
   state_tabInput$importMS1andMS2data <- importMS1andMS2data
   state_tabInput$fileMs1Name <- fileMs1Name
   state_tabInput$fileMs2Name <- fileMs2Name
+  
+  # Reset state tracking before starting new import to ensure success logic is executed
+  importTaskProcessed(FALSE)
   
   # error handling
   tryCatch({
@@ -454,6 +477,10 @@ importData <- function(importMS1andMS2data){
   
   
 
+# Reactive value that tracks whether the import task has been processed
+# Prevents duplicate execution when observer re-triggers (e.g. by search function)
+# Reset to FALSE before each new import in importData() function
+importTaskProcessed <- reactiveVal(FALSE)
 
 # Observer to handle ExtendedTask states
 observe({
@@ -467,7 +494,7 @@ observe({
     disableLoadButtons()
     output$fileInfo <- renderText("⚙️ Processing data ... Please wait")
     
-  } else if (status == "success") {
+  } else if (status == "success" && !importTaskProcessed()) {
     # importDataTask completed successfully - run rest of importData logic
     result <- tryCatch({
       importDataTask$result()
@@ -480,13 +507,13 @@ observe({
     lines <- result$lines
     dataList <<- result$dataList
     
-    # Continue with the success logic from your original code
+    # Continue with the success logic from the original implementation
     spectraImport <- paste(
       resultObj$numberOfParsedSpectra, " / ", resultObj$numberOfSpectraOriginal, " spectra were imported successfully.",
       ifelse(test = resultObj$numberOfParsedSpectra < resultObj$numberOfSpectraOriginal, 
              yes = paste(" (",paste( Filter(nchar, c(
                ifelse(test = resultObj$numberOfSpectraDiscardedDueToNoPeaks > 0, 
-                      yes = paste(resultObj$numberOfSpectraDiscardedDueToNoPeaks, " empty", sep = ""), no = ""), 
+                      yes = paste(resultObj$numberOfSpectraDiscardedDueToNoPeaks, " too few peaks", sep = ""), no = ""), 
                ifelse(test = resultObj$numberOfSpectraDiscardedDueToMaxIntensity > 0, 
                       yes = paste(resultObj$numberOfSpectraDiscardedDueToMaxIntensity, " low intensity", sep = ""), no = ""), 
                ifelse(test = resultObj$numberOfSpectraDiscardedDueToTooHeavy > 0, 
@@ -557,7 +584,10 @@ observe({
     enableLoadButtons()
     setImportState()
     
-  } else if (status == "error") {
+    # Mark as processed to prevent re-execution
+    importTaskProcessed(TRUE)
+    
+  } else if (status == "error" && !importTaskProcessed()) {
     # Task failed - handle error
     tryCatch({
       importDataTask$result()  # error
@@ -595,6 +625,9 @@ observe({
       showErrorDialog(msg)
       enableLoadButtons()
       setImportState()
+      
+      # Mark as processed to prevent re-execution
+      importTaskProcessed(TRUE)
     })
   }
 })

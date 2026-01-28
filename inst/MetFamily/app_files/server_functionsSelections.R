@@ -532,7 +532,7 @@ updateSelectedPrecursorSet <- function(){
   )
   precursorSelectionChanged()
 }
-precursorSelectionChanged <- function(){
+precursorSelectionChanged <- function(minimumProportionToShowFragment = 0.5){
   selectionPresent <- !is.null(selectedPrecursorSet)
   
   ####################

@@ -19,7 +19,7 @@ filterThreshold <- function(dataList, filter_average, sampleClasses = dataList$s
     apply(X = dataList$dataFrameMeasurements[, mean_colnames],
           MARGIN = 1, FUN = mean) >= filter_average
   )
-
+  
 }
 
 
@@ -32,7 +32,7 @@ filterThreshold <- function(dataList, filter_average, sampleClasses = dataList$s
 #' @returns boolean vector
 #' @export
 filterLFC <- function(dataList, filter_lfc, sampleClasses = dataList$sampleClasses) {
-
+  
   stopifnot("The number of sampleClasses for LFC is not equal to two!" = length(sampleClasses) == 2)
   
   test_lfc <- if(filter_lfc > 0) filter_lfc else -filter_lfc
@@ -219,33 +219,47 @@ filterData <- function(dataList, sampleClasses, sampleSet = NULL, filterBySample
   return (resultObj)
 }
 
-#' Calculate a distance matrix between MS/MS spectra in the MetFamily feature Matrix
+#' Calculate a distance matrix between MS/MS spectra in the MetFamily feature
+#' Matrix
 #'
-#' Computes a distance matrix between MS/MS spectra in the feature matrix representation using
-#' various distance or similarity measures.
-#' The function supports multiple distance metrics, of which the following are also available 
-#' in the MetFamily GUI: "Jaccard", "Jaccard (intensity-weighted)", "Jaccard (fragment-count-weighted)"
-#' and "NDP (Normalized dot product)". The following list defines the metrics and their characteristics:
+#' Computes a distance matrix between MS/MS spectra in the feature matrix
+#' representation using various distance or similarity measures. The function
+#' supports multiple distance metrics, of which the following are also available
+#' in the MetFamily GUI: "Jaccard", "Jaccard (intensity-weighted)", "Jaccard
+#' (fragment-count-weighted)" and "NDP (Normalized dot product)". The following
+#' list defines the metrics and their characteristics:
 #'
 #' - "Jaccard": Jaccard distance \eqn{1 - |A \cap B| / |A \cup B|}: the fraction of matching fragments among all fragments,
-#'   where A and B are MS/MS features of two different precursors.
+#' where A and B are MS/MS features of two different precursors.
 #'
-#' - "Jaccard (intensity-weighted)": Jaccard distance weighted by the intensity of 
-#'   features. First, intensities are discretized: [0.01-0.2[ are set down to 0.01, [0.2, 0.4[ down to 0.2, 
-#'   and >= 0.4 increased to 1. For matching fragments the higher intensity is used. Then, Jacard becomes the sum of matching intensities among the sum of all intensities in A and B.
-#'   \eqn{1 - \sum_{i\in matches} max(A_i, B_i) / (sum(A) + sum(B))}
+#' - "Jaccard (intensity-weighted)": Jaccard distance weighted by the intensity of
+#' features. First, intensities are discretized: [0.01-0.2[ are set down to
+#' 0.01, [0.2, 0.4[ down to 0.2, and >= 0.4 increased to 1. For matching
+#' fragments the higher intensity is used. Then, Jacard becomes the sum of
+#' matching intensities among the sum of all intensities in A and B. \eqn{1 -
+#' \sum_{i\in matches} max(A_i, B_i) / (sum(A) + sum(B))}
 #'
 #' - "Jaccard (fragment-count-weighted)": Jaccard distance weighted by relative occurance of the fragments among the precursors after filtering
-#'   counts: \eqn{1 - \sum_{i\in matches} freq(A_i) / (sum_{\notin matches} freq(A) + sum_{\notin matches}(B))}
+#' counts: \eqn{1 - \sum_{i\in matches} freq(A_i) / (sum_{\notin matches}
+#' freq(A) + sum_{\notin matches}(B))}
 #'
 #' - "NDP (Normalized dot product)": Normalized dot product similarity: \eqn{NDP = \frac{\left( \sum_{i}^{\text{S1\&S2}} W_{\text{S1},i} W_{\text{S2},i} \right)^2}{\sum_i W_{\text{S1},i}^2 \sum_i W_{\text{S2},i}^2}}
-#'   as described in Gaquerel et al. 2015. (10.1073/pnas.1610218113)[https://www.pnas.org/doi/10.1073/pnas.1610218113#sec-4-5]
+#' as described in Gaquerel et al. 2015.
+#' [10.1073/pnas.1610218113](https://www.pnas.org/doi/10.1073/pnas.1610218113#sec-4-5)
 #'
 #' @param dataList List object containing precursor, feature and MS/MS data.
-#' @param filter Logical or integer vector indicating for which precursors to include the MS/MS spectra.
-#' @param distanceMeasure Character string specifying the distance metric to use.
-#'        Supported values include "Jaccard", "Manhatten", "NDP (Normalized dot product)", and others.
-#' @param progress Logical or NA. If TRUE, progress is reported via incProgress().
+#' @param filter Logical or integer vector indicating for which precursors to
+#'   include the MS/MS spectra.
+#' @param distanceMeasure Character string specifying the distance metric to
+#'   use. Supported values include "Jaccard", "Manhatten", "NDP (Normalized dot
+#'   product)", and others.
+#' @param removePrecursor Logical. Should the precursor ion be removed from the
+#'   MS2 spectra? Defaults to TRUE. Only implemented for cosine-based methods.
+#' @param minNumberFragments Numeric. Spectra with fewer fragments (after
+#'   precursor removal if desired) are excluded. Only implemented for
+#'   cosine-based methods.
+#' @param progress Logical or NA. If TRUE, progress is reported via
+#'   incProgress().
 #'
 #' @return A list with elements:
 #'   \describe{
@@ -254,8 +268,17 @@ filterData <- function(dataList, sampleClasses, sampleSet = NULL, filterBySample
 #'     \item{distanceMeasure}{The distance metric used, same as the input parameter.}
 #'   }
 #' @export
-
-calculateDistanceMatrix <- function(dataList, filter, distanceMeasure = "Jaccard", progress = FALSE){
+calculateDistanceMatrix <- function(
+    dataList, 
+    filter, 
+    distanceMeasure = "Jaccard (intensity-weighted)",
+    removePrecursor = TRUE,
+    minNumberFragments = 5,
+    progress = FALSE
+) {
+  
+  stopifnot(is.logical(progress))
+  
   numberOfPrecursors <- length(filter)
   
   if(!is.na(progress))  if(progress)  incProgress(amount = 0, detail = paste("Distances 0 / ", numberOfPrecursors, sep = ""))
@@ -277,7 +300,7 @@ calculateDistanceMatrix <- function(dataList, filter, distanceMeasure = "Jaccard
                lastPrecursor <- i
                if(!is.na(progress))  if(progress)  incProgress(amount = precursorProgress,     detail = paste("Distance ", i, " / ", numberOfPrecursors, sep = "")) else print(paste("Distance ", i, " / ", numberOfPrecursors, sep = ""))
              }
-
+             
              for(j in seq_len(numberOfPrecursors)){
                if(i == j){
                  distanceMatrix[i, j] <- 0
@@ -360,7 +383,7 @@ calculateDistanceMatrix <- function(dataList, filter, distanceMeasure = "Jaccard
              onlyJs[is.na(onlyJs)] <- FALSE
              
              sumOnlyIs  <- apply(X = onlyIs, MARGIN = 2, FUN = function(x){ sum(featureMatrix[i, ] & x) })
-
+             
              featureMatrix2 <- featureMatrix
              featureMatrix2[!t(onlyJs)] <- 0
              sumOnlyJs <- apply(X = featureMatrix2, MARGIN = 1, FUN = sum )
@@ -616,20 +639,232 @@ calculateDistanceMatrix <- function(dataList, filter, distanceMeasure = "Jaccard
            }
            distanceMatrix <- max(similarityMatrix) - similarityMatrix
          },
+         # (Modified) Cosine (with NL)
+         # need to update filter object because of minNbFrag
+         "Cosine" = {
+           distMatObj <- impl_cosine_similarity(
+             dataList, filter, progress = progress, allow_shift = FALSE, nl = FALSE,
+             rm_precursor = removePrecursor, num_filter = minNumberFragments)
+           
+           distanceMatrix <- distMatObj$distanceMatrix
+           filter <- distMatObj$filter2
+         },
+         "Cosine (with NL)" = {
+           distMatObj <- impl_cosine_similarity(
+             dataList, filter, progress = progress, allow_shift = FALSE, nl = TRUE,
+             rm_precursor = removePrecursor, num_filter = minNumberFragments)
+           
+           distanceMatrix <- distMatObj$distanceMatrix
+           filter <- distMatObj$filter2
+         },
+         "Modified Cosine" = {
+           distMatObj <- impl_cosine_similarity(
+             dataList, filter, progress = progress, allow_shift = TRUE, nl = FALSE,
+             rm_precursor = removePrecursor, num_filter = minNumberFragments)
+           
+           distanceMatrix <- distMatObj$distanceMatrix
+           filter <- distMatObj$filter2
+         },
+         "Modified Cosine (with NL)" = {
+           distMatObj <- impl_cosine_similarity(
+             dataList, filter, progress = progress, allow_shift = TRUE, nl = TRUE,
+             rm_precursor = removePrecursor, num_filter = minNumberFragments)
+           
+           distanceMatrix <- distMatObj$distanceMatrix
+           filter <- distMatObj$filter2
+         },
          stop(paste("Unknown distance (", distance, ")!", sep = ""))
   )
-  
-  rownames(distanceMatrix) <- dataList$precursorLabels[filter]
-  colnames(distanceMatrix) <- dataList$precursorLabels[filter]
-  
+
   returnObj <- list(
     distanceMatrix = distanceMatrix,
     filter = filter,
     distanceMeasure = distanceMeasure
   )
   
-  return(returnObj)
+  returnObj
 }
+
+
+#' Implement Cosine Similarity
+#'
+#' @param dataList dataset
+#' @param filter filter vector
+#' @param progress boolena
+#' @param allow_shift boolean, modified cosine when true
+#' @param nl boolean, include neutral losses when true
+#' @param num_filter integer, minimal number of fragments required to perform comparison
+#' @param rm_precursor boolean, remove precursor ions from ms2 spectra
+#'
+#' @returns distance matrix
+#' @export
+impl_cosine_similarity <- function(dataList, filter, progress = FALSE,
+                                   allow_shift = FALSE, nl = FALSE, num_filter=5, rm_precursor=T) {
+  
+  numberOfPrecursors <- length(filter)
+  
+  featureIndeces <- dataList$featureIndeces[filter]
+  
+  # filter on Min Nb Fragments
+  enoughFrags <- lengths(featureIndeces) >= num_filter
+  filter2 <- filter[enoughFrags]
+  
+  # update nbPrecursors
+  numberOfPrecursors <- length(filter2)
+  
+  featureIndeces <- dataList$featureIndeces[filter2]
+  featureMatrix <- dataList$featureMatrix[filter2,]
+  
+  precursorMasses <- as.numeric(dataList$dataFrameInfos$`m/z`)[filter2]
+  
+  # Convert feature indeces to fragment mzs
+  featureMasses <- lapply(featureIndeces, function(idxs) {
+    dataList$fragmentMasses[idxs]
+  })
+  
+  
+  # Remove precursorMasses from featureMasses if needed
+  if (rm_precursor){
+    featureMasses <- mapply(function(fm, pm) {
+      fm[abs(fm - pm) > 1] #precursor tolerance window set to 1
+    }, featureMasses, precursorMasses, SIMPLIFY = FALSE)
+  }
+  
+  lastOut <- proc.time()["user.self"]
+  lastPrecursor <- 1
+  
+  distanceMatrix <- matrix(nrow = numberOfPrecursors, ncol = numberOfPrecursors)
+  
+  for (i in 1:(numberOfPrecursors-1)) {
+    time <- proc.time()["user.self"]
+    if(time - lastOut > 1){
+      lastOut <- time
+      precursorProgress <- (i - lastPrecursor) / numberOfPrecursors
+      lastPrecursor <- i
+      if(!is.na(progress))  if(progress)  incProgress(amount = precursorProgress, detail = paste("Distance ", i, " / ", numberOfPrecursors)) else print(paste("Distance ", i, " / ", numberOfPrecursors))
+    }
+    
+    # Get fragments mz and normalized intensities for spectra1
+    mz1 <- featureMasses[[i]]
+    intensity1 <- featureMatrix[i,]
+    intensity1 <- intensity1[names(intensity1) %in% mz1]
+    precursor_mz1 <- precursorMasses[i]
+    
+    for (j in (i+1):numberOfPrecursors) {
+      
+      # Get fragments mz and normalized intensities for spectra
+      mz2 <- featureMasses[[j]]
+      intensity2 <- featureMatrix[j,]
+      intensity2 <- intensity2[names(intensity2) %in% mz2]
+      precursor_mz2 <- precursorMasses[j]
+      
+      # Calculate cosine score: 
+      cosine_score <- 
+        cosine_similarity(mz1, intensity1, precursor_mz1, 
+                          mz2, intensity2, precursor_mz2, 
+                          fragment_mz_tolerance = 0.01, allow_shift = allow_shift, 
+                          nl = nl, normalize = FALSE, method = 2)
+      
+      # Convert similarity to distance
+      distanceMatrix[i, j] <- 1 - cosine_score
+    }
+  }
+  
+  # Fill diagonal as 0 (identical), mirror upper half to lower half
+  diag(distanceMatrix) <- 0
+  distanceMatrix[lower.tri(distanceMatrix)] <- 
+    t(distanceMatrix)[lower.tri(distanceMatrix)]
+  
+  list(
+    distanceMatrix = distanceMatrix,
+    filter2 = filter2
+  )
+
+}
+
+
+#' Calculate cosine/modified cosine score
+#'
+#' @param mz1 numeric vector
+#' @param intensity1 numeric vector
+#' @param precursor_mz1 numeric
+#' @param mz2 numeric vector
+#' @param intensity2 numeric vector
+#' @param precursor_mz2 numeric
+#' @param fragment_mz_tolerance numeric
+#' @param allow_shift boolean
+#' @param nl boolean
+#' @param normalize boolean
+#' @param method 1 = normalise by euclidean norm, 2 = sqrt normalised intensity
+#' 
+#' @importFrom clue solve_LSAP
+#'
+#' @returns score
+#' @export
+cosine_similarity <- function(
+    mz1, intensity1, precursor_mz1, 
+    mz2, intensity2, precursor_mz2, 
+    fragment_mz_tolerance = 0.01,
+    allow_shift = TRUE,
+    nl = FALSE,
+    normalize = FALSE, 
+    method = 2) {
+  
+  # Determine if including neutral loss
+  if (!nl){
+    fragidx1 <- which(mz1>0)
+    mz1 <- mz1[fragidx1]
+    intensity1 <- intensity1[fragidx1]
+    
+    fragidx2 <- which(mz2>0) 
+    mz2 <- mz2[fragidx2]
+    intensity2 <- intensity2[fragidx2]
+  }
+  
+  # Normalize intensity vectors to unit norm (if needed)
+  if (normalize & method==1){
+    norm1 <- sqrt(sum(intensity1^2))
+    norm2 <- sqrt(sum(intensity2^2))
+    if (norm1 == 0 || norm2 == 0) return(0)
+    intensity1 <- intensity1 / norm1
+    intensity2 <- intensity2 / norm2
+  }
+  
+  # Determine if shifting (modified cosine) is used
+  mass_diff <- 0
+  precursor_mass_diff <- precursor_mz2 - precursor_mz1
+  if (allow_shift && abs(precursor_mass_diff) >= fragment_mz_tolerance) {
+    mass_diff <- c(0, precursor_mass_diff) 
+  }
+  
+  # Build cost matrix
+  cost_matrix <- matrix(0, nrow = length(mz1), ncol = length(mz2))
+  
+  for (i in seq_along(mz1)) {
+    for (z in seq_along(mass_diff)) {
+      mz2_shifted <- mz2 - mass_diff[z]
+      delta <- abs(mz1[i] - mz2_shifted)
+      matched <- which(delta <= fragment_mz_tolerance)
+      if (length(matched) >= 0) {
+        if (method == 1){
+          cost_matrix[i, matched] <- intensity1[i] * intensity2[matched]
+        } else if (method == 2){
+          # Method 2 normalization: sqrt of normalized intensity
+          cost_matrix[i, matched] <- sqrt(intensity1[i])/sqrt(sum(intensity1)) * sqrt(intensity2[matched])/sqrt(sum(intensity2))
+        }
+      }
+    }
+  }
+  
+  # Solve linear sum assignment
+  if(nrow(cost_matrix) > ncol(cost_matrix)) cost_matrix <- t(cost_matrix)
+  assignment <- clue::solve_LSAP(cost_matrix, maximum = TRUE)
+  matched_scores <- cost_matrix[cbind(seq_len(nrow(cost_matrix)), assignment)]
+  score <- sum(matched_scores[matched_scores > 0])
+  
+  return(score)
+}
+
 
 #' Create cluster object
 #'
@@ -839,7 +1074,7 @@ performPca <- function(dataList, dataFrame2, ms1AnalysisMethod){
   print("######################################################################################")
   print(ms1AnalysisMethod)
   
- 
+  
   ## TODO pcaMethods confidence intervals analog to MetaboAnalyst: pcaMethods:::simpleEllipse
   minimumNumberOfComponents <- 5
   numberOfComponents <- min(minimumNumberOfComponents, nrow(dataFrame2))
@@ -1098,14 +1333,14 @@ leaveOneOutCrossValidation_plsda <- function(dataFrame2, groupLabels, numberOfCo
 #'
 #' @param dataList listObject
 #' @param filterObj filterObject
-#' @param ms1AnalysisMethod 
-#' @param scaling 
-#' @param logTransform 
+#' @param ms1AnalysisMethod character
+#' @param scaling boolean
+#' @param logTransform boolean
 #'
 #' @returns PCA object
 #' @export
 calculatePCA <- function(dataList, filterObj, ms1AnalysisMethod, scaling, logTransform){
-
+  
   ## data selection
   if(filterObj$filterBySamples){
     dataFrame <- dataList$dataFrameMeasurements[filterObj$filter, filterObj$sampleSet]

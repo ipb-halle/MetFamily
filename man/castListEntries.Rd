@@ -7,7 +7,7 @@
 castListEntries(list)
 }
 \arguments{
-\item{list}{}
+\item{list}{list object}
 }
 \value{
 list of the same lenght with logical's and numeric's casted

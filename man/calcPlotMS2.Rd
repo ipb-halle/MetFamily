@@ -19,27 +19,27 @@ calcPlotMS2(
 )
 }
 \arguments{
-\item{dataList}{}
+\item{dataList}{dataList object}
 
-\item{fragmentsX}{}
+\item{fragmentsX}{?}
 
-\item{fragmentsY}{}
+\item{fragmentsY}{?}
 
-\item{fragmentsColor}{}
+\item{fragmentsColor}{?}
 
-\item{fragmentsDiscriminativity}{}
+\item{fragmentsDiscriminativity}{?}
 
-\item{fragmentsX_02}{}
+\item{fragmentsX_02}{?}
 
-\item{fragmentsY_02}{}
+\item{fragmentsY_02}{?}
 
-\item{fragmentsColor_02}{}
+\item{fragmentsColor_02}{?}
 
-\item{xInterval}{}
+\item{xInterval}{?}
 
-\item{selectedFragmentIndex}{}
+\item{selectedFragmentIndex}{?}
 
-\item{dendrogramFragmentStatistics}{}
+\item{dendrogramFragmentStatistics}{?}
 }
 \value{
 ?

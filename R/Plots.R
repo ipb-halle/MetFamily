@@ -1616,11 +1616,13 @@ plotLegendWithBalls1 <- function(labels, xPositions, yPositions, circleXPosition
 
 #' MS2 plot legend
 #'
-#' @param dataList 
+#' @param dataList list object
+#' @param minimumProportionOfLeafs numeric 
+#' @param minimumProportionToShowFragment numeric
 #'
 #' @returns ?
 #' @export
-calcPlotMS2Legend <- function(dataList){
+calcPlotMS2Legend <- function(dataList, minimumProportionOfLeafs = 0.75, minimumProportionToShowFragment = 0.5){
   ####################
   ## heatmap legend
   par(mar=c(0,0,0,0), mgp = c(3, 1, 0))  ## c(bottom, left, top, right)
@@ -1879,21 +1881,33 @@ createTickLabels <- function(maximumNumberOfLabels, max, labelPrefix){
 
 #' MS2 Plot
 #'
-#' @param dataList 
-#' @param fragmentsX 
-#' @param fragmentsY 
-#' @param fragmentsColor 
-#' @param fragmentsDiscriminativity 
-#' @param fragmentsX_02 
-#' @param fragmentsY_02 
-#' @param fragmentsColor_02 
-#' @param xInterval 
-#' @param selectedFragmentIndex 
-#' @param dendrogramFragmentStatistics 
+#' @param dataList dataList object
+#' @param fragmentsX ?
+#' @param fragmentsY ?
+#' @param fragmentsColor ?
+#' @param fragmentsDiscriminativity ?
+#' @param fragmentsX_02 ?
+#' @param fragmentsY_02 ?
+#' @param fragmentsColor_02 ?
+#' @param xInterval ?
+#' @param selectedFragmentIndex ?
+#' @param dendrogramFragmentStatistics ?
 #'
 #' @returns ?
 #' @export
-calcPlotMS2 <- function(dataList, fragmentsX = NULL, fragmentsY = NULL, fragmentsColor = NULL, fragmentsDiscriminativity = NULL, fragmentsX_02 = NULL, fragmentsY_02 = NULL, fragmentsColor_02 = NULL, xInterval = NULL, selectedFragmentIndex = NULL, dendrogramFragmentStatistics = FALSE){
+calcPlotMS2 <- function(
+    dataList, 
+    fragmentsX = NULL, 
+    fragmentsY = NULL, 
+    fragmentsColor = NULL, 
+    fragmentsDiscriminativity = NULL, 
+    fragmentsX_02 = NULL, 
+    fragmentsY_02 = NULL, 
+    fragmentsColor_02 = NULL, 
+    xInterval = NULL, 
+    selectedFragmentIndex = NULL, 
+    dendrogramFragmentStatistics = FALSE
+){
   
 
   ####################
@@ -2052,14 +2066,14 @@ getPcaPerformanceIndicator <- function(pcaObj, isScores, pcaDimensionOne, pcaDim
 
 #' PCA plot of samples
 #'
-#' @param pcaObj 
-#' @param dataList 
-#' @param filterObj 
+#' @param pcaObj list object
+#' @param dataList list object
+#' @param filterObj filter obj
 #' @param pcaDimensionOne first PCA axis
 #' @param pcaDimensionTwo second PCA axis
 #' @param showScoresLabels 
-#' @param xInterval 
-#' @param yInterval 
+#' @param xInterval numeric
+#' @param yInterval numeric
 #' @param downloadLayout boolean, set to TRUE for a different figure better suited for printing
 #'
 #' @returns makes a plot, returns NULL

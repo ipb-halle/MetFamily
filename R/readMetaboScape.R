@@ -1,9 +1,11 @@
 #' Read Metaboscape Output File into a QFeatures Object
 #'
-#' This function reads a metabolite profile output file (.xlsx) from Metaboscape and 
+#' This function reads a metabolite profile output file (.csv) from Metaboscape and 
 #' converts it into a QFeatures object.
+#' 
+#' At the moment, sample classes are not considered.
 #'
-#' @param file A character string specifying the path to the Metaboscape output file (Excel format).
+#' @param file A character string specifying the path to the Metaboscape output file (csv format).
 #' @param version A character string specifying the version of Metaboscape used to generate the file.
 #'   This parameter is currently not used.
 #'
@@ -14,7 +16,6 @@
 #'     \item Column data (sample metadata) extracted from the sample names, including injection order and sample name.
 #'   }
 #'   
-#' @importFrom openxlsx2 read_xlsx
 #' @importFrom QFeatures QFeatures
 #' @importFrom SummarizedExperiment SummarizedExperiment
 #'
@@ -22,8 +23,8 @@
 #'
 #' @examples
 #' \dontrun{
-#' # Assuming you have a Metaboscape output file named "data.xlsx":
-#' qf <- readMetaboscape("data.xlsx") #TODO: System file 
+#' # Assuming you have a Metaboscape output file named "data.csv":
+#' qf <- readMetaboscape("data.csv") #TODO: System file 
 #'
 #' 
 #' # Examine the structure of the resulting QFeatures object
@@ -50,40 +51,78 @@
 #' 
 readMetaboscape <- function(file, version){
   
-  table <- openxlsx2::read_xlsx(file)
-  rownames(table) <- table[,1]
-  colnames <- colnames(table)
-  colIdsSamples <- grepl("\\d+$", colnames)
+  # file <- file.path("../file-formats/Metaboscape-export-version 2025b",
+  #                   "UTH-2025-07-29-UTH003_002-conyza-test-samples.csv")
+  # file.exists(fileSpectra)
   
-  startOfSamples <- which(colIdsSamples)[1]
+  table <- readr::read_csv(file, col_types = readr::cols(
+    .default = readr::col_character())) %>% as.data.frame
+  
+  colMeanInt <- stringr::str_detect(colnames(table), "_MeanIntensity")
+  startOfSamples <- rev(which(colMeanInt))[1] + 1
+  colIdsSamples <- startOfSamples:length(table)
+  
+  # expected names
+  stopifnot(
+    identical(colnames(table[,1:11]),
+          c("FEATURE_ID", "RT", "PEPMASS", "CCS", "SIGMA_SCORE",
+            "NAME_METABOSCAPE", "MOLECULAR_FORMULA", "ADDUCT", 
+            "KEGG", "CAS", "MaxIntensity"))
+  )
+  
+  # match MS-Dial names "narrow" format
+  table <- table %>% 
+    dplyr::rename("Alignment ID" = "FEATURE_ID",
+           "Average Rt(min)" = "RT",
+           "Average Mz" = "PEPMASS",
+           "Metabolite name" = "NAME_METABOSCAPE",
+           "Adduct ion name" = "ADDUCT")
+  
+  # fix ION format
+  table <- table %>% 
+    mutate("Adduct ion name" = stringr::str_remove(`Adduct ion name`, "ION="))
+  
+  # rt in minutes
+  table <- table %>% 
+    dplyr::mutate(
+      `Average Rt(min)` = as.character(as.numeric(`Average Rt(min)`) / 60),
+      # needed to match to MGF spectra
+      `Average Mz` = as.character(as.numeric(`Average Mz`) - 1.00727))
+  
+  # colData
+  # TODO how to determine sample classes?
+  sampleNames <- colnames(table)[colIdsSamples]
+  colData <- data.frame(
+    Class = sampleNames,
+    Type = "Sample",
+    row.names = sampleNames
+  )
   
   # Extract ids and counts data
-  ids <- table[,1]
+  ids <- table %>% dplyr::pull(1)
   countsRaw     <- table[,colIdsSamples]
   countsNumeric <- apply(countsRaw, 2, as.numeric)
   counts <- as.matrix(countsNumeric)
+  colnames(counts) <- sampleNames
   rownames(counts) <- ids
   
   # Extract rowData
-  rowData <- table[,!colIdsSamples]
+  rowData <- table[1:11]
+  # which(colMeanInt)[1] - 1
   rownames(rowData) <- ids 
- 
-  # Extract colData from sample Names
-  sampleNames <- colnames(table[,colIdsSamples])
-  colDataRaw <- sapply(sampleNames, function(x) {
-    # find position of the first character before the Run number
-    pos <- max(gregexpr("[^0-9]", x)[[1]])
-      c(substr(x, 1, (pos - 1)), substr(x, pos + 1, nchar(x)))
-  })
-  colData <- data.frame("Injection order" = colDataRaw[2,],
-                       "Sample name" = colDataRaw[1,])
-                    
+  
   # Create SummarizedExperiment object
-  sumExp <- SummarizedExperiment::SummarizedExperiment(assays = list(counts = counts),
-                                 rowData = rowData,
-                                 colData = colData)
-  rownames(sumExp)
+  sumExp <- SummarizedExperiment::SummarizedExperiment(
+    assays = list(counts = counts),
+    rowData = rowData,
+    colData = colData
+  )
+  
   # Create QFeatures object
-  qf <- QFeatures::QFeatures(list(exampleAssay = sumExp), colData = colData(sumExp))
+  qf <- QFeatures::QFeatures(
+    list(exampleAssay = sumExp), 
+    colData = SummarizedExperiment::colData(sumExp)
+  )
+  
   qf
 }

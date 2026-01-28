@@ -577,7 +577,7 @@ getClassifierProperties <- function(propertiesFile){
 
 #' Classifiers
 #'
-#' @param resultFolderForClassifiers 
+#' @param resultFolderForClassifiers ?
 #'
 #' @returns ?
 #' @export

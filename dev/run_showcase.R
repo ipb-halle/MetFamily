@@ -2,9 +2,13 @@ library(MetFamily)
 
 # runMetFamily()
 
-project_path <- system.file("extdata/showcase/Project_file_showcase_annotated.csv.gz", package = "MetFamily")
-project <- readClusterDataFromProjectFile(file = project_path)
 
+# Using project file ------------------------------------------------------
+
+project_path <- system.file("extdata/showcase/Project_file_showcase_annotated.csv.gz", package = "MetFamily")
+project <- readProjectFile(file = project_path)
+
+# and previously saved filter object
 filter_path <- system.file("extdata/testdata/filterObj.Rdata", package = "MetFamily")
 load(filter_path) 
 
@@ -64,3 +68,31 @@ showLoadingsFeaturesAnnotated   = TRUE
 showLoadingsFeaturesUnannotated = TRUE
 showLoadingsFeaturesSelected    = TRUE
 showLoadingsFeaturesUnselected  = TRUE
+
+
+
+
+# Using separate files ----------------------------------------------------
+
+# MS1 intensities
+filePeakMatrixPath <- system.file("extdata/showcase/Metabolite_profile_showcase.txt", package = "MetFamily")
+
+# MS2 spectra
+fileSpectra <- system.file("extdata/showcase/MSMS_library_showcase.msp", package = "MetFamily")
+
+# Sirius annotations
+fileAnnotation <- system.file("extdata/testdata/canopus/canopus1680.txt", package = "MetFamily")
+
+# We use default import parameters
+parameterSet <- parameterSetDefault()
+parameterSet$minimumIntensityOfMaximalMS2peak <- 2000
+parameterSet$minimumProportionOfMS2peaks <- 0.05
+
+
+dataList <- projectFromFiles(
+  ms1_path = filePeakMatrixPath, 
+  ms2_path = fileSpectra, 
+  siriusFileColumnName = "ClassyFire class",
+  parameterSet = parameterSet,
+  annot_path = fileAnnotation
+)
