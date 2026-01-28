@@ -26,7 +26,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">MetFamily</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.99.10</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.99.14</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -61,20 +61,22 @@
   <main id="main" class="col-md-9"><div class="page-header">
 
       <h1>Discovering regulated Metabolite Families</h1>
-                        <h4 data-toc-skip class="author">Khabat
-Vahabi</h4>
-            <address class="author_afil">
-      Leibniz Institute of Plant
-Biochemistry<br><h4 data-toc-skip class="author">Steffen
+                        <h4 data-toc-skip class="author">Steffen
 Neumann</h4>
             <address class="author_afil">
       Leibniz Institute of Plant
 Biochemistry<br><a class="author_email" href="mailto:#"></a><a href="mailto:sneumann@ipb-halle.de" class="email">sneumann@ipb-halle.de</a>
       </address>
-                  
-      
-
-      <div class="d-none name"><code>discoveringregulatedmetabolitefamilies.Rmd</code></div>
+                              <h4 data-toc-skip class="author">Guillaume
+Patoine</h4>
+            <address class="author_afil">
+      Leibniz Institute of Plant
+Biochemistry<br><a class="author_email" href="mailto:#"></a><a href="mailto:gpatoine@ipb-halle.de" class="email">gpatoine@ipb-halle.de</a>
+      </address>
+                              <h4 data-toc-skip class="author">Khabat
+Vahabi</h4>
+            <address class="author_afil">
+      Leibniz Institute of Plant Biochemistry<br><div class="d-none name"><code>discoveringregulatedmetabolitefamilies.Rmd</code></div>
     </address>
 </div>
 
@@ -85,36 +87,55 @@ Biochemistry<br><a class="author_email" href="mailto:#"></a><a href="mailto:sneu
     </div>
     
 <div class="section level2">
-<h2 id="introduction">Introduction<a class="anchor" aria-label="anchor" href="#introduction"></a>
+<h2 id="metfamily">MetFamily<a class="anchor" aria-label="anchor" href="#metfamily"></a>
 </h2>
-<p>Some text about the scenario, data and MTBLS297.</p>
-<p>Cool paper <span class="citation">[1]</span>.</p>
-<p>Cool R package: <em><a href="https://github.com/ipb-halle/MetFamily" class="external-link">MetFamily</a></em></p>
+<p>MetFamily is an R package that provides a novel approach for the
+untargeted discovery of metabolite families.</p>
+<p>Read more on the GitHub repository: <a href="https://github.com/ipb-halle/MetFamily" class="external-link uri">https://github.com/ipb-halle/MetFamily</a></p>
+<p>We first need to install the development version of the package.</p>
+<div class="sourceCode" id="cb1"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="fu">remotes</span><span class="fu">::</span><span class="fu">install_github</span><span class="op">(</span><span class="st">"ipb-halle/MetFamily@devel"</span><span class="op">)</span></span></code></pre></div>
+<div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="co"># And load it</span></span>
+<span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="http://ipb-halle.github.io/MetFamily/">MetFamily</a></span><span class="op">)</span></span></code></pre></div>
 </div>
 <div class="section level2">
-<h2 id="loading-the-data">Loading the data<a class="anchor" aria-label="anchor" href="#loading-the-data"></a>
+<h2 id="dataset">Dataset<a class="anchor" aria-label="anchor" href="#dataset"></a>
 </h2>
-<p>First, we load the data and summarise it</p>
-<div class="sourceCode" id="cb1"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="co"># Load separate files</span></span>
+<p>The following analysis looks into metabolites found in glandular
+trichomes of tomato plants. See the referenced paper for additional
+information <span class="citation">[1]</span>.</p>
+<p>The dataset is provided in the MetFamily package.</p>
+<div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="co"># MS1 intensities</span></span>
 <span><span class="va">filePeakMatrixPath</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/system.file.html" class="external-link">system.file</a></span><span class="op">(</span><span class="st">"extdata/showcase/Metabolite_profile_showcase.txt"</span>, package <span class="op">=</span> <span class="st">"MetFamily"</span><span class="op">)</span></span>
+<span></span>
+<span><span class="co"># MS2 spectra</span></span>
 <span><span class="va">fileSpectra</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/system.file.html" class="external-link">system.file</a></span><span class="op">(</span><span class="st">"extdata/showcase/MSMS_library_showcase.msp"</span>, package <span class="op">=</span> <span class="st">"MetFamily"</span><span class="op">)</span></span>
+<span></span>
+<span><span class="co"># Sirius annotations</span></span>
 <span><span class="va">fileAnnotation</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/system.file.html" class="external-link">system.file</a></span><span class="op">(</span><span class="st">"extdata/testdata/canopus/canopus1680.txt"</span>, package <span class="op">=</span> <span class="st">"MetFamily"</span><span class="op">)</span></span>
 <span></span>
+<span><span class="co"># We use default import parameters</span></span>
 <span><span class="va">parameterSet</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/parameterSetDefault.html">parameterSetDefault</a></span><span class="op">(</span><span class="op">)</span></span>
+<span><span class="va">parameterSet</span><span class="op">$</span><span class="va">minimumIntensityOfMaximalMS2peak</span> <span class="op">&lt;-</span> <span class="fl">2000</span></span>
+<span><span class="va">parameterSet</span><span class="op">$</span><span class="va">minimumProportionOfMS2peaks</span> <span class="op">&lt;-</span> <span class="fl">0.05</span></span>
 <span></span>
-<span><span class="va">dataList</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/projectFromFiles.html">projectFromFiles</a></span><span class="op">(</span><span class="va">filePeakMatrixPath</span>, </span>
-<span>                              <span class="va">fileSpectra</span>,</span>
-<span>                              parameterSet <span class="op">=</span> <span class="va">parameterSet</span>,</span>
-<span>                              annot_path <span class="op">=</span><span class="va">fileAnnotation</span><span class="op">)</span></span></code></pre></div>
+<span></span>
+<span><span class="va">dataList</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/projectFromFiles.html">projectFromFiles</a></span><span class="op">(</span></span>
+<span>  ms1_path <span class="op">=</span> <span class="va">filePeakMatrixPath</span>, </span>
+<span>  ms2_path <span class="op">=</span> <span class="va">fileSpectra</span>, </span>
+<span>  siriusFileColumnName <span class="op">=</span> <span class="st">"ClassyFire class"</span>,</span>
+<span>  parameterSet <span class="op">=</span> <span class="va">parameterSet</span>,</span>
+<span>  annot_path <span class="op">=</span> <span class="va">fileAnnotation</span></span>
+<span><span class="op">)</span></span></code></pre></div>
 <pre><code><span><span class="co">## [1] "Parsing MS/MS file..."</span></span>
-<span><span class="co">## [1] "MS/MS file: Read file"</span></span>
-<span><span class="co">## [1] "MS/MS file: Parse"</span></span>
-<span><span class="co">## [1] "MS/MS file: Assemble spectra"</span></span>
-<span><span class="co">## [1] "MS/MS file: Box"</span></span>
-<span><span class="co">## [1] "MS/MS file postprocessing"</span></span>
-<span><span class="co">## [1] "MS/MS file boxing"</span></span>
-<span><span class="co">## [1] "Parsing MS/MS file ready"</span></span>
+<span><span class="co">## [1] "Parsing MS/MS file..."</span></span></code></pre>
+<pre><code><span><span class="co">## MS/MS file: Read file</span></span></code></pre>
+<pre><code><span><span class="co">## MS/MS file: Parse</span></span></code></pre>
+<pre><code><span><span class="co">## MS/MS file: Filter</span></span></code></pre>
+<pre><code><span><span class="co">## MS/MS file: Assemble spectra</span></span></code></pre>
+<pre><code><span><span class="co">## [1] "Parsing MS/MS file ready"</span></span>
 <span><span class="co">## [1] "Parsing MS1 file..."</span></span>
 <span><span class="co">## [1] "Parsing MS1 file content..."</span></span>
 <span><span class="co">## [1] "Precursor deisotoping..."</span></span>
@@ -134,35 +155,35 @@ Biochemistry<br><a class="author_email" href="mailto:#"></a><a href="mailto:sneu
 <span><span class="co">## [1] "Fragment grouping preprocessing..."</span></span>
 <span><span class="co">## [1] "Fragment grouping preprocessing ready"</span></span>
 <span><span class="co">## [1] "Fragment grouping"</span></span>
-<span><span class="co">## [1] "Fragment grouping 54 / 62300"</span></span>
-<span><span class="co">## [1] "Fragment grouping 31151 / 62300"</span></span>
+<span><span class="co">## [1] "Fragment grouping 34 / 86970"</span></span>
+<span><span class="co">## [1] "Fragment grouping 27083 / 86970"</span></span>
 <span><span class="co">## </span></span>
-<span><span class="co">## [1] "Fragment grouping ready (3.49103379249573s)"</span></span>
+<span><span class="co">## [1] "Fragment grouping ready (4.00752353668213s)"</span></span>
 <span><span class="co">## [1] "Fragment group postprocessing"</span></span>
-<span><span class="co">## [1] "Fragment group postprocessing: 1394 / 13943"</span></span>
-<span><span class="co">## [1] "Fragment group postprocessing: 2788 / 13943"</span></span>
-<span><span class="co">## [1] "Fragment group postprocessing: 4182 / 13943"</span></span>
-<span><span class="co">## [1] "Fragment group postprocessing: 5576 / 13943"</span></span>
-<span><span class="co">## [1] "Fragment group postprocessing: 6970 / 13943"</span></span>
-<span><span class="co">## [1] "Fragment group postprocessing: 8364 / 13943"</span></span>
-<span><span class="co">## [1] "Fragment group postprocessing: 9758 / 13943"</span></span>
-<span><span class="co">## [1] "Fragment group postprocessing: 11152 / 13943"</span></span>
-<span><span class="co">## [1] "Fragment group postprocessing: 12546 / 13943"</span></span>
-<span><span class="co">## [1] "Fragment group postprocessing: 13940 / 13943"</span></span>
-<span><span class="co">## [1] "Fragment group postprocessing ready (1.60024857521057s)"</span></span>
+<span><span class="co">## [1] "Fragment group postprocessing: 1858 / 18589"</span></span>
+<span><span class="co">## [1] "Fragment group postprocessing: 3716 / 18589"</span></span>
+<span><span class="co">## [1] "Fragment group postprocessing: 5574 / 18589"</span></span>
+<span><span class="co">## [1] "Fragment group postprocessing: 7432 / 18589"</span></span>
+<span><span class="co">## [1] "Fragment group postprocessing: 9290 / 18589"</span></span>
+<span><span class="co">## [1] "Fragment group postprocessing: 11148 / 18589"</span></span>
+<span><span class="co">## [1] "Fragment group postprocessing: 13006 / 18589"</span></span>
+<span><span class="co">## [1] "Fragment group postprocessing: 14864 / 18589"</span></span>
+<span><span class="co">## [1] "Fragment group postprocessing: 16722 / 18589"</span></span>
+<span><span class="co">## [1] "Fragment group postprocessing: 18580 / 18589"</span></span>
+<span><span class="co">## [1] "Fragment group postprocessing ready (2.77388501167297s)"</span></span>
 <span><span class="co">## [1] "Boxing to matrix"</span></span>
 <span><span class="co">## [1] "Fragment group deisotoping"</span></span>
-<span><span class="co">## [1] "Fragment group deisotoping 1394 / 13943"</span></span>
-<span><span class="co">## [1] "Fragment group deisotoping 2788 / 13943"</span></span>
-<span><span class="co">## [1] "Fragment group deisotoping 4182 / 13943"</span></span>
-<span><span class="co">## [1] "Fragment group deisotoping 5576 / 13943"</span></span>
-<span><span class="co">## [1] "Fragment group deisotoping 6970 / 13943"</span></span>
-<span><span class="co">## [1] "Fragment group deisotoping 8364 / 13943"</span></span>
-<span><span class="co">## [1] "Fragment group deisotoping 9758 / 13943"</span></span>
-<span><span class="co">## [1] "Fragment group deisotoping 11152 / 13943"</span></span>
-<span><span class="co">## [1] "Fragment group deisotoping 12546 / 13943"</span></span>
-<span><span class="co">## [1] "Fragment group deisotoping 13940 / 13943"</span></span>
-<span><span class="co">## [1] "Fragment group deisotoping ready (7.99669599533081s)"</span></span>
+<span><span class="co">## [1] "Fragment group deisotoping 1858 / 18589"</span></span>
+<span><span class="co">## [1] "Fragment group deisotoping 3716 / 18589"</span></span>
+<span><span class="co">## [1] "Fragment group deisotoping 5574 / 18589"</span></span>
+<span><span class="co">## [1] "Fragment group deisotoping 7432 / 18589"</span></span>
+<span><span class="co">## [1] "Fragment group deisotoping 9290 / 18589"</span></span>
+<span><span class="co">## [1] "Fragment group deisotoping 11148 / 18589"</span></span>
+<span><span class="co">## [1] "Fragment group deisotoping 13006 / 18589"</span></span>
+<span><span class="co">## [1] "Fragment group deisotoping 14864 / 18589"</span></span>
+<span><span class="co">## [1] "Fragment group deisotoping 16722 / 18589"</span></span>
+<span><span class="co">## [1] "Fragment group deisotoping 18580 / 18589"</span></span>
+<span><span class="co">## [1] "Fragment group deisotoping ready (13.2282903194427s)"</span></span>
 <span><span class="co">## [1] "Fragment group boxing"</span></span>
 <span><span class="co">## [1] "Building fragment mzFragmentGroups ready"</span></span></code></pre>
 <pre><code><span><span class="co">## 'as(&lt;dgCMatrix&gt;, "dgTMatrix")' is deprecated.</span></span>
@@ -170,8 +191,9 @@ Biochemistry<br><a class="author_email" href="mailto:#"></a><a href="mailto:sneu
 <span><span class="co">## See help("Deprecated") and help("Matrix-deprecated").</span></span></code></pre>
 <pre><code><span><span class="co">## [1] "Boxing..."</span></span>
 <span><span class="co">## [1] "Ready"</span></span>
-<span><span class="co">## [1] "Preprocessing 964 / 2414"</span></span>
-<span><span class="co">## [1] "Preprocessing 1941 / 2414"</span></span>
+<span><span class="co">## [1] "Preprocessing 473 / 2463"</span></span>
+<span><span class="co">## [1] "Preprocessing 1222 / 2463"</span></span>
+<span><span class="co">## [1] "Preprocessing 1965 / 2463"</span></span>
 <span><span class="co">## [1] "Features"</span></span>
 <span><span class="co">## [1] "Feature postprocessing"</span></span>
 <span><span class="co">## [1] "Coloring"</span></span>
@@ -187,49 +209,94 @@ Biochemistry<br><a class="author_email" href="mailto:#"></a><a href="mailto:sneu
 <div class="section level2">
 <h2 id="filtering-data">Filtering data<a class="anchor" aria-label="anchor" href="#filtering-data"></a>
 </h2>
-<p>We can filter the data to remove low quality data points</p>
-<div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">filterObj</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/makeFilterObj.html">makeFilterObj</a></span><span class="op">(</span><span class="va">dataList</span>, filter_average <span class="op">=</span> <span class="fl">10000</span>, filter_lfc <span class="op">=</span> <span class="fl">2</span><span class="op">)</span></span>
+<p>We use a filter for the intensity threshold and log2-fold-change to
+remove noise and focus on features of interest.</p>
+<div class="sourceCode" id="cb12"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">filterObj</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/makeFilterObj.html">makeFilterObj</a></span><span class="op">(</span><span class="va">dataList</span>, filter_average <span class="op">=</span> <span class="fl">10000</span>, filter_lfc <span class="op">=</span> <span class="fl">2</span><span class="op">)</span></span></code></pre></div>
+</div>
+<div class="section level2">
+<h2 id="pca-figures">PCA figures<a class="anchor" aria-label="anchor" href="#pca-figures"></a>
+</h2>
+<div class="sourceCode" id="cb13"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">pca</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/calculatePCA.html">calculatePCA</a></span><span class="op">(</span>dataList<span class="op">=</span><span class="va">dataList</span>,</span>
+<span>                    filterObj<span class="op">=</span><span class="va">filterObj</span>, </span>
+<span>                    ms1AnalysisMethod<span class="op">=</span><span class="st">"PCA (Principal Component Analysis)"</span>, </span>
+<span>                    scaling<span class="op">=</span><span class="st">"None"</span>, </span>
+<span>                    logTransform<span class="op">=</span><span class="cn">FALSE</span><span class="op">)</span></span></code></pre></div>
+<pre><code><span><span class="co">## [1] "######################################################################################"</span></span>
+<span><span class="co">## [1] "PCA (Principal Component Analysis)"</span></span>
+<span><span class="co">## [1] "Analysis: pcaMethods"</span></span></code></pre>
+<div class="sourceCode" id="cb15"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">resultObj</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/calcPlotPCAscores.html">calcPlotPCAscores</a></span><span class="op">(</span></span>
+<span>  pcaObj <span class="op">=</span> <span class="va">pca</span>, </span>
+<span>  dataList <span class="op">=</span> <span class="va">dataList</span>,</span>
+<span>  filterObj <span class="op">=</span> <span class="va">filterObj</span>,</span>
+<span>  showScoresLabels <span class="op">=</span> <span class="cn">FALSE</span>, </span>
+<span>  xInterval <span class="op">=</span> <span class="cn">NULL</span>, </span>
+<span>  yInterval <span class="op">=</span> <span class="cn">NULL</span></span>
+<span><span class="op">)</span></span></code></pre></div>
+<div class="figure">
+<img src="discoveringregulatedmetabolitefamilies_files/figure-html/pca-1.png" class="r-plt" alt="PCA scores of MS1" width="700"><p class="caption">
+PCA scores of MS1
+</p>
+</div>
+<div class="sourceCode" id="cb16"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">resultObj</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/calcPlotPCAloadings.html">calcPlotPCAloadings</a></span><span class="op">(</span></span>
+<span>  pcaObj <span class="op">=</span> <span class="va">pca</span>,</span>
+<span>  dataList <span class="op">=</span> <span class="va">dataList</span>,</span>
+<span>  <span class="co"># filter = filterObj$filter, # deprecated</span></span>
+<span>  selectionFragmentPcaLoadingSet <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  selectionAnalysisPcaLoadingSet <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  selectionSearchPcaLoadingSet   <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  xInterval <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  yInterval <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  loadingsLabels <span class="op">=</span> <span class="st">"None"</span>,</span>
+<span>  showLoadingsAbundance <span class="op">=</span> <span class="cn">FALSE</span>,</span>
+<span>  showLoadingsFeaturesAnnotated   <span class="op">=</span> <span class="cn">TRUE</span>,</span>
+<span>  showLoadingsFeaturesUnannotated <span class="op">=</span> <span class="cn">TRUE</span>,</span>
+<span>  showLoadingsFeaturesSelected    <span class="op">=</span> <span class="cn">TRUE</span>,</span>
+<span>  showLoadingsFeaturesUnselected  <span class="op">=</span> <span class="cn">TRUE</span></span>
+<span><span class="op">)</span></span></code></pre></div>
+<div class="figure">
+<img src="discoveringregulatedmetabolitefamilies_files/figure-html/pca-load-1.png" class="r-plt" alt="PCA loadings of MS1" width="700"><p class="caption">
+PCA loadings of MS1
+</p>
+</div>
+</div>
+<div class="section level2">
+<h2 id="hca-figure-on-ms2">HCA figure on MS2<a class="anchor" aria-label="anchor" href="#hca-figure-on-ms2"></a>
+</h2>
+<div class="section level4">
+<h4 id="in-construction">In construction…<a class="anchor" aria-label="anchor" href="#in-construction"></a>
+</h4>
+<div class="sourceCode" id="cb17"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">fileName</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/system.file.html" class="external-link">system.file</a></span><span class="op">(</span><span class="st">"extdata/testdata/clusterDataList.Rdata"</span>, package <span class="op">=</span> <span class="st">"MetFamily"</span><span class="op">)</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/base/load.html" class="external-link">load</a></span><span class="op">(</span><span class="va">fileName</span><span class="op">)</span> </span>
+<span><span class="va">fileName</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/system.file.html" class="external-link">system.file</a></span><span class="op">(</span><span class="st">"extdata/testdata/hcaFilter.Rdata"</span>, package <span class="op">=</span> <span class="st">"MetFamily"</span><span class="op">)</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/base/load.html" class="external-link">load</a></span><span class="op">(</span><span class="va">fileName</span><span class="op">)</span> </span>
 <span></span>
-<span><span class="co"># fileName &lt;- system.file("extdata/testdata/canopus/filterPca_canopus.rds", package = "MetFamily")</span></span>
-<span><span class="co"># filterObj_file &lt;- readRDS(fileName)</span></span>
-<span><span class="co"># identical(filterObj_file, filterObj)</span></span></code></pre></div>
-</div>
-<div class="section level2">
-<h2 id="pca">PCA<a class="anchor" aria-label="anchor" href="#pca"></a>
-</h2>
-<p>PCA on MS1 in Figure @ref(fig:pca).</p>
-<pre><code><span><span class="co">## [1] "######################################################################################"</span></span>
-<span><span class="co">## [1] "PCA (Principal Component Analysis)"</span></span>
-<span><span class="co">## [1] "Analysis: pcaMethods"</span></span></code></pre>
+<span><span class="kw"><a href="https://rdrr.io/r/base/conditions.html" class="external-link">tryCatch</a></span><span class="op">(</span></span>
+<span>  <span class="va">returnObj</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/calcPlotDendrogram.html">calcPlotDendrogram</a></span><span class="op">(</span></span>
+<span>    dataList<span class="op">=</span><span class="va">dataList</span>, <span class="co">#project, </span></span>
+<span>    filter<span class="op">=</span><span class="va">filter</span>, </span>
+<span>    clusterDataList<span class="op">=</span><span class="va">clusterDataList</span>, </span>
+<span>    annoPresentAnnotationsList <span class="op">=</span> <span class="va">annoPresentAnnotationsList</span> ,</span>
+<span>    annoPresentColorsList <span class="op">=</span> <span class="va">annoPresentColorsList</span>,</span>
+<span>    distanceMeasure<span class="op">=</span><span class="st">"Jaccard (intensity-weighted)"</span>, </span>
+<span>    selectionFragmentTreeNodeSet <span class="op">=</span> <span class="cn">NULL</span>, </span>
+<span>    selectionAnalysisTreeNodeSet <span class="op">=</span> <span class="cn">NULL</span>, </span>
+<span>    selectionSearchTreeNodeSet <span class="op">=</span> <span class="cn">NULL</span>, </span>
+<span>    showClusterLabels <span class="op">=</span> <span class="cn">TRUE</span>, </span>
+<span>    hcaPrecursorLabels <span class="op">=</span> <span class="st">"m/z / RT"</span>, </span>
+<span>    xInterval <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">1</span>,<span class="fl">219</span><span class="op">)</span><span class="op">)</span>,</span>
+<span>  error <span class="op">=</span> \<span class="op">(</span><span class="va">x</span><span class="op">)</span><span class="op">{</span><span class="fu"><a href="https://rdrr.io/r/base/invisible.html" class="external-link">invisible</a></span><span class="op">(</span><span class="cn">NULL</span><span class="op">)</span><span class="op">}</span></span>
+<span><span class="op">)</span></span></code></pre></div>
 <div class="figure">
-<img src="discoveringregulatedmetabolitefamilies_files/figure-html/pca-1.png" alt="PCA of MS1." width="700"><p class="caption">
-PCA of MS1.
-</p>
-</div>
-<div class="figure">
-<img src="discoveringregulatedmetabolitefamilies_files/figure-html/pca-2.png" alt="PCA of MS1." width="700"><p class="caption">
-PCA of MS1.
-</p>
-</div>
-<pre><code><span><span class="co">## [1] "######################################################################################"</span></span>
-<span><span class="co">## [1] "PCA (Principal Component Analysis)"</span></span>
-<span><span class="co">## [1] "Analysis: pcaMethods"</span></span></code></pre>
-<div class="figure">
-<img src="discoveringregulatedmetabolitefamilies_files/figure-html/pca-3.png" alt="PCA of MS1." width="700"><p class="caption">
-PCA of MS1.
-</p>
-</div>
-<div class="figure">
-<img src="discoveringregulatedmetabolitefamilies_files/figure-html/pca-4.png" alt="PCA of MS1." width="700"><p class="caption">
-PCA of MS1.
+<img src="discoveringregulatedmetabolitefamilies_files/figure-html/hca2-1.png" class="r-plt" alt="HCA on MS2" width="700"><p class="caption">
+HCA on MS2
 </p>
 </div>
 </div>
-<div class="section level2">
-<h2 id="hca">HCA<a class="anchor" aria-label="anchor" href="#hca"></a>
-</h2>
-<p>HCA on MS2 in Figure @ref(fig:hca).</p>
 </div>
 <div class="section level2">
 <h2 class="unnumbered" id="references">References<a class="anchor" aria-label="anchor" href="#references"></a>
@@ -244,101 +311,6 @@ Balcke GU: <strong><a href="https://doi.org/10.1021/acs.analchem.6b01569" class=
 </div>
 </div>
 </div>
-<div class="section level2">
-<h2 class="unnumbered" id="appendix">Appendix<a class="anchor" aria-label="anchor" href="#appendix"></a>
-</h2>
-<div class="section level3">
-<h3 id="session-info">Session info<a class="anchor" aria-label="anchor" href="#session-info"></a>
-</h3>
-<pre><code><span><span class="co">## R version 4.5.1 (2025-06-13)</span></span>
-<span><span class="co">## Platform: x86_64-pc-linux-gnu</span></span>
-<span><span class="co">## Running under: Ubuntu 24.04.2 LTS</span></span>
-<span><span class="co">## </span></span>
-<span><span class="co">## Matrix products: default</span></span>
-<span><span class="co">## BLAS:   /usr/lib/x86_64-linux-gnu/openblas-pthread/libblas.so.3 </span></span>
-<span><span class="co">## LAPACK: /usr/lib/x86_64-linux-gnu/openblas-pthread/libopenblasp-r0.3.26.so;  LAPACK version 3.12.0</span></span>
-<span><span class="co">## </span></span>
-<span><span class="co">## locale:</span></span>
-<span><span class="co">##  [1] LC_CTYPE=C.UTF-8       LC_NUMERIC=C           LC_TIME=C.UTF-8       </span></span>
-<span><span class="co">##  [4] LC_COLLATE=C.UTF-8     LC_MONETARY=C.UTF-8    LC_MESSAGES=C.UTF-8   </span></span>
-<span><span class="co">##  [7] LC_PAPER=C.UTF-8       LC_NAME=C              LC_ADDRESS=C          </span></span>
-<span><span class="co">## [10] LC_TELEPHONE=C         LC_MEASUREMENT=C.UTF-8 LC_IDENTIFICATION=C   </span></span>
-<span><span class="co">## </span></span>
-<span><span class="co">## time zone: UTC</span></span>
-<span><span class="co">## tzcode source: system (glibc)</span></span>
-<span><span class="co">## </span></span>
-<span><span class="co">## attached base packages:</span></span>
-<span><span class="co">## [1] stats     graphics  grDevices utils     datasets  methods   base     </span></span>
-<span><span class="co">## </span></span>
-<span><span class="co">## other attached packages:</span></span>
-<span><span class="co">## [1] MetFamily_0.99.10 BiocStyle_2.36.0 </span></span>
-<span><span class="co">## </span></span>
-<span><span class="co">## loaded via a namespace (and not attached):</span></span>
-<span><span class="co">##   [1] DBI_1.2.3                   rlang_1.1.6                </span></span>
-<span><span class="co">##   [3] magrittr_2.0.3              clue_0.3-66                </span></span>
-<span><span class="co">##   [5] MassSpecWavelet_1.74.0      matrixStats_1.5.0          </span></span>
-<span><span class="co">##   [7] compiler_4.5.1              systemfonts_1.2.3          </span></span>
-<span><span class="co">##   [9] vctrs_0.6.5                 reshape2_1.4.4             </span></span>
-<span><span class="co">##  [11] stringr_1.5.1               ProtGenerics_1.40.0        </span></span>
-<span><span class="co">##  [13] MetaboCoreUtils_1.16.1      pkgconfig_2.0.3            </span></span>
-<span><span class="co">##  [15] crayon_1.5.3                fastmap_1.2.0              </span></span>
-<span><span class="co">##  [17] XVector_0.48.0              promises_1.3.3             </span></span>
-<span><span class="co">##  [19] rmarkdown_2.29              preprocessCore_1.70.0      </span></span>
-<span><span class="co">##  [21] UCSC.utils_1.4.0            xcms_4.6.3                 </span></span>
-<span><span class="co">##  [23] ragg_1.4.0                  purrr_1.1.0                </span></span>
-<span><span class="co">##  [25] xfun_0.52                   MultiAssayExperiment_1.34.0</span></span>
-<span><span class="co">##  [27] cachem_1.1.0                GenomeInfoDb_1.44.1        </span></span>
-<span><span class="co">##  [29] jsonlite_2.0.0              progress_1.2.3             </span></span>
-<span><span class="co">##  [31] later_1.4.2                 DelayedArray_0.34.1        </span></span>
-<span><span class="co">##  [33] BiocParallel_1.42.1         prettyunits_1.2.0          </span></span>
-<span><span class="co">##  [35] parallel_4.5.1              cluster_2.1.8.1            </span></span>
-<span><span class="co">##  [37] R6_2.6.1                    bslib_0.9.0                </span></span>
-<span><span class="co">##  [39] stringi_1.8.7               RColorBrewer_1.1-3         </span></span>
-<span><span class="co">##  [41] limma_3.64.3                GenomicRanges_1.60.0       </span></span>
-<span><span class="co">##  [43] jquerylib_0.1.4             iterators_1.0.14           </span></span>
-<span><span class="co">##  [45] Rcpp_1.1.0                  bookdown_0.43              </span></span>
-<span><span class="co">##  [47] SummarizedExperiment_1.38.1 knitr_1.50                 </span></span>
-<span><span class="co">##  [49] IRanges_2.42.0              BiocBaseUtils_1.10.0       </span></span>
-<span><span class="co">##  [51] httpuv_1.6.16               Matrix_1.7-3               </span></span>
-<span><span class="co">##  [53] igraph_2.1.4                tidyselect_1.2.1           </span></span>
-<span><span class="co">##  [55] abind_1.4-8                 yaml_2.3.10                </span></span>
-<span><span class="co">##  [57] doParallel_1.0.17           affy_1.86.0                </span></span>
-<span><span class="co">##  [59] codetools_0.2-20            lattice_0.22-7             </span></span>
-<span><span class="co">##  [61] tibble_3.3.0                plyr_1.8.9                 </span></span>
-<span><span class="co">##  [63] Biobase_2.68.0              shiny_1.11.1               </span></span>
-<span><span class="co">##  [65] evaluate_1.0.4              desc_1.4.3                 </span></span>
-<span><span class="co">##  [67] Spectra_1.18.2              zip_2.3.3                  </span></span>
-<span><span class="co">##  [69] affyio_1.78.0               pillar_1.11.0              </span></span>
-<span><span class="co">##  [71] BiocManager_1.30.26         MatrixGenerics_1.20.0      </span></span>
-<span><span class="co">##  [73] foreach_1.5.2               stats4_4.5.1               </span></span>
-<span><span class="co">##  [75] MALDIquant_1.22.3           MSnbase_2.34.1             </span></span>
-<span><span class="co">##  [77] plotly_4.11.0               ncdf4_1.24                 </span></span>
-<span><span class="co">##  [79] generics_0.1.4              hms_1.1.3                  </span></span>
-<span><span class="co">##  [81] S4Vectors_0.46.0            ggplot2_3.5.2              </span></span>
-<span><span class="co">##  [83] scales_1.4.0                MsExperiment_1.10.1        </span></span>
-<span><span class="co">##  [85] openxlsx2_1.18              xtable_1.8-4               </span></span>
-<span><span class="co">##  [87] glue_1.8.0                  MsFeatures_1.16.0          </span></span>
-<span><span class="co">##  [89] lazyeval_0.2.2              tools_4.5.1                </span></span>
-<span><span class="co">##  [91] mzID_1.46.0                 data.table_1.17.8          </span></span>
-<span><span class="co">##  [93] vsn_3.76.0                  QFeatures_1.18.0           </span></span>
-<span><span class="co">##  [95] mzR_2.42.0                  XML_3.99-0.18              </span></span>
-<span><span class="co">##  [97] fs_1.6.6                    grid_4.5.1                 </span></span>
-<span><span class="co">##  [99] impute_1.82.0               tidyr_1.3.1                </span></span>
-<span><span class="co">## [101] shinyBS_0.61.1              MsCoreUtils_1.20.0         </span></span>
-<span><span class="co">## [103] GenomeInfoDbData_1.2.14     PSMatch_1.12.0             </span></span>
-<span><span class="co">## [105] cli_3.6.5                   textshaping_1.0.1          </span></span>
-<span><span class="co">## [107] S4Arrays_1.8.1              viridisLite_0.4.2          </span></span>
-<span><span class="co">## [109] dplyr_1.1.4                 AnnotationFilter_1.32.0    </span></span>
-<span><span class="co">## [111] pcaMethods_2.0.0            gtable_0.3.6               </span></span>
-<span><span class="co">## [113] sass_0.4.10                 digest_0.6.37              </span></span>
-<span><span class="co">## [115] BiocGenerics_0.54.0         SparseArray_1.8.1          </span></span>
-<span><span class="co">## [117] htmlwidgets_1.6.4           farver_2.1.2               </span></span>
-<span><span class="co">## [119] htmltools_0.5.8.1           pkgdown_2.1.3              </span></span>
-<span><span class="co">## [121] lifecycle_1.0.4             httr_1.4.7                 </span></span>
-<span><span class="co">## [123] squash_1.0.9                statmod_1.5.0              </span></span>
-<span><span class="co">## [125] mime_0.13                   MASS_7.3-65</span></span></code></pre>
-</div>
-</div>
   </main><aside class="col-md-3"><nav id="toc" aria-label="Table of contents"><h2>On this page</h2>
     </nav></aside>
 </div>
@@ -350,7 +322,7 @@ Balcke GU: <strong><a href="https://doi.org/10.1021/acs.analchem.6b01569" class=
 </div>
 
 <div class="pkgdown-footer-right">
-  <p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.1.3.</p>
+  <p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.2.0.</p>
 </div>
 
     </footer>

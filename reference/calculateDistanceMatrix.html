@@ -5,15 +5,17 @@
       fontURL: "https://cdn.jsdelivr.net/npm/mathjax@3.2.2/es5/output/chtml/fonts/woff-v2"
     }
   };
-</script><script src="../deps/jquery-3.6.0/jquery-3.6.0.min.js"></script><meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no"><link href="../deps/bootstrap-5.3.1/bootstrap.min.css" rel="stylesheet"><script src="../deps/bootstrap-5.3.1/bootstrap.bundle.min.js"></script><link href="../deps/font-awesome-6.5.2/css/all.min.css" rel="stylesheet"><link href="../deps/font-awesome-6.5.2/css/v4-shims.min.css" rel="stylesheet"><script src="../deps/headroom-0.11.0/headroom.min.js"></script><script src="../deps/headroom-0.11.0/jQuery.headroom.min.js"></script><script src="../deps/bootstrap-toc-1.0.1/bootstrap-toc.min.js"></script><script src="../deps/clipboard.js-2.0.11/clipboard.min.js"></script><script src="../deps/search-1.0.0/autocomplete.jquery.min.js"></script><script src="../deps/search-1.0.0/fuse.min.js"></script><script src="../deps/search-1.0.0/mark.min.js"></script><!-- pkgdown --><script src="../pkgdown.js"></script><meta property="og:title" content="Calculate a distance matrix between MS/MS spectra in the MetFamily feature Matrix — calculateDistanceMatrix"><meta name="description" content='Computes a distance matrix between MS/MS spectra in the feature matrix representation using
-various distance or similarity measures.
-The function supports multiple distance metrics, of which the following are also available
-in the MetFamily GUI: "Jaccard", "Jaccard (intensity-weighted)", "Jaccard (fragment-count-weighted)"
-and "NDP (Normalized dot product)". The following list defines the metrics and their characteristics:'><meta property="og:description" content='Computes a distance matrix between MS/MS spectra in the feature matrix representation using
-various distance or similarity measures.
-The function supports multiple distance metrics, of which the following are also available
-in the MetFamily GUI: "Jaccard", "Jaccard (intensity-weighted)", "Jaccard (fragment-count-weighted)"
-and "NDP (Normalized dot product)". The following list defines the metrics and their characteristics:'></head><body>
+</script><script src="../deps/jquery-3.6.0/jquery-3.6.0.min.js"></script><meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no"><link href="../deps/bootstrap-5.3.1/bootstrap.min.css" rel="stylesheet"><script src="../deps/bootstrap-5.3.1/bootstrap.bundle.min.js"></script><link href="../deps/font-awesome-6.5.2/css/all.min.css" rel="stylesheet"><link href="../deps/font-awesome-6.5.2/css/v4-shims.min.css" rel="stylesheet"><script src="../deps/headroom-0.11.0/headroom.min.js"></script><script src="../deps/headroom-0.11.0/jQuery.headroom.min.js"></script><script src="../deps/bootstrap-toc-1.0.1/bootstrap-toc.min.js"></script><script src="../deps/clipboard.js-2.0.11/clipboard.min.js"></script><script src="../deps/search-1.0.0/autocomplete.jquery.min.js"></script><script src="../deps/search-1.0.0/fuse.min.js"></script><script src="../deps/search-1.0.0/mark.min.js"></script><!-- pkgdown --><script src="../pkgdown.js"></script><meta property="og:title" content="Calculate a distance matrix between MS/MS spectra in the MetFamily feature Matrix — calculateDistanceMatrix"><meta name="description" content='Computes a distance matrix between MS/MS spectra in the feature matrix
+representation using various distance or similarity measures. The function
+supports multiple distance metrics, of which the following are also available
+in the MetFamily GUI: "Jaccard", "Jaccard (intensity-weighted)", "Jaccard
+(fragment-count-weighted)" and "NDP (Normalized dot product)". The following
+list defines the metrics and their characteristics:'><meta property="og:description" content='Computes a distance matrix between MS/MS spectra in the feature matrix
+representation using various distance or similarity measures. The function
+supports multiple distance metrics, of which the following are also available
+in the MetFamily GUI: "Jaccard", "Jaccard (intensity-weighted)", "Jaccard
+(fragment-count-weighted)" and "NDP (Normalized dot product)". The following
+list defines the metrics and their characteristics:'></head><body>
     <a href="#main" class="visually-hidden-focusable">Skip to contents</a>
 
 
@@ -21,7 +23,7 @@ and "NDP (Normalized dot product)". The following list defines the metrics and t
 
     <a class="navbar-brand me-2" href="../index.html">MetFamily</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.99.10</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.99.14</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -50,11 +52,12 @@ and "NDP (Normalized dot product)". The following list defines the metrics and t
     </div>
 
     <div class="ref-description section level2">
-    <p>Computes a distance matrix between MS/MS spectra in the feature matrix representation using
-various distance or similarity measures.
-The function supports multiple distance metrics, of which the following are also available
-in the MetFamily GUI: "Jaccard", "Jaccard (intensity-weighted)", "Jaccard (fragment-count-weighted)"
-and "NDP (Normalized dot product)". The following list defines the metrics and their characteristics:</p>
+    <p>Computes a distance matrix between MS/MS spectra in the feature matrix
+representation using various distance or similarity measures. The function
+supports multiple distance metrics, of which the following are also available
+in the MetFamily GUI: "Jaccard", "Jaccard (intensity-weighted)", "Jaccard
+(fragment-count-weighted)" and "NDP (Normalized dot product)". The following
+list defines the metrics and their characteristics:</p>
     </div>
 
     <div class="section level2">
@@ -62,7 +65,9 @@ and "NDP (Normalized dot product)". The following list defines the metrics and t
     <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="fu">calculateDistanceMatrix</span><span class="op">(</span></span>
 <span>  <span class="va">dataList</span>,</span>
 <span>  <span class="va">filter</span>,</span>
-<span>  distanceMeasure <span class="op">=</span> <span class="st">"Jaccard"</span>,</span>
+<span>  distanceMeasure <span class="op">=</span> <span class="st">"Jaccard (intensity-weighted)"</span>,</span>
+<span>  removePrecursor <span class="op">=</span> <span class="cn">TRUE</span>,</span>
+<span>  minNumberFragments <span class="op">=</span> <span class="fl">5</span>,</span>
 <span>  progress <span class="op">=</span> <span class="cn">FALSE</span></span>
 <span><span class="op">)</span></span></code></pre></div>
     </div>
@@ -76,16 +81,30 @@ and "NDP (Normalized dot product)". The following list defines the metrics and t
 
 
 <dt id="arg-filter">filter<a class="anchor" aria-label="anchor" href="#arg-filter"></a></dt>
-<dd><p>Logical or integer vector indicating for which precursors to include the MS/MS spectra.</p></dd>
+<dd><p>Logical or integer vector indicating for which precursors to
+include the MS/MS spectra.</p></dd>
 
 
 <dt id="arg-distancemeasure">distanceMeasure<a class="anchor" aria-label="anchor" href="#arg-distancemeasure"></a></dt>
-<dd><p>Character string specifying the distance metric to use.
-Supported values include "Jaccard", "Manhatten", "NDP (Normalized dot product)", and others.</p></dd>
+<dd><p>Character string specifying the distance metric to
+use. Supported values include "Jaccard", "Manhatten", "NDP (Normalized dot
+product)", and others.</p></dd>
+
+
+<dt id="arg-removeprecursor">removePrecursor<a class="anchor" aria-label="anchor" href="#arg-removeprecursor"></a></dt>
+<dd><p>Logical. Should the precursor ion be removed from the
+MS2 spectra? Defaults to TRUE. Only implemented for cosine-based methods.</p></dd>
+
+
+<dt id="arg-minnumberfragments">minNumberFragments<a class="anchor" aria-label="anchor" href="#arg-minnumberfragments"></a></dt>
+<dd><p>Numeric. Spectra with fewer fragments (after
+precursor removal if desired) are excluded. Only implemented for
+cosine-based methods.</p></dd>
 
 
 <dt id="arg-progress">progress<a class="anchor" aria-label="anchor" href="#arg-progress"></a></dt>
-<dd><p>Logical or NA. If TRUE, progress is reported via incProgress().</p></dd>
+<dd><p>Logical or NA. If TRUE, progress is reported via
+incProgress().</p></dd>
 
 </dl></div>
     <div class="section level2">
@@ -107,13 +126,17 @@ Supported values include "Jaccard", "Manhatten", "NDP (Normalized dot product)",
 <ul><li><p>"Jaccard": Jaccard distance \(1 - |A \cap B| / |A \cup B|\): the fraction of matching fragments among all fragments,
 where A and B are MS/MS features of two different precursors.</p></li>
 <li><p>"Jaccard (intensity-weighted)": Jaccard distance weighted by the intensity of
-features. First, intensities are discretized: [0.01-0.2[ are set down to 0.01, [0.2, 0.4[ down to 0.2,
-and &gt;= 0.4 increased to 1. For matching fragments the higher intensity is used. Then, Jacard becomes the sum of matching intensities among the sum of all intensities in A and B.
-\(1 - \sum_{i\in matches} max(A_i, B_i) / (sum(A) + sum(B))\)</p></li>
+features. First, intensities are discretized: [0.01-0.2[ are set down to
+0.01, [0.2, 0.4[ down to 0.2, and &gt;= 0.4 increased to 1. For matching
+fragments the higher intensity is used. Then, Jacard becomes the sum of
+matching intensities among the sum of all intensities in A and B. \(1 -
+\sum_{i\in matches} max(A_i, B_i) / (sum(A) + sum(B))\)</p></li>
 <li><p>"Jaccard (fragment-count-weighted)": Jaccard distance weighted by relative occurance of the fragments among the precursors after filtering
-counts: \(1 - \sum_{i\in matches} freq(A_i) / (sum_{\notin matches} freq(A) + sum_{\notin matches}(B))\)</p></li>
+counts: \(1 - \sum_{i\in matches} freq(A_i) / (sum_{\notin matches}
+freq(A) + sum_{\notin matches}(B))\)</p></li>
 <li><p>"NDP (Normalized dot product)": Normalized dot product similarity: \(NDP = \frac{\left( \sum_{i}^{\text{S1\&amp;S2}} W_{\text{S1},i} W_{\text{S2},i} \right)^2}{\sum_i W_{\text{S1},i}^2 \sum_i W_{\text{S2},i}^2}\)
-as described in Gaquerel et al. 2015. (10.1073/pnas.1610218113)https://www.pnas.org/doi/10.1073/pnas.1610218113#sec-4-5</p></li>
+as described in Gaquerel et al. 2015.
+<a href="https://www.pnas.org/doi/10.1073/pnas.1610218113#sec-4-5" class="external-link">10.1073/pnas.1610218113</a></p></li>
 </ul></div>
 
   </main><aside class="col-md-3"><nav id="toc" aria-label="Table of contents"><h2>On this page</h2>
@@ -125,7 +148,7 @@ as described in Gaquerel et al. 2015. (10.1073/pnas.1610218113)https://www.pnas.
 </div>
 
 <div class="pkgdown-footer-right">
-  <p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.1.3.</p>
+  <p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.2.0.</p>
 </div>
 
     </footer></div>
