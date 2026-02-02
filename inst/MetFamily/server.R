@@ -97,9 +97,9 @@ shinyServer(
     if (interactive()) {
       future::plan("multisession", workers = 3) #up to 3 users/session wo blocking 
     } else {
-      future::plan(sequential)
+      future::plan("sequential")
     }
-    
+        
     source(file = "app_files/server_functionsFilters.R", local = TRUE)$value
     source(file = "app_files/server_functionsSelections.R", local = TRUE)$value
     source(file = "app_files/server_functionsTableGui.R", local = TRUE)$value
