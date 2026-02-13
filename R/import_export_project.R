@@ -1214,13 +1214,16 @@ processMS1data <- function(
 #' @param dataList main dataset
 #' @param file filename
 #' @param precursorSet entries to include, defaults to all
+#' @param compressed if FALSE, skip compressing. If True, compress
 #'
 #' @returns filename 
 #' @export
-writeProjectFile <- function(dataList, precursorSet = NULL, file) {
+writeProjectFile <- function(dataList, precursorSet = NULL, file, compressed=TRUE) {
   
-  if(tools::file_ext(file) != "gz") {
-    file <- paste0(file, ".gz")
+  if (compressed) {
+    if(tools::file_ext(file) != "gz") {
+      file <- paste0(file, ".gz")
+    }
   }
   
   if (is.null(precursorSet)) {
@@ -1340,9 +1343,12 @@ writeProjectFile <- function(dataList, precursorSet = NULL, file) {
   lines <- paste(linesMS1MatrixWithHeader, linesFragmentMatrixWithHeader, sep = "\t")
   
   ## save to file
-  gz1 <- gzfile(description = file, open = "w")
-  writeLines(text = lines, con = gz1)
-  base::close(gz1)
+  con <- ifelse (compressed, 
+                 gzfile(description = file, open = "w"),
+                 file(description = file, open = "w"))
+  
+  writeLines(text = lines, con = con)
+  base::close(con)
   
   invisible(file)
   
