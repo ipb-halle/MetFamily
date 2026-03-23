@@ -80,7 +80,7 @@ readMetaboscape <- function(file, version){
   
   # fix ION format
   table <- table %>% 
-    mutate("Adduct ion name" = stringr::str_remove(`Adduct ion name`, "ION="))
+    dplyr::mutate("Adduct ion name" = stringr::str_remove(`Adduct ion name`, "ION="))
   
   # rt in minutes
   table <- table %>% 

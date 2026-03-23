@@ -1094,7 +1094,8 @@ convertToProjectFile <- function(filePeakMatrixPath,
   returnObj <- convertToProjectFile2(
     filePeakMatrixQF = filePeakMatrixQF, 
     spectraList = spectraList, precursorMz = precursorMz, precursorRt = precursorRt, 
-    metaboliteFamilies = rep(x = "", times = numberOfSpectra), uniqueMetaboliteFamilies = NULL, metaboliteFamilyColors = NULL, 
+    metaboliteFamilies = rep(x = "", times = numberOfSpectra), uniqueMetaboliteFamilies = NULL,
+    metaboliteFamilyColors = NULL, 
     parameterSet = parameterSet, 
     progress = progress
   )
