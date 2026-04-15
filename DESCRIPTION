@@ -4,7 +4,7 @@ Title: MetFamily: Discovering Regulated Metabolite Families in Untargeted
     Metabolomics Studies
 Version: 0.99.14
 Date: 2026-01-28
-Author: c( 
+Authors@R: c( 
     person(given = "Hendrik", family = "Treutler", 
       role = c("aut"), email = "hendrik.treutler@ipb-halle.de"), 
     person(given = "Khabat", family = "Vahabi", 
