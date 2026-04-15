@@ -12,7 +12,7 @@ Author: c(
     person(given = "Norman", family = "Storz", 
       role = c("ctb"), email = "nstorz@ipb-halle.de"), 
     person(given = "Guillaume", family = "Patoine", 
-      role = c("ctb", "cre"), email = "gpatoine@ipb-halle.de"), 
+      role = c("ctb"), email = "gpatoine@ipb-halle.de"), 
     person(given = "Steffen", family =  "Neumann", email = "sneumann@ipb-halle.de", 
       role = c("aut", "cre"), comment = c(ORCID = "0000-0002-7899-7192"))
     )
