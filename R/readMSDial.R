@@ -167,14 +167,19 @@ readMSDial <- function(file, version){
     }
     
     # Create SummarizedExperiment object
-    sumExp <- SummarizedExperiment::SummarizedExperiment(assays = list(counts = counts),
-                                   rowData = rowData,
-                                   colData = colData)
+    sumExp <- SummarizedExperiment::SummarizedExperiment(
+      assays = list(counts = counts),
+      rowData = rowData,
+      colData = colData
+    )
     
     ##TODO: Metadata with data source and version 
 
     # Create QFeatures object
-    qf <- QFeatures::QFeatures(list(exampleAssay = sumExp), colData = SummarizedExperiment::colData(sumExp))
+    qf <- QFeatures::QFeatures(
+      list(exampleAssay = sumExp), 
+      colData = SummarizedExperiment::colData(sumExp)
+    )
     qf
     
     ##TODO: name
