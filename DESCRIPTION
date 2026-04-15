@@ -12,11 +12,10 @@ Authors@R: c(
     person(given = "Norman", family = "Storz", 
       role = c("ctb"), email = "nstorz@ipb-halle.de"), 
     person(given = "Guillaume", family = "Patoine", 
-      role = c("ctb"), email = "gpatoine@ipb-halle.de"), 
+      role = c("ctb", "cre"), email = "gpatoine@ipb-halle.de"), 
     person(given = "Steffen", family =  "Neumann", email = "sneumann@ipb-halle.de", 
       role = c("aut", "cre"), comment = c(ORCID = "0000-0002-7899-7192"))
     )
-Maintainer: Steffen Neumann <sneumann@ipb-halle.de>
 Description: Untargeted discovery of metabolite families offering a bird's
     eye view of metabolic regulation in comparative metabolomics. We
     implemented the presented methodology in the easy-to-use web
