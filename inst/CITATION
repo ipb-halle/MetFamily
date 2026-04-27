@@ -1,0 +1,33 @@
+bibentry(
+  bibtype = "Article",
+  author = c(
+    person("Hendrik", "Treutler", comment = c(ORCID = "0000-0001-8032-9890")),
+    person("Hiroshi", "Tsugawa", comment = c(ORCID = "0000-0002-2015-3958")),
+    person("Andrea", "Porzel", comment = c(ORCID = "0000-0002-8148-6895")),
+    person("Karin", "Gorzolka", comment = c(ORCID = "0000-0002-1375-275X")),
+    person("Alain", "Tissier", comment = c(ORCID = "0000-0002-9406-4245")),
+    person("Steffen", "Neumann", comment = c(ORCID = "0000-0002-7899-7192")),
+    person("Gerd Ulrich", "Balcke", comment = c(ORCID = "0000-0002-0475-0672"))
+  ),
+  title   = "Discovering Regulated Metabolite Families in Untargeted Metabolomics Studies",
+  journal = "Analytical Chemistry",
+  year    = "2016",
+  volume  = "88",
+  number  = "16",
+  pages   = "8082--8090",
+  doi     = "10.1021/acs.analchem.6b01569",
+  url     = "https://doi.org/10.1021/acs.analchem.6b01569",
+  note    = "PMID: 27452369",
+  abstract = paste(
+    "The identification of metabolites by mass spectrometry constitutes a major bottleneck",
+    "which considerably limits the throughput of metabolomics studies in biomedical or",
+    "plant research. Here, we present a novel approach to analyze metabolomics data from",
+    "untargeted, data-independent LC-MS/MS measurements. By integrated analysis of MS1",
+    "abundances and MS/MS spectra, the identification of regulated metabolite families is",
+    "achieved. This approach offers a global view on metabolic regulation in comparative",
+    "metabolomics. We implemented our approach in the web application 'MetFamily', which is",
+    "freely available. MetFamily provides a dynamic link between MS1-signal intensity patterns",
+    "and structural similarity at the MS/MS level. Structurally related metabolites are",
+    "annotated as metabolite families based on hierarchical clustering of MS/MS spectra."
+  )
+)
