@@ -1,0 +1,72 @@
+cff-version: 1.2.0
+message: If you use this software, please cite it using the metadata from this file.
+type: software
+title: |-
+  MetFamily: Discovering Regulated Metabolite Families in Untargeted
+      Metabolomics Studies
+version: 0.99.13
+date-released: '2025-09-25'
+abstract: Untargeted discovery of metabolite families offering a bird's eye view of
+  metabolic regulation in comparative metabolomics. We implemented the presented methodology
+  in the easy-to-use web application MetFamily to enable the analysis of comprehensive
+  metabolomics studies for all researchers worldwide.
+authors:
+- family-names: Treutler
+  given-names: Hendrik
+  email: hendrik.treutler@ipb-halle.de
+  orcid: 0000-0001-8032-9890
+- family-names: Vahabi
+  given-names: Khabat
+  email: khabat.vahabi@ipb-halle.de
+  orcid: 0000-0001-8797-5887
+- family-names: Storz
+  given-names: Norman
+  email: nstorz@ipb-halle.de
+  orcid: 0009-0004-1355-849X
+- family-names: Patoine
+  given-names: Guillaume
+  email: gpatoine@ipb-halle.de
+  orcid: 0000-0002-3748-6644
+- family-names: Neumann
+  given-names: Steffen
+  email: sneumann@ipb-halle.de
+  orcid: 0000-0002-7899-7192
+license: GPL (>= 2)
+url: http://ipb-halle.github.io/MetFamily/
+preferred-citation:
+  type: article
+  title: "Discovering Regulated Metabolite Families in Untargeted Metabolomics Studies"
+  authors:
+    - family-names: Treutler
+      given-names: Hendrik
+      orcid: 0000-0001-8032-9890
+    - family-names: Tsugawa
+      given-names: Hiroshi
+      orcid: 0000-0002-2015-3958
+    - family-names: Porzel
+      given-names: Andrea
+      orcid: 0000-0002-8148-6895
+    - family-names: Gorzolka
+      given-names: Karin
+      orcid: 0000-0002-1375-275X
+    - family-names: Tissier
+      given-names: Alain
+      orcid: 0000-0002-9406-4245
+    - family-names: Neumann
+      given-names: Steffen
+      orcid: 0000-0002-7899-7192
+    - family-names: Balcke
+      given-names: Gerd Ulrich
+      orcid: 0000-0002-0475-0672
+  journal: "Analytical Chemistry"
+  year: 2016
+  volume: 88
+  issue: 16
+  start-page: 8082
+  end-page: 8090
+  doi: 10.1021/acs.analchem.6b01569
+  url: "https://doi.org/10.1021/acs.analchem.6b01569"
+  identifiers:
+    - type: pmid
+      value: "27452369"
+
