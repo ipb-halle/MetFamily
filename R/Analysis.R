@@ -16,7 +16,7 @@ filterThreshold <- function(dataList, filter_average, sampleClasses = dataList$s
                           FUN = dataList$dataMeanColumnNameFunctionFromName)
   
   unname(
-    apply(X = dataList$dataFrameMeasurements[, mean_colnames],
+    apply(X = dataList$dataFrameMeasurements[, mean_colnames, drop = FALSE],
           MARGIN = 1, FUN = mean) >= filter_average
   )
   
