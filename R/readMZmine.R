@@ -1,4 +1,3 @@
-
 #' Read mzmine Output File into a QFeatures Object
 #'
 #' Read a metabolite profile output file (.csv) from mzmine and 
