@@ -1,8 +1,7 @@
 
-
-#' Read Metaboscape Output File into a QFeatures Object
+#' Read mzmine Output File into a QFeatures Object
 #'
-#' This function reads a metabolite profile output file (.csv) from Metaboscape and 
+#' Read a metabolite profile output file (.csv) from mzmine and 
 #' converts it into a QFeatures object.
 #' 
 #' At the moment, sample classes are not considered.
@@ -22,109 +21,73 @@
 #' @importFrom SummarizedExperiment SummarizedExperiment
 #'
 #' @export
-#'
-#' @examples
-#' \dontrun{
-#' # Assuming you have a Metaboscape output file named "data.csv":
-#' qf <- readMetaboscape("data.csv") #TODO: System file 
-#'
 #' 
-#' # Examine the structure of the resulting QFeatures object
-#' qf
-#' 
-#' # Access the assay data
-#' assay(qf[["exampleAssay"]])
-#' 
-#' # Access the row data (feature metadata)
-#' rowData(qf[["exampleAssay"]])
-#' 
-#' # Access the column data (sample metadata)
-#' colData(qf)
-#' }
-#'
-#'
-#' @seealso 
-#' \code{\link[QFeatures]{QFeatures}} for more information on the QFeatures class.
-#' \code{\link[SummarizedExperiment]{SummarizedExperiment}} for details on the underlying data structure.
-#' 
-#' @references
-#' #TODO: Bruker metaboscape site 
-#' #TODO: Ordering ?
-#' 
-readMetaboscape <- function(file, version){
+readMZmine <- function(file, version){
   
-  # file <- file.path("../file-formats/Metaboscape-export-version 2025b",
-  #                   "UTH-2025-07-29-UTH003_002-conyza-test-samples.csv")
-  # file.exists(fileSpectra)
-  
-  table <- readr::read_csv(file, col_types = readr::cols(
-    .default = readr::col_character())) %>% as.data.frame
-  
-  colMeanInt <- stringr::str_detect(colnames(table), "_MeanIntensity")
-  startOfSamples <- rev(which(colMeanInt))[1] + 1
-  colIdsSamples <- startOfSamples:length(table)
-  
-  # expected names
-  stopifnot(
-    identical(colnames(table[,1:11]),
-          c("FEATURE_ID", "RT", "PEPMASS", "CCS", "SIGMA_SCORE",
-            "NAME_METABOSCAPE", "MOLECULAR_FORMULA", "ADDUCT", 
-            "KEGG", "CAS", "MaxIntensity"))
-  )
-  
-  # match MS-Dial names "narrow" format
-  table <- table %>% 
-    dplyr::rename("Alignment ID" = "FEATURE_ID",
-           "Average Rt(min)" = "RT",
-           "Average Mz" = "PEPMASS",
-           "Metabolite name" = "NAME_METABOSCAPE",
-           "Adduct ion name" = "ADDUCT")
-  
-  # fix ION format
-  table <- table %>% 
-    dplyr::mutate("Adduct ion name" = stringr::str_remove(`Adduct ion name`, "ION="))
-  
-  # rt in minutes
-  table <- table %>% 
-    dplyr::mutate(
-      `Average Rt(min)` = as.character(as.numeric(`Average Rt(min)`) / 60),
-      # needed to match to MGF spectra
-      `Average Mz` = as.character(as.numeric(`Average Mz`) - 1.00727))
-  
-  # colData
-  # TODO how to determine sample classes?
-  sampleNames <- colnames(table)[colIdsSamples]
-  colData <- data.frame(
-    Class = sampleNames,
-    Type = "Sample",
-    row.names = sampleNames
-  )
-  
-  # Extract ids and counts data
-  ids <- table %>% dplyr::pull(1)
-  countsRaw     <- table[,colIdsSamples]
-  countsNumeric <- apply(countsRaw, 2, as.numeric)
-  counts <- as.matrix(countsNumeric)
-  colnames(counts) <- sampleNames
-  rownames(counts) <- ids
-  
-  # Extract rowData
-  rowData <- table[1:11]
-  # which(colMeanInt)[1] - 1
-  rownames(rowData) <- ids 
-  
-  # Create SummarizedExperiment object
-  sumExp <- SummarizedExperiment::SummarizedExperiment(
-    assays = list(counts = counts),
-    rowData = rowData,
-    colData = colData
-  )
-  
-  # Create QFeatures object
-  qf <- QFeatures::QFeatures(
-    list(exampleAssay = sumExp), 
-    colData = SummarizedExperiment::colData(sumExp)
-  )
-  
-  qf
-}
+  table <- readr::read_csv(
+    file, col_types = readr::cols(
+      .default = readr::col_character())
+    ) %>% as.data.frame
+    
+    # expected names
+    stopifnot(
+      identical(colnames(table[,1:11]),
+      c("id", "mz", "mz_range:min", "mz_range:max", "rt", 
+      "rt_range:min", "rt_range:max", "area", "height", 
+      "intensity_range:min", "intensity_range:max"))
+    )
+    
+    # tmp <- names(table[, grepl("datafile:", names(table))]) %>%
+    #    stringr::str_remove(".*:") %>%
+    #    unique
+    
+    # match MS-Dial names "narrow" format
+    table <- table %>% 
+      dplyr::rename(
+        "Alignment ID" = "id",
+        "Average Rt(min)" = "rt",
+        "Average Mz" = "mz",
+        "Metabolite name" = "preferred_annotation:compound_name",
+        "Adduct ion name" = "preferred_annotation:adduct"
+      )
+    
+    heights <- table[, grepl(":height$", names(table))]
+    names(heights) <- names(heights) %>% 
+      stringr::str_remove(":height") %>%
+      stringr::str_remove("datafile:") %>% 
+      make.names
+    
+    counts <- as.matrix(heights)
+    rownames(counts) <- table$id
+    
+    sampleNames <- colnames(heights)
+    
+    # colData
+    # TODO how to determine sample classes?
+    colData <- data.frame(
+      Class = sampleNames,
+      Type = "Sample",
+      row.names = sampleNames
+    )
+    
+    # Extract rowData
+    # rowData_cols <- names(table)[!grepl("datafile:",names(table))]
+    rowData <- table[1:13]
+    rownames(rowData) <- table$id
+    
+    
+    # Create SummarizedExperiment object
+    sumExp <- SummarizedExperiment::SummarizedExperiment(
+      assays = list(counts = counts),
+      rowData = rowData,
+      colData = colData
+    )
+    
+    # Create QFeatures object
+    qf <- QFeatures::QFeatures(
+      list(exampleAssay = sumExp), 
+      colData = SummarizedExperiment::colData(sumExp)
+    )
+    
+    qf
+  }
