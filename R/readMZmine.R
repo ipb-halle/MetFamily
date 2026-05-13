@@ -25,7 +25,7 @@ readMZmine <- function(file, version){
   
   table <- readr::read_csv(
     file, col_types = readr::cols(
-      .default = readr::col_character())
+      .default = "c")
     ) %>% as.data.frame
     
     # expected names
@@ -58,7 +58,8 @@ readMZmine <- function(file, version){
     
     counts <- as.matrix(heights)
     rownames(counts) <- table$id
-    
+    counts[is.na(counts)] <- 0
+
     sampleNames <- colnames(heights)
     
     # colData
@@ -89,4 +90,4 @@ readMZmine <- function(file, version){
     )
     
     qf
-  }
+}

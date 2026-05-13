@@ -91,7 +91,7 @@ parseMGF_to_list <- function(fileSpectra) {
   
   ## determine line contents
   isLineHeader <- stringr::str_detect(lines_ms2, "=")
-  isLinePeaks <- stringr::str_detect(lines_ms2, "^[\\d\\. ]+$")
+  isLinePeaks <- stringr::str_detect(lines_ms2, "^[\\d\\. E]+$")
   # ~ used to be "^\\d+(((\\.)|(,))\\d+)?[ \t]\\d+(((\\.)|(,))\\d+)?$"
   
   nbLines <- length(lines_ms2)

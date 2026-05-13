@@ -218,7 +218,13 @@ addSiriusAnnotations <- function(qfeatures,
   
   stopifnot(file.exists(siriusFile))
   # annotation <- read.delim(siriusFile) # deprec
-  annotation <- readr::read_tsv(siriusFile, show_col_types = FALSE)
+
+  # read file, handle both csv and tsv
+  annotation <- if (tools::file_ext(siriusFile) == "csv") {
+    readr::read_csv(siriusFile, show_col_types = FALSE)
+  } else {
+    readr::read_tsv(siriusFile, show_col_types = FALSE)
+  }
 
   # some file have an additional column, which we don't use
   if ("compoundId" %in% names(annotation)) {
