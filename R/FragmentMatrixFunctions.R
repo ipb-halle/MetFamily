@@ -1078,8 +1078,12 @@ convertToProjectFile <- function(filePeakMatrixPath,
     
     # check if MS-Dial or MetaboScape file (based on first line)
     line1 <- readLines(filePeakMatrixPath, n = 1)
-    
+
     if(stringr::str_starts(
+      line1, 'id,mz,mz_range:min,mz_range:max,rt,rt_range:min,rt_range:max')) {
+      readMZmine(filePeakMatrixPath)
+      
+    } else if (stringr::str_starts(
       line1, '\"FEATURE_ID\",\"RT\",\"PEPMASS\",\"CCS\"')) {
       readMetaboscape(filePeakMatrixPath)
       
