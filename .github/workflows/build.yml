@@ -58,7 +58,7 @@ jobs:
 
       # Step 2: Checkout the repository
       - name: Checkout Repository
-        uses: actions/checkout@v6
+        uses: actions/checkout@v7
 
       # Step 3: Setup R from r-lib
       - name: Setup R from r-lib
