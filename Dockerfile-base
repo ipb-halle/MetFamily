@@ -34,7 +34,13 @@ RUN echo 'sanitize_errors off;disable_protocols xdr-streaming xhr-streaming ifra
 #RUN sed -i -e 's/-Werror=format-security//g' /usr/local/lib/R/etc/Makeconf
 
 ADD DESCRIPTION /tmp/MetFamily/DESCRIPTION
+WORKDIR /tmp/MetFamily/
 RUN R -e 'options(warn=2) ; install.packages(c("devtools", "BiocManager"))'
-RUN R -e 'library(devtools); options(warn=2) ; install_deps("/tmp/MetFamily", repos=BiocManager::repositories())'
+RUN R -e 'pak::local_install_deps()'
+
+
+#RUN R -e 'options(warn=2) ; install.packages(c("devtools", "BiocManager"))'
+#RUN R -e 'library(devtools); options(warn=2) ; install_deps("/tmp/MetFamily", repos=BiocManager::repositories())'
+
 
 WORKDIR /srv/shiny-server
