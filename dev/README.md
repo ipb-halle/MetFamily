@@ -40,4 +40,11 @@ of `rstudio:rstudio`. Do not use in Production !
 You can also pass a local directory with checked out MetFamily git tree
 via the `docker run -v` argument.
 
+## MetFamily as Galaxy Interactive tool
 
+There is a MetFamily Galaxy (interactive) tool under development. 
+You can copy the tool.xml into the Galaxy folder:
+
+`cp dev/interactivetool_metfamily.xml /vol/galaxy/src/galaxy/tools/interactive/`
+
+### using 
