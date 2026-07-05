@@ -19,7 +19,7 @@ filterThreshold <- function(dataList, filter_average, sampleClasses = dataList$s
     apply(X = dataList$dataFrameMeasurements[, mean_colnames],
           MARGIN = 1, FUN = mean) >= filter_average
   )
-
+  
 }
 
 
@@ -32,7 +32,7 @@ filterThreshold <- function(dataList, filter_average, sampleClasses = dataList$s
 #' @returns boolean vector
 #' @export
 filterLFC <- function(dataList, filter_lfc, sampleClasses = dataList$sampleClasses) {
-
+  
   stopifnot("The number of sampleClasses for LFC is not equal to two!" = length(sampleClasses) == 2)
   
   test_lfc <- if(filter_lfc > 0) filter_lfc else -filter_lfc
@@ -300,7 +300,7 @@ calculateDistanceMatrix <- function(
                lastPrecursor <- i
                if(!is.na(progress))  if(progress)  incProgress(amount = precursorProgress,     detail = paste("Distance ", i, " / ", numberOfPrecursors, sep = "")) else print(paste("Distance ", i, " / ", numberOfPrecursors, sep = ""))
              }
-
+             
              for(j in seq_len(numberOfPrecursors)){
                if(i == j){
                  distanceMatrix[i, j] <- 0
@@ -383,7 +383,7 @@ calculateDistanceMatrix <- function(
              onlyJs[is.na(onlyJs)] <- FALSE
              
              sumOnlyIs  <- apply(X = onlyIs, MARGIN = 2, FUN = function(x){ sum(featureMatrix[i, ] & x) })
-
+             
              featureMatrix2 <- featureMatrix
              featureMatrix2[!t(onlyJs)] <- 0
              sumOnlyJs <- apply(X = featureMatrix2, MARGIN = 1, FUN = sum )
@@ -640,39 +640,49 @@ calculateDistanceMatrix <- function(
            distanceMatrix <- max(similarityMatrix) - similarityMatrix
          },
          # (Modified) Cosine (with NL)
+         # need to update filter object because of minNbFrag
          "Cosine" = {
-           distanceMatrix <- impl_cosine_similarity(
+           distMatObj <- impl_cosine_similarity(
              dataList, filter, progress = progress, allow_shift = FALSE, nl = FALSE,
              rm_precursor = removePrecursor, num_filter = minNumberFragments)
+           
+           distanceMatrix <- distMatObj$distanceMatrix
+           filter <- distMatObj$filter2
          },
          "Cosine (with NL)" = {
-           distanceMatrix <- impl_cosine_similarity(
+           distMatObj <- impl_cosine_similarity(
              dataList, filter, progress = progress, allow_shift = FALSE, nl = TRUE,
              rm_precursor = removePrecursor, num_filter = minNumberFragments)
+           
+           distanceMatrix <- distMatObj$distanceMatrix
+           filter <- distMatObj$filter2
          },
          "Modified Cosine" = {
-           distanceMatrix <- impl_cosine_similarity(
+           distMatObj <- impl_cosine_similarity(
              dataList, filter, progress = progress, allow_shift = TRUE, nl = FALSE,
              rm_precursor = removePrecursor, num_filter = minNumberFragments)
+           
+           distanceMatrix <- distMatObj$distanceMatrix
+           filter <- distMatObj$filter2
          },
          "Modified Cosine (with NL)" = {
-           distanceMatrix <- impl_cosine_similarity(
+           distMatObj <- impl_cosine_similarity(
              dataList, filter, progress = progress, allow_shift = TRUE, nl = TRUE,
              rm_precursor = removePrecursor, num_filter = minNumberFragments)
+           
+           distanceMatrix <- distMatObj$distanceMatrix
+           filter <- distMatObj$filter2
          },
          stop(paste("Unknown distance (", distance, ")!", sep = ""))
   )
-  
-  rownames(distanceMatrix) <- dataList$precursorLabels[filter]
-  colnames(distanceMatrix) <- dataList$precursorLabels[filter]
-  
+
   returnObj <- list(
     distanceMatrix = distanceMatrix,
     filter = filter,
     distanceMeasure = distanceMeasure
   )
   
-  return(returnObj)
+  returnObj
 }
 
 
@@ -689,19 +699,29 @@ calculateDistanceMatrix <- function(
 #' @returns distance matrix
 #' @export
 impl_cosine_similarity <- function(dataList, filter, progress = FALSE,
-                        allow_shift = FALSE, nl = FALSE, num_filter=5, rm_precursor=T) {
+                                   allow_shift = FALSE, nl = FALSE, num_filter=5, rm_precursor=T) {
   
   numberOfPrecursors <- length(filter)
   
   featureIndeces <- dataList$featureIndeces[filter]
-  featureMatrix <- dataList$featureMatrix[filter, ]
   
-  precursorMasses <- as.numeric(dataList$dataFrameInfos$`m/z`)[filter]
+  # filter on Min Nb Fragments
+  enoughFrags <- lengths(featureIndeces) >= num_filter
+  filter2 <- filter[enoughFrags]
+  
+  # update nbPrecursors
+  numberOfPrecursors <- length(filter2)
+  
+  featureIndeces <- dataList$featureIndeces[filter2]
+  featureMatrix <- dataList$featureMatrix[filter2,]
+  
+  precursorMasses <- as.numeric(dataList$dataFrameInfos$`m/z`)[filter2]
   
   # Convert feature indeces to fragment mzs
   featureMasses <- lapply(featureIndeces, function(idxs) {
     dataList$fragmentMasses[idxs]
   })
+  
   
   # Remove precursorMasses from featureMasses if needed
   if (rm_precursor){
@@ -715,9 +735,6 @@ impl_cosine_similarity <- function(dataList, filter, progress = FALSE,
   
   distanceMatrix <- matrix(nrow = numberOfPrecursors, ncol = numberOfPrecursors)
   
-  # Calculate cosine similarity when spectra have at least # of fragments
-  keep_idx <- which(sapply(featureMasses, length) >= num_filter)
-  
   for (i in 1:(numberOfPrecursors-1)) {
     time <- proc.time()["user.self"]
     if(time - lastOut > 1){
@@ -727,12 +744,6 @@ impl_cosine_similarity <- function(dataList, filter, progress = FALSE,
       if(!is.na(progress))  if(progress)  incProgress(amount = precursorProgress, detail = paste("Distance ", i, " / ", numberOfPrecursors)) else print(paste("Distance ", i, " / ", numberOfPrecursors))
     }
     
-    # Skip the row if spectra1 doesn't meet fragment # filter
-    if (!(i %in% keep_idx)){
-      distanceMatrix[i, ] <- 1
-      next
-    }
-    
     # Get fragments mz and normalized intensities for spectra1
     mz1 <- featureMasses[[i]]
     intensity1 <- featureMatrix[i,]
@@ -740,11 +751,6 @@ impl_cosine_similarity <- function(dataList, filter, progress = FALSE,
     precursor_mz1 <- precursorMasses[i]
     
     for (j in (i+1):numberOfPrecursors) {
-      # If spectra2 doesn't meet fragment # filter, put spectra1_spectra2 distance as 1
-      if (!j %in% keep_idx){
-        distanceMatrix[i, j] <- 1
-        next
-      }
       
       # Get fragments mz and normalized intensities for spectra
       mz2 <- featureMasses[[j]]
@@ -769,8 +775,11 @@ impl_cosine_similarity <- function(dataList, filter, progress = FALSE,
   distanceMatrix[lower.tri(distanceMatrix)] <- 
     t(distanceMatrix)[lower.tri(distanceMatrix)]
   
-  distanceMatrix
-  
+  list(
+    distanceMatrix = distanceMatrix,
+    filter2 = filter2
+  )
+
 }
 
 
@@ -1065,7 +1074,7 @@ performPca <- function(dataList, dataFrame2, ms1AnalysisMethod){
   print("######################################################################################")
   print(ms1AnalysisMethod)
   
- 
+  
   ## TODO pcaMethods confidence intervals analog to MetaboAnalyst: pcaMethods:::simpleEllipse
   minimumNumberOfComponents <- 5
   numberOfComponents <- min(minimumNumberOfComponents, nrow(dataFrame2))
@@ -1331,7 +1340,7 @@ leaveOneOutCrossValidation_plsda <- function(dataFrame2, groupLabels, numberOfCo
 #' @returns PCA object
 #' @export
 calculatePCA <- function(dataList, filterObj, ms1AnalysisMethod, scaling, logTransform){
-
+  
   ## data selection
   if(filterObj$filterBySamples){
     dataFrame <- dataList$dataFrameMeasurements[filterObj$filter, filterObj$sampleSet]

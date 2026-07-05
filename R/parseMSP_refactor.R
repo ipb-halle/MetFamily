@@ -74,8 +74,17 @@ parseMSP_to_list <- function(fileSpectra) {
   message("MS/MS file: Read file")
   
   # Note: squish also replaces tab with whitespace
-  fileLines <- readLines(con = fileSpectra) %>% stringr::str_squish()
-  isLineEmpty <- stringr::str_equal(fileLines, "")
+  # could consider for speed grain: 
+  #   data.table::fread(fileSpectra, sep = "\n", header = FALSE, nrows = 1e6)[[1L]]
+  fileLines <- readLines(con = fileSpectra) %>%
+    stringr::str_squish()
+  isLineEmpty <- fileLines == ""
+  
+  # remove duplicated empty lines
+  whichEmpty <- which(isLineEmpty)
+  dupEmpty <- (whichEmpty + 1) == c(whichEmpty[-1], -99)
+  
+  if (any(dupEmpty))  fileLines <- fileLines[-whichEmpty[dupEmpty]]
   
   message("MS/MS file: Parse")
   
@@ -89,7 +98,7 @@ parseMSP_to_list <- function(fileSpectra) {
   
   ## determine line contents
   
-  isLineEmpty <- stringr::str_equal(fileLines, "")
+  isLineEmpty <- fileLines == ""
   isLineHeader <- stringr::str_detect(fileLines, ":|=")
   isLinePeaks <- stringr::str_detect(fileLines, "^[\\d\\. ]+$")
   # ~ used to be "^\\d+(((\\.)|(,))\\d+)?[ \t]\\d+(((\\.)|(,))\\d+)?$"
@@ -101,7 +110,7 @@ parseMSP_to_list <- function(fileSpectra) {
   # checks
   stopifnot("The content of some lines in the MSP file could not be determined." = 
               unique(isLineEmpty+isLineHeader+isLinePeaks) == 1)
-  stopifnot("It is not allowed to have two consecutive empty lines in the MSP file." = 
+  stopifnot("MSP entries don't line up properly." = 
               !any(c(isLineEmpty, F) & c(F, isLineEmpty)))
   # similar to
   # all(firstLines[-1] == lastLines[-length(lastLines)] + 2)
@@ -171,8 +180,8 @@ parseMSP_to_list <- function(fileSpectra) {
   })
   
   msp_entries
-  
 }
+  
 
 
 #' MSP header dictionnary

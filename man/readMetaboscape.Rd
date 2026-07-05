@@ -7,7 +7,7 @@
 readMetaboscape(file, version)
 }
 \arguments{
-\item{file}{A character string specifying the path to the Metaboscape output file (Excel format).}
+\item{file}{A character string specifying the path to the Metaboscape output file (csv format).}
 
 \item{version}{A character string specifying the version of Metaboscape used to generate the file.
 This parameter is currently not used.}
@@ -21,13 +21,16 @@ A QFeatures object containing:
 }
 }
 \description{
-This function reads a metabolite profile output file (.xlsx) from Metaboscape and
+This function reads a metabolite profile output file (.csv) from Metaboscape and
 converts it into a QFeatures object.
+}
+\details{
+At the moment, sample classes are not considered.
 }
 \examples{
 \dontrun{
-# Assuming you have a Metaboscape output file named "data.xlsx":
-qf <- readMetaboscape("data.xlsx") #TODO: System file 
+# Assuming you have a Metaboscape output file named "data.csv":
+qf <- readMetaboscape("data.csv") #TODO: System file 
 
 
 # Examine the structure of the resulting QFeatures object

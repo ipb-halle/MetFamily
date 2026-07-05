@@ -222,7 +222,7 @@ addSiriusAnnotations <- function(qfeatures,
 
   # some file have an additional column, which we don't use
   if ("compoundId" %in% names(annotation)) {
-    annotation <- annotation %>% select(-compoundId)
+    annotation <- annotation %>% dplyr::select(-compoundId)
   }
   
   sirCat <- stringr::str_replace(siriusFileColumnName, " ", "#")

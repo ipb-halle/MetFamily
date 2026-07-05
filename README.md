@@ -47,3 +47,7 @@ MetFamily is under active development. Let us know if you run into issues.
 
 Documentation for developers is stored in the `dev` folder.
 
+## Funding
+MetFamily integration into Galaxy receives funding through the DFG project metarBolomics4Galaxy, grant no. [564004112](https://gepris.dfg.de/gepris/projekt/564004112?language=en)
+
+

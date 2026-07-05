@@ -603,9 +603,7 @@ output$downloadReport2 <- downloadHandler(
 #' @param precursorSet 
 #'
 #' @returns
-#' @export
-#'
-#' @examples
+#' @noRd
 createExportMatrix <- function(precursorSet){
   ################################################################################
   ## fragment matrix

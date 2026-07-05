@@ -592,14 +592,17 @@ observeSelectInvertedPCAGroups <- observeEvent(input$selectInvertedPCAGroups, {
 })
 
 output$plotPcaScores_hover_info <- renderUI({
+  
   hover <- input$plotPcaScores_hover
+  
   hoverX <- hover$x
   hoverY <- hover$y
   plotWidth  <- session$clientData$output_plotPcaScores_width
   plotHeight <- session$clientData$output_plotPcaScores_height
   
-  if(is.null(hoverX) | is.null(hoverY))
+  if(is.null(hoverX) | is.null(hoverY)) {
     return(NULL)
+  }
   #print(paste("UI PCA scores hover", hoverX, hoverY))
   
   output$tip <- renderText({
@@ -615,11 +618,16 @@ output$plotPcaScores_hover_info <- renderUI({
   )
   print(paste("UI PCA scores hover", hoverX, hoverY, minimumIndex))
   
-  if(is.null(minimumIndex))
+  if(is.null(minimumIndex)) {
     return(NULL)
+  }
   
   ## compile information
-  dataColumnName <- filterPca$sampleSet[[minimumIndex]]
+  
+  # gp: temp fix to filterPca$sampleSet being empty
+  dataColumnName <- names(minimumIndex)
+  # gp: used to work
+  # dataColumnName <- filterPca$sampleSet[[minimumIndex]]
   #dataColumnName <- dataList$dataColumnsNameFunctionFromGroupNames(sampleClasses = filterPca$sampleClasses, sampleNamesToExclude = dataList$excludedSamples(dataList$groupSampleDataFrame))[[minimumIndex]]
   group <- dataList$groupNameFunctionFromDataColumnName(dataColumnName = dataColumnName, sampleNamesToExclude = dataList$excludedSamples(dataList$groupSampleDataFrame))
   info <- paste(

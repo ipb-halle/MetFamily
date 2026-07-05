@@ -56,6 +56,12 @@ hcaComputationTask <- ExtendedTask$new(
           progress = FALSE
         )
         
+        # trying to find a solution for cosine internal filtering
+        filterHca$filter <- distanceMatrixObj$filter
+        filterHca$numberOfPrecursorsFiltered <- length(distanceMatrixObj$filter)
+        
+        filterHca <<- filterHca
+        
         ## compute cluster  
         clusterDataListObj <- calculateCluster(
           progress = FALSE, 
