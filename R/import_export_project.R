@@ -1343,10 +1343,15 @@ writeProjectFile <- function(dataList, precursorSet = NULL, file, compressed=TRU
   lines <- paste(linesMS1MatrixWithHeader, linesFragmentMatrixWithHeader, sep = "\t")
   
   ## save to file
-  con <- ifelse (compressed, 
-                 gzfile(description = file, open = "w"),
-                 file(description = file, open = "w"))
-  
+  #con <- ifelse (compressed, 
+  #               gzfile(description = file, open = "w"),
+  #               file(description = file, open = "w"))
+  if (compressed) {
+    con <- gzfile(description = file, open = "w")
+  } else {
+    con <- file(description = file, open = "w")
+  }
+
   writeLines(text = lines, con = con)
   base::close(con)
   

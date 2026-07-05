@@ -178,10 +178,7 @@ obsLoadGalaxyData <- observeEvent(input$loadGalaxyData, {
   ## Not here, but for completeness: 
   ## Here is where the output would go:
 
-  setwd(paste(Sys.getenv("_GALAXY_JOB_HOME_DIR"),"../metadata",sep="/"))
-  config <- jsonlite::fromJSON("params.json")
-  filePath <- config$outputs$metfamily_project$filename_override
-  message(paste("Galaxy output file would be written to", filePath))
+  setwd(paste(Sys.getenv("_GALAXY_JOB_HOME_DIR"),"../working/metfamily_outputs",sep="/"))
   
 })
 

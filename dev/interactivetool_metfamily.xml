@@ -1,6 +1,6 @@
 <tool id="interactive_tool_metfamily" tool_type="interactive" name="MetFamily"
       version="@TOOL_VERSION@+galaxy@VERSION_SUFFIX@"
-      license="BSD-3-Clause" profile="21.05">
+      license="BSD-3-Clause" profile="25.1">
    <xrefs>
        <xref type="bio.tools">metfamily</xref> <!-- https://bio.tools/metfamily -->
        <!-- <xref type="bioconductor">metfamily</xref> -->
@@ -24,8 +24,8 @@
   <icon src="MetFamily.png"/>
   <description>Combined MS statistics and MS/MS clustering+analysis</description>
   <macros>
-    <token name="@TOOL_VERSION@">1.3.13</token>
-    <token name="@CONTAINER_VERSION@">4.5-0.99.13-1.3.13</token>
+    <token name="@TOOL_VERSION@">1.3.14</token>
+    <token name="@CONTAINER_VERSION@">4.5-0.99.14-1.3.14</token>
     <token name="@VERSION_SUFFIX@">0</token>
   </macros>
 
@@ -84,15 +84,24 @@
   </environment_variables>
   
   <command><![CDATA[
+    #import re
+    echo "[`date`] - Setting up for MetFamily as \$(id)." &&
+    ## Match the container user id to the host user/group id if supplied
+    if [ -n "\$USERID" ]; then
+            echo "[`date`] - Setting user id to \$USERID." &&
+            usermod -u "\$USERID" rstudio;
+    fi &&
+    if [ -n "\$GROUPID" ]; then
+      echo "[`date`] - Setting user group to \$GROUPID." &&
+      groupmod -g "\$GROUPID" rstudio;
+    fi &&
 
-  ## The command will be templated by Cheetah within Galaxy, and
-  ## then run inside the Docker container!
+    ## This is where GalaxyConnector places files copied from Galaxy
+    mkdir -p ./metfamily_outputs && 
+    chmod 777 ./metfamily_outputs &&
 
-  ## This only works because Galaxy's user data directory is mapped
-  ## onto the Docker container at runtime - enabling access to
-  ## '$infile' and '$outfile' from inside the container.
-
-  echo "\n_GALAXY_JOB_HOME_DIR=\$_GALAXY_JOB_HOME_DIR" >> /usr/local/lib/R/etc/Renviron.site;
+    echo "[`date`] - Creating Renviron" &&
+    echo "\n_GALAXY_JOB_HOME_DIR=\$_GALAXY_JOB_HOME_DIR" >> /usr/local/lib/R/etc/Renviron.site;
 
   shiny-server 2>&1 > /var/log/metfamily-gxit-01.log
   ## The log file can be found inside the container, for debugging purposes
@@ -101,7 +110,6 @@
   </command>
   <configfiles>
     <inputs name="inputs" data_style="paths" filename="metfamily-gxit-inputs.json" />
-    <!-- <inputs name="inputs" data_style="staging_path_and_source_path" filename="metfamily-gxit-inputs.json" /> -->
   </configfiles>
         
   <inputs>
@@ -145,12 +153,22 @@
     </conditional>
   </inputs>
 
-  
-  <outputs>
-    <data name="metfamily_project" format="tabular" 
-    from_work_dir="Project.csv"
-    label="MetFamily Project File (Project_*.csv.gz)" />
-  </outputs>
+    <outputs>
+      <data name="metfamily_project" format="gz" label="MetFamily Interactive Tool"></data>
+      <collection name="output_collection" type="list" label="MetFamily outputs">
+        <discover_datasets pattern="__name_and_ext__" directory="metfamily_outputs/" assign_primary_output="true" recurse="true"/>
+      </collection>
+    </outputs>
+
+  <!--
+      <outputs>
+        <data name="rstudio" format="txt" label="RStudio Interactive Tool"></data>
+        <collection name="output_collection" type="list" label="RStudio outputs">
+            <discover_datasets pattern="__name_and_ext__" directory="rstudio_outputs/" assign_primary_output="true" recurse="true"/>
+        </collection>
+    </outputs>
+
+  -->
 
   <tests>
     <!-- Tests are difficult with GxITs! -->

@@ -114,11 +114,12 @@ observeEvent(input$prepareAllPrecursors4Galaxy, {
   ExportMatrixName <<- createExportMatrixName()
   precursorSet <- seq_len(dataList$numberOfPrecursors)
   
-  filePath <- "Project.csv"
+  filePath <- paste(Sys.getenv("_GALAXY_JOB_HOME_DIR"),"../working/metfamily_outputs", ExportMatrixName, sep="/")
+
   message(paste("Galaxy output file will be written to", filePath))
   
   writeTable(precursorSet = precursorSet, 
-             file = filePath, compressed=FALSE)
+             file = filePath, compressed=TRUE)
   
 })
 
