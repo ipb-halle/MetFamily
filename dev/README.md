@@ -82,7 +82,7 @@ You can copy the tool.xml and Logo into the Galaxy folder:
 ```
 # Get MetFamily files from GitHub:
 wget -O tools/interactive/interactivetool_metfamily.xml https://raw.githubusercontent.com/ipb-halle/MetFamily/refs/heads/feature/galaxify/dev/interactivetool_metfamily.xml
-wget -O tools/interactive/MetFamily.png https://raw.githubusercontent.com/ipb-halle/MetFamily/refs/heads/feature/galaxify/dev/MetFamily.png
+wget -O tools/interactive/MetFamily.png https://raw.githubusercontent.com/ipb-halle/MetFamily/refs/heads/feature/galaxify/inst/MetFamily/www/img/MetFamily.png
 
 sed -i -e 's/askomics/metfamily/' config/tool_conf.xml	# add MetFamily
 ```
