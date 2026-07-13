@@ -40,4 +40,67 @@ of `rstudio:rstudio`. Do not use in Production !
 You can also pass a local directory with checked out MetFamily git tree
 via the `docker run -v` argument.
 
+## MetFamily as Galaxy Interactive tool
+
+### Preparing a local Galaxy 
+
+Checkout the Galaxy project:
+
+```
+git clone https://github.com/galaxyproject/galaxy.git
+git checkout release_26.1	# just to be on a stable side ...
+cd galaxy
+```
+
+Use config examples that work on Ubuntu 26.04:
+```
+cp config/galaxy.yml.interactivetools config/galaxy.yml
+cp config/job_conf.yml.interactivetools config/job_conf.yml
+cp config/tool_conf.xml.sample config/tool_conf.xml
+sed -i -e '/--/d' config/tool_conf.xml	                # un-comment interactive tools
+```
+
+The run local instance. On first launch, this will take a while because dependencies are being installed:
+```
+./run.sh
+```
+The visit your development Galaxy at http://localhost:8080/ , 
+register yourself as user at http://localhost:8080/register/start
+
+Add yourself as admin:
+```
+echo "  admin_users: sneumann@ipb-halle.de" >>config/galaxy.yml
+```
+
+Now you should already be able to launch the Rstudio interactive tool.
+
+### Installing MetFamily into Galaxy
+
+There is a MetFamily Galaxy (interactive) tool under development. 
+You can copy the tool.xml and Logo into the Galaxy folder:
+
+```
+# Get MetFamily files from GitHub:
+wget -O tools/interactive/interactivetool_metfamily.xml https://raw.githubusercontent.com/ipb-halle/MetFamily/refs/heads/feature/galaxify/dev/interactivetool_metfamily.xml
+wget -O tools/interactive/MetFamily.png https://raw.githubusercontent.com/ipb-halle/MetFamily/refs/heads/feature/galaxify/inst/MetFamily/www/img/MetFamily.png
+
+sed -i -e 's/askomics/metfamily/' config/tool_conf.xml	# add MetFamily
+```
+(Alternatively to overwriting the `askomics` IE, you can add an own entry for `interactivetool_metfamily.xml`)
+
+### Using MetFamily
+
+- You will need a saved Project file, e.g. the showcase
+from https://raw.githubusercontent.com/ipb-halle/MetFamily/refs/heads/devel/inst/extdata/showcase/Project_file_showcase_annotated.csv.gz
+
+- Upload the project file to Galaxy via its upload tool
+
+- You can launch MetFamily within Galaxy via 
+http://localhost:8080/?tool_id=interactive_tool_metfamily&version=latest
+
+- Switch the Input Mode to `Preprocessed MetFamily Project File`, and make sure the project file is selected as input.
+
+- Hit `Run Tool` button, and after the initialisation, you can open MetFamily (ideally using the link out ☐↗) 
+
+- After finishing your analysis, you can export the project. EIther you download from MetFamily, or you export to the Galaxy history.
 

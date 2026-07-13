@@ -35,11 +35,12 @@ createExportDistanceMatrixName <- function(distanceMeasure){
 }
 
 
-writeTable <- function(precursorSet, file){
+writeTable <- function(precursorSet, file, compressed=TRUE){
   shinybusy::show_modal_spinner(spin="scaling-squares", 
                      text="\nMerging project files to csv. This can take several minutes!")
   
-  writeProjectFile(dataList, precursorSet, file)
+  writeProjectFile(dataList, precursorSet, 
+                   file=file, compressed=compressed)
   
   shinybusy::remove_modal_spinner()
 }
@@ -106,6 +107,20 @@ observeEvent(input$prepareAllPrecursors, {
                         fluidRow(column(3,downloadButton(outputId = "downloadAllpreparedPrecursors", 
                                                          label = "Download project"))),
   ))
+})
+
+#Obvserve button for exporting the project to Galaxy
+observeEvent(input$prepareAllPrecursors4Galaxy, {
+  ExportMatrixName <<- createExportMatrixName()
+  precursorSet <- seq_len(dataList$numberOfPrecursors)
+  
+  filePath <- paste(Sys.getenv("_GALAXY_JOB_HOME_DIR"),"../working/metfamily_outputs", ExportMatrixName, sep="/")
+
+  message(paste("Galaxy output file will be written to", filePath))
+  
+  writeTable(precursorSet = precursorSet, 
+             file = filePath, compressed=TRUE)
+  
 })
 
 #Serving the modal with the download button to download the project
