@@ -226,6 +226,8 @@ addSiriusAnnotations <- function(qfeatures,
     readr::read_tsv(siriusFile, show_col_types = FALSE)
   }
 
+  names(annotation) <- str_remove(names(annotation), "^SIRIUS_")
+
   # some file have an additional column, which we don't use
   if ("compoundId" %in% names(annotation)) {
     annotation <- annotation %>% dplyr::select(-compoundId)
